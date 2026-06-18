@@ -47,6 +47,12 @@ export default function WorkspaceDetailPage() {
           </Link>
           <Link
             className="text-sm font-medium text-zinc-900"
+            href={`/workspaces/${params.workspaceId}/members`}
+          >
+            Members
+          </Link>
+          <Link
+            className="text-sm font-medium text-zinc-900"
             href={`/workspaces/${params.workspaceId}/settings`}
           >
             Settings
