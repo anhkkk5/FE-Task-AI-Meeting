@@ -38,6 +38,12 @@ export function WorkspaceCard({ workspace }: WorkspaceCardProps) {
         </Link>
         <Link
           className="border border-zinc-300 px-3 py-2 text-sm font-medium text-zinc-800"
+          href={`/workspaces/${workspace.id}/projects`}
+        >
+          Projects
+        </Link>
+        <Link
+          className="border border-zinc-300 px-3 py-2 text-sm font-medium text-zinc-800"
           href={`/workspaces/${workspace.id}/settings`}
         >
           Settings
