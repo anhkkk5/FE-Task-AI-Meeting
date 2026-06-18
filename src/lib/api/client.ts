@@ -10,6 +10,7 @@ type ApiOptions = {
 export async function apiRequest<T>(path: string, options: ApiOptions = {}) {
   const response = await fetch(`${API_BASE_URL}${path}`, {
     method: options.method ?? "GET",
+    credentials: "include",
     headers: {
       "Content-Type": "application/json",
       ...(options.token ? { Authorization: `Bearer ${options.token}` } : {}),
