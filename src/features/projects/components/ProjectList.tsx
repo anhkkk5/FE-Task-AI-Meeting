@@ -8,9 +8,9 @@ type ProjectListProps = {
 export function ProjectList({ items }: ProjectListProps) {
   if (items.length === 0) {
     return (
-      <p className="border border-zinc-200 bg-white px-4 py-6 text-sm text-zinc-500">
-        No projects loaded.
-      </p>
+      <div className="text-center py-12 border border-dashed border-zinc-300 bg-white rounded-2xl">
+        <p className="text-sm text-zinc-500 font-medium">Chưa có dự án nào được khởi tạo.</p>
+      </div>
     );
   }
 

@@ -13,7 +13,6 @@ type ApiResponse<T> = {
 };
 
 export function createProject(
-  token: string,
   workspaceId: string,
   payload: CreateProjectPayload,
 ) {
@@ -21,14 +20,12 @@ export function createProject(
     `/workspaces/${workspaceId}/projects`,
     {
       method: "POST",
-      token,
       body: payload,
     },
   );
 }
 
 export function getProjects(
-  token: string,
   workspaceId: string,
   query: ProjectQuery = {},
 ) {
@@ -46,26 +43,19 @@ export function getProjects(
       items: Project[];
       meta: { total: number; page: number; limit: number };
     }>
-  >(`/workspaces/${workspaceId}/projects${search ? `?${search}` : ""}`, {
-    token,
-  });
+  >(`/workspaces/${workspaceId}/projects${search ? `?${search}` : ""}`);
 }
 
 export function getProjectDetail(
-  token: string,
   workspaceId: string,
   projectId: string,
 ) {
   return apiRequest<ApiResponse<{ project: Project }>>(
     `/workspaces/${workspaceId}/projects/${projectId}`,
-    {
-      token,
-    },
   );
 }
 
 export function updateProject(
-  token: string,
   workspaceId: string,
   projectId: string,
   payload: UpdateProjectPayload,
@@ -74,14 +64,12 @@ export function updateProject(
     `/workspaces/${workspaceId}/projects/${projectId}`,
     {
       method: "PATCH",
-      token,
       body: payload,
     },
   );
 }
 
 export function archiveProject(
-  token: string,
   workspaceId: string,
   projectId: string,
 ) {
@@ -89,13 +77,11 @@ export function archiveProject(
     `/workspaces/${workspaceId}/projects/${projectId}/archive`,
     {
       method: "PATCH",
-      token,
     },
   );
 }
 
 export function completeProject(
-  token: string,
   workspaceId: string,
   projectId: string,
 ) {
@@ -103,7 +89,6 @@ export function completeProject(
     `/workspaces/${workspaceId}/projects/${projectId}/complete`,
     {
       method: "PATCH",
-      token,
     },
   );
 }

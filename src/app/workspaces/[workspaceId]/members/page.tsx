@@ -1,8 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { useParams } from "next/navigation";
-import { FormEvent, useCallback, useState } from "react";
+import { FormEvent, useCallback, useEffect, useState } from "react";
+import { AppShell } from "@/components/layout/AppShell";
 import {
   addWorkspaceMember,
   changeWorkspaceMemberRole,
@@ -14,10 +14,7 @@ import {
   WorkspaceMember,
   WorkspaceRole,
 } from "@/features/members/types/member.type";
-import {
-  AccessTokenBar,
-  getStoredAccessToken,
-} from "@/features/workspaces/components/AccessTokenBar";
+import { useAuth } from "@/hooks/useAuth";
 
 const assignableRoles: Exclude<WorkspaceRole, "OWNER">[] = [
   "SCRUM_MASTER",
@@ -28,7 +25,7 @@ const assignableRoles: Exclude<WorkspaceRole, "OWNER">[] = [
 
 export default function WorkspaceMembersPage() {
   const params = useParams<{ workspaceId: string }>();
-  const [token, setToken] = useState(() => getStoredAccessToken());
+  const { user, isLoading: authLoading } = useAuth(true);
   const [items, setItems] = useState<WorkspaceMember[]>([]);
   const [myRole, setMyRole] = useState<WorkspaceRole | "">("");
   const [email, setEmail] = useState("");
@@ -40,51 +37,46 @@ export default function WorkspaceMembersPage() {
   const isOwner = myRole === "OWNER";
 
   const loadMembers = useCallback(
-    async (activeToken = token) => {
-      if (!activeToken) {
-        setMessage("Access token is required.");
-        return;
-      }
-
+    async () => {
       setIsLoading(true);
       setMessage("");
 
       try {
         const [membersResponse, roleResponse] = await Promise.all([
-          getWorkspaceMembers(activeToken, params.workspaceId),
-          getMyWorkspaceRole(activeToken, params.workspaceId),
+          getWorkspaceMembers(params.workspaceId),
+          getMyWorkspaceRole(params.workspaceId),
         ]);
         setItems(membersResponse.data.items);
         setMyRole(roleResponse.data.role);
       } catch (error) {
-        setMessage(error instanceof Error ? error.message : "Request failed");
+        setMessage(error instanceof Error ? error.message : "Tải danh sách thành viên thất bại.");
       } finally {
         setIsLoading(false);
       }
     },
-    [params.workspaceId, token],
+    [params.workspaceId],
   );
+
+  useEffect(() => {
+    if (user && params.workspaceId) {
+      void loadMembers();
+    }
+  }, [user, params.workspaceId, loadMembers]);
 
   async function handleAddMember(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const activeToken = token || getStoredAccessToken();
-
-    if (!activeToken) {
-      setMessage("Access token is required.");
-      return;
-    }
 
     try {
-      await addWorkspaceMember(activeToken, params.workspaceId, {
+      await addWorkspaceMember(params.workspaceId, {
         email,
         role,
       });
       setEmail("");
       setRole("MEMBER");
-      setMessage("Member added.");
-      await loadMembers(activeToken);
+      setMessage("Đã thêm thành viên mới thành công.");
+      await loadMembers();
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : "Request failed");
+      setMessage(error instanceof Error ? error.message : "Thêm thành viên thất bại.");
     }
   }
 
@@ -92,202 +84,238 @@ export default function WorkspaceMembersPage() {
     memberId: string,
     nextRole: Exclude<WorkspaceRole, "OWNER">,
   ) {
-    const activeToken = token || getStoredAccessToken();
-
-    if (!activeToken) {
-      setMessage("Access token is required.");
-      return;
-    }
-
     try {
       await changeWorkspaceMemberRole(
-        activeToken,
         params.workspaceId,
         memberId,
         {
           role: nextRole,
         },
       );
-      setMessage("Member role updated.");
-      await loadMembers(activeToken);
+      setMessage("Cập nhật vai trò thành viên thành công.");
+      await loadMembers();
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : "Request failed");
+      setMessage(error instanceof Error ? error.message : "Cập nhật vai trò thất bại.");
     }
   }
 
   async function handleRemove(memberId: string) {
-    const activeToken = token || getStoredAccessToken();
-
-    if (!activeToken) {
-      setMessage("Access token is required.");
+    if (!confirm("Bạn có chắc chắn muốn xóa thành viên này khỏi workspace không?")) {
       return;
     }
 
     try {
-      await removeWorkspaceMember(activeToken, params.workspaceId, memberId);
-      setMessage("Member removed.");
-      await loadMembers(activeToken);
+      await removeWorkspaceMember(params.workspaceId, memberId);
+      setMessage("Đã xóa thành viên khỏi workspace.");
+      await loadMembers();
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : "Request failed");
+      setMessage(error instanceof Error ? error.message : "Xóa thành viên thất bại.");
     }
   }
 
-  return (
-    <main className="min-h-screen bg-zinc-50 text-zinc-950">
-      <AccessTokenBar onTokenChange={setToken} />
-      <section className="mx-auto grid w-full max-w-6xl gap-6 px-6 py-8">
-        <div className="flex flex-wrap gap-3">
-          <Link
-            className="text-sm font-medium text-zinc-600"
-            href={`/workspaces/${params.workspaceId}`}
-          >
-            Back to workspace
-          </Link>
-          <button
-            className="text-sm font-medium text-zinc-900"
-            type="button"
-            onClick={() => void loadMembers()}
-          >
-            Refresh
-          </button>
-        </div>
+  if (authLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-zinc-50">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-900 border-t-transparent"></div>
+      </div>
+    );
+  }
 
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+  return (
+    <AppShell workspaceId={params.workspaceId}>
+      <div className="space-y-6">
+        {/* Header Toolbar */}
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between bg-white p-6 rounded-2xl border border-zinc-200/80 shadow-sm">
           <div>
-            <h1 className="text-2xl font-semibold">Workspace Members</h1>
-            <p className="mt-1 text-sm text-zinc-600">
-              {items.length} active member{items.length === 1 ? "" : "s"}
-              {myRole ? ` · My role: ${myRole}` : ""}
+            <h1 className="text-xl font-bold text-zinc-900">Quản lý Thành viên</h1>
+            <p className="mt-1 text-xs font-medium text-zinc-500">
+              Workspace có {items.length} thành viên đang hoạt động {myRole ? ` · Vai trò của bạn: ${myRole}` : ""}
             </p>
           </div>
+          <button
+            className="rounded-lg border border-zinc-200 bg-white px-4 py-2 text-xs font-semibold text-zinc-700 hover:bg-zinc-50 transition"
+            type="button"
+            onClick={() => void loadMembers()}
+            disabled={isLoading}
+          >
+            {isLoading ? "Đang tải..." : "Làm mới"}
+          </button>
         </div>
 
+        {/* Message Banner */}
         {message ? (
-          <p className="border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs font-semibold text-amber-900">
             {message}
-          </p>
+          </div>
         ) : null}
 
-        <form
-          className="grid gap-3 border border-zinc-200 bg-white p-5 md:grid-cols-[minmax(0,1fr)_180px_auto]"
-          onSubmit={handleAddMember}
-        >
-          <input
-            className="h-10 min-w-0 border border-zinc-300 px-3 text-sm outline-none focus:border-zinc-900"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            placeholder="member@example.com"
-            type="email"
-            disabled={!isOwner}
-            required
-          />
-          <select
-            className="h-10 border border-zinc-300 bg-white px-3 text-sm"
-            value={role}
-            onChange={(event) =>
-              setRole(event.target.value as Exclude<WorkspaceRole, "OWNER">)
-            }
-            disabled={!isOwner}
-          >
-            {assignableRoles.map((item) => (
-              <option key={item} value={item}>
-                {item}
-              </option>
-            ))}
-          </select>
-          <button
-            className="h-10 bg-zinc-900 px-4 text-sm font-medium text-white disabled:cursor-not-allowed disabled:bg-zinc-300"
-            type="submit"
-            disabled={!isOwner}
-          >
-            Add member
-          </button>
-        </form>
-
-        {isLoading ? (
-          <p className="text-sm text-zinc-600">Loading...</p>
-        ) : (
-          <div className="overflow-x-auto border border-zinc-200 bg-white">
-            <table className="w-full min-w-[760px] border-collapse text-left text-sm">
-              <thead className="border-b border-zinc-200 bg-zinc-100 text-xs uppercase text-zinc-500">
-                <tr>
-                  <th className="px-4 py-3">Member</th>
-                  <th className="px-4 py-3">Role</th>
-                  <th className="px-4 py-3">Status</th>
-                  <th className="px-4 py-3">Joined</th>
-                  <th className="px-4 py-3 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {items.map((member) => (
-                  <tr
-                    key={member.memberId}
-                    className="border-b border-zinc-100 last:border-0"
-                  >
-                    <td className="px-4 py-3">
-                      <p className="font-medium text-zinc-900">
-                        {member.fullName ?? "Unnamed user"}
-                      </p>
-                      <p className="break-all text-xs text-zinc-500">
-                        {member.email ?? member.userId}
-                      </p>
-                    </td>
-                    <td className="px-4 py-3">
-                      {member.role === "OWNER" ? (
-                        <span className="font-medium">{member.role}</span>
-                      ) : (
-                        <select
-                          className="h-9 border border-zinc-300 bg-white px-2 text-xs"
-                          value={member.role}
-                          onChange={(event) =>
-                            void handleChangeRole(
-                              member.memberId,
-                              event.target.value as Exclude<
-                                WorkspaceRole,
-                                "OWNER"
-                              >,
-                            )
-                          }
-                          disabled={!isOwner}
-                        >
-                          {assignableRoles.map((item) => (
-                            <option key={item} value={item}>
-                              {item}
-                            </option>
-                          ))}
-                        </select>
-                      )}
-                    </td>
-                    <td className="px-4 py-3">{member.status}</td>
-                    <td className="px-4 py-3">
-                      {member.joinedAt
-                        ? new Date(member.joinedAt).toLocaleDateString()
-                        : "-"}
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      <button
-                        className="h-9 border border-red-300 px-3 text-xs font-medium text-red-700 disabled:cursor-not-allowed disabled:border-zinc-200 disabled:text-zinc-300"
-                        type="button"
-                        disabled={!isOwner}
-                        onClick={() => void handleRemove(member.memberId)}
-                      >
-                        Remove
-                      </button>
-                    </td>
-                  </tr>
+        {/* Invite Member Section (Only for OWNER) */}
+        {isOwner && (
+          <div className="bg-white p-6 rounded-2xl border border-zinc-200/80 shadow-sm space-y-4">
+            <h2 className="text-sm font-bold text-zinc-800">Thêm thành viên mới vào Không gian</h2>
+            <form
+              className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_180px_auto]"
+              onSubmit={handleAddMember}
+            >
+              <input
+                className="h-10 rounded-xl border border-zinc-300 px-3 text-xs font-normal outline-none focus:border-zinc-900 transition"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                placeholder="nhap-email@company.com"
+                type="email"
+                required
+              />
+              <select
+                className="h-10 rounded-xl border border-zinc-300 bg-white px-3 text-xs font-semibold text-zinc-700 outline-none hover:border-zinc-400 transition cursor-pointer"
+                value={role}
+                onChange={(event) =>
+                  setRole(event.target.value as Exclude<WorkspaceRole, "OWNER">)
+                }
+              >
+                {assignableRoles.map((item) => (
+                  <option key={item} value={item}>
+                    {item}
+                  </option>
                 ))}
-                {items.length === 0 ? (
-                  <tr>
-                    <td className="px-4 py-6 text-sm text-zinc-500" colSpan={5}>
-                      No active members loaded.
-                    </td>
-                  </tr>
-                ) : null}
-              </tbody>
-            </table>
+              </select>
+              <button
+                className="h-10 rounded-xl bg-slate-900 px-5 text-xs font-bold text-white hover:bg-slate-800 transition"
+                type="submit"
+              >
+                Thêm thành viên
+              </button>
+            </form>
           </div>
         )}
-      </section>
-    </main>
+
+        {/* Members Table */}
+        {isLoading ? (
+          <div className="flex h-48 items-center justify-center">
+            <div className="h-6 w-6 animate-spin rounded-full border-2 border-slate-900 border-t-transparent"></div>
+          </div>
+        ) : (
+          <div className="overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm">
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[760px] border-collapse text-left text-xs">
+                <thead className="border-b border-zinc-200 bg-zinc-50 text-[10px] font-bold uppercase tracking-widest text-zinc-500">
+                  <tr>
+                    <th className="px-6 py-4">Thành viên</th>
+                    <th className="px-6 py-4">Vai trò</th>
+                    <th className="px-6 py-4">Trạng thái</th>
+                    <th className="px-6 py-4">Ngày tham gia</th>
+                    {isOwner && <th className="px-6 py-4 text-right">Thao tác</th>}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-zinc-100">
+                  {items.map((member) => {
+                    const memberRole = member.role;
+                    const isMemberOwner = memberRole === "OWNER";
+                    
+                    const roleBadgeColor = 
+                      isMemberOwner 
+                        ? "bg-indigo-50 text-indigo-700 border-indigo-100" 
+                        : memberRole === "SCRUM_MASTER"
+                        ? "bg-purple-50 text-purple-700 border-purple-100"
+                        : memberRole === "PROJECT_MANAGER"
+                        ? "bg-sky-50 text-sky-700 border-sky-100"
+                        : "bg-zinc-50 text-zinc-600 border-zinc-100";
+
+                    return (
+                      <tr
+                        key={member.memberId}
+                        className="hover:bg-zinc-50/50 transition-colors"
+                      >
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-3">
+                            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-800 font-bold text-xs">
+                              {member.fullName ? member.fullName.charAt(0).toUpperCase() : "U"}
+                            </div>
+                            <div>
+                              <p className="font-semibold text-zinc-900">
+                                {member.fullName ?? "Người dùng chưa đặt tên"}
+                              </p>
+                              <p className="text-[10px] text-zinc-500">
+                                {member.email ?? member.userId}
+                              </p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          {isMemberOwner ? (
+                            <span className={`border px-2 py-0.5 rounded-md font-bold uppercase tracking-wide text-[9px] ${roleBadgeColor}`}>
+                              {memberRole}
+                            </span>
+                          ) : (
+                            <select
+                              className="h-8 rounded-lg border border-zinc-300 bg-white px-2 text-[11px] font-semibold text-zinc-700 outline-none hover:border-zinc-400 cursor-pointer disabled:bg-zinc-50 disabled:cursor-not-allowed"
+                              value={memberRole}
+                              onChange={(event) =>
+                                void handleChangeRole(
+                                  member.memberId,
+                                  event.target.value as Exclude<
+                                    WorkspaceRole,
+                                    "OWNER"
+                                  >,
+                                )
+                              }
+                              disabled={!isOwner}
+                            >
+                              {assignableRoles.map((item) => (
+                                <option key={item} value={item}>
+                                  {item}
+                                </option>
+                              ))}
+                            </select>
+                          )}
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                            member.status === "ACTIVE" 
+                              ? "bg-emerald-50 text-emerald-700" 
+                              : "bg-amber-50 text-amber-700"
+                          }`}>
+                            <span className={`h-1.5 w-1.5 rounded-full ${
+                              member.status === "ACTIVE" ? "bg-emerald-500" : "bg-amber-500"
+                            }`}></span>
+                            {member.status}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-zinc-500">
+                          {member.joinedAt
+                            ? new Date(member.joinedAt).toLocaleDateString("vi-VN")
+                            : "-"}
+                        </td>
+                        {isOwner && (
+                          <td className="px-6 py-4 text-right">
+                            {!isMemberOwner ? (
+                              <button
+                                className="rounded-lg border border-red-200 px-3 py-1.5 text-[11px] font-semibold text-red-600 hover:bg-red-50 hover:text-red-700 transition"
+                                type="button"
+                                onClick={() => void handleRemove(member.memberId)}
+                              >
+                                Xóa khỏi nhóm
+                              </button>
+                            ) : (
+                              <span className="text-[11px] text-zinc-400 italic">OWNER không thể xóa</span>
+                            )}
+                          </td>
+                        )}
+                      </tr>
+                    );
+                  })}
+                  {items.length === 0 ? (
+                    <tr>
+                      <td className="px-6 py-8 text-center text-zinc-500" colSpan={isOwner ? 5 : 4}>
+                        Chưa có thành viên nào hoạt động trong không gian này.
+                      </td>
+                    </tr>
+                  ) : null}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+      </div>
+    </AppShell>
   );
 }

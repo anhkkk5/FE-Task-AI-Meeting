@@ -1,101 +1,122 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useState } from "react";
-import {
-  AccessTokenBar,
-  getStoredAccessToken,
-} from "@/features/workspaces/components/AccessTokenBar";
+import { useCallback, useEffect, useState } from "react";
+import { AppShell } from "@/components/layout/AppShell";
 import { WorkspaceCard } from "@/features/workspaces/components/WorkspaceCard";
 import { getMyWorkspaces } from "@/features/workspaces/api/workspaces.api";
 import { Workspace, WorkspaceStatus } from "@/features/workspaces/types/workspace.type";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function WorkspacesPage() {
-  const [token, setToken] = useState(() => getStoredAccessToken());
+  const { user, isLoading: authLoading } = useAuth(true);
   const [status, setStatus] = useState<WorkspaceStatus | "">("");
   const [items, setItems] = useState<Workspace[]>([]);
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const loadWorkspaces = useCallback(
-    async (activeToken = token) => {
-      if (!activeToken) {
-        setItems([]);
-        setMessage("Access token is required.");
-        return;
-      }
-
+    async () => {
       setIsLoading(true);
       setMessage("");
 
       try {
         const response = await getMyWorkspaces(
-          activeToken,
           status === "" ? undefined : status,
         );
         setItems(response.data.items);
       } catch (error) {
-        setMessage(error instanceof Error ? error.message : "Request failed");
+        setMessage(error instanceof Error ? error.message : "Tải danh sách không gian thất bại.");
       } finally {
         setIsLoading(false);
       }
     },
-    [status, token],
+    [status],
   );
 
+  useEffect(() => {
+    if (user) {
+      void loadWorkspaces();
+    }
+  }, [user, loadWorkspaces]);
+
+  if (authLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-zinc-50">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-900 border-t-transparent"></div>
+      </div>
+    );
+  }
+
   return (
-    <main className="min-h-screen bg-zinc-50 text-zinc-950">
-      <AccessTokenBar onTokenChange={setToken} />
-      <section className="mx-auto grid w-full max-w-6xl gap-6 px-6 py-8">
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+    <AppShell>
+      <div className="space-y-6">
+        {/* Header Section */}
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between bg-white p-6 rounded-2xl border border-zinc-200/80 shadow-sm">
           <div>
-            <h1 className="text-2xl font-semibold">Workspaces</h1>
-            <p className="mt-1 text-sm text-zinc-600">
-              {items.length} workspace{items.length === 1 ? "" : "s"}
+            <h1 className="text-xl font-bold text-zinc-900">Không gian làm việc (Workspaces)</h1>
+            <p className="mt-1 text-xs font-medium text-zinc-500">
+              Bạn có {items.length} không gian làm việc đang hoạt động
             </p>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2.5">
             <select
-              className="h-10 border border-zinc-300 bg-white px-3 text-sm"
+              className="h-10 rounded-xl border border-zinc-300 bg-white px-3 text-xs font-semibold text-zinc-700 outline-none hover:border-zinc-400 transition cursor-pointer"
               value={status}
               onChange={(event) =>
                 setStatus(event.target.value as WorkspaceStatus | "")
               }
             >
-              <option value="">All status</option>
+              <option value="">Tất cả trạng thái</option>
               <option value="ACTIVE">ACTIVE</option>
               <option value="ARCHIVED">ARCHIVED</option>
             </select>
             <button
-              className="h-10 border border-zinc-300 bg-white px-4 text-sm font-medium"
+              className="h-10 rounded-xl border border-zinc-300 bg-white px-4 text-xs font-semibold text-zinc-700 hover:bg-zinc-50 transition"
               type="button"
               onClick={() => void loadWorkspaces()}
             >
-              Refresh
+              Làm mới
             </button>
             <Link
-              className="flex h-10 items-center bg-zinc-900 px-4 text-sm font-medium text-white"
+              className="flex h-10 items-center rounded-xl bg-slate-900 px-4 text-xs font-bold text-white hover:bg-slate-800 transition"
               href="/workspaces/create"
             >
-              Create
+              Tạo mới
             </Link>
           </div>
         </div>
+
+        {/* Message Banner */}
         {message ? (
-          <p className="border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs font-semibold text-amber-900">
             {message}
-          </p>
+          </div>
         ) : null}
+
+        {/* Workspaces Grid */}
         {isLoading ? (
-          <p className="text-sm text-zinc-600">Loading...</p>
+          <div className="flex h-48 items-center justify-center">
+            <div className="h-6 w-6 animate-spin rounded-full border-2 border-slate-900 border-t-transparent"></div>
+          </div>
         ) : (
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-4 sm:grid-cols-2">
             {items.map((workspace) => (
-              <WorkspaceCard key={workspace.id} workspace={workspace} />
+              <div
+                key={workspace.id}
+                className="hover:scale-[1.01] transition-transform duration-150"
+              >
+                <WorkspaceCard workspace={workspace} />
+              </div>
             ))}
+            {items.length === 0 ? (
+              <div className="col-span-2 text-center py-12 border border-dashed border-zinc-300 bg-white rounded-2xl">
+                <p className="text-sm text-zinc-500 font-medium">Không tìm thấy không gian làm việc nào.</p>
+              </div>
+            ) : null}
           </div>
         )}
-      </section>
-    </main>
+      </div>
+    </AppShell>
   );
 }

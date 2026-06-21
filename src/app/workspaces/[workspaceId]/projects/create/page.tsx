@@ -1,19 +1,16 @@
 "use client";
 
-import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
+import { AppShell } from "@/components/layout/AppShell";
 import { createProject } from "@/features/projects/api/projects.api";
 import { ProjectForm } from "@/features/projects/components/ProjectForm";
-import {
-  AccessTokenBar,
-  getStoredAccessToken,
-} from "@/features/workspaces/components/AccessTokenBar";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function CreateProjectPage() {
   const params = useParams<{ workspaceId: string }>();
   const router = useRouter();
-  const [token, setToken] = useState(() => getStoredAccessToken());
+  const { isLoading: authLoading } = useAuth(true);
   const [message, setMessage] = useState("");
 
   async function handleCreate(payload: {
@@ -23,20 +20,15 @@ export default function CreateProjectPage() {
     startDate?: string;
     endDate?: string;
   }) {
-    const activeToken = token || getStoredAccessToken();
-
-    if (!activeToken) {
-      setMessage("Access token is required.");
-      return;
-    }
+    setMessage("");
 
     if (!payload.keyCode) {
-      setMessage("Project key code is required.");
+      setMessage("Vui lòng nhập mã Key Code cho dự án.");
       return;
     }
 
     try {
-      const response = await createProject(activeToken, params.workspaceId, {
+      const response = await createProject(params.workspaceId, {
         name: payload.name,
         keyCode: payload.keyCode,
         description: payload.description,
@@ -47,39 +39,45 @@ export default function CreateProjectPage() {
         `/workspaces/${params.workspaceId}/projects/${response.data.project.id}`,
       );
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : "Request failed");
+      setMessage(error instanceof Error ? error.message : "Tạo dự án thất bại.");
     }
   }
 
+  if (authLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-zinc-50">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-900 border-t-transparent"></div>
+      </div>
+    );
+  }
+
   return (
-    <main className="min-h-screen bg-zinc-50 text-zinc-950">
-      <AccessTokenBar onTokenChange={setToken} />
-      <section className="mx-auto grid w-full max-w-3xl gap-6 px-6 py-8">
-        <Link
-          className="text-sm font-medium text-zinc-600"
-          href={`/workspaces/${params.workspaceId}/projects`}
-        >
-          Back to projects
-        </Link>
-        <div>
-          <h1 className="text-2xl font-semibold">Create Project</h1>
-          <p className="mt-1 text-sm text-zinc-600">
-            OWNER, SCRUM_MASTER or PROJECT_MANAGER permission is required.
+    <AppShell workspaceId={params.workspaceId}>
+      <div className="max-w-3xl space-y-6">
+        {/* Header Section */}
+        <div className="bg-white p-6 rounded-2xl border border-zinc-200/80 shadow-sm">
+          <h1 className="text-xl font-bold text-zinc-900">Tạo Dự án mới</h1>
+          <p className="mt-1 text-xs font-medium text-zinc-500">
+            Yêu cầu quyền hạn OWNER, SCRUM_MASTER hoặc PROJECT_MANAGER.
           </p>
         </div>
+
+        {/* Message Banner */}
         {message ? (
-          <p className="border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs font-semibold text-amber-900">
             {message}
-          </p>
+          </div>
         ) : null}
-        <div className="border border-zinc-200 bg-white p-5">
+
+        {/* Form Panel */}
+        <div className="border border-zinc-200/80 bg-white p-6 rounded-2xl shadow-sm">
           <ProjectForm
             mode="create"
-            submitLabel="Create project"
+            submitLabel="Tạo dự án"
             onSubmit={handleCreate}
           />
         </div>
-      </section>
-    </main>
+      </div>
+    </AppShell>
   );
 }

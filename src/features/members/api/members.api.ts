@@ -12,26 +12,19 @@ type ApiResponse<T> = {
   data: T;
 };
 
-export function getWorkspaceMembers(token: string, workspaceId: string) {
+export function getWorkspaceMembers(workspaceId: string) {
   return apiRequest<ApiResponse<{ items: WorkspaceMember[] }>>(
     `/workspaces/${workspaceId}/members`,
-    {
-      token,
-    },
   );
 }
 
-export function getMyWorkspaceRole(token: string, workspaceId: string) {
+export function getMyWorkspaceRole(workspaceId: string) {
   return apiRequest<ApiResponse<MyWorkspaceRole>>(
     `/workspaces/${workspaceId}/members/me`,
-    {
-      token,
-    },
   );
 }
 
 export function addWorkspaceMember(
-  token: string,
   workspaceId: string,
   payload: AddMemberPayload,
 ) {
@@ -39,14 +32,12 @@ export function addWorkspaceMember(
     `/workspaces/${workspaceId}/members`,
     {
       method: "POST",
-      token,
       body: payload,
     },
   );
 }
 
 export function changeWorkspaceMemberRole(
-  token: string,
   workspaceId: string,
   memberId: string,
   payload: ChangeMemberRolePayload,
@@ -55,14 +46,12 @@ export function changeWorkspaceMemberRole(
     `/workspaces/${workspaceId}/members/${memberId}/role`,
     {
       method: "PATCH",
-      token,
       body: payload,
     },
   );
 }
 
 export function removeWorkspaceMember(
-  token: string,
   workspaceId: string,
   memberId: string,
 ) {
@@ -70,7 +59,6 @@ export function removeWorkspaceMember(
     `/workspaces/${workspaceId}/members/${memberId}/remove`,
     {
       method: "PATCH",
-      token,
     },
   );
 }
