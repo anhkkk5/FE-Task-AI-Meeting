@@ -46,7 +46,7 @@ export default function BacklogPage() {
       const [projectRes, sprintsRes, tasksRes, roleRes, membersRes] = await Promise.all([
         getProjectDetail(params.workspaceId, params.projectId),
         getSprints(params.workspaceId, params.projectId, { page: 1, limit: 100 }),
-        getTasks(params.workspaceId, params.projectId, { page: 1, limit: 1000 }), // Lấy tối đa task
+        getTasks(params.workspaceId, params.projectId, { page: 1, limit: 100 }),
         getMyWorkspaceRole(params.workspaceId),
         getWorkspaceMembers(params.workspaceId),
       ]);

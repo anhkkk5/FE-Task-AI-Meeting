@@ -101,6 +101,18 @@ export function AppShell({ children, workspaceId, projectId, title }: AppShellPr
         href: `/workspaces/${activeWorkspaceId}/projects/${projectId}/tasks`
       });
     }
+    if (pathname.includes("/daily-updates")) {
+      breadcrumbs.push({
+        label: "Daily Updates",
+        href: `/workspaces/${activeWorkspaceId}/projects/${projectId}/daily-updates/me`
+      });
+    }
+    if (pathname.includes("/meetings")) {
+      breadcrumbs.push({
+        label: "Meetings",
+        href: `/workspaces/${activeWorkspaceId}/projects/${projectId}/meetings`
+      });
+    }
     if (pathname.includes("/board")) {
       breadcrumbs.push({
         label: "Board",
@@ -420,6 +432,26 @@ export function AppShell({ children, workspaceId, projectId, title }: AppShellPr
                 }`}
               >
                 Bảng công việc (Board)
+              </Link>
+              <Link
+                href={`/workspaces/${activeWorkspaceId}/projects/${projectId}/daily-updates/me`}
+                className={`pb-3.5 border-b-2 transition-all ${
+                  pathname.includes("/daily-updates")
+                    ? "border-blue-600 text-blue-600 font-bold"
+                    : "border-transparent hover:text-zinc-950 hover:border-zinc-300"
+                }`}
+              >
+                Daily Updates
+              </Link>
+              <Link
+                href={`/workspaces/${activeWorkspaceId}/projects/${projectId}/meetings`}
+                className={`pb-3.5 border-b-2 transition-all ${
+                  pathname.includes("/meetings")
+                    ? "border-blue-600 text-blue-600 font-bold"
+                    : "border-transparent hover:text-zinc-950 hover:border-zinc-300"
+                }`}
+              >
+                Meetings
               </Link>
               <Link
                 href={`/workspaces/${activeWorkspaceId}/members`}

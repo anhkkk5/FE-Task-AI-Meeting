@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { AppShell } from "@/components/layout/AppShell";
@@ -30,7 +29,7 @@ export default function ProjectDetailPage() {
     try {
       const [projectResponse, tasksResponse, sprintsResponse] = await Promise.all([
         getProjectDetail(params.workspaceId, params.projectId),
-        getTasks(params.workspaceId, params.projectId, { page: 1, limit: 1000 }),
+        getTasks(params.workspaceId, params.projectId, { page: 1, limit: 100 }),
         getSprints(params.workspaceId, params.projectId, { page: 1, limit: 100 }),
       ]);
       setProject(projectResponse.data.project);

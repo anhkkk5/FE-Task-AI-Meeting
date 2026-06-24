@@ -1,0 +1,61 @@
+export type DailyMood = "GOOD" | "NORMAL" | "BLOCKED" | "TIRED";
+
+export type DailyUpdateUserSummary = {
+  id: string;
+  fullName: string;
+  email: string;
+  avatarUrl?: string | null;
+};
+
+export type DailyUpdateSprintSummary = {
+  id: string;
+  name: string;
+  status: string;
+};
+
+export type DailyUpdate = {
+  id: string;
+  workspaceId: string;
+  projectId: string;
+  sprintId: string | null;
+  userId: string;
+  user: DailyUpdateUserSummary | null;
+  sprint: DailyUpdateSprintSummary | null;
+  updateDate: string;
+  yesterdayWork: string;
+  todayPlan: string;
+  blockers: string | null;
+  notes: string | null;
+  mood: DailyMood | null;
+  createdAt: string;
+  updatedAt?: string;
+};
+
+export type DailyUpdateQuery = {
+  date?: string;
+  fromDate?: string;
+  toDate?: string;
+  sprintId?: string;
+  memberId?: string;
+  page?: number;
+  limit?: number;
+};
+
+export type CreateDailyUpdatePayload = {
+  sprintId?: string | null;
+  updateDate: string;
+  yesterdayWork: string;
+  todayPlan: string;
+  blockers?: string;
+  notes?: string;
+  mood?: DailyMood;
+};
+
+export type UpdateDailyUpdatePayload = {
+  sprintId?: string | null;
+  yesterdayWork?: string;
+  todayPlan?: string;
+  blockers?: string | null;
+  notes?: string | null;
+  mood?: DailyMood | null;
+};

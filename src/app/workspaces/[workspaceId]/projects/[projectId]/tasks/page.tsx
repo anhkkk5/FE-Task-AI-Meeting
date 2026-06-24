@@ -52,7 +52,7 @@ export default function KanbanBoardPage() {
     try {
       const [projectRes, tasksRes, roleRes, membersRes] = await Promise.all([
         getProjectDetail(params.workspaceId, params.projectId),
-        getTasks(params.workspaceId, params.projectId, { page: 1, limit: 1000 }), // Lấy tối đa task
+        getTasks(params.workspaceId, params.projectId, { page: 1, limit: 100 }),
         getMyWorkspaceRole(params.workspaceId),
         getWorkspaceMembers(params.workspaceId),
       ]);
