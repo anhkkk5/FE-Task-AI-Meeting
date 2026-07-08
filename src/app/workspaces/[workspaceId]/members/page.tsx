@@ -8,10 +8,12 @@ import {
   changeWorkspaceMemberRole,
   getMyWorkspaceRole,
   getWorkspaceMembers,
+  lookupWorkspaceMemberByEmail,
   removeWorkspaceMember,
 } from "@/features/members/api/members.api";
 import {
   WorkspaceMember,
+  WorkspaceMemberLookup,
   WorkspaceRole,
 } from "@/features/members/types/member.type";
 import { useAuth } from "@/hooks/useAuth";
@@ -23,6 +25,24 @@ const assignableRoles: Exclude<WorkspaceRole, "OWNER">[] = [
   "VIEWER",
 ];
 
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function getLookupReasonLabel(reason: WorkspaceMemberLookup["reason"]) {
+  if (reason === "ALREADY_ACTIVE_MEMBER") {
+    return "Tai khoan nay da la thanh vien ACTIVE cua workspace.";
+  }
+
+  if (reason === "USER_NOT_ACTIVE") {
+    return "Tai khoan nay khong o trang thai ACTIVE nen chua the them.";
+  }
+
+  if (reason === "USER_NOT_FOUND") {
+    return "Khong tim thay tai khoan da dang ky voi email nay.";
+  }
+
+  return "";
+}
+
 export default function WorkspaceMembersPage() {
   const params = useParams<{ workspaceId: string }>();
   const { user, isLoading: authLoading } = useAuth(true);
@@ -31,10 +51,20 @@ export default function WorkspaceMembersPage() {
   const [email, setEmail] = useState("");
   const [role, setRole] =
     useState<Exclude<WorkspaceRole, "OWNER">>("MEMBER");
+  const [lookupResult, setLookupResult] =
+    useState<WorkspaceMemberLookup | null>(null);
+  const [lookupMessage, setLookupMessage] = useState("");
+  const [isLookingUp, setIsLookingUp] = useState(false);
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const isOwner = myRole === "OWNER";
+  const normalizedEmail = email.trim().toLowerCase();
+  const canAddLookedUpUser = Boolean(
+    lookupResult?.canAdd &&
+      lookupResult.user &&
+      lookupResult.user.email === normalizedEmail,
+  );
 
   const loadMembers = useCallback(
     async () => {
@@ -63,16 +93,86 @@ export default function WorkspaceMembersPage() {
     }
   }, [user, params.workspaceId, loadMembers]);
 
+  useEffect(() => {
+    if (!isOwner || !normalizedEmail) {
+      setLookupResult(null);
+      setLookupMessage("");
+      setIsLookingUp(false);
+      return undefined;
+    }
+
+    if (!emailPattern.test(normalizedEmail)) {
+      setLookupResult(null);
+      setLookupMessage("Nhap dung dinh dang email de tim tai khoan.");
+      setIsLookingUp(false);
+      return undefined;
+    }
+
+    let cancelled = false;
+    const timer = window.setTimeout(async () => {
+      setIsLookingUp(true);
+      setLookupMessage("");
+
+      try {
+        const response = await lookupWorkspaceMemberByEmail(
+          params.workspaceId,
+          normalizedEmail,
+        );
+
+        if (cancelled) {
+          return;
+        }
+
+        setLookupResult(response.data);
+
+        if (!response.data.user) {
+          setLookupMessage("Khong tim thay tai khoan da dang ky voi email nay.");
+        } else if (!response.data.canAdd) {
+          setLookupMessage(getLookupReasonLabel(response.data.reason));
+        } else if (
+          response.data.reason === "REMOVED_MEMBER_CAN_BE_REACTIVATED"
+        ) {
+          setLookupMessage(
+            "Tai khoan nay tung bi xoa khoi workspace. Bam them de kich hoat lai.",
+          );
+        }
+      } catch (error) {
+        if (!cancelled) {
+          setLookupResult(null);
+          setLookupMessage(
+            error instanceof Error ? error.message : "Tim tai khoan that bai.",
+          );
+        }
+      } finally {
+        if (!cancelled) {
+          setIsLookingUp(false);
+        }
+      }
+    }, 400);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
+  }, [isOwner, normalizedEmail, params.workspaceId]);
+
   async function handleAddMember(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
+    if (!canAddLookedUpUser) {
+      setMessage("Hay chon mot tai khoan hop le truoc khi them thanh vien.");
+      return;
+    }
+
     try {
       await addWorkspaceMember(params.workspaceId, {
-        email,
+        email: normalizedEmail,
         role,
       });
       setEmail("");
       setRole("MEMBER");
+      setLookupResult(null);
+      setLookupMessage("");
       setMessage("Đã thêm thành viên mới thành công.");
       await loadMembers();
     } catch (error) {
@@ -179,11 +279,74 @@ export default function WorkspaceMembersPage() {
                 ))}
               </select>
               <button
-                className="h-10 rounded-xl bg-slate-900 px-5 text-xs font-bold text-white hover:bg-slate-800 transition"
+                className="h-10 rounded-xl bg-slate-900 px-5 text-xs font-bold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-zinc-300 disabled:text-zinc-500"
+                disabled={!canAddLookedUpUser}
                 type="submit"
               >
                 Thêm thành viên
               </button>
+              <div className="sm:col-span-3">
+                {isLookingUp ? (
+                  <div className="rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-xs font-semibold text-blue-700">
+                    Dang tim tai khoan...
+                  </div>
+                ) : lookupResult?.user ? (
+                  <div
+                    className={`rounded-xl border px-4 py-3 ${
+                      lookupResult.canAdd
+                        ? "border-emerald-200 bg-emerald-50"
+                        : "border-amber-200 bg-amber-50"
+                    }`}
+                  >
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white text-sm font-black text-slate-800 shadow-sm">
+                          {lookupResult.user.fullName.charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                          <p className="text-sm font-black text-zinc-900">
+                            {lookupResult.user.fullName}
+                          </p>
+                          <p className="text-xs font-medium text-zinc-600">
+                            {lookupResult.user.email}
+                            {lookupResult.user.jobTitle
+                              ? ` - ${lookupResult.user.jobTitle}`
+                              : ""}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        <span className="rounded-lg bg-white px-2.5 py-1 text-[10px] font-black uppercase tracking-wide text-zinc-600 shadow-sm">
+                          {lookupResult.user.status}
+                        </span>
+                        {lookupResult.existingMember ? (
+                          <span className="rounded-lg bg-white px-2.5 py-1 text-[10px] font-black uppercase tracking-wide text-zinc-600 shadow-sm">
+                            {lookupResult.existingMember.status} /{" "}
+                            {lookupResult.existingMember.role}
+                          </span>
+                        ) : (
+                          <span className="rounded-lg bg-white px-2.5 py-1 text-[10px] font-black uppercase tracking-wide text-emerald-700 shadow-sm">
+                            Co the them
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    {lookupMessage ? (
+                      <p className="mt-3 text-xs font-semibold text-amber-800">
+                        {lookupMessage}
+                      </p>
+                    ) : null}
+                  </div>
+                ) : lookupMessage ? (
+                  <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs font-semibold text-amber-800">
+                    {lookupMessage}
+                  </div>
+                ) : (
+                  <div className="rounded-xl border border-dashed border-zinc-200 bg-zinc-50 px-4 py-3 text-xs font-semibold text-zinc-500">
+                    Nhap email user da dang ky de xem thong tin truoc khi them.
+                  </div>
+                )}
+              </div>
             </form>
           </div>
         )}

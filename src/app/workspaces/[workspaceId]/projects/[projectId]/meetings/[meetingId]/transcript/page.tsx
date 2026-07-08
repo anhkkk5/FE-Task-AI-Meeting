@@ -142,12 +142,20 @@ export default function MeetingTranscriptPage() {
                 Transcript duoc luu trong MongoDB va dung lam input AI o NV12.
               </p>
             </div>
-            <Link
-              className="flex h-10 items-center rounded-xl border border-zinc-200 bg-white px-4 text-xs font-bold text-zinc-700 transition hover:bg-zinc-50"
-              href={`/workspaces/${params.workspaceId}/projects/${params.projectId}/meetings/${params.meetingId}`}
-            >
-              Chi tiet meeting
-            </Link>
+            <div className="flex flex-wrap gap-2">
+              <Link
+                className="flex h-10 items-center rounded-xl border border-zinc-200 bg-white px-4 text-xs font-bold text-zinc-700 transition hover:bg-zinc-50"
+                href={`/workspaces/${params.workspaceId}/projects/${params.projectId}/meetings/${params.meetingId}`}
+              >
+                Chi tiet meeting
+              </Link>
+              <Link
+                className="flex h-10 items-center rounded-xl bg-blue-600 px-4 text-xs font-bold text-white shadow-md shadow-blue-500/20 transition hover:bg-blue-700"
+                href={`/workspaces/${params.workspaceId}/projects/${params.projectId}/meetings/${params.meetingId}/summary`}
+              >
+                AI Summary
+              </Link>
+            </div>
           </div>
         </section>
 

@@ -113,6 +113,12 @@ export function AppShell({ children, workspaceId, projectId, title }: AppShellPr
         href: `/workspaces/${activeWorkspaceId}/projects/${projectId}/meetings`
       });
     }
+    if (pathname.includes("/ai-reports")) {
+      breadcrumbs.push({
+        label: "AI Reports",
+        href: `/workspaces/${activeWorkspaceId}/projects/${projectId}/ai-reports/personal`
+      });
+    }
     if (pathname.includes("/board")) {
       breadcrumbs.push({
         label: "Board",
@@ -452,6 +458,16 @@ export function AppShell({ children, workspaceId, projectId, title }: AppShellPr
                 }`}
               >
                 Meetings
+              </Link>
+              <Link
+                href={`/workspaces/${activeWorkspaceId}/projects/${projectId}/ai-reports/personal`}
+                className={`pb-3.5 border-b-2 transition-all ${
+                  pathname.includes("/ai-reports")
+                    ? "border-blue-600 text-blue-600 font-bold"
+                    : "border-transparent hover:text-zinc-950 hover:border-zinc-300"
+                }`}
+              >
+                AI Reports
               </Link>
               <Link
                 href={`/workspaces/${activeWorkspaceId}/members`}

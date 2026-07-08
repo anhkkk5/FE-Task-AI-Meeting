@@ -66,6 +66,12 @@ export function MeetingDetail({
 
         <div className="flex flex-wrap gap-2">
           <Link
+            className="h-10 rounded-xl bg-zinc-950 px-4 py-2.5 text-xs font-bold text-white shadow-md shadow-zinc-900/15 transition hover:bg-zinc-800"
+            href={`/workspaces/${workspaceId}/projects/${projectId}/meetings/${meeting.id}/room`}
+          >
+            Join room
+          </Link>
+          <Link
             className="h-10 rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-xs font-bold text-zinc-700 transition hover:bg-zinc-50"
             href={`/workspaces/${workspaceId}/projects/${projectId}/meetings/${meeting.id}/participants`}
           >
@@ -76,6 +82,18 @@ export function MeetingDetail({
             href={`/workspaces/${workspaceId}/projects/${projectId}/meetings/${meeting.id}/transcript`}
           >
             Transcript
+          </Link>
+          <Link
+            className="h-10 rounded-xl bg-blue-600 px-4 py-2.5 text-xs font-bold text-white shadow-md shadow-blue-500/20 transition hover:bg-blue-700"
+            href={`/workspaces/${workspaceId}/projects/${projectId}/meetings/${meeting.id}/summary`}
+          >
+            AI Summary
+          </Link>
+          <Link
+            className="h-10 rounded-xl bg-violet-600 px-4 py-2.5 text-xs font-bold text-white shadow-md shadow-violet-500/20 transition hover:bg-violet-700"
+            href={`/workspaces/${workspaceId}/projects/${projectId}/meetings/${meeting.id}/personalized-summary`}
+          >
+            My AI Summary
           </Link>
           {canChangeStatus ? (
             <>
@@ -100,7 +118,7 @@ export function MeetingDetail({
         </div>
       </div>
 
-      <div className="mt-6 grid gap-3 border-t border-zinc-100 pt-5 md:grid-cols-4">
+      <div className="mt-6 grid gap-3 border-t border-zinc-100 pt-5 md:grid-cols-5">
         <div className="rounded-xl bg-zinc-50 p-4">
           <p className="text-[10px] font-black uppercase tracking-wider text-zinc-400">
             Ngay hop
@@ -131,6 +149,14 @@ export function MeetingDetail({
           </p>
           <p className="mt-2 text-sm font-bold text-zinc-800">
             {meeting.mongoTranscriptId ? "Da co" : "Chua co"}
+          </p>
+        </div>
+        <div className="rounded-xl bg-zinc-50 p-4">
+          <p className="text-[10px] font-black uppercase tracking-wider text-zinc-400">
+            AI Summary
+          </p>
+          <p className="mt-2 text-sm font-bold text-zinc-800">
+            {meeting.mongoSummaryId ? "Da co" : "Chua co"}
           </p>
         </div>
       </div>

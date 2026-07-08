@@ -4,7 +4,7 @@ import {
   saveAccessToken,
 } from "@/features/auth/utils/token-storage";
 
-const API_BASE_URL =
+export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:3001/api/v1";
 
 type ApiOptions = {

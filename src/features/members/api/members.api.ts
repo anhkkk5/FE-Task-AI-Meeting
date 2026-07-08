@@ -4,6 +4,7 @@ import {
   ChangeMemberRolePayload,
   MyWorkspaceRole,
   WorkspaceMember,
+  WorkspaceMemberLookup,
 } from "../types/member.type";
 
 type ApiResponse<T> = {
@@ -21,6 +22,19 @@ export function getWorkspaceMembers(workspaceId: string) {
 export function getMyWorkspaceRole(workspaceId: string) {
   return apiRequest<ApiResponse<MyWorkspaceRole>>(
     `/workspaces/${workspaceId}/members/me`,
+  );
+}
+
+export function lookupWorkspaceMemberByEmail(
+  workspaceId: string,
+  email: string,
+) {
+  const params = new URLSearchParams({
+    email,
+  });
+
+  return apiRequest<ApiResponse<WorkspaceMemberLookup>>(
+    `/workspaces/${workspaceId}/members/lookup?${params.toString()}`,
   );
 }
 

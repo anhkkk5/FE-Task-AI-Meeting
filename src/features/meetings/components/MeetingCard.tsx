@@ -93,8 +93,15 @@ export function MeetingCard({ meeting, workspaceId, projectId }: MeetingCardProp
         <div className="text-xs font-semibold text-zinc-500">
           {meeting.participants?.length ?? 0} participants
           {meeting.mongoTranscriptId ? " - Co transcript" : " - Chua co transcript"}
+          {meeting.mongoSummaryId ? " - Co summary" : " - Chua co summary"}
         </div>
         <div className="flex flex-wrap gap-2">
+          <Link
+            className="rounded-xl bg-zinc-950 px-3 py-2 text-xs font-bold text-white shadow-md shadow-zinc-900/15 transition hover:bg-zinc-800"
+            href={`/workspaces/${workspaceId}/projects/${projectId}/meetings/${meeting.id}/room`}
+          >
+            Join room
+          </Link>
           <Link
             className="rounded-xl border border-zinc-200 bg-white px-3 py-2 text-xs font-bold text-zinc-700 transition hover:bg-zinc-50"
             href={`/workspaces/${workspaceId}/projects/${projectId}/meetings/${meeting.id}/participants`}
@@ -106,6 +113,18 @@ export function MeetingCard({ meeting, workspaceId, projectId }: MeetingCardProp
             href={`/workspaces/${workspaceId}/projects/${projectId}/meetings/${meeting.id}/transcript`}
           >
             Transcript
+          </Link>
+          <Link
+            className="rounded-xl bg-blue-600 px-3 py-2 text-xs font-bold text-white shadow-md shadow-blue-500/20 transition hover:bg-blue-700"
+            href={`/workspaces/${workspaceId}/projects/${projectId}/meetings/${meeting.id}/summary`}
+          >
+            AI Summary
+          </Link>
+          <Link
+            className="rounded-xl bg-violet-600 px-3 py-2 text-xs font-bold text-white shadow-md shadow-violet-500/20 transition hover:bg-violet-700"
+            href={`/workspaces/${workspaceId}/projects/${projectId}/meetings/${meeting.id}/personalized-summary`}
+          >
+            My AI Summary
           </Link>
         </div>
       </div>
