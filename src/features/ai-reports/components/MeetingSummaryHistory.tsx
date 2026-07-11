@@ -18,10 +18,10 @@ export function MeetingSummaryHistory({
     return (
       <section className="rounded-2xl border border-dashed border-zinc-300 bg-white px-6 py-10 text-center shadow-sm">
         <p className="text-sm font-bold text-zinc-700">
-          No meeting summary has been generated yet.
+          Chưa có tóm tắt cuộc họp nào được tạo.
         </p>
         <p className="mt-2 text-xs font-medium text-zinc-500">
-          Add a transcript first, then generate an AI summary for this meeting.
+          Hãy thêm biên bản trước, sau đó tạo tóm tắt AI cho cuộc họp này.
         </p>
       </section>
     );
@@ -31,13 +31,13 @@ export function MeetingSummaryHistory({
     <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
       <div className="mb-4 flex items-center justify-between gap-3">
         <div>
-          <h2 className="text-sm font-black text-zinc-950">Summary history</h2>
+          <h2 className="text-sm font-black text-zinc-950">Lịch sử tóm tắt</h2>
           <p className="mt-1 text-xs font-medium text-zinc-500">
-            Latest generated versions for this meeting.
+            Các phiên bản tóm tắt gần nhất của cuộc họp này.
           </p>
         </div>
         <span className="rounded-lg bg-zinc-100 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-zinc-500">
-          {items.length} versions
+          {items.length} phiên bản
         </span>
       </div>
       <div className="grid gap-2">
@@ -56,7 +56,7 @@ export function MeetingSummaryHistory({
             >
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <p className="text-sm font-bold text-zinc-900">
-                  {item.title || "Meeting summary"}
+                  {item.title || "Tóm tắt cuộc họp"}
                 </p>
                 <span className="text-xs font-semibold text-zinc-500">
                   {item.createdAt?.slice(0, 16).replace("T", " ") ?? "-"}

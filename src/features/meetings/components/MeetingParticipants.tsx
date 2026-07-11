@@ -20,9 +20,9 @@ type MeetingParticipantsProps = {
 };
 
 const participantRoles: { value: MeetingParticipantRole; label: string }[] = [
-  { value: "PARTICIPANT", label: "Participant" },
-  { value: "HOST", label: "Host" },
-  { value: "NOTE_TAKER", label: "Note taker" },
+  { value: "PARTICIPANT", label: "Người tham gia" },
+  { value: "HOST", label: "Chủ trì" },
+  { value: "NOTE_TAKER", label: "Ghi chú" },
 ];
 
 export function MeetingParticipants({
@@ -75,7 +75,7 @@ export function MeetingParticipants({
             value={userId}
             onChange={(event) => setUserId(event.target.value)}
           >
-            <option value="">Chon member ACTIVE</option>
+            <option value="">Chọn thành viên ACTIVE</option>
             {addableMembers.map((member) => (
               <option key={member.userId} value={member.userId}>
                 {member.fullName ?? member.email ?? member.userId} ({member.role})
@@ -100,7 +100,7 @@ export function MeetingParticipants({
             disabled={isSubmitting || !userId}
             type="submit"
           >
-            {isSubmitting ? "Dang them..." : "Them"}
+            {isSubmitting ? "Đang thêm..." : "Thêm"}
           </button>
         </form>
       ) : null}
@@ -108,7 +108,7 @@ export function MeetingParticipants({
       <section className="overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm">
         <div className="border-b border-zinc-100 px-5 py-4">
           <h2 className="text-base font-black text-zinc-950">
-            Participants ({participants.length})
+            Người tham gia ({participants.length})
           </h2>
         </div>
         {participants.length ? (
@@ -154,7 +154,7 @@ export function MeetingParticipants({
                           )
                         }
                       />
-                      Attended
+                      Đã tham gia
                     </label>
                   </div>
                 </div>
@@ -163,7 +163,7 @@ export function MeetingParticipants({
           </div>
         ) : (
           <p className="px-5 py-10 text-center text-sm font-semibold text-zinc-500">
-            Chua co participant trong meeting nay.
+            Chưa có người tham gia trong meeting này.
           </p>
         )}
       </section>

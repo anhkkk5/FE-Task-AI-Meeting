@@ -73,7 +73,7 @@ export default function MeetingParticipantsPage() {
       setMyRole(roleRes.data.role);
     } catch (error) {
       setMessage(
-        error instanceof Error ? error.message : "Tai participants that bai.",
+        error instanceof Error ? error.message : "Tải danh sách người tham gia thất bại.",
       );
     } finally {
       setIsLoading(false);
@@ -103,10 +103,10 @@ export default function MeetingParticipantsPage() {
         },
       );
       setParticipants((current) => [...current, ...response.data.items]);
-      setMessage("Da them participant.");
+      setMessage("Đã thêm người tham gia.");
     } catch (error) {
       setMessage(
-        error instanceof Error ? error.message : "Them participant that bai.",
+        error instanceof Error ? error.message : "Thêm người tham gia thất bại.",
       );
     }
   }
@@ -129,7 +129,7 @@ export default function MeetingParticipantsPage() {
       );
     } catch (error) {
       setMessage(
-        error instanceof Error ? error.message : "Cap nhat attendance that bai.",
+        error instanceof Error ? error.message : "Cập nhật trạng thái tham gia thất bại.",
       );
     }
   }
@@ -153,20 +153,20 @@ export default function MeetingParticipantsPage() {
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
               <p className="text-[10px] font-black uppercase tracking-[0.18em] text-blue-600">
-                Meeting participants
+                Người tham gia meeting
               </p>
               <h1 className="mt-1 text-2xl font-black text-zinc-950">
-                {meeting?.title ?? "Participants"}
+                {meeting?.title ?? "Người tham gia"}
               </h1>
               <p className="mt-2 text-sm font-medium text-zinc-500">
-                Host, note taker va thanh vien tham gia meeting.
+                Chủ trì, người ghi chú và thành viên tham gia meeting.
               </p>
             </div>
             <Link
               className="flex h-10 items-center rounded-xl border border-zinc-200 bg-white px-4 text-xs font-bold text-zinc-700 transition hover:bg-zinc-50"
               href={`/workspaces/${params.workspaceId}/projects/${params.projectId}/meetings/${params.meetingId}`}
             >
-              Chi tiet meeting
+              Chi tiết meeting
             </Link>
           </div>
         </section>

@@ -1,11 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useParams, useRouter, usePathname } from "next/navigation";
-import { ReactNode, useEffect, useState, useCallback } from "react";
-import { useAuth } from "@/hooks/useAuth";
+import { useParams, usePathname, useRouter } from "next/navigation";
+import { ReactNode, useCallback, useEffect, useState } from "react";
 import { getMyWorkspaces } from "@/features/workspaces/api/workspaces.api";
 import { Workspace } from "@/features/workspaces/types/workspace.type";
+import { useAuth } from "@/hooks/useAuth";
 
 type AppShellProps = {
   children: ReactNode;
@@ -13,6 +13,124 @@ type AppShellProps = {
   projectId?: string;
   title?: string;
 };
+
+type NavIcon =
+  | "grid"
+  | "board"
+  | "people"
+  | "settings"
+  | "box"
+  | "search"
+  | "plus"
+  | "profile"
+  | "logout";
+
+type NavLinkItem = {
+  href: string;
+  label: string;
+  icon: NavIcon;
+  active: boolean;
+};
+
+function Icon({ name, className = "h-4 w-4" }: { name: NavIcon; className?: string }) {
+  const common = {
+    className,
+    fill: "none",
+    viewBox: "0 0 24 24",
+    stroke: "currentColor",
+    strokeWidth: 2,
+    strokeLinecap: "round" as const,
+    strokeLinejoin: "round" as const,
+  };
+
+  switch (name) {
+    case "grid":
+      return (
+        <svg {...common}>
+          <path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z" />
+        </svg>
+      );
+    case "board":
+      return (
+        <svg {...common}>
+          <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" />
+        </svg>
+      );
+    case "people":
+      return (
+        <svg {...common}>
+          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+          <circle cx="9" cy="7" r="4" />
+          <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
+        </svg>
+      );
+    case "settings":
+      return (
+        <svg {...common}>
+          <path d="M12 15.5A3.5 3.5 0 1 0 12 8a3.5 3.5 0 0 0 0 7.5Z" />
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06A1.65 1.65 0 0 0 15 19.4a1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09A1.65 1.65 0 0 0 15 4.6a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.36.16.74.24 1.13.24H21a2 2 0 1 1 0 4h-.09A1.65 1.65 0 0 0 19.4 15Z" />
+        </svg>
+      );
+    case "box":
+      return (
+        <svg {...common}>
+          <path d="M3 7.5 12 3l9 4.5-9 4.5L3 7.5Z" />
+          <path d="M3 7.5v9L12 21l9-4.5v-9M12 12v9" />
+        </svg>
+      );
+    case "search":
+      return (
+        <svg {...common}>
+          <circle cx="11" cy="11" r="7" />
+          <path d="m21 21-4.3-4.3" />
+        </svg>
+      );
+    case "plus":
+      return (
+        <svg {...common}>
+          <path d="M12 5v14M5 12h14" />
+        </svg>
+      );
+    case "profile":
+      return (
+        <svg {...common}>
+          <circle cx="12" cy="8" r="4" />
+          <path d="M4 21a8 8 0 0 1 16 0" />
+        </svg>
+      );
+    case "logout":
+      return (
+        <svg {...common}>
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+          <path d="m16 17 5-5-5-5M21 12H9" />
+        </svg>
+      );
+  }
+}
+
+function SidebarLink({ item }: { item: NavLinkItem }) {
+  return (
+    <Link
+      href={item.href}
+      className={`flex h-9 items-center gap-3 border-l-2 px-3 text-sm transition ${
+        item.active
+          ? "border-[#0c66e4] bg-[#e9f2ff] font-semibold text-[#0c66e4]"
+          : "border-transparent text-[#44546f] hover:bg-[#f1f2f4] hover:text-[#172b4d]"
+      }`}
+    >
+      <Icon name={item.icon} className="h-4 w-4 shrink-0" />
+      <span className="truncate">{item.label}</span>
+    </Link>
+  );
+}
+
+function Chevron() {
+  return (
+    <svg className="h-4 w-4 text-[#7a869a]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="m9 5 7 7-7 7" />
+    </svg>
+  );
+}
 
 export function AppShell({ children, workspaceId, projectId, title }: AppShellProps) {
   const { user, isLoading, logoutUser } = useAuth(true);
@@ -25,15 +143,14 @@ export function AppShell({ children, workspaceId, projectId, title }: AppShellPr
   const [currentWorkspace, setCurrentWorkspace] = useState<Workspace | null>(null);
   const [showUserDropdown, setShowUserDropdown] = useState(false);
 
-  // Load danh sách workspaces để hiển thị ở Sidebar
   const loadWorkspaces = useCallback(async () => {
     try {
       const res = await getMyWorkspaces("ACTIVE");
       setWorkspaces(res.data.items);
-      
+
       if (activeWorkspaceId) {
-        const current = res.data.items.find(w => w.id === activeWorkspaceId);
-        if (current) setCurrentWorkspace(current);
+        const current = res.data.items.find((workspace) => workspace.id === activeWorkspaceId);
+        setCurrentWorkspace(current ?? null);
       }
     } catch (error) {
       console.error("Load workspaces error:", error);
@@ -48,10 +165,10 @@ export function AppShell({ children, workspaceId, projectId, title }: AppShellPr
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-zinc-50">
+      <div className="flex min-h-screen items-center justify-center bg-[#f7f8f9]">
         <div className="flex flex-col items-center gap-3">
-          <div className="h-10 w-10 animate-spin rounded-full border-4 border-slate-900 border-t-transparent"></div>
-          <p className="text-sm font-medium text-zinc-600">Đang tải ứng dụng...</p>
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#0c66e4] border-t-transparent" />
+          <p className="text-sm font-medium text-[#44546f]">Đang tải ứng dụng...</p>
         </div>
       </div>
     );
@@ -61,442 +178,334 @@ export function AppShell({ children, workspaceId, projectId, title }: AppShellPr
 
   const userInitial = user.fullName ? user.fullName.charAt(0).toUpperCase() : "U";
 
-  // Tạo breadcrumbs điều hướng động
-  const breadcrumbs = [
-    { label: "Workspaces", href: "/workspaces" }
-  ];
+  const breadcrumbs = [{ label: "Workspaces", href: "/workspaces" }];
 
   if (pathname === "/profile") {
-    breadcrumbs.push({
-      label: "Trang cá nhân",
-      href: "/profile"
-    });
+    breadcrumbs.push({ label: "Trang cá nhân", href: "/profile" });
   }
 
   if (currentWorkspace) {
     breadcrumbs.push({
       label: currentWorkspace.name,
-      href: `/workspaces/${currentWorkspace.id}`
+      href: `/workspaces/${currentWorkspace.id}`,
     });
   }
 
   if (projectId) {
     breadcrumbs.push({
       label: "Projects",
-      href: `/workspaces/${activeWorkspaceId}/projects`
+      href: `/workspaces/${activeWorkspaceId}/projects`,
     });
     breadcrumbs.push({
-      label: title || "Project Detail",
-      href: `/workspaces/${activeWorkspaceId}/projects/${projectId}`
+      label: title || "Project",
+      href: `/workspaces/${activeWorkspaceId}/projects/${projectId}`,
     });
-    if (pathname.includes("/sprints")) {
+
+    const section = [
+      ["/sprints", "Backlog"],
+      ["/tasks", "Board"],
+      ["/daily-updates", "Cập nhật hằng ngày"],
+      ["/meetings", "Cuộc họp"],
+      ["/ai-reports", "Báo cáo AI"],
+    ].find(([segment]) => pathname.includes(segment));
+
+    if (section) {
       breadcrumbs.push({
-        label: "Sprints",
-        href: `/workspaces/${activeWorkspaceId}/projects/${projectId}/sprints`
-      });
-    }
-    if (pathname.includes("/tasks")) {
-      breadcrumbs.push({
-        label: "Tasks",
-        href: `/workspaces/${activeWorkspaceId}/projects/${projectId}/tasks`
-      });
-    }
-    if (pathname.includes("/daily-updates")) {
-      breadcrumbs.push({
-        label: "Daily Updates",
-        href: `/workspaces/${activeWorkspaceId}/projects/${projectId}/daily-updates/me`
-      });
-    }
-    if (pathname.includes("/meetings")) {
-      breadcrumbs.push({
-        label: "Meetings",
-        href: `/workspaces/${activeWorkspaceId}/projects/${projectId}/meetings`
-      });
-    }
-    if (pathname.includes("/ai-reports")) {
-      breadcrumbs.push({
-        label: "AI Reports",
-        href: `/workspaces/${activeWorkspaceId}/projects/${projectId}/ai-reports/personal`
-      });
-    }
-    if (pathname.includes("/board")) {
-      breadcrumbs.push({
-        label: "Board",
-        href: pathname
+        label: section[1],
+        href: pathname,
       });
     }
   } else if (pathname.includes("/members")) {
-    breadcrumbs.push({
-      label: "Members",
-      href: `/workspaces/${activeWorkspaceId}/members`
-    });
+    breadcrumbs.push({ label: "Members", href: `/workspaces/${activeWorkspaceId}/members` });
   } else if (pathname.includes("/settings")) {
-    breadcrumbs.push({
-      label: "Settings",
-      href: `/workspaces/${activeWorkspaceId}/settings`
-    });
+    breadcrumbs.push({ label: "Settings", href: `/workspaces/${activeWorkspaceId}/settings` });
   } else if (pathname.includes("/projects")) {
-    breadcrumbs.push({
-      label: "Projects",
-      href: `/workspaces/${activeWorkspaceId}/projects`
-    });
+    breadcrumbs.push({ label: "Projects", href: `/workspaces/${activeWorkspaceId}/projects` });
   }
 
+  const workspaceLinks: NavLinkItem[] = activeWorkspaceId
+    ? [
+        {
+          href: `/workspaces/${activeWorkspaceId}`,
+          label: "Tổng quan",
+          icon: "grid",
+          active: pathname === `/workspaces/${activeWorkspaceId}`,
+        },
+        {
+          href: `/workspaces/${activeWorkspaceId}/projects`,
+          label: "Dự án",
+          icon: "board",
+          active: pathname.includes("/projects"),
+        },
+        {
+          href: `/workspaces/${activeWorkspaceId}/members`,
+          label: "Thành viên",
+          icon: "people",
+          active: pathname.includes("/members"),
+        },
+        {
+          href: `/workspaces/${activeWorkspaceId}/settings`,
+          label: "Cài đặt",
+          icon: "settings",
+          active: pathname.includes("/settings"),
+        },
+      ]
+    : [];
+
+  const projectTabs = projectId && activeWorkspaceId
+    ? [
+        {
+          href: `/workspaces/${activeWorkspaceId}/projects/${projectId}`,
+          label: "Chi tiết",
+          active: pathname === `/workspaces/${activeWorkspaceId}/projects/${projectId}`,
+        },
+        {
+          href: `/workspaces/${activeWorkspaceId}/projects/${projectId}/sprints`,
+          label: "Backlog",
+          active: pathname.includes("/sprints"),
+        },
+        {
+          href: `/workspaces/${activeWorkspaceId}/projects/${projectId}/tasks`,
+          label: "Board",
+          active: pathname.includes("/tasks") && !pathname.includes("/sprints"),
+        },
+        {
+          href: `/workspaces/${activeWorkspaceId}/projects/${projectId}/daily-updates/me`,
+          label: "Cập nhật hằng ngày",
+          active: pathname.includes("/daily-updates"),
+        },
+        {
+          href: `/workspaces/${activeWorkspaceId}/projects/${projectId}/meetings`,
+          label: "Cuộc họp",
+          active: pathname.includes("/meetings"),
+        },
+        {
+          href: `/workspaces/${activeWorkspaceId}/projects/${projectId}/ai-reports/personal`,
+          label: "Báo cáo AI",
+          active: pathname.includes("/ai-reports"),
+        },
+        {
+          href: `/workspaces/${activeWorkspaceId}/members`,
+          label: "Thành viên",
+          active: pathname.includes("/members"),
+        },
+        {
+          href: `/workspaces/${activeWorkspaceId}/projects/${projectId}/settings`,
+          label: "Cài đặt dự án",
+          active: pathname.includes("/settings"),
+        },
+      ]
+    : [];
+
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-zinc-50 text-zinc-950 font-sans">
-      {/* SIDEBAR (Jira style) */}
-      <aside className="hidden w-64 flex-col bg-zinc-50 text-zinc-600 md:flex border-r border-zinc-200 shrink-0 select-none shadow-sm">
-        {/* Brand Logo */}
-        <div className="flex h-16 items-center gap-3 px-6 border-b border-zinc-200 bg-white/60">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600 text-white font-black shadow-md shadow-blue-500/25">
+    <div className="flex h-screen w-screen overflow-hidden bg-[#f7f8f9] font-sans text-[#172b4d]">
+      <aside className="hidden w-[272px] shrink-0 flex-col border-r border-[#dfe1e6] bg-white md:flex">
+        <div className="flex h-14 items-center gap-3 border-b border-[#dfe1e6] px-4">
+          <div className="flex h-8 w-8 items-center justify-center rounded bg-[#0c66e4] text-sm font-bold text-white">
             A
           </div>
-          <div>
-            <h1 className="text-base font-bold text-zinc-900 tracking-wide leading-none">Agile AI</h1>
-            <span className="text-[10px] text-blue-600 font-bold tracking-wider uppercase mt-0.5 block">Project Manager</span>
+          <div className="min-w-0">
+            <h1 className="truncate text-sm font-semibold text-[#172b4d]">Agile AI</h1>
+            <p className="truncate text-[11px] font-semibold uppercase tracking-wide text-[#0c66e4]">
+              Project Manager
+            </p>
           </div>
         </div>
 
-        {/* Workspace Selector */}
-        <div className="px-4 py-4 border-b border-zinc-200/50 bg-white/20">
-          <label className="text-[9px] font-extrabold uppercase tracking-widest text-zinc-400 px-2 block mb-1.5">
+        <div className="border-b border-[#dfe1e6] p-3">
+          <label className="mb-1.5 block px-1 text-[11px] font-semibold uppercase tracking-wide text-[#6b778c]">
             Không gian làm việc
           </label>
-          <div className="relative">
-            <select
-              className="w-full h-10 rounded-xl border border-zinc-200 bg-white px-3 pr-8 text-xs font-semibold text-zinc-700 outline-none appearance-none cursor-pointer hover:border-zinc-300 transition shadow-sm"
-              value={activeWorkspaceId || ""}
-              onChange={(e) => {
-                const val = e.target.value;
-                if (val === "create") {
-                  router.push("/workspaces/create");
-                } else if (val) {
-                  router.push(`/workspaces/${val}`);
-                }
-              }}
-            >
-              <option value="" disabled>-- Chọn Workspace --</option>
-              {workspaces.map((w) => (
-                <option key={w.id} value={w.id}>
-                  {w.name}
-                </option>
-              ))}
-              <option value="create">+ Tạo Workspace mới...</option>
-            </select>
-            <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400">
-              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            </div>
-          </div>
+          <select
+            className="h-9 w-full rounded border border-[#dfe1e6] bg-white px-2 text-sm font-medium text-[#172b4d] outline-none hover:bg-[#f7f8f9] focus:border-[#0c66e4]"
+            value={activeWorkspaceId || ""}
+            onChange={(event) => {
+              const value = event.target.value;
+              if (value === "create") {
+                router.push("/workspaces/create");
+              } else if (value) {
+                router.push(`/workspaces/${value}`);
+              }
+            }}
+          >
+            <option value="" disabled>
+              Chọn Workspace
+            </option>
+            {workspaces.map((workspace) => (
+              <option key={workspace.id} value={workspace.id}>
+                {workspace.name}
+              </option>
+            ))}
+            <option value="create">+ Tạo Workspace mới</option>
+          </select>
         </div>
 
-        {/* Navigation Menu */}
-        <nav className="flex-1 space-y-1 px-2.5 py-3 overflow-y-auto">
-          {activeWorkspaceId ? (
+        <nav className="flex-1 overflow-y-auto py-3">
+          {workspaceLinks.length > 0 ? (
             <>
-              <label className="text-[9px] font-extrabold uppercase tracking-widest text-zinc-400 px-3 block pt-1 pb-1.5">
+              <p className="px-4 pb-2 pt-1 text-[11px] font-semibold uppercase tracking-wide text-[#6b778c]">
                 Quản lý dự án
-              </label>
-              <Link
-                href={`/workspaces/${activeWorkspaceId}`}
-                className={`flex h-9 items-center gap-3 rounded-lg px-3 text-xs font-semibold transition-all ${
-                  pathname === `/workspaces/${activeWorkspaceId}`
-                    ? "bg-blue-50 text-blue-700 font-bold border-l-4 border-blue-600 rounded-l-none"
-                    : "hover:bg-zinc-100/70 text-zinc-600 hover:text-zinc-950"
-                }`}
-              >
-                <svg className="h-4.5 w-4.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2v-4zM14 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2v-4z" />
-                </svg>
-                Tổng quan
-              </Link>
-              <Link
-                href={`/workspaces/${activeWorkspaceId}/projects`}
-                className={`flex h-9 items-center gap-3 rounded-lg px-3 text-xs font-semibold transition-all ${
-                  pathname.includes("/projects")
-                    ? "bg-blue-50 text-blue-700 font-bold border-l-4 border-blue-600 rounded-l-none"
-                    : "hover:bg-zinc-100/70 text-zinc-600 hover:text-zinc-950"
-                }`}
-              >
-                <svg className="h-4.5 w-4.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
-                </svg>
-                Dự án (Projects)
-              </Link>
-              <Link
-                href={`/workspaces/${activeWorkspaceId}/members`}
-                className={`flex h-9 items-center gap-3 rounded-lg px-3 text-xs font-semibold transition-all ${
-                  pathname.includes("/members")
-                    ? "bg-blue-50 text-blue-700 font-bold border-l-4 border-blue-600 rounded-l-none"
-                    : "hover:bg-zinc-100/70 text-zinc-600 hover:text-zinc-950"
-                }`}
-              >
-                <svg className="h-4.5 w-4.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                </svg>
-                Thành viên
-              </Link>
-              <Link
-                href={`/workspaces/${activeWorkspaceId}/settings`}
-                className={`flex h-9 items-center gap-3 rounded-lg px-3 text-xs font-semibold transition-all ${
-                  pathname.includes("/settings")
-                    ? "bg-blue-50 text-blue-700 font-bold border-l-4 border-blue-600 rounded-l-none"
-                    : "hover:bg-zinc-100/70 text-zinc-600 hover:text-zinc-950"
-                }`}
-              >
-                <svg className="h-4.5 w-4.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-                Cài đặt Workspace
-              </Link>
+              </p>
+              <div className="space-y-0.5">
+                {workspaceLinks.map((item) => (
+                  <SidebarLink key={item.href} item={item} />
+                ))}
+              </div>
             </>
           ) : null}
 
-          <label className="text-[9px] font-extrabold uppercase tracking-widest text-zinc-400 px-3 block pt-5 pb-1.5">
+          <p className="px-4 pb-2 pt-5 text-[11px] font-semibold uppercase tracking-wide text-[#6b778c]">
             Tổng quan hệ thống
-          </label>
-          <Link
-            href="/workspaces"
-            className={`flex h-9 items-center gap-3 rounded-lg px-3 text-xs font-semibold transition-all ${
-              pathname === "/workspaces"
-                ? "bg-blue-50 text-blue-700 font-bold border-l-4 border-blue-600 rounded-l-none"
-                : "hover:bg-zinc-100/70 text-zinc-600 hover:text-zinc-950"
-            }`}
-          >
-            <svg className="h-4.5 w-4.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-            </svg>
-            Tất cả Workspaces
-          </Link>
+          </p>
+          <SidebarLink
+            item={{
+              href: "/workspaces",
+              label: "Tất cả Workspaces",
+              icon: "box",
+              active: pathname === "/workspaces",
+            }}
+          />
         </nav>
 
-        {/* User Info (Bottom) */}
-        <div className="border-t border-zinc-200 p-4 bg-zinc-50 flex items-center justify-between">
-          <div className="flex items-center gap-2.5 min-w-0">
-            {user.avatarUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={user.avatarUrl}
-                alt={user.fullName}
-                className="h-8 w-8 shrink-0 rounded-full object-cover border border-zinc-200 shadow-sm"
-              />
-            ) : (
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-100 text-blue-800 font-bold text-xs shadow-inner">
-                {userInitial}
+        <div className="border-t border-[#dfe1e6] p-3">
+          <div className="flex items-center justify-between gap-2">
+            <Link href="/profile" className="flex min-w-0 flex-1 items-center gap-2 rounded px-1 py-1 hover:bg-[#f1f2f4]">
+              {user.avatarUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={user.avatarUrl} alt={user.fullName} className="h-8 w-8 rounded-full object-cover" />
+              ) : (
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#deebff] text-sm font-bold text-[#0747a6]">
+                  {userInitial}
+                </div>
+              )}
+              <div className="min-w-0">
+                <p className="truncate text-sm font-semibold text-[#172b4d]">{user.fullName}</p>
+                <p className="truncate text-[11px] text-[#6b778c]">{user.email}</p>
               </div>
-            )}
-            <div className="min-w-0">
-              <p className="truncate text-xs font-bold text-zinc-800">{user.fullName}</p>
-              <p className="truncate text-[10px] text-zinc-500">{user.email}</p>
-            </div>
+            </Link>
+            <button
+              onClick={() => void logoutUser()}
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded text-[#6b778c] hover:bg-[#f1f2f4] hover:text-[#172b4d]"
+              title="Đăng xuất"
+              type="button"
+            >
+              <Icon name="logout" className="h-4 w-4" />
+            </button>
           </div>
-          <button
-            onClick={() => void logoutUser()}
-            className="flex h-8 w-8 items-center justify-center rounded-lg hover:bg-zinc-200/60 text-zinc-500 hover:text-zinc-900 transition"
-            title="Đăng xuất"
-          >
-            <svg className="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-            </svg>
-          </button>
         </div>
       </aside>
 
-      {/* MAIN CONTAINER */}
-      <div className="flex flex-1 flex-col overflow-hidden">
-        {/* TOP HEADER */}
-        <header className="flex h-16 shrink-0 items-center justify-between border-b border-zinc-200 bg-white/80 backdrop-blur-md px-6 shadow-sm z-10">
-          {/* Breadcrumbs / Page Title */}
-          <div className="flex items-center gap-2 text-sm font-medium text-zinc-500">
-            {breadcrumbs.map((crumb, idx) => (
-              <span key={crumb.href} className="flex items-center gap-2">
-                {idx > 0 && (
-                  <svg className="h-4 w-4 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                )}
-                {idx === breadcrumbs.length - 1 ? (
-                  <span className="font-semibold text-zinc-900">{crumb.label}</span>
-                ) : (
-                  <Link href={crumb.href} className="hover:text-zinc-900 transition-colors">
-                    {crumb.label}
-                  </Link>
-                )}
-              </span>
-            ))}
+      <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
+        <header className="flex h-14 shrink-0 items-center justify-between border-b border-[#dfe1e6] bg-white px-4">
+          <div className="flex min-w-0 flex-1 items-center gap-3">
+            <div className="hidden h-9 w-full max-w-[520px] items-center gap-2 rounded border border-[#dfe1e6] bg-white px-3 text-sm text-[#6b778c] lg:flex">
+              <Icon name="search" className="h-4 w-4" />
+              <span>Tìm kiếm</span>
+            </div>
+
+            <div className="flex min-w-0 items-center gap-1 text-sm text-[#44546f] lg:ml-2">
+              {breadcrumbs.map((crumb, index) => (
+                <span key={`${crumb.href}-${index}`} className="flex min-w-0 items-center gap-1">
+                  {index > 0 ? <Chevron /> : null}
+                  {index === breadcrumbs.length - 1 ? (
+                    <span className="truncate font-semibold text-[#172b4d]">{crumb.label}</span>
+                  ) : (
+                    <Link href={crumb.href} className="truncate hover:text-[#0c66e4]">
+                      {crumb.label}
+                    </Link>
+                  )}
+                </span>
+              ))}
+            </div>
           </div>
 
-          {/* Header Actions & Profile */}
-          <div className="flex items-center gap-4">
-            <div className="relative">
-              <button
-                onClick={() => setShowUserDropdown(!showUserDropdown)}
-                className="flex items-center gap-2 rounded-full p-1 hover:bg-zinc-100 transition outline-none"
-              >
-                {user.avatarUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={user.avatarUrl}
-                    alt={user.fullName}
-                    className="h-8 w-8 rounded-full object-cover"
-                  />
-                ) : (
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100 text-emerald-800 font-bold text-sm">
-                    {userInitial}
-                  </div>
-                )}
-                <span className="hidden text-xs font-semibold text-zinc-700 md:inline">
-                  {user.fullName}
-                </span>
-                <svg className="h-3.5 w-3.5 text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-
-              {/* User Dropdown Menu */}
-              {showUserDropdown && (
-                <div className="absolute right-0 mt-2 w-48 rounded-xl border border-zinc-200 bg-white py-1 shadow-lg shadow-zinc-100/80 z-50">
-                  <div className="border-b border-zinc-100 px-4 py-2 text-xs">
-                    <p className="font-semibold text-zinc-900">{user.fullName}</p>
-                    <p className="text-zinc-500 break-all">{user.email}</p>
-                  </div>
-                  <Link
-                    href="/profile"
-                    onClick={() => setShowUserDropdown(false)}
-                    className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-xs font-semibold text-zinc-700 hover:bg-zinc-50 transition border-b border-zinc-100"
-                  >
-                    <svg className="h-4 w-4 text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
-                    Trang cá nhân
-                  </Link>
-                  <button
-                    onClick={() => void logoutUser()}
-                    className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-xs font-semibold text-red-600 hover:bg-red-50 hover:text-red-700 transition"
-                  >
-                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                    </svg>
-                    Đăng xuất
-                  </button>
+          <div className="relative ml-3">
+            <button
+              className="flex items-center gap-2 rounded px-2 py-1 hover:bg-[#f1f2f4]"
+              onClick={() => setShowUserDropdown((value) => !value)}
+              type="button"
+            >
+              {user.avatarUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={user.avatarUrl} alt={user.fullName} className="h-8 w-8 rounded-full object-cover" />
+              ) : (
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#dcfff1] text-sm font-bold text-[#216e4e]">
+                  {userInitial}
                 </div>
               )}
-            </div>
+              <span className="hidden max-w-32 truncate text-sm font-semibold text-[#44546f] md:inline">
+                {user.fullName}
+              </span>
+              <svg className="h-4 w-4 text-[#6b778c]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="m6 9 6 6 6-6" />
+              </svg>
+            </button>
+
+            {showUserDropdown ? (
+              <div className="absolute right-0 z-50 mt-2 w-64 rounded border border-[#dfe1e6] bg-white py-1 shadow-lg">
+                <div className="border-b border-[#dfe1e6] px-3 py-2">
+                  <p className="truncate text-sm font-semibold text-[#172b4d]">{user.fullName}</p>
+                  <p className="truncate text-xs text-[#6b778c]">{user.email}</p>
+                </div>
+                <Link
+                  href="/profile"
+                  onClick={() => setShowUserDropdown(false)}
+                  className="flex items-center gap-2 px-3 py-2 text-sm text-[#44546f] hover:bg-[#f1f2f4]"
+                >
+                  <Icon name="profile" className="h-4 w-4" />
+                  Trang cá nhân
+                </Link>
+                <button
+                  onClick={() => void logoutUser()}
+                  className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-[#ae2a19] hover:bg-[#fff4f2]"
+                  type="button"
+                >
+                  <Icon name="logout" className="h-4 w-4" />
+                  Đăng xuất
+                </button>
+              </div>
+            ) : null}
           </div>
         </header>
 
-        {/* PROJECT SUB-HEADER (Jira style) */}
-        {projectId && activeWorkspaceId && (
-          <div className="bg-white border-b border-zinc-200 px-6 pt-5 pb-0 shrink-0 shadow-sm z-0">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
-              <div className="flex items-center gap-3">
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600 text-white font-bold text-sm shadow-md shadow-blue-500/10">
+        {projectId && activeWorkspaceId ? (
+          <section className="shrink-0 border-b border-[#dfe1e6] bg-white">
+            <div className="px-4 pt-4">
+              <div className="flex items-start gap-3">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded bg-[#0c66e4] text-sm font-bold text-white">
                   {title ? title.charAt(0).toUpperCase() : "P"}
                 </div>
-                <div>
+                <div className="min-w-0">
                   <div className="flex items-center gap-2">
-                    <h2 className="text-lg font-bold text-zinc-900 leading-tight">{title || "Dự án"}</h2>
-                    <span className="inline-block rounded bg-zinc-100 px-1.5 py-0.5 text-[10px] font-bold text-zinc-500 font-mono">
-                      ACTIVE
+                    <h2 className="truncate text-xl font-semibold text-[#172b4d]">{title || "Dự án"}</h2>
+                    <span className="rounded bg-[#f1f2f4] px-1.5 py-0.5 text-[11px] font-semibold uppercase text-[#44546f]">
+                      Active
                     </span>
                   </div>
-                  <p className="text-[10px] text-zinc-400 font-medium font-mono mt-0.5">Project ID: {projectId}</p>
+                  <p className="mt-0.5 truncate font-mono text-xs text-[#6b778c]">Project ID: {projectId}</p>
                 </div>
               </div>
             </div>
-            
-            {/* Tab Bar Navigation */}
-            <div className="flex gap-6 text-xs font-semibold text-zinc-500">
-              <Link
-                href={`/workspaces/${activeWorkspaceId}/projects/${projectId}`}
-                className={`pb-3.5 border-b-2 transition-all ${
-                  pathname === `/workspaces/${activeWorkspaceId}/projects/${projectId}`
-                    ? "border-blue-600 text-blue-600 font-bold"
-                    : "border-transparent hover:text-zinc-950 hover:border-zinc-300"
-                }`}
-              >
-                Chi tiết
-              </Link>
-              <Link
-                href={`/workspaces/${activeWorkspaceId}/projects/${projectId}/sprints`}
-                className={`pb-3.5 border-b-2 transition-all ${
-                  pathname.includes("/sprints")
-                    ? "border-blue-600 text-blue-600 font-bold"
-                    : "border-transparent hover:text-zinc-950 hover:border-zinc-300"
-                }`}
-              >
-                Backlog
-              </Link>
-              <Link
-                href={`/workspaces/${activeWorkspaceId}/projects/${projectId}/tasks`}
-                className={`pb-3.5 border-b-2 transition-all ${
-                  pathname.includes("/tasks") && !pathname.includes("/sprints")
-                    ? "border-blue-600 text-blue-600 font-bold"
-                    : "border-transparent hover:text-zinc-950 hover:border-zinc-300"
-                }`}
-              >
-                Bảng công việc (Board)
-              </Link>
-              <Link
-                href={`/workspaces/${activeWorkspaceId}/projects/${projectId}/daily-updates/me`}
-                className={`pb-3.5 border-b-2 transition-all ${
-                  pathname.includes("/daily-updates")
-                    ? "border-blue-600 text-blue-600 font-bold"
-                    : "border-transparent hover:text-zinc-950 hover:border-zinc-300"
-                }`}
-              >
-                Daily Updates
-              </Link>
-              <Link
-                href={`/workspaces/${activeWorkspaceId}/projects/${projectId}/meetings`}
-                className={`pb-3.5 border-b-2 transition-all ${
-                  pathname.includes("/meetings")
-                    ? "border-blue-600 text-blue-600 font-bold"
-                    : "border-transparent hover:text-zinc-950 hover:border-zinc-300"
-                }`}
-              >
-                Meetings
-              </Link>
-              <Link
-                href={`/workspaces/${activeWorkspaceId}/projects/${projectId}/ai-reports/personal`}
-                className={`pb-3.5 border-b-2 transition-all ${
-                  pathname.includes("/ai-reports")
-                    ? "border-blue-600 text-blue-600 font-bold"
-                    : "border-transparent hover:text-zinc-950 hover:border-zinc-300"
-                }`}
-              >
-                AI Reports
-              </Link>
-              <Link
-                href={`/workspaces/${activeWorkspaceId}/members`}
-                className={`pb-3.5 border-b-2 transition-all ${
-                  pathname.includes("/members")
-                    ? "border-blue-600 text-blue-600 font-bold"
-                    : "border-transparent hover:text-zinc-950 hover:border-zinc-300"
-                }`}
-              >
-                Thành viên Workspace
-              </Link>
-              <Link
-                href={`/workspaces/${activeWorkspaceId}/projects/${projectId}/settings`}
-                className={`pb-3.5 border-b-2 transition-all ${
-                  pathname.includes("/settings")
-                    ? "border-blue-600 text-blue-600 font-bold"
-                    : "border-transparent hover:text-zinc-950 hover:border-zinc-300"
-                }`}
-              >
-                Cài đặt dự án
-              </Link>
-            </div>
-          </div>
-        )}
 
-        {/* CONTENT AREA */}
-        <main className="flex-1 overflow-y-auto bg-zinc-50/50 p-6">
-          {children}
-        </main>
+            <div className="mt-3 flex gap-1 overflow-x-auto px-4">
+              {projectTabs.map((tab) => (
+                <Link
+                  key={tab.href}
+                  href={tab.href}
+                  className={`whitespace-nowrap border-b-2 px-3 py-2 text-sm font-medium transition ${
+                    tab.active
+                      ? "border-[#0c66e4] text-[#0c66e4]"
+                      : "border-transparent text-[#44546f] hover:bg-[#f7f8f9] hover:text-[#172b4d]"
+                  }`}
+                >
+                  {tab.label}
+                </Link>
+              ))}
+            </div>
+          </section>
+        ) : null}
+
+        <main className="flex-1 overflow-y-auto bg-[#f7f8f9] p-4">{children}</main>
       </div>
     </div>
   );

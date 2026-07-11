@@ -8,19 +8,88 @@ import { getMyWorkspaceRole, getWorkspaceMembers } from "@/features/members/api/
 import { WorkspaceMember } from "@/features/members/types/member.type";
 import { getProjectDetail } from "@/features/projects/api/projects.api";
 import { Project } from "@/features/projects/types/project.type";
-import { getSprints, startSprint, completeSprint } from "@/features/sprints/api/sprints.api";
+import { completeSprint, getSprints, startSprint } from "@/features/sprints/api/sprints.api";
 import { Sprint } from "@/features/sprints/types/sprint.type";
-import { getTasks, updateTaskStatus, moveTaskToSprint } from "@/features/tasks/api/tasks.api";
+import { getTasks, moveTaskToSprint, updateTaskStatus } from "@/features/tasks/api/tasks.api";
 import { Task, TaskPriority, TaskStatus } from "@/features/tasks/types/task.type";
 import { useAuth } from "@/hooks/useAuth";
 
 const writeRoles = ["OWNER", "SCRUM_MASTER", "PROJECT_MANAGER"];
 
+function formatDate(value: string | null | undefined) {
+  if (!value) return "-";
+  return new Date(value).toLocaleDateString("vi-VN", {
+    day: "2-digit",
+    month: "short",
+  });
+}
+
+function statusClass(status: TaskStatus) {
+  switch (status) {
+    case "DONE":
+      return "bg-[#dcfff1] text-[#216e4e]";
+    case "IN_PROGRESS":
+      return "bg-[#e9f2ff] text-[#0c66e4]";
+    case "REVIEW":
+      return "bg-[#f3f0ff] text-[#5e4db2]";
+    case "CANCELLED":
+      return "bg-[#f1f2f4] text-[#6b778c]";
+    case "BACKLOG":
+    case "TODO":
+    default:
+      return "bg-[#f1f2f4] text-[#44546f]";
+  }
+}
+
+function statusLabel(status: TaskStatus) {
+  switch (status) {
+    case "BACKLOG":
+      return "Backlog";
+    case "TODO":
+      return "Cần làm";
+    case "IN_PROGRESS":
+      return "Đang làm";
+    case "REVIEW":
+      return "Review";
+    case "DONE":
+      return "Done";
+    case "CANCELLED":
+      return "Đã hủy";
+  }
+}
+
+function sprintStatusClass(status: Sprint["status"]) {
+  switch (status) {
+    case "ACTIVE":
+      return "bg-[#dcfff1] text-[#216e4e]";
+    case "COMPLETED":
+      return "bg-[#f1f2f4] text-[#44546f]";
+    case "CANCELLED":
+      return "bg-[#fff4f2] text-[#ae2a19]";
+    case "PLANNED":
+    default:
+      return "bg-[#e9f2ff] text-[#0c66e4]";
+  }
+}
+
+function priorityMark(priority: TaskPriority) {
+  switch (priority) {
+    case "URGENT":
+      return <span className="font-bold text-[#ae2a19]">↑↑</span>;
+    case "HIGH":
+      return <span className="font-bold text-[#c25100]">↑</span>;
+    case "MEDIUM":
+      return <span className="font-bold text-[#974f0c]">=</span>;
+    case "LOW":
+    default:
+      return <span className="font-bold text-[#6b778c]">↓</span>;
+  }
+}
+
 export default function BacklogPage() {
   const params = useParams<{ workspaceId: string; projectId: string }>();
   const { user, isLoading: authLoading } = useAuth(true);
 
-  // States
   const [project, setProject] = useState<Project | null>(null);
   const [sprints, setSprints] = useState<Sprint[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -28,12 +97,8 @@ export default function BacklogPage() {
   const [myRole, setMyRole] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState("");
-
-  // Filters
   const [searchKeyword, setSearchKeyword] = useState("");
   const [selectedAssigneeId, setSelectedAssigneeId] = useState<string | null>(null);
-
-  // Accordion collapsed state (sprintId -> boolean)
   const [collapsedSprints, setCollapsedSprints] = useState<Record<string, boolean>>({});
 
   const canWrite = writeRoles.includes(myRole) && project?.status === "ACTIVE";
@@ -57,12 +122,10 @@ export default function BacklogPage() {
       setMyRole(roleRes.data.role);
       setMembers(membersRes.data.items);
 
-      // Mặc định mở tất cả các sprint
-      const initialCollapsed: Record<string, boolean> = {};
-      sprintsRes.data.items.forEach((s) => {
-        initialCollapsed[s.id] = false;
+      const initialCollapsed: Record<string, boolean> = { backlog: false };
+      sprintsRes.data.items.forEach((sprint) => {
+        initialCollapsed[sprint.id] = false;
       });
-      initialCollapsed["backlog"] = false; // Mở cả backlog
       setCollapsedSprints((prev) => ({ ...initialCollapsed, ...prev }));
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Tải dữ liệu thất bại.");
@@ -77,532 +140,409 @@ export default function BacklogPage() {
     }
   }, [user, params.workspaceId, params.projectId, loadData]);
 
-  // Hành động thay đổi status task nhanh (Checkbox)
   const handleToggleTaskStatus = async (task: Task) => {
     const newStatus: TaskStatus = task.status === "DONE" ? "TODO" : "DONE";
+
     try {
-      await updateTaskStatus(params.workspaceId, params.projectId, task.id, {
-        status: newStatus,
-      });
-      // Update local state
+      await updateTaskStatus(params.workspaceId, params.projectId, task.id, { status: newStatus });
       setTasks((prev) =>
-        prev.map((t) => (t.id === task.id ? { ...t, status: newStatus } : t))
+        prev.map((item) => (item.id === task.id ? { ...item, status: newStatus } : item)),
       );
     } catch (error) {
       alert(error instanceof Error ? error.message : "Không thể cập nhật trạng thái task");
     }
   };
 
-  // Di chuyển task sang Sprint khác
   const handleMoveTask = async (taskId: string, targetSprintId: string | null) => {
     try {
       await moveTaskToSprint(params.workspaceId, params.projectId, taskId, {
         sprintId: targetSprintId,
       });
-      // Update local state
       setTasks((prev) =>
-        prev.map((t) =>
-          t.id === taskId
+        prev.map((task) =>
+          task.id === taskId
             ? {
-                ...t,
+                ...task,
                 sprintId: targetSprintId,
                 sprint: targetSprintId
                   ? {
                       id: targetSprintId,
-                      name: sprints.find((s) => s.id === targetSprintId)?.name || "Sprint",
-                      status: sprints.find((s) => s.id === targetSprintId)?.status || "PLANNED",
+                      name: sprints.find((sprint) => sprint.id === targetSprintId)?.name || "Sprint",
+                      status: sprints.find((sprint) => sprint.id === targetSprintId)?.status || "PLANNED",
                     }
                   : null,
               }
-            : t
-        )
+            : task,
+        ),
       );
     } catch (error) {
       alert(error instanceof Error ? error.message : "Không thể di chuyển task");
     }
   };
 
-  // Bắt đầu Sprint
   const handleStartSprint = async (sprintId: string) => {
-    if (!confirm("Bạn có chắc chắn muốn Bắt đầu Sprint này không?")) return;
+    if (!confirm("Bắt đầu sprint này?")) return;
+
     try {
       await startSprint(params.workspaceId, params.projectId, sprintId);
-      // Reload data
       await loadData();
     } catch (error) {
       alert(error instanceof Error ? error.message : "Bắt đầu sprint thất bại");
     }
   };
 
-  // Hoàn thành Sprint
   const handleCompleteSprint = async (sprintId: string) => {
-    if (!confirm("Bạn có chắc chắn muốn Hoàn thành Sprint này không? Các task chưa hoàn thành sẽ được trả về Backlog.")) return;
+    if (!confirm("Hoàn thành sprint này? Task chưa xong sẽ được trả về Backlog.")) return;
+
     try {
       await completeSprint(params.workspaceId, params.projectId, sprintId);
-      // Reload data
       await loadData();
     } catch (error) {
       alert(error instanceof Error ? error.message : "Hoàn thành sprint thất bại");
     }
   };
 
-  // Toggle Collapse/Expand
   const toggleCollapse = (id: string) => {
     setCollapsedSprints((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
-  // Filters logic
   const filteredTasks = tasks.filter((task) => {
+    const keyword = searchKeyword.toLowerCase();
     const matchesKeyword =
-      task.title.toLowerCase().includes(searchKeyword.toLowerCase()) ||
-      task.taskCode.toLowerCase().includes(searchKeyword.toLowerCase());
+      task.title.toLowerCase().includes(keyword) || task.taskCode.toLowerCase().includes(keyword);
     const matchesAssignee = selectedAssigneeId ? task.assigneeId === selectedAssigneeId : true;
     return matchesKeyword && matchesAssignee;
   });
 
-  const getTasksBySprint = (sprintId: string | null) => {
-    return filteredTasks.filter((t) => t.sprintId === sprintId);
-  };
+  const getTasksBySprint = (sprintId: string | null) =>
+    filteredTasks.filter((task) => task.sprintId === sprintId);
 
-  // Thống kê task cho Sprint
   const getSprintTaskCounts = (sprintId: string | null) => {
-    const sprintTasks = tasks.filter((t) => t.sprintId === sprintId);
-    const todo = sprintTasks.filter((t) => t.status === "TODO" || t.status === "BACKLOG").length;
-    const inProgress = sprintTasks.filter((t) => t.status === "IN_PROGRESS" || t.status === "REVIEW").length;
-    const done = sprintTasks.filter((t) => t.status === "DONE").length;
-    return { todo, inProgress, done };
+    const sprintTasks = tasks.filter((task) => task.sprintId === sprintId);
+    return {
+      todo: sprintTasks.filter((task) => task.status === "TODO" || task.status === "BACKLOG").length,
+      inProgress: sprintTasks.filter((task) => task.status === "IN_PROGRESS" || task.status === "REVIEW").length,
+      done: sprintTasks.filter((task) => task.status === "DONE").length,
+    };
   };
 
-  // Helper render priority icon
-  const renderPriorityIcon = (priority: TaskPriority) => {
-    switch (priority) {
-      case "URGENT":
-      case "HIGH":
-        return <span className="text-red-500 font-bold" title="Cao">⇡</span>;
-      case "MEDIUM":
-        return <span className="text-amber-500 font-bold" title="Trung bình">=</span>;
-      case "LOW":
-      default:
-        return <span className="text-sky-500 font-bold" title="Thấp">⇣</span>;
-    }
+  const renderTaskRow = (task: Task, currentSprintId: string | null) => (
+    <div
+      className="grid grid-cols-[28px_minmax(120px,1fr)_110px_110px_90px_36px] items-center gap-3 border-t border-[#dfe1e6] bg-white px-3 py-2 text-sm hover:bg-[#f7f8f9]"
+      key={task.id}
+    >
+      <input
+        checked={task.status === "DONE"}
+        className="h-4 w-4 rounded border-[#b3b9c4] text-[#0c66e4]"
+        disabled={!canWrite}
+        onChange={() => void handleToggleTaskStatus(task)}
+        type="checkbox"
+      />
+
+      <div className="flex min-w-0 items-center gap-3">
+        <span
+          className={`shrink-0 font-mono text-xs font-medium text-[#6b778c] ${
+            task.status === "DONE" ? "line-through" : ""
+          }`}
+        >
+          {task.taskCode}
+        </span>
+        <Link
+          className={`truncate font-medium text-[#172b4d] hover:text-[#0c66e4] ${
+            task.status === "DONE" ? "line-through text-[#6b778c]" : ""
+          }`}
+          href={`/workspaces/${params.workspaceId}/projects/${params.projectId}/tasks/${task.id}`}
+        >
+          {task.title}
+        </Link>
+      </div>
+
+      <span className={`w-fit rounded px-1.5 py-0.5 text-xs font-semibold ${statusClass(task.status)}`}>
+        {statusLabel(task.status)}
+      </span>
+
+      {canWrite ? (
+        <select
+          className="h-7 rounded border border-[#dfe1e6] bg-white px-2 text-xs text-[#44546f]"
+          onChange={(event) => void handleMoveTask(task.id, event.target.value || null)}
+          value={currentSprintId ?? ""}
+        >
+          <option value="">Backlog</option>
+          {sprints.map((sprint) => (
+            <option key={sprint.id} value={sprint.id}>
+              {sprint.name}
+            </option>
+          ))}
+        </select>
+      ) : (
+        <span className="truncate text-xs text-[#6b778c]">{task.sprint?.name ?? "Backlog"}</span>
+      )}
+
+      <div className="flex items-center gap-2 text-xs text-[#6b778c]">
+        <span>{formatDate(task.dueDate)}</span>
+        {priorityMark(task.priority)}
+      </div>
+
+      <span
+        className="flex h-6 w-6 items-center justify-center rounded-full bg-[#00875a] text-xs font-semibold text-white"
+        title={task.assignee?.fullName ?? "Chưa gán"}
+      >
+        {task.assignee?.fullName ? task.assignee.fullName.charAt(0).toUpperCase() : "-"}
+      </span>
+    </div>
+  );
+
+  const renderSprint = (sprint: Sprint) => {
+    const sprintTasks = getTasksBySprint(sprint.id);
+    const isCollapsed = collapsedSprints[sprint.id];
+    const counts = getSprintTaskCounts(sprint.id);
+
+    return (
+      <section className="overflow-hidden rounded border border-[#dfe1e6] bg-white" key={sprint.id}>
+        <div className="flex min-h-12 flex-wrap items-center justify-between gap-3 bg-[#f7f8f9] px-3 py-2">
+          <div className="flex min-w-0 items-center gap-2">
+            <button
+              className="flex h-7 w-7 items-center justify-center rounded text-[#44546f] hover:bg-[#dfe1e6]"
+              onClick={() => toggleCollapse(sprint.id)}
+              type="button"
+            >
+              <svg
+                className={`h-4 w-4 transition ${isCollapsed ? "-rotate-90" : ""}`}
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="m6 9 6 6 6-6" />
+              </svg>
+            </button>
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2">
+                <h3 className="truncate text-sm font-semibold text-[#172b4d]">{sprint.name}</h3>
+                <span className="text-sm text-[#6b778c]">
+                  {formatDate(sprint.startDate)} - {formatDate(sprint.endDate)} ({sprintTasks.length} task)
+                </span>
+                <span className={`rounded px-1.5 py-0.5 text-xs font-semibold ${sprintStatusClass(sprint.status)}`}>
+                  {sprint.status}
+                </span>
+              </div>
+              {sprint.goal ? <p className="truncate text-xs text-[#6b778c]">{sprint.goal}</p> : null}
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 text-xs font-semibold">
+              <span className="rounded bg-[#dfe1e6] px-1.5 py-0.5 text-[#44546f]">{counts.todo}</span>
+              <span className="rounded bg-[#e9f2ff] px-1.5 py-0.5 text-[#0c66e4]">{counts.inProgress}</span>
+              <span className="rounded bg-[#dcfff1] px-1.5 py-0.5 text-[#216e4e]">{counts.done}</span>
+            </div>
+
+            <Link
+              className="h-8 rounded border border-[#dfe1e6] bg-white px-3 py-1.5 text-sm font-medium text-[#44546f] hover:bg-[#f1f2f4]"
+              href={`/workspaces/${params.workspaceId}/projects/${params.projectId}/sprints/${sprint.id}/board`}
+            >
+              Bảng
+            </Link>
+
+            {canWrite && sprint.status === "PLANNED" ? (
+              <button
+                className="h-8 rounded border border-[#dfe1e6] bg-white px-3 text-sm font-medium text-[#44546f] hover:bg-[#f1f2f4]"
+                onClick={() => void handleStartSprint(sprint.id)}
+                type="button"
+              >
+                Bắt đầu sprint
+              </button>
+            ) : null}
+
+            {canWrite && sprint.status === "ACTIVE" ? (
+              <button
+                className="h-8 rounded bg-[#0c66e4] px-3 text-sm font-semibold text-white hover:bg-[#0055cc]"
+                onClick={() => void handleCompleteSprint(sprint.id)}
+                type="button"
+              >
+                Hoàn thành sprint
+              </button>
+            ) : null}
+          </div>
+        </div>
+
+        {!isCollapsed ? (
+          <>
+            {sprintTasks.map((task) => renderTaskRow(task, sprint.id))}
+            {sprintTasks.length === 0 ? (
+              <div className="border-t border-[#dfe1e6] bg-white px-3 py-8 text-center text-sm text-[#6b778c]">
+                Chưa có task trong sprint này.
+              </div>
+            ) : null}
+          </>
+        ) : null}
+      </section>
+    );
   };
 
   if (authLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-zinc-50">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-900 border-t-transparent"></div>
+      <div className="flex min-h-screen items-center justify-center bg-[#f7f8f9]">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#0c66e4] border-t-transparent" />
       </div>
     );
   }
 
+  const backlogTasks = getTasksBySprint(null);
+  const backlogCounts = getSprintTaskCounts(null);
+  const backlogCollapsed = collapsedSprints.backlog;
+
   return (
     <AppShell projectId={params.projectId} title={project?.name} workspaceId={params.workspaceId}>
-      <div className="space-y-6 max-w-7xl mx-auto pb-12">
-        {/* BANNER FILTER & ACTIONS */}
-        <div className="flex flex-col gap-4 md:flex-row md:items-center justify-between bg-white p-5 rounded-2xl border border-zinc-200/80 shadow-sm">
-          {/* Filters */}
-          <div className="flex flex-wrap items-center gap-3 flex-1">
-            <div className="relative w-64">
+      <div className="space-y-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-1 flex-wrap items-center gap-2">
+            <div className="relative w-full max-w-xs">
               <input
-                type="text"
-                placeholder="Tìm kiếm backlog..."
+                className="h-9 w-full rounded border border-[#dfe1e6] bg-white pl-9 pr-3 text-sm text-[#172b4d] outline-none hover:bg-[#f7f8f9] focus:border-[#0c66e4]"
+                onChange={(event) => setSearchKeyword(event.target.value)}
+                placeholder="Tìm backlog"
                 value={searchKeyword}
-                onChange={(e) => setSearchKeyword(e.target.value)}
-                className="w-full h-9 pl-9 pr-4 rounded-xl border border-zinc-300 bg-zinc-50/50 text-xs outline-none focus:bg-white focus:border-blue-500 transition-all font-medium"
               />
-              <svg className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              <svg className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6b778c]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="m21 21-4.3-4.3M10 18a8 8 0 1 1 0-16 8 8 0 0 1 0 16Z" />
               </svg>
             </div>
 
-            {/* Avatars filter */}
-            <div className="flex items-center gap-1.5 border-l border-zinc-200 pl-3">
-              <span className="text-[10px] font-bold text-zinc-400 uppercase mr-1">Người được gán:</span>
-              <button
-                onClick={() => setSelectedAssigneeId(null)}
-                className={`h-7 px-2.5 rounded-lg text-[10px] font-bold transition-all ${
-                  selectedAssigneeId === null
-                    ? "bg-zinc-900 text-white shadow-sm"
-                    : "bg-zinc-100 hover:bg-zinc-200 text-zinc-600"
-                }`}
-              >
-                Tất cả
-              </button>
-              <div className="flex -space-x-1">
-                {members.slice(0, 5).map((m) => {
-                  const initial = m.fullName ? m.fullName.charAt(0).toUpperCase() : "?";
-                  const isSelected = selectedAssigneeId === m.userId;
-                  return (
-                    <button
-                      key={m.userId}
-                      onClick={() => setSelectedAssigneeId(isSelected ? null : m.userId)}
-                      title={m.fullName || m.email || undefined}
-                      className={`h-7 w-7 rounded-full text-[10px] font-bold border-2 flex items-center justify-center transition-all ${
-                        isSelected
-                          ? "border-blue-600 bg-blue-100 text-blue-800 scale-110 z-10"
-                          : "border-white bg-emerald-500 text-slate-950 hover:scale-105"
-                      }`}
-                    >
-                      {initial}
-                    </button>
-                  );
-                })}
-              </div>
+            <button
+              className={`h-8 rounded border px-3 text-sm font-medium ${
+                selectedAssigneeId === null
+                  ? "border-[#0c66e4] bg-[#e9f2ff] text-[#0c66e4]"
+                  : "border-[#dfe1e6] bg-white text-[#44546f] hover:bg-[#f1f2f4]"
+              }`}
+              onClick={() => setSelectedAssigneeId(null)}
+              type="button"
+            >
+              Tất cả
+            </button>
+
+            <div className="flex -space-x-1">
+              {members.slice(0, 6).map((member) => {
+                const initial = member.fullName ? member.fullName.charAt(0).toUpperCase() : "?";
+                const selected = selectedAssigneeId === member.userId;
+
+                return (
+                  <button
+                    className={`flex h-8 w-8 items-center justify-center rounded-full border-2 text-xs font-semibold ${
+                      selected
+                        ? "z-10 border-[#0c66e4] bg-[#deebff] text-[#0c66e4]"
+                        : "border-white bg-[#00875a] text-white hover:bg-[#216e4e]"
+                    }`}
+                    key={member.userId}
+                    onClick={() => setSelectedAssigneeId(selected ? null : member.userId)}
+                    title={member.fullName || member.email || undefined}
+                    type="button"
+                  >
+                    {initial}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
-          {/* Action buttons */}
           <div className="flex items-center gap-2">
             <button
-              onClick={() => void loadData()}
+              className="h-9 rounded border border-[#dfe1e6] bg-white px-3 text-sm font-medium text-[#44546f] hover:bg-[#f1f2f4] disabled:opacity-60"
               disabled={isLoading}
-              className="h-9 rounded-xl border border-zinc-200 bg-white px-3.5 text-xs font-semibold text-zinc-700 hover:bg-zinc-50 transition"
+              onClick={() => void loadData()}
+              type="button"
             >
               Làm mới
             </button>
-            {canWrite && (
+            {canWrite ? (
               <>
                 <Link
+                  className="flex h-9 items-center rounded border border-[#dfe1e6] bg-white px-3 text-sm font-medium text-[#44546f] hover:bg-[#f1f2f4]"
                   href={`/workspaces/${params.workspaceId}/projects/${params.projectId}/sprints/create`}
-                  className="flex h-9 items-center rounded-xl border border-zinc-200 bg-white px-3.5 text-xs font-bold text-zinc-700 hover:bg-zinc-50 transition"
                 >
-                  Tạo Sprint
+                  Tạo sprint
                 </Link>
                 <Link
+                  className="flex h-9 items-center rounded bg-[#0c66e4] px-3 text-sm font-semibold text-white hover:bg-[#0055cc]"
                   href={`/workspaces/${params.workspaceId}/projects/${params.projectId}/tasks/create`}
-                  className="flex h-9 items-center rounded-xl bg-blue-600 px-4 text-xs font-bold text-white shadow-md hover:bg-blue-700 transition"
                 >
-                  Tạo Task
+                  Tạo task
                 </Link>
               </>
-            )}
+            ) : null}
           </div>
         </div>
 
-        {message && (
-          <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs font-semibold text-amber-900">
+        {message ? (
+          <div className="rounded border border-[#f5cd47] bg-[#fff7d6] px-3 py-2 text-sm font-medium text-[#7f5f01]">
             {message}
           </div>
-        )}
+        ) : null}
 
-        {/* LOADING STATE */}
         {isLoading ? (
-          <div className="flex h-48 items-center justify-center bg-white rounded-2xl border border-zinc-200/80 shadow-sm">
-            <div className="flex flex-col items-center gap-2">
-              <div className="h-6 w-6 animate-spin rounded-full border-2 border-blue-600 border-t-transparent"></div>
-              <p className="text-xs text-zinc-400 font-medium">Đang tải backlog...</p>
-            </div>
+          <div className="flex h-72 items-center justify-center rounded border border-[#dfe1e6] bg-white">
+            <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#0c66e4] border-t-transparent" />
           </div>
         ) : (
-          <div className="space-y-4">
-            {/* LIST OF SPRINTS */}
-            {sprints.map((sprint) => {
-              const sprintTasks = getTasksBySprint(sprint.id);
-              const isCollapsed = collapsedSprints[sprint.id];
-              const { todo, inProgress, done } = getSprintTaskCounts(sprint.id);
+          <div className="space-y-3 overflow-x-auto pb-3">
+            <div className="min-w-[920px] space-y-3">
+              {sprints.map((sprint) => renderSprint(sprint))}
 
-              return (
-                <div key={sprint.id} className="bg-white rounded-2xl border border-zinc-200/80 shadow-sm overflow-hidden transition-all duration-200">
-                  {/* Sprint Header Row */}
-                  <div className="flex flex-wrap items-center justify-between gap-4 bg-zinc-50/50 p-4 border-b border-zinc-100">
-                    <div className="flex items-center gap-3">
-                      <button
-                        onClick={() => toggleCollapse(sprint.id)}
-                        className="text-zinc-400 hover:text-zinc-900 transition"
+              <section className="overflow-hidden rounded border border-[#dfe1e6] bg-white">
+                <div className="flex min-h-12 flex-wrap items-center justify-between gap-3 bg-[#f7f8f9] px-3 py-2">
+                  <div className="flex items-center gap-2">
+                    <button
+                      className="flex h-7 w-7 items-center justify-center rounded text-[#44546f] hover:bg-[#dfe1e6]"
+                      onClick={() => toggleCollapse("backlog")}
+                      type="button"
+                    >
+                      <svg
+                        className={`h-4 w-4 transition ${backlogCollapsed ? "-rotate-90" : ""}`}
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
                       >
-                        <svg
-                          className={`h-4 w-4 transition-transform duration-200 ${isCollapsed ? "-rotate-90" : ""}`}
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                        </svg>
-                      </button>
-                      <div>
-                        <div className="flex items-center gap-2.5">
-                          <h3 className="font-bold text-sm text-zinc-900">{sprint.name}</h3>
-                          <span className={`text-[9px] font-extrabold px-2 py-0.5 rounded-full ${
-                            sprint.status === "ACTIVE"
-                              ? "bg-emerald-100 text-emerald-800"
-                              : sprint.status === "COMPLETED"
-                              ? "bg-zinc-100 text-zinc-600"
-                              : "bg-blue-50 text-blue-700"
-                          }`}>
-                            {sprint.status}
-                          </span>
-                        </div>
-                        <p className="text-[10px] text-zinc-400 font-mono mt-0.5">
-                          {sprint.startDate ? new Date(sprint.startDate).toLocaleDateString("vi-VN") : "-"} -{" "}
-                          {sprint.endDate ? new Date(sprint.endDate).toLocaleDateString("vi-VN") : "-"}
-                          {sprint.goal ? ` · Goal: ${sprint.goal}` : ""}
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Stats & Actions */}
-                    <div className="flex items-center gap-4">
-                      {/* Work Items counts */}
-                      <div className="flex items-center gap-1 text-[10px] font-bold">
-                        <span className="h-5 min-w-5 px-1 bg-zinc-200 text-zinc-700 rounded flex items-center justify-center" title="To Do">
-                          {todo}
-                        </span>
-                        <span className="h-5 min-w-5 px-1 bg-blue-100 text-blue-700 rounded flex items-center justify-center" title="In Progress">
-                          {inProgress}
-                        </span>
-                        <span className="h-5 min-w-5 px-1 bg-emerald-100 text-emerald-700 rounded flex items-center justify-center" title="Done">
-                          {done}
-                        </span>
-                      </div>
-
-                      {/* Control buttons */}
-                      {canWrite && (
-                        <div className="flex gap-2">
-                          {sprint.status === "PLANNED" && (
-                            <button
-                              onClick={() => void handleStartSprint(sprint.id)}
-                              className="h-7 bg-blue-600 hover:bg-blue-700 text-[10px] font-bold text-white px-2.5 rounded-lg transition"
-                            >
-                              Bắt đầu
-                            </button>
-                          )}
-                          {sprint.status === "ACTIVE" && (
-                            <button
-                              onClick={() => void handleCompleteSprint(sprint.id)}
-                              className="h-7 bg-emerald-600 hover:bg-emerald-700 text-[10px] font-bold text-white px-2.5 rounded-lg transition"
-                            >
-                              Hoàn thành
-                            </button>
-                          )}
-                        </div>
-                      )}
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="m6 9 6 6 6-6" />
+                      </svg>
+                    </button>
+                    <div>
+                      <h3 className="text-sm font-semibold text-[#172b4d]">
+                        Backlog <span className="font-normal text-[#6b778c]">({backlogTasks.length} task)</span>
+                      </h3>
+                      <p className="text-xs text-[#6b778c]">Task chưa được gán vào sprint.</p>
                     </div>
                   </div>
 
-                  {/* Task list rows */}
-                  {!isCollapsed && (
-                    <div className="divide-y divide-zinc-100">
-                      {sprintTasks.map((task) => (
-                        <div
-                          key={task.id}
-                          className={`flex items-center justify-between gap-4 p-3 hover:bg-zinc-50/50 transition-all ${
-                            task.status === "DONE" ? "bg-zinc-50/20" : ""
-                          }`}
-                        >
-                          {/* Left: Checkbox + Code + Title */}
-                          <div className="flex items-center gap-3 min-w-0 flex-1">
-                            <input
-                              type="checkbox"
-                              checked={task.status === "DONE"}
-                              onChange={() => void handleToggleTaskStatus(task)}
-                              className="h-4 w-4 rounded-md border-zinc-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
-                            />
-                            <span className={`font-mono text-xs font-bold shrink-0 ${
-                              task.status === "DONE" ? "line-through text-zinc-400" : "text-zinc-600"
-                            }`}>
-                              {task.taskCode}
-                            </span>
-                            <Link
-                              href={`/workspaces/${params.workspaceId}/projects/${params.projectId}/tasks/${task.id}`}
-                              className={`text-xs font-semibold truncate hover:text-blue-600 hover:underline transition ${
-                                task.status === "DONE" ? "line-through text-zinc-400" : "text-zinc-800"
-                              }`}
-                            >
-                              {task.title}
-                            </Link>
-                          </div>
-
-                          {/* Right: Status badge, priority, assignee, target sprint changer */}
-                          <div className="flex items-center gap-4 shrink-0">
-                            {/* Target Sprint Selector */}
-                            {canWrite && (
-                              <select
-                                value={sprint.id}
-                                onChange={(e) => void handleMoveTask(task.id, e.target.value || null)}
-                                className="h-6 text-[10px] font-bold bg-transparent border-none text-zinc-400 hover:text-zinc-700 outline-none cursor-pointer"
-                              >
-                                <option value={sprint.id}>Sprint hiện tại</option>
-                                {sprints
-                                  .filter((s) => s.id !== sprint.id)
-                                  .map((s) => (
-                                    <option key={s.id} value={s.id}>
-                                      Di chuyển: {s.name}
-                                    </option>
-                                  ))}
-                                <option value="">Trả về Backlog</option>
-                              </select>
-                            )}
-
-                            {/* Priority */}
-                            <div className="w-5 flex items-center justify-center">
-                              {renderPriorityIcon(task.priority)}
-                            </div>
-
-                            {/* Status Badge */}
-                            <span className={`text-[9px] font-bold px-2 py-0.5 rounded border uppercase tracking-wider ${
-                              task.status === "DONE"
-                                ? "bg-emerald-50 border-emerald-100 text-emerald-700"
-                                : task.status === "IN_PROGRESS"
-                                ? "bg-blue-50 border-blue-100 text-blue-700"
-                                : "bg-zinc-100 border-zinc-200 text-zinc-600"
-                            }`}>
-                              {task.status}
-                            </span>
-
-                            {/* Assignee Avatar */}
-                            <div
-                              className="h-6 w-6 rounded-full bg-emerald-500 border border-white text-slate-950 font-bold text-[9px] flex items-center justify-center shadow-sm"
-                              title={task.assignee?.fullName ?? "Chưa gán"}
-                            >
-                              {task.assignee?.fullName ? task.assignee.fullName.charAt(0).toUpperCase() : "-"}
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-
-                      {sprintTasks.length === 0 && (
-                        <div className="p-6 text-center text-xs text-zinc-400 font-medium">
-                          Kéo hoặc di chuyển task vào đây để lập kế hoạch Sprint.
-                        </div>
-                      )}
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1 text-xs font-semibold">
+                      <span className="rounded bg-[#dfe1e6] px-1.5 py-0.5 text-[#44546f]">{backlogCounts.todo}</span>
+                      <span className="rounded bg-[#e9f2ff] px-1.5 py-0.5 text-[#0c66e4]">
+                        {backlogCounts.inProgress}
+                      </span>
+                      <span className="rounded bg-[#dcfff1] px-1.5 py-0.5 text-[#216e4e]">{backlogCounts.done}</span>
                     </div>
-                  )}
-                </div>
-              );
-            })}
-
-            {/* BACKLOG SECTION */}
-            {(() => {
-              const backlogTasks = getTasksBySprint(null);
-              const isCollapsed = collapsedSprints["backlog"];
-              const { todo, inProgress, done } = getSprintTaskCounts(null);
-
-              return (
-                <div className="bg-white rounded-2xl border border-zinc-200/80 shadow-sm overflow-hidden transition-all duration-200">
-                  <div className="flex flex-wrap items-center justify-between gap-4 bg-zinc-100/50 p-4 border-b border-zinc-200">
-                    <div className="flex items-center gap-3">
-                      <button
-                        onClick={() => toggleCollapse("backlog")}
-                        className="text-zinc-500 hover:text-zinc-900 transition"
+                    {canWrite ? (
+                      <Link
+                        className="h-8 rounded border border-[#dfe1e6] bg-white px-3 py-1.5 text-sm font-medium text-[#44546f] hover:bg-[#f1f2f4]"
+                        href={`/workspaces/${params.workspaceId}/projects/${params.projectId}/sprints/create`}
                       >
-                        <svg
-                          className={`h-4 w-4 transition-transform duration-200 ${isCollapsed ? "-rotate-90" : ""}`}
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                        </svg>
-                      </button>
-                      <div>
-                        <h3 className="font-bold text-sm text-zinc-800 flex items-center gap-2">
-                          Backlog
-                        </h3>
-                        <p className="text-[10px] text-zinc-400 font-medium mt-0.5">
-                          Danh sách task chờ gán vào Sprint ({backlogTasks.length} task)
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Stats counts */}
-                    <div className="flex items-center gap-1 text-[10px] font-bold">
-                      <span className="h-5 min-w-5 px-1 bg-zinc-200 text-zinc-700 rounded flex items-center justify-center" title="To Do">
-                        {todo}
-                      </span>
-                      <span className="h-5 min-w-5 px-1 bg-blue-100 text-blue-700 rounded flex items-center justify-center" title="In Progress">
-                        {inProgress}
-                      </span>
-                      <span className="h-5 min-w-5 px-1 bg-emerald-100 text-emerald-700 rounded flex items-center justify-center" title="Done">
-                        {done}
-                      </span>
-                    </div>
+                        Tạo sprint
+                      </Link>
+                    ) : null}
                   </div>
-
-                  {!isCollapsed && (
-                    <div className="divide-y divide-zinc-100">
-                      {backlogTasks.map((task) => (
-                        <div
-                          key={task.id}
-                          className={`flex items-center justify-between gap-4 p-3 hover:bg-zinc-50/50 transition-all ${
-                            task.status === "DONE" ? "bg-zinc-50/20" : ""
-                          }`}
-                        >
-                          <div className="flex items-center gap-3 min-w-0 flex-1">
-                            <input
-                              type="checkbox"
-                              checked={task.status === "DONE"}
-                              onChange={() => void handleToggleTaskStatus(task)}
-                              className="h-4 w-4 rounded-md border-zinc-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
-                            />
-                            <span className={`font-mono text-xs font-bold shrink-0 ${
-                              task.status === "DONE" ? "line-through text-zinc-400" : "text-zinc-600"
-                            }`}>
-                              {task.taskCode}
-                            </span>
-                            <Link
-                              href={`/workspaces/${params.workspaceId}/projects/${params.projectId}/tasks/${task.id}`}
-                              className={`text-xs font-semibold truncate hover:text-blue-600 hover:underline transition ${
-                                task.status === "DONE" ? "line-through text-zinc-400" : "text-zinc-800"
-                              }`}
-                            >
-                              {task.title}
-                            </Link>
-                          </div>
-
-                          <div className="flex items-center gap-4 shrink-0">
-                            {/* Sprint Selector */}
-                            {canWrite && sprints.length > 0 && (
-                              <select
-                                value=""
-                                onChange={(e) => void handleMoveTask(task.id, e.target.value || null)}
-                                className="h-6 text-[10px] font-bold bg-transparent border-none text-zinc-400 hover:text-zinc-700 outline-none cursor-pointer"
-                              >
-                                <option value="">Chờ gán (Backlog)</option>
-                                {sprints.map((s) => (
-                                  <option key={s.id} value={s.id}>
-                                    Gán vào: {s.name}
-                                  </option>
-                                ))}
-                              </select>
-                            )}
-
-                            {/* Priority */}
-                            <div className="w-5 flex items-center justify-center">
-                              {renderPriorityIcon(task.priority)}
-                            </div>
-
-                            {/* Status */}
-                            <span className={`text-[9px] font-bold px-2 py-0.5 rounded border uppercase tracking-wider ${
-                              task.status === "DONE"
-                                ? "bg-emerald-50 border-emerald-100 text-emerald-700"
-                                : task.status === "IN_PROGRESS"
-                                ? "bg-blue-50 border-blue-100 text-blue-700"
-                                : "bg-zinc-100 border-zinc-200 text-zinc-600"
-                            }`}>
-                              {task.status}
-                            </span>
-
-                            {/* Assignee Avatar */}
-                            <div
-                              className="h-6 w-6 rounded-full bg-emerald-500 border border-white text-slate-950 font-bold text-[9px] flex items-center justify-center shadow-sm"
-                              title={task.assignee?.fullName ?? "Chưa gán"}
-                            >
-                              {task.assignee?.fullName ? task.assignee.fullName.charAt(0).toUpperCase() : "-"}
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-
-                      {backlogTasks.length === 0 && (
-                        <div className="p-6 text-center text-xs text-zinc-400 font-medium">
-                          Tuyệt vời! Không có task nào trong Backlog.
-                        </div>
-                      )}
-                    </div>
-                  )}
                 </div>
-              );
-            })()}
+
+                {!backlogCollapsed ? (
+                  <>
+                    {backlogTasks.map((task) => renderTaskRow(task, null))}
+                    {backlogTasks.length === 0 ? (
+                      <div className="border-t border-[#dfe1e6] bg-white px-3 py-8 text-center text-sm text-[#6b778c]">
+                        Backlog đang trống.
+                      </div>
+                    ) : null}
+                  </>
+                ) : null}
+              </section>
+            </div>
           </div>
         )}
       </div>

@@ -189,14 +189,14 @@ export default function PersonalizedMeetingSummaryPage() {
       setGeneratedItems([]);
       setMessage(
         forceRegenerate
-          ? "Regenerated personalized summary."
-          : "Loaded personalized summary.",
+          ? "Đã tạo lại tóm tắt cá nhân."
+          : "Đã tải tóm tắt cá nhân.",
       );
     } catch (error) {
       setMessage(
         error instanceof Error
           ? error.message
-          : "Generate personalized summary failed.",
+          : "Tạo tóm tắt cá nhân thất bại.",
       );
     } finally {
       setIsGenerating(false);
@@ -222,15 +222,14 @@ export default function PersonalizedMeetingSummaryPage() {
           <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div>
               <p className="text-[10px] font-black uppercase tracking-[0.18em] text-blue-600">
-                AI personalized meeting summary
+                Tóm tắt cá nhân bằng AI
               </p>
               <h1 className="mt-1 text-2xl font-black text-zinc-950">
-                {meeting?.title ?? "Personalized summary"}
+                {meeting?.title ?? "Tóm tắt cá nhân"}
               </h1>
               <p className="mt-2 max-w-2xl text-sm font-medium leading-relaxed text-zinc-500">
-                This view creates a participant-specific summary from the
-                existing meeting summary. It does not update tasks, sprints or
-                projects automatically.
+                Tạo tóm tắt riêng cho từng người từ tóm tắt chung của cuộc họp.
+                Chức năng này không tự cập nhật task, sprint hoặc project.
               </p>
             </div>
             <div className="flex flex-col items-start gap-3 lg:items-end">
@@ -247,13 +246,13 @@ export default function PersonalizedMeetingSummaryPage() {
                   className="flex h-10 items-center rounded-xl border border-zinc-200 bg-white px-4 text-xs font-bold text-zinc-700 transition hover:bg-zinc-50"
                   href={`/workspaces/${params.workspaceId}/projects/${params.projectId}/meetings/${params.meetingId}/summary`}
                 >
-                  Meeting summary
+                  Tóm tắt cuộc họp
                 </Link>
                 <Link
                   className="flex h-10 items-center rounded-xl border border-zinc-200 bg-white px-4 text-xs font-bold text-zinc-700 transition hover:bg-zinc-50"
                   href={`/workspaces/${params.workspaceId}/projects/${params.projectId}/my-meeting-action-items`}
                 >
-                  My action items
+                  Việc của tôi
                 </Link>
               </div>
             </div>
@@ -263,13 +262,13 @@ export default function PersonalizedMeetingSummaryPage() {
         {canManage ? (
           <section className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
             <label className="grid max-w-md gap-1 text-[10px] font-black uppercase tracking-wider text-zinc-400">
-              Participant view
+              Xem theo thành viên
               <select
                 className="h-11 rounded-xl border border-zinc-300 bg-white px-3 text-sm font-medium normal-case tracking-normal text-zinc-800 outline-none transition focus:border-blue-600"
                 value={selectedMemberId}
                 onChange={(event) => setSelectedMemberId(event.target.value)}
               >
-                <option value="">My personalized summary</option>
+                <option value="">Tóm tắt của tôi</option>
                 {activeMembers.map((member) => (
                   <option key={member.userId} value={member.userId}>
                     {member.fullName ?? member.email ?? member.userId}
@@ -282,8 +281,7 @@ export default function PersonalizedMeetingSummaryPage() {
 
         {!hasMeetingSummary ? (
           <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-900">
-            Generate the base meeting summary before generating personalized
-            participant summaries.
+            Hãy tạo tóm tắt chung của cuộc họp trước khi tạo tóm tắt cá nhân.
           </div>
         ) : null}
 

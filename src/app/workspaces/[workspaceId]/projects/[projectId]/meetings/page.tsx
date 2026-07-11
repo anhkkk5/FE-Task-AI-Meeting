@@ -36,6 +36,21 @@ const typeOptions: MeetingType[] = [
   "GENERAL",
 ];
 
+const statusLabels: Record<MeetingStatus, string> = {
+  SCHEDULED: "Đã lên lịch",
+  COMPLETED: "Đã hoàn thành",
+  CANCELLED: "Đã hủy",
+  ARCHIVED: "Đã lưu trữ",
+};
+
+const typeLabels: Record<MeetingType, string> = {
+  SPRINT_PLANNING: "Lập kế hoạch sprint",
+  DAILY_SCRUM: "Daily Scrum",
+  SPRINT_REVIEW: "Review sprint",
+  RETROSPECTIVE: "Retrospective",
+  GENERAL: "Tổng quan",
+};
+
 export default function MeetingsPage() {
   const params = useParams<{ workspaceId: string; projectId: string }>();
   const { user, isLoading: authLoading } = useAuth(true);
@@ -70,7 +85,7 @@ export default function MeetingsPage() {
       setItems(meetingsRes.data.items);
     } catch (error) {
       setMessage(
-        error instanceof Error ? error.message : "Tai meetings that bai.",
+        error instanceof Error ? error.message : "Tải danh sách meeting thất bại.",
       );
     } finally {
       setIsLoading(false);
@@ -106,50 +121,49 @@ export default function MeetingsPage() {
       title={project?.name}
       workspaceId={params.workspaceId}
     >
-      <div className="mx-auto max-w-6xl space-y-6 pb-12">
-        <section className="rounded-2xl border border-zinc-200/80 bg-white p-6 shadow-sm">
+      <div className="mx-auto max-w-6xl space-y-4 pb-12">
+        <section className="rounded border border-[#dfe1e6] bg-white p-5">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.18em] text-blue-600">
-                Meetings
+              <p className="text-xs font-semibold uppercase tracking-wide text-[#0c66e4]">
+                Cuộc họp
               </p>
-              <h1 className="mt-1 text-2xl font-black text-zinc-950">
-                Meeting trong project
+              <h1 className="mt-1 text-2xl font-semibold text-[#172b4d]">
+                Cuộc họp trong project
               </h1>
-              <p className="mt-2 max-w-2xl text-sm font-medium text-zinc-500">
-                Quan ly lich hop, participant va transcript theo tung project
-                hoac sprint.
+              <p className="mt-2 max-w-2xl text-sm text-[#6b778c]">
+                Quản lý lịch họp, người tham gia và biên bản theo từng project hoặc sprint.
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
               <button
-                className="h-10 rounded-xl border border-zinc-200 bg-white px-4 text-xs font-bold text-zinc-700 transition hover:bg-zinc-50"
+                className="h-9 rounded border border-[#dfe1e6] bg-white px-3 text-sm font-medium text-[#44546f] hover:bg-[#f1f2f4]"
                 type="button"
                 onClick={() => void loadData()}
               >
-                Lam moi
+                Làm mới
               </button>
               {canManage ? (
                 <Link
-                  className="flex h-10 items-center rounded-xl bg-blue-600 px-4 text-xs font-bold text-white shadow-md shadow-blue-500/20 transition hover:bg-blue-700"
+                  className="flex h-9 items-center rounded bg-[#0c66e4] px-3 text-sm font-semibold text-white hover:bg-[#0055cc]"
                   href={`/workspaces/${params.workspaceId}/projects/${params.projectId}/meetings/create`}
                 >
-                  Tao meeting
+                  Tạo cuộc họp
                 </Link>
               ) : null}
             </div>
           </div>
         </section>
 
-        <section className="grid gap-3 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm lg:grid-cols-[1fr_180px_180px_220px_auto]">
+        <section className="grid gap-3 rounded border border-[#dfe1e6] bg-white p-3 lg:grid-cols-[1fr_180px_180px_220px_auto]">
           <input
-            className="h-11 rounded-xl border border-zinc-300 bg-white px-3 text-sm outline-none transition focus:border-blue-600"
-            placeholder="Tim meeting..."
+            className="h-9 rounded border border-[#dfe1e6] bg-white px-3 text-sm outline-none hover:bg-[#f7f8f9] focus:border-[#0c66e4]"
+            placeholder="Tìm meeting..."
             value={query.keyword ?? ""}
             onChange={(event) => patchQuery({ keyword: event.target.value })}
           />
           <select
-            className="h-11 rounded-xl border border-zinc-300 bg-white px-3 text-sm outline-none transition focus:border-blue-600"
+            className="h-9 rounded border border-[#dfe1e6] bg-white px-3 text-sm outline-none hover:bg-[#f7f8f9] focus:border-[#0c66e4]"
             value={query.status ?? ""}
             onChange={(event) =>
               patchQuery({
@@ -159,15 +173,15 @@ export default function MeetingsPage() {
               })
             }
           >
-            <option value="">Tat ca status</option>
+            <option value="">Tất cả trạng thái</option>
             {statusOptions.map((status) => (
               <option key={status} value={status}>
-                {status}
+                {statusLabels[status]}
               </option>
             ))}
           </select>
           <select
-            className="h-11 rounded-xl border border-zinc-300 bg-white px-3 text-sm outline-none transition focus:border-blue-600"
+            className="h-9 rounded border border-[#dfe1e6] bg-white px-3 text-sm outline-none hover:bg-[#f7f8f9] focus:border-[#0c66e4]"
             value={query.meetingType ?? ""}
             onChange={(event) =>
               patchQuery({
@@ -177,21 +191,21 @@ export default function MeetingsPage() {
               })
             }
           >
-            <option value="">Tat ca loai</option>
+            <option value="">Tất cả loại</option>
             {typeOptions.map((type) => (
               <option key={type} value={type}>
-                {type}
+                {typeLabels[type]}
               </option>
             ))}
           </select>
           <select
-            className="h-11 rounded-xl border border-zinc-300 bg-white px-3 text-sm outline-none transition focus:border-blue-600"
+            className="h-9 rounded border border-[#dfe1e6] bg-white px-3 text-sm outline-none hover:bg-[#f7f8f9] focus:border-[#0c66e4]"
             value={query.sprintId ?? ""}
             onChange={(event) =>
               patchQuery({ sprintId: event.target.value || undefined })
             }
           >
-            <option value="">Tat ca sprint</option>
+            <option value="">Tất cả sprint</option>
             {sprints.map((sprint) => (
               <option key={sprint.id} value={sprint.id}>
                 {sprint.name}
@@ -199,27 +213,27 @@ export default function MeetingsPage() {
             ))}
           </select>
           <button
-            className="h-11 rounded-xl bg-zinc-950 px-4 text-xs font-bold text-white transition hover:bg-zinc-800"
+            className="h-9 rounded bg-[#172b4d] px-3 text-sm font-semibold text-white hover:bg-[#0c1f3f]"
             type="button"
             onClick={() => setQuery({ page: 1, limit: 20 })}
           >
-            Xoa loc
+            Xóa lọc
           </button>
         </section>
 
         {message ? (
-          <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-900">
+          <div className="rounded border border-[#f5cd47] bg-[#fff7d6] px-3 py-2 text-sm font-medium text-[#7f5f01]">
             {message}
           </div>
         ) : null}
 
         {isLoading ? (
-          <div className="flex h-48 items-center justify-center rounded-2xl border border-zinc-200 bg-white">
-            <div className="h-6 w-6 animate-spin rounded-full border-2 border-blue-600 border-t-transparent"></div>
+          <div className="flex h-48 items-center justify-center rounded border border-[#dfe1e6] bg-white">
+            <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#0c66e4] border-t-transparent"></div>
           </div>
         ) : (
           <MeetingList
-            emptyText="Chua co meeting nao trong bo loc hien tai."
+            emptyText="Chưa có meeting nào trong bộ lọc hiện tại."
             items={items}
             projectId={params.projectId}
             workspaceId={params.workspaceId}

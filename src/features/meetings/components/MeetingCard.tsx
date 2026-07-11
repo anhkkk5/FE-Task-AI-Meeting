@@ -8,18 +8,25 @@ type MeetingCardProps = {
 };
 
 const typeLabels: Record<Meeting["meetingType"], string> = {
-  SPRINT_PLANNING: "Sprint planning",
-  DAILY_SCRUM: "Daily scrum",
-  SPRINT_REVIEW: "Sprint review",
+  SPRINT_PLANNING: "Lập kế hoạch sprint",
+  DAILY_SCRUM: "Daily Scrum",
+  SPRINT_REVIEW: "Review sprint",
   RETROSPECTIVE: "Retrospective",
-  GENERAL: "General",
+  GENERAL: "Tổng quan",
+};
+
+const statusLabels: Record<Meeting["status"], string> = {
+  SCHEDULED: "Đã lên lịch",
+  COMPLETED: "Đã hoàn thành",
+  CANCELLED: "Đã hủy",
+  ARCHIVED: "Đã lưu trữ",
 };
 
 const statusTones: Record<Meeting["status"], string> = {
-  SCHEDULED: "border-blue-200 bg-blue-50 text-blue-700",
-  COMPLETED: "border-emerald-200 bg-emerald-50 text-emerald-700",
-  CANCELLED: "border-red-200 bg-red-50 text-red-700",
-  ARCHIVED: "border-zinc-200 bg-zinc-100 text-zinc-600",
+  SCHEDULED: "bg-[#e9f2ff] text-[#0c66e4]",
+  COMPLETED: "bg-[#dcfff1] text-[#216e4e]",
+  CANCELLED: "bg-[#fff4f2] text-[#ae2a19]",
+  ARCHIVED: "bg-[#f1f2f4] text-[#44546f]",
 };
 
 function formatTime(value: string | null) {
@@ -30,101 +37,87 @@ function formatTime(value: string | null) {
 
 export function MeetingCard({ meeting, workspaceId, projectId }: MeetingCardProps) {
   return (
-    <article className="rounded-2xl border border-zinc-200/80 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+    <article className="rounded border border-[#dfe1e6] bg-white transition hover:border-[#b3b9c4]">
+      <div className="flex flex-col gap-4 p-4 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0">
-          <div className="mb-3 flex flex-wrap items-center gap-2">
-            <span className="rounded-lg bg-zinc-100 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-zinc-500">
+          <div className="mb-2 flex flex-wrap items-center gap-2">
+            <span className="rounded bg-[#f1f2f4] px-2 py-0.5 text-xs font-semibold text-[#44546f]">
               {typeLabels[meeting.meetingType]}
             </span>
-            <span
-              className={`rounded-lg border px-2.5 py-1 text-[10px] font-black uppercase tracking-wider ${statusTones[meeting.status]}`}
-            >
-              {meeting.status}
+            <span className={`rounded px-2 py-0.5 text-xs font-semibold ${statusTones[meeting.status]}`}>
+              {statusLabels[meeting.status]}
             </span>
             {meeting.sprint ? (
-              <span className="rounded-lg border border-violet-200 bg-violet-50 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-violet-700">
+              <span className="rounded border border-[#dfe1e6] px-2 py-0.5 text-xs font-medium text-[#44546f]">
                 {meeting.sprint.name}
               </span>
             ) : null}
           </div>
           <Link
-            className="text-lg font-black text-zinc-950 transition hover:text-blue-600"
+            className="text-base font-semibold text-[#172b4d] hover:text-[#0c66e4]"
             href={`/workspaces/${workspaceId}/projects/${projectId}/meetings/${meeting.id}`}
           >
             {meeting.title}
           </Link>
           {meeting.description ? (
-            <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-zinc-500">
+            <p className="mt-1 line-clamp-2 text-sm leading-6 text-[#6b778c]">
               {meeting.description}
             </p>
           ) : null}
         </div>
 
-        <div className="grid min-w-56 grid-cols-3 gap-2 rounded-xl bg-zinc-50 p-2 text-center">
-          <div>
-            <p className="text-[10px] font-black uppercase tracking-wider text-zinc-400">
-              Ngay
-            </p>
-            <p className="mt-1 text-xs font-bold text-zinc-800">
-              {meeting.meetingDate}
-            </p>
+        <div className="grid min-w-56 grid-cols-3 gap-px overflow-hidden rounded border border-[#dfe1e6] bg-[#dfe1e6] text-center">
+          <div className="bg-white p-2">
+            <p className="text-[11px] font-semibold uppercase text-[#6b778c]">Ngày</p>
+            <p className="mt-1 text-xs font-semibold text-[#172b4d]">{meeting.meetingDate}</p>
           </div>
-          <div>
-            <p className="text-[10px] font-black uppercase tracking-wider text-zinc-400">
-              Bat dau
-            </p>
-            <p className="mt-1 text-xs font-bold text-zinc-800">
-              {formatTime(meeting.startTime)}
-            </p>
+          <div className="bg-white p-2">
+            <p className="text-[11px] font-semibold uppercase text-[#6b778c]">Bắt đầu</p>
+            <p className="mt-1 text-xs font-semibold text-[#172b4d]">{formatTime(meeting.startTime)}</p>
           </div>
-          <div>
-            <p className="text-[10px] font-black uppercase tracking-wider text-zinc-400">
-              Ket thuc
-            </p>
-            <p className="mt-1 text-xs font-bold text-zinc-800">
-              {formatTime(meeting.endTime)}
-            </p>
+          <div className="bg-white p-2">
+            <p className="text-[11px] font-semibold uppercase text-[#6b778c]">Kết thúc</p>
+            <p className="mt-1 text-xs font-semibold text-[#172b4d]">{formatTime(meeting.endTime)}</p>
           </div>
         </div>
       </div>
 
-      <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-zinc-100 pt-4">
-        <div className="text-xs font-semibold text-zinc-500">
-          {meeting.participants?.length ?? 0} participants
-          {meeting.mongoTranscriptId ? " - Co transcript" : " - Chua co transcript"}
-          {meeting.mongoSummaryId ? " - Co summary" : " - Chua co summary"}
+      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[#dfe1e6] px-4 py-3">
+        <div className="text-sm text-[#6b778c]">
+          {meeting.participants?.length ?? 0} người tham gia
+          {meeting.mongoTranscriptId ? " · Đã có biên bản" : " · Chưa có biên bản"}
+          {meeting.mongoSummaryId ? " · Đã có tóm tắt" : " · Chưa có tóm tắt"}
         </div>
         <div className="flex flex-wrap gap-2">
           <Link
-            className="rounded-xl bg-zinc-950 px-3 py-2 text-xs font-bold text-white shadow-md shadow-zinc-900/15 transition hover:bg-zinc-800"
+            className="rounded bg-[#172b4d] px-3 py-1.5 text-sm font-semibold text-white hover:bg-[#0c1f3f]"
             href={`/workspaces/${workspaceId}/projects/${projectId}/meetings/${meeting.id}/room`}
           >
-            Join room
+            Vào phòng
           </Link>
           <Link
-            className="rounded-xl border border-zinc-200 bg-white px-3 py-2 text-xs font-bold text-zinc-700 transition hover:bg-zinc-50"
+            className="rounded border border-[#dfe1e6] bg-white px-3 py-1.5 text-sm font-medium text-[#44546f] hover:bg-[#f1f2f4]"
             href={`/workspaces/${workspaceId}/projects/${projectId}/meetings/${meeting.id}/participants`}
           >
-            Participants
+            Người tham gia
           </Link>
           <Link
-            className="rounded-xl border border-zinc-200 bg-white px-3 py-2 text-xs font-bold text-zinc-700 transition hover:bg-zinc-50"
+            className="rounded border border-[#dfe1e6] bg-white px-3 py-1.5 text-sm font-medium text-[#44546f] hover:bg-[#f1f2f4]"
             href={`/workspaces/${workspaceId}/projects/${projectId}/meetings/${meeting.id}/transcript`}
           >
-            Transcript
+            Biên bản
           </Link>
           <Link
-            className="rounded-xl bg-blue-600 px-3 py-2 text-xs font-bold text-white shadow-md shadow-blue-500/20 transition hover:bg-blue-700"
+            className="rounded border border-[#dfe1e6] bg-white px-3 py-1.5 text-sm font-medium text-[#44546f] hover:bg-[#f1f2f4]"
             href={`/workspaces/${workspaceId}/projects/${projectId}/meetings/${meeting.id}/summary`}
           >
-            AI Summary
+            Tóm tắt AI
           </Link>
           <Link
-            className="rounded-xl bg-violet-600 px-3 py-2 text-xs font-bold text-white shadow-md shadow-violet-500/20 transition hover:bg-violet-700"
+            className="rounded border border-[#dfe1e6] bg-white px-3 py-1.5 text-sm font-medium text-[#44546f] hover:bg-[#f1f2f4]"
             href={`/workspaces/${workspaceId}/projects/${projectId}/meetings/${meeting.id}/personalized-summary`}
           >
-            My AI Summary
+            Tóm tắt của tôi
           </Link>
         </div>
       </div>

@@ -49,7 +49,7 @@ function ActionItems({ items }: { items: PersonalizedMeetingActionItem[] }) {
   if (!items.length) {
     return (
       <p className="rounded-xl border border-dashed border-zinc-300 bg-zinc-50 px-4 py-4 text-sm font-semibold text-zinc-500">
-        No direct action items were found for this member.
+        Chưa có việc cần làm trực tiếp cho thành viên này.
       </p>
     );
   }
@@ -66,16 +66,16 @@ function ActionItems({ items }: { items: PersonalizedMeetingActionItem[] }) {
               <p className="text-sm font-black text-zinc-950">{item.title}</p>
               {item.source ? (
                 <p className="mt-2 text-xs font-medium leading-relaxed text-zinc-500">
-                  Source: {item.source}
+                  Nguồn: {item.source}
                 </p>
               ) : null}
             </div>
             <div className="flex flex-wrap gap-2">
               <span className="rounded-lg bg-blue-50 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-blue-700">
-                {item.assigneeName ?? "No assignee"}
+                {item.assigneeName ?? "Chưa gán"}
               </span>
               <span className="rounded-lg bg-zinc-100 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-zinc-500">
-                {item.deadline ?? "No deadline"}
+                {item.deadline ?? "Chưa có hạn"}
               </span>
             </div>
           </div>
@@ -101,7 +101,7 @@ export function PersonalizedMeetingSummaryDetail({
           <div className="min-w-0">
             <div className="mb-4 flex flex-wrap gap-2">
               <span className="rounded-lg bg-blue-50 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-blue-700">
-                Personalized summary
+                Tóm tắt cá nhân
               </span>
               <span className="rounded-lg bg-emerald-50 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-emerald-700">
                 {summary.status}
@@ -122,7 +122,7 @@ export function PersonalizedMeetingSummaryDetail({
           <div className="grid min-w-[260px] gap-2 rounded-2xl border border-zinc-200 bg-zinc-50 p-4 text-sm">
             <div>
               <p className="text-[10px] font-black uppercase tracking-wider text-zinc-400">
-                Member ID
+                ID thành viên
               </p>
               <p className="break-all font-bold text-zinc-900">
                 {summary.userId}
@@ -130,7 +130,7 @@ export function PersonalizedMeetingSummaryDetail({
             </div>
             <div>
               <p className="text-[10px] font-black uppercase tracking-wider text-zinc-400">
-                Meeting ID
+                ID cuộc họp
               </p>
               <p className="break-all font-bold text-zinc-900">
                 {summary.meetingId}
@@ -138,7 +138,7 @@ export function PersonalizedMeetingSummaryDetail({
             </div>
             <div>
               <p className="text-[10px] font-black uppercase tracking-wider text-zinc-400">
-                Generated
+                Thời điểm tạo
               </p>
               <p className="font-bold text-zinc-900">
                 {summary.createdAt?.slice(0, 16).replace("T", " ") ?? "-"}
@@ -150,7 +150,7 @@ export function PersonalizedMeetingSummaryDetail({
 
       <section className="rounded-2xl border border-blue-100 bg-blue-50 p-6 shadow-sm">
         <h2 className="text-[10px] font-black uppercase tracking-[0.18em] text-blue-700">
-          AI generated personal view
+          Góc nhìn cá nhân do AI tạo
         </h2>
         <p className="mt-3 whitespace-pre-line text-sm font-medium leading-7 text-blue-950">
           {output.generatedText}
@@ -160,13 +160,13 @@ export function PersonalizedMeetingSummaryDetail({
       <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <h2 className="text-sm font-black text-zinc-950">
-            My action items
+            Việc của tôi
           </h2>
           <Link
             className="rounded-xl border border-zinc-200 bg-white px-3 py-2 text-xs font-bold text-zinc-700 transition hover:bg-zinc-50"
             href={`/workspaces/${activeWorkspaceId}/projects/${activeProjectId}/my-meeting-action-items`}
           >
-            View all my items
+            Xem tất cả việc của tôi
           </Link>
         </div>
         <ActionItems items={output.myActionItems ?? []} />
@@ -175,34 +175,34 @@ export function PersonalizedMeetingSummaryDetail({
       <section className="grid gap-4 lg:grid-cols-2">
         <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
           <h2 className="mb-4 text-sm font-black text-zinc-950">
-            Relevant decisions
+            Quyết định liên quan
           </h2>
           <RenderList
-            emptyText="No direct decisions were found."
+            emptyText="Chưa có quyết định liên quan."
             items={output.relevantDecisions ?? []}
             tone="blue"
           />
         </div>
         <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
-          <h2 className="mb-4 text-sm font-black text-zinc-950">Mentions</h2>
+          <h2 className="mb-4 text-sm font-black text-zinc-950">Nhắc đến</h2>
           <RenderList
-            emptyText="No direct transcript mentions were found."
+            emptyText="Chưa có đoạn biên bản nhắc trực tiếp."
             items={output.mentions ?? []}
             tone="emerald"
           />
         </div>
         <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
-          <h2 className="mb-4 text-sm font-black text-zinc-950">Risks</h2>
+          <h2 className="mb-4 text-sm font-black text-zinc-950">Rủi ro</h2>
           <RenderList
-            emptyText="No direct risks were found."
+            emptyText="Chưa có rủi ro trực tiếp."
             items={output.risks ?? []}
             tone="red"
           />
         </div>
         <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
-          <h2 className="mb-4 text-sm font-black text-zinc-950">Next steps</h2>
+          <h2 className="mb-4 text-sm font-black text-zinc-950">Bước tiếp theo</h2>
           <RenderList
-            emptyText="No next steps were found."
+            emptyText="Chưa có bước tiếp theo."
             items={output.nextSteps ?? []}
             tone="violet"
           />

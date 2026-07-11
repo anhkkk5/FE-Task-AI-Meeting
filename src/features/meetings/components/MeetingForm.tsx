@@ -21,11 +21,11 @@ type MeetingFormProps = {
 };
 
 const meetingTypeOptions: { value: MeetingType; label: string }[] = [
-  { value: "SPRINT_PLANNING", label: "Sprint planning" },
-  { value: "DAILY_SCRUM", label: "Daily scrum" },
-  { value: "SPRINT_REVIEW", label: "Sprint review" },
+  { value: "SPRINT_PLANNING", label: "Lập kế hoạch sprint" },
+  { value: "DAILY_SCRUM", label: "Daily Scrum" },
+  { value: "SPRINT_REVIEW", label: "Review sprint" },
   { value: "RETROSPECTIVE", label: "Retrospective" },
-  { value: "GENERAL", label: "General" },
+  { value: "GENERAL", label: "Tổng quan" },
 ];
 
 function getTodayString() {
@@ -129,7 +129,7 @@ export function MeetingForm({
     <form className="grid gap-5" onSubmit={handleSubmit}>
       <div className="grid gap-4 md:grid-cols-[1.3fr_0.7fr]">
         <label className="grid gap-2 text-sm font-semibold text-zinc-700">
-          Tieu de meeting
+          Tiêu đề meeting
           <input
             className="h-11 rounded-xl border border-zinc-300 bg-white px-3 text-sm font-normal outline-none transition focus:border-blue-600"
             maxLength={200}
@@ -142,7 +142,7 @@ export function MeetingForm({
         </label>
 
         <label className="grid gap-2 text-sm font-semibold text-zinc-700">
-          Loai meeting
+          Loại meeting
           <select
             className="h-11 rounded-xl border border-zinc-300 bg-white px-3 text-sm font-normal outline-none transition focus:border-blue-600"
             value={meetingType}
@@ -158,11 +158,11 @@ export function MeetingForm({
       </div>
 
       <label className="grid gap-2 text-sm font-semibold text-zinc-700">
-        Mo ta
+        Mô tả
         <textarea
           className="min-h-28 resize-y rounded-xl border border-zinc-300 bg-white px-3 py-3 text-sm font-normal leading-relaxed outline-none transition focus:border-blue-600"
           maxLength={1000}
-          placeholder="Noi dung chinh, muc tieu cuoc hop, ghi chu chuan bi..."
+          placeholder="Nội dung chính, mục tiêu cuộc họp, ghi chú chuẩn bị..."
           value={description}
           onChange={(event) => setDescription(event.target.value)}
         />
@@ -170,7 +170,7 @@ export function MeetingForm({
 
       <div className="grid gap-4 md:grid-cols-4">
         <label className="grid gap-2 text-sm font-semibold text-zinc-700">
-          Ngay hop
+          Ngày họp
           <input
             className="h-11 rounded-xl border border-zinc-300 bg-white px-3 text-sm font-normal outline-none transition focus:border-blue-600"
             required
@@ -181,7 +181,7 @@ export function MeetingForm({
         </label>
 
         <label className="grid gap-2 text-sm font-semibold text-zinc-700">
-          Bat dau
+          Bắt đầu
           <input
             className="h-11 rounded-xl border border-zinc-300 bg-white px-3 text-sm font-normal outline-none transition focus:border-blue-600"
             type="datetime-local"
@@ -191,7 +191,7 @@ export function MeetingForm({
         </label>
 
         <label className="grid gap-2 text-sm font-semibold text-zinc-700">
-          Ket thuc
+          Kết thúc
           <input
             className="h-11 rounded-xl border border-zinc-300 bg-white px-3 text-sm font-normal outline-none transition focus:border-blue-600"
             type="datetime-local"
@@ -207,7 +207,7 @@ export function MeetingForm({
             value={sprintId}
             onChange={(event) => setSprintId(event.target.value)}
           >
-            <option value="">Khong gan sprint</option>
+            <option value="">Không gắn sprint</option>
             {sprints.map((sprint) => (
               <option key={sprint.id} value={sprint.id}>
                 {sprint.name} ({sprint.status})
@@ -220,7 +220,7 @@ export function MeetingForm({
       {!isEditing ? (
         <div className="grid gap-2">
           <span className="text-sm font-semibold text-zinc-700">
-            Participants
+            Người tham gia
           </span>
           <div className="grid max-h-64 gap-2 overflow-y-auto rounded-2xl border border-zinc-200 bg-zinc-50 p-3 md:grid-cols-2">
             {activeMembers.length ? (
@@ -247,7 +247,7 @@ export function MeetingForm({
               ))
             ) : (
               <p className="px-2 py-4 text-sm font-semibold text-zinc-500">
-                Chua co member ACTIVE trong workspace.
+                Chưa có thành viên ACTIVE trong workspace.
               </p>
             )}
           </div>
@@ -259,7 +259,7 @@ export function MeetingForm({
         disabled={isSubmitting}
         type="submit"
       >
-        {isSubmitting ? "Dang luu..." : submitLabel}
+        {isSubmitting ? "Đang lưu..." : submitLabel}
       </button>
     </form>
   );

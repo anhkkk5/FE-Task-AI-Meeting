@@ -49,7 +49,7 @@ export function MeetingSummaryDetail({ summary }: MeetingSummaryDetailProps) {
           <div className="min-w-0">
             <div className="mb-4 flex flex-wrap gap-2">
               <span className="rounded-lg bg-blue-50 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-blue-700">
-                Meeting summary
+                Tóm tắt cuộc họp
               </span>
               <span className="rounded-lg bg-emerald-50 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-emerald-700">
                 {summary.status}
@@ -70,7 +70,7 @@ export function MeetingSummaryDetail({ summary }: MeetingSummaryDetailProps) {
           <div className="grid min-w-[240px] gap-2 rounded-2xl border border-zinc-200 bg-zinc-50 p-4 text-sm">
             <div>
               <p className="text-[10px] font-black uppercase tracking-wider text-zinc-400">
-                Meeting ID
+                ID cuộc họp
               </p>
               <p className="break-all font-bold text-zinc-900">
                 {summary.meetingId}
@@ -78,7 +78,7 @@ export function MeetingSummaryDetail({ summary }: MeetingSummaryDetailProps) {
             </div>
             <div>
               <p className="text-[10px] font-black uppercase tracking-wider text-zinc-400">
-                Transcript ID
+                ID biên bản
               </p>
               <p className="break-all font-bold text-zinc-900">
                 {summary.transcriptId}
@@ -86,7 +86,7 @@ export function MeetingSummaryDetail({ summary }: MeetingSummaryDetailProps) {
             </div>
             <div>
               <p className="text-[10px] font-black uppercase tracking-wider text-zinc-400">
-                Generated
+                Thời điểm tạo
               </p>
               <p className="font-bold text-zinc-900">
                 {summary.createdAt?.slice(0, 16).replace("T", " ") ?? "-"}
@@ -98,7 +98,7 @@ export function MeetingSummaryDetail({ summary }: MeetingSummaryDetailProps) {
 
       <section className="rounded-2xl border border-blue-100 bg-blue-50 p-6 shadow-sm">
         <h2 className="text-[10px] font-black uppercase tracking-[0.18em] text-blue-700">
-          AI generated summary
+          Tóm tắt AI tạo
         </h2>
         <p className="mt-3 whitespace-pre-line text-sm font-medium leading-7 text-blue-950">
           {output.generatedText}
@@ -107,34 +107,34 @@ export function MeetingSummaryDetail({ summary }: MeetingSummaryDetailProps) {
 
       <section className="grid gap-4 lg:grid-cols-2">
         <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
-          <h2 className="mb-4 text-sm font-black text-zinc-950">Key points</h2>
+          <h2 className="mb-4 text-sm font-black text-zinc-950">Ý chính</h2>
           <RenderList
-            emptyText="No key points were found."
+            emptyText="Chưa tìm thấy ý chính."
             items={output.keyPoints ?? summary.keyPoints}
           />
         </div>
         <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
-          <h2 className="mb-4 text-sm font-black text-zinc-950">Decisions</h2>
+          <h2 className="mb-4 text-sm font-black text-zinc-950">Quyết định</h2>
           <RenderList
-            emptyText="No decisions were found."
+            emptyText="Chưa có quyết định nào."
             items={output.decisions ?? summary.decisions}
             tone="blue"
           />
         </div>
         <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
-          <h2 className="mb-4 text-sm font-black text-zinc-950">Risks</h2>
+          <h2 className="mb-4 text-sm font-black text-zinc-950">Rủi ro</h2>
           <RenderList
-            emptyText="No risks were found."
+            emptyText="Chưa phát hiện rủi ro."
             items={output.risks ?? summary.risks}
             tone="red"
           />
         </div>
         <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
           <h2 className="mb-4 text-sm font-black text-zinc-950">
-            Open questions
+            Câu hỏi mở
           </h2>
           <RenderList
-            emptyText="No open questions were found."
+            emptyText="Chưa có câu hỏi mở."
             items={output.openQuestions ?? summary.openQuestions}
             tone="violet"
           />
@@ -143,7 +143,7 @@ export function MeetingSummaryDetail({ summary }: MeetingSummaryDetailProps) {
 
       <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
         <h2 className="mb-4 text-sm font-black text-zinc-950">
-          Action items
+          Việc cần làm
         </h2>
         <MeetingSummaryActionItems
           items={output.actionItems ?? summary.actionItems}
@@ -151,9 +151,9 @@ export function MeetingSummaryDetail({ summary }: MeetingSummaryDetailProps) {
       </section>
 
       <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
-        <h2 className="mb-4 text-sm font-black text-zinc-950">Next steps</h2>
+        <h2 className="mb-4 text-sm font-black text-zinc-950">Bước tiếp theo</h2>
         <RenderList
-          emptyText="No next steps were found."
+          emptyText="Chưa có bước tiếp theo."
           items={output.nextSteps ?? summary.nextSteps}
           tone="blue"
         />

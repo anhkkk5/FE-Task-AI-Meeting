@@ -16,7 +16,7 @@ export function MeetingSummaryGenerateButton({
   if (!canManage) {
     return (
       <p className="rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-xs font-bold text-zinc-500">
-        Only owner, scrum master or project manager can generate summaries.
+        Chỉ OWNER, SCRUM_MASTER hoặc PROJECT_MANAGER mới được tạo tóm tắt.
       </p>
     );
   }
@@ -29,7 +29,7 @@ export function MeetingSummaryGenerateButton({
         type="button"
         onClick={() => onGenerate(false)}
       >
-        {hasSummary ? "Use latest summary" : "Generate summary"}
+        {hasSummary ? "Dùng tóm tắt mới nhất" : "Tạo tóm tắt"}
       </button>
       <button
         className="h-10 rounded-xl border border-zinc-200 bg-white px-4 text-xs font-bold text-zinc-700 transition hover:bg-zinc-50 disabled:text-zinc-400"
@@ -37,7 +37,7 @@ export function MeetingSummaryGenerateButton({
         type="button"
         onClick={() => onGenerate(true)}
       >
-        Regenerate
+        Tạo lại
       </button>
     </div>
   );

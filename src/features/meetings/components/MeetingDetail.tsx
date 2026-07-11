@@ -12,15 +12,29 @@ type MeetingDetailProps = {
 };
 
 const typeLabels: Record<Meeting["meetingType"], string> = {
-  SPRINT_PLANNING: "Sprint planning",
-  DAILY_SCRUM: "Daily scrum",
-  SPRINT_REVIEW: "Sprint review",
-  RETROSPECTIVE: "Retrospective",
-  GENERAL: "General",
+  SPRINT_PLANNING: "Lập kế hoạch sprint",
+  DAILY_SCRUM: "Họp daily",
+  SPRINT_REVIEW: "Tổng kết sprint",
+  RETROSPECTIVE: "Cải tiến sprint",
+  GENERAL: "Tổng quan",
+};
+
+const statusLabels: Record<Meeting["status"], string> = {
+  SCHEDULED: "Đã lên lịch",
+  COMPLETED: "Đã hoàn thành",
+  CANCELLED: "Đã hủy",
+  ARCHIVED: "Đã lưu trữ",
+};
+
+const statusTone: Record<Meeting["status"], string> = {
+  SCHEDULED: "bg-[#e9f2ff] text-[#0c66e4]",
+  COMPLETED: "bg-[#dcfff1] text-[#216e4e]",
+  CANCELLED: "bg-[#fff4f2] text-[#ae2a19]",
+  ARCHIVED: "bg-[#f1f2f4] text-[#44546f]",
 };
 
 function formatDateTime(value: string | null) {
-  if (!value) return "Chua dat";
+  if (!value) return "Chưa đặt";
 
   return `${value.slice(0, 10)} ${value.slice(11, 16)}`;
 }
@@ -38,27 +52,26 @@ export function MeetingDetail({
     canManage && !["CANCELLED", "ARCHIVED", "COMPLETED"].includes(meeting.status);
 
   return (
-    <section className="rounded-2xl border border-zinc-200/80 bg-white p-6 shadow-sm">
-      <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
-        <div>
+    <section className="rounded border border-[#dfe1e6] bg-white">
+      <div className="flex flex-col gap-5 border-b border-[#dfe1e6] px-5 py-5 lg:flex-row lg:items-start lg:justify-between">
+        <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="rounded-lg bg-blue-50 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-blue-700">
+            <span className="rounded bg-[#e9f2ff] px-2 py-1 text-xs font-semibold uppercase tracking-wide text-[#0c66e4]">
               {typeLabels[meeting.meetingType]}
             </span>
-            <span className="rounded-lg bg-zinc-100 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-zinc-600">
-              {meeting.status}
+            <span className={`rounded px-2 py-1 text-xs font-semibold ${statusTone[meeting.status]}`}>
+              {statusLabels[meeting.status]}
             </span>
             {meeting.sprint ? (
-              <span className="rounded-lg bg-violet-50 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-violet-700">
+              <span className="rounded bg-[#f1f2f4] px-2 py-1 text-xs font-semibold text-[#44546f]">
                 {meeting.sprint.name}
               </span>
             ) : null}
           </div>
-          <h1 className="mt-4 text-2xl font-black text-zinc-950">
-            {meeting.title}
-          </h1>
+
+          <h1 className="mt-4 truncate text-2xl font-semibold text-[#172b4d]">{meeting.title}</h1>
           {meeting.description ? (
-            <p className="mt-3 max-w-3xl whitespace-pre-line text-sm leading-relaxed text-zinc-600">
+            <p className="mt-3 max-w-3xl whitespace-pre-line text-sm leading-6 text-[#44546f]">
               {meeting.description}
             </p>
           ) : null}
@@ -66,97 +79,85 @@ export function MeetingDetail({
 
         <div className="flex flex-wrap gap-2">
           <Link
-            className="h-10 rounded-xl bg-zinc-950 px-4 py-2.5 text-xs font-bold text-white shadow-md shadow-zinc-900/15 transition hover:bg-zinc-800"
+            className="h-9 rounded bg-[#172b4d] px-3 py-2 text-sm font-semibold text-white hover:bg-[#0c1f3f]"
             href={`/workspaces/${workspaceId}/projects/${projectId}/meetings/${meeting.id}/room`}
           >
-            Join room
+            Vào phòng họp
           </Link>
           <Link
-            className="h-10 rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-xs font-bold text-zinc-700 transition hover:bg-zinc-50"
+            className="h-9 rounded border border-[#dfe1e6] bg-white px-3 py-2 text-sm font-medium text-[#44546f] hover:bg-[#f1f2f4]"
             href={`/workspaces/${workspaceId}/projects/${projectId}/meetings/${meeting.id}/participants`}
           >
-            Participants
+            Người tham gia
           </Link>
           <Link
-            className="h-10 rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-xs font-bold text-zinc-700 transition hover:bg-zinc-50"
+            className="h-9 rounded border border-[#dfe1e6] bg-white px-3 py-2 text-sm font-medium text-[#44546f] hover:bg-[#f1f2f4]"
             href={`/workspaces/${workspaceId}/projects/${projectId}/meetings/${meeting.id}/transcript`}
           >
-            Transcript
+            Biên bản
           </Link>
           <Link
-            className="h-10 rounded-xl bg-blue-600 px-4 py-2.5 text-xs font-bold text-white shadow-md shadow-blue-500/20 transition hover:bg-blue-700"
+            className="h-9 rounded border border-[#dfe1e6] bg-white px-3 py-2 text-sm font-medium text-[#44546f] hover:bg-[#f1f2f4]"
             href={`/workspaces/${workspaceId}/projects/${projectId}/meetings/${meeting.id}/summary`}
           >
-            AI Summary
+            Tóm tắt AI
           </Link>
           <Link
-            className="h-10 rounded-xl bg-violet-600 px-4 py-2.5 text-xs font-bold text-white shadow-md shadow-violet-500/20 transition hover:bg-violet-700"
+            className="h-9 rounded border border-[#dfe1e6] bg-white px-3 py-2 text-sm font-medium text-[#44546f] hover:bg-[#f1f2f4]"
             href={`/workspaces/${workspaceId}/projects/${projectId}/meetings/${meeting.id}/personalized-summary`}
           >
-            My AI Summary
+            Tóm tắt của tôi
           </Link>
           {canChangeStatus ? (
             <>
               <button
-                className="h-10 rounded-xl bg-emerald-600 px-4 text-xs font-bold text-white transition hover:bg-emerald-700 disabled:bg-zinc-400"
+                className="h-9 rounded bg-[#00875a] px-3 text-sm font-semibold text-white hover:bg-[#216e4e] disabled:bg-[#b3b9c4]"
                 disabled={isMutating}
-                type="button"
                 onClick={onComplete}
+                type="button"
               >
-                Complete
+                Hoàn thành
               </button>
               <button
-                className="h-10 rounded-xl bg-red-600 px-4 text-xs font-bold text-white transition hover:bg-red-700 disabled:bg-zinc-400"
+                className="h-9 rounded bg-[#de350b] px-3 text-sm font-semibold text-white hover:bg-[#ae2a19] disabled:bg-[#b3b9c4]"
                 disabled={isMutating}
-                type="button"
                 onClick={onCancel}
+                type="button"
               >
-                Cancel
+                Hủy
               </button>
             </>
           ) : null}
         </div>
       </div>
 
-      <div className="mt-6 grid gap-3 border-t border-zinc-100 pt-5 md:grid-cols-5">
-        <div className="rounded-xl bg-zinc-50 p-4">
-          <p className="text-[10px] font-black uppercase tracking-wider text-zinc-400">
-            Ngay hop
-          </p>
-          <p className="mt-2 text-sm font-bold text-zinc-800">
-            {meeting.meetingDate}
-          </p>
+      <div className="grid gap-px bg-[#dfe1e6] md:grid-cols-5">
+        <div className="bg-white p-4">
+          <p className="text-xs font-semibold uppercase tracking-wide text-[#6b778c]">Ngày họp</p>
+          <p className="mt-2 text-sm font-semibold text-[#172b4d]">{meeting.meetingDate}</p>
         </div>
-        <div className="rounded-xl bg-zinc-50 p-4">
-          <p className="text-[10px] font-black uppercase tracking-wider text-zinc-400">
-            Bat dau
-          </p>
-          <p className="mt-2 text-sm font-bold text-zinc-800">
+        <div className="bg-white p-4">
+          <p className="text-xs font-semibold uppercase tracking-wide text-[#6b778c]">Bắt đầu</p>
+          <p className="mt-2 text-sm font-semibold text-[#172b4d]">
             {formatDateTime(meeting.startTime)}
           </p>
         </div>
-        <div className="rounded-xl bg-zinc-50 p-4">
-          <p className="text-[10px] font-black uppercase tracking-wider text-zinc-400">
-            Ket thuc
-          </p>
-          <p className="mt-2 text-sm font-bold text-zinc-800">
+        <div className="bg-white p-4">
+          <p className="text-xs font-semibold uppercase tracking-wide text-[#6b778c]">Kết thúc</p>
+          <p className="mt-2 text-sm font-semibold text-[#172b4d]">
             {formatDateTime(meeting.endTime)}
           </p>
         </div>
-        <div className="rounded-xl bg-zinc-50 p-4">
-          <p className="text-[10px] font-black uppercase tracking-wider text-zinc-400">
-            Transcript
-          </p>
-          <p className="mt-2 text-sm font-bold text-zinc-800">
-            {meeting.mongoTranscriptId ? "Da co" : "Chua co"}
+        <div className="bg-white p-4">
+          <p className="text-xs font-semibold uppercase tracking-wide text-[#6b778c]">Biên bản</p>
+          <p className="mt-2 text-sm font-semibold text-[#172b4d]">
+            {meeting.mongoTranscriptId ? "Đã có" : "Chưa có"}
           </p>
         </div>
-        <div className="rounded-xl bg-zinc-50 p-4">
-          <p className="text-[10px] font-black uppercase tracking-wider text-zinc-400">
-            AI Summary
-          </p>
-          <p className="mt-2 text-sm font-bold text-zinc-800">
-            {meeting.mongoSummaryId ? "Da co" : "Chua co"}
+        <div className="bg-white p-4">
+          <p className="text-xs font-semibold uppercase tracking-wide text-[#6b778c]">Tóm tắt AI</p>
+          <p className="mt-2 text-sm font-semibold text-[#172b4d]">
+            {meeting.mongoSummaryId ? "Đã có" : "Chưa có"}
           </p>
         </div>
       </div>

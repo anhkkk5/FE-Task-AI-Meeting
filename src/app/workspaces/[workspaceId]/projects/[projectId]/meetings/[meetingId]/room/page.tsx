@@ -103,7 +103,7 @@ export default function MeetingRoomPage() {
     );
 
     if (!audioElements.length) {
-      setMessage("Chua co am thanh tu nguoi khac trong phong hop.");
+      setMessage("Chưa có âm thanh từ người khác trong phòng họp.");
       return;
     }
 
@@ -115,10 +115,10 @@ export default function MeetingRoomPage() {
           return audio.play();
         }),
       );
-      setMessage("Da bat am thanh cuoc hop.");
+      setMessage("Đã bật âm thanh cuộc họp.");
     } catch {
       setMessage(
-        "Trinh duyet dang chan am thanh tu dong. Hay bam lai nut bat am thanh va kiem tra am luong thiet bi.",
+        "Trình duyệt đang chặn âm thanh tự động. Hãy bấm lại nút bật âm thanh và kiểm tra âm lượng thiết bị.",
       );
     }
   }

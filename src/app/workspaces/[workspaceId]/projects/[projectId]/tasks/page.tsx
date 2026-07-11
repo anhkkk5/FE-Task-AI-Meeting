@@ -14,32 +14,63 @@ import { useAuth } from "@/hooks/useAuth";
 
 const writeRoles = ["OWNER", "SCRUM_MASTER", "PROJECT_MANAGER"];
 
-// Định nghĩa các cột trạng thái Kanban
-const KANBAN_COLUMNS: { key: TaskStatus; label: string; bgHeader: string; borderCol: string }[] = [
-  { key: "BACKLOG", label: "Backlog", bgHeader: "bg-zinc-100 text-zinc-700", borderCol: "border-zinc-200" },
-  { key: "TODO", label: "Cần làm", bgHeader: "bg-sky-50 text-sky-700 border-sky-100", borderCol: "border-sky-200/50" },
-  { key: "IN_PROGRESS", label: "Đang làm", bgHeader: "bg-blue-50 text-blue-700 border-blue-100", borderCol: "border-blue-200/50" },
-  { key: "REVIEW", label: "Đánh giá", bgHeader: "bg-violet-50 text-violet-700 border-violet-100", borderCol: "border-violet-200/50" },
-  { key: "DONE", label: "Hoàn thành", bgHeader: "bg-emerald-50 text-emerald-700 border-emerald-100", borderCol: "border-emerald-200/50" },
+const columns: { key: TaskStatus; label: string }[] = [
+  { key: "BACKLOG", label: "Backlog" },
+  { key: "TODO", label: "Cần làm" },
+  { key: "IN_PROGRESS", label: "Đang làm" },
+  { key: "REVIEW", label: "Review" },
+  { key: "DONE", label: "Hoàn thành" },
 ];
+
+function priorityText(priority: TaskPriority) {
+  switch (priority) {
+    case "URGENT":
+      return "Cao nhất";
+    case "HIGH":
+      return "Cao";
+    case "MEDIUM":
+      return "Vừa";
+    case "LOW":
+    default:
+      return "Thấp";
+  }
+}
+
+function priorityClass(priority: TaskPriority) {
+  switch (priority) {
+    case "URGENT":
+      return "text-[#ae2a19]";
+    case "HIGH":
+      return "text-[#c25100]";
+    case "MEDIUM":
+      return "text-[#974f0c]";
+    case "LOW":
+    default:
+      return "text-[#6b778c]";
+  }
+}
+
+function formatDate(value: string | null) {
+  if (!value) return "-";
+  return new Date(value).toLocaleDateString("vi-VN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+}
 
 export default function KanbanBoardPage() {
   const params = useParams<{ workspaceId: string; projectId: string }>();
   const { user, isLoading: authLoading } = useAuth(true);
 
-  // States
   const [project, setProject] = useState<Project | null>(null);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [members, setMembers] = useState<WorkspaceMember[]>([]);
   const [myRole, setMyRole] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState("");
-
-  // Filters
   const [searchKeyword, setSearchKeyword] = useState("");
   const [selectedAssigneeId, setSelectedAssigneeId] = useState<string | null>(null);
-
-  // Drag states
   const [activeDragTaskId, setActiveDragTaskId] = useState<string | null>(null);
   const [dragOverColumn, setDragOverColumn] = useState<TaskStatus | null>(null);
 
@@ -74,9 +105,8 @@ export default function KanbanBoardPage() {
     }
   }, [user, params.workspaceId, params.projectId, loadData]);
 
-  // HTML5 Drag and Drop handlers
-  const handleDragStart = (e: React.DragEvent, taskId: string) => {
-    e.dataTransfer.setData("text/plain", taskId);
+  const handleDragStart = (event: React.DragEvent, taskId: string) => {
+    event.dataTransfer.setData("text/plain", taskId);
     setActiveDragTaskId(taskId);
   };
 
@@ -85,31 +115,20 @@ export default function KanbanBoardPage() {
     setDragOverColumn(null);
   };
 
-  const handleDragOver = (e: React.DragEvent, columnKey: TaskStatus) => {
-    e.preventDefault();
-    if (dragOverColumn !== columnKey) {
-      setDragOverColumn(columnKey);
-    }
-  };
-
-  const handleDrop = async (e: React.DragEvent, targetStatus: TaskStatus) => {
-    e.preventDefault();
+  const handleDrop = async (event: React.DragEvent, targetStatus: TaskStatus) => {
+    event.preventDefault();
     setDragOverColumn(null);
-    const taskId = e.dataTransfer.getData("text/plain") || activeDragTaskId;
 
+    const taskId = event.dataTransfer.getData("text/plain") || activeDragTaskId;
     if (!taskId) return;
 
-    // Tìm task hiện tại
-    const task = tasks.find((t) => t.id === taskId);
-    if (!task) return;
+    const task = tasks.find((item) => item.id === taskId);
 
-    // Nếu không thay đổi trạng thái
-    if (task.status === targetStatus) return;
+    if (!task || task.status === targetStatus) return;
 
-    // Cập nhật local state trước để UI thay đổi mượt mà (Optimistic Update)
-    const previousTasks = [...tasks];
+    const previousTasks = tasks;
     setTasks((prev) =>
-      prev.map((t) => (t.id === taskId ? { ...t, status: targetStatus } : t))
+      prev.map((item) => (item.id === taskId ? { ...item, status: targetStatus } : item)),
     );
 
     try {
@@ -117,7 +136,6 @@ export default function KanbanBoardPage() {
         status: targetStatus,
       });
     } catch (error) {
-      // Revert if error
       setTasks(previousTasks);
       alert(error instanceof Error ? error.message : "Không thể thay đổi trạng thái task");
     } finally {
@@ -125,251 +143,220 @@ export default function KanbanBoardPage() {
     }
   };
 
-  // Thay đổi status nhanh bằng nút bấm (cho mobile)
   const handleMoveStatusQuick = async (taskId: string, targetStatus: TaskStatus) => {
     try {
       await updateTaskStatus(params.workspaceId, params.projectId, taskId, {
         status: targetStatus,
       });
       setTasks((prev) =>
-        prev.map((t) => (t.id === taskId ? { ...t, status: targetStatus } : t))
+        prev.map((task) => (task.id === taskId ? { ...task, status: targetStatus } : task)),
       );
     } catch (error) {
       alert(error instanceof Error ? error.message : "Không thể thay đổi trạng thái task");
     }
   };
 
-  // Lọc task
   const filteredTasks = tasks.filter((task) => {
+    const keyword = searchKeyword.toLowerCase();
     const matchesKeyword =
-      task.title.toLowerCase().includes(searchKeyword.toLowerCase()) ||
-      task.taskCode.toLowerCase().includes(searchKeyword.toLowerCase());
+      task.title.toLowerCase().includes(keyword) || task.taskCode.toLowerCase().includes(keyword);
     const matchesAssignee = selectedAssigneeId ? task.assigneeId === selectedAssigneeId : true;
     return matchesKeyword && matchesAssignee;
   });
 
-  const getTasksByStatus = (status: TaskStatus) => {
-    return filteredTasks.filter((t) => t.status === status);
-  };
-
-  const renderPriorityBadge = (priority: TaskPriority) => {
-    switch (priority) {
-      case "URGENT":
-        return <span className="bg-red-50 text-red-700 text-[9px] font-bold px-1.5 py-0.5 rounded border border-red-100">URGENT</span>;
-      case "HIGH":
-        return <span className="bg-orange-50 text-orange-700 text-[9px] font-bold px-1.5 py-0.5 rounded border border-orange-100">HIGH</span>;
-      case "MEDIUM":
-        return <span className="bg-amber-50 text-amber-700 text-[9px] font-bold px-1.5 py-0.5 rounded border border-amber-100">MEDIUM</span>;
-      case "LOW":
-      default:
-        return <span className="bg-zinc-50 text-zinc-600 text-[9px] font-bold px-1.5 py-0.5 rounded border border-zinc-200">LOW</span>;
-    }
-  };
+  const getTasksByStatus = (status: TaskStatus) => filteredTasks.filter((task) => task.status === status);
 
   if (authLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-zinc-50">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-900 border-t-transparent"></div>
+      <div className="flex min-h-screen items-center justify-center bg-[#f7f8f9]">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#0c66e4] border-t-transparent" />
       </div>
     );
   }
 
   return (
     <AppShell projectId={params.projectId} title={project?.name} workspaceId={params.workspaceId}>
-      <div className="space-y-6 max-w-[90rem] mx-auto pb-12">
-        {/* BANNER FILTER & ACTIONS */}
-        <div className="flex flex-col gap-4 md:flex-row md:items-center justify-between bg-white p-5 rounded-2xl border border-zinc-200/80 shadow-sm">
-          {/* Filters */}
-          <div className="flex flex-wrap items-center gap-3 flex-1">
-            <div className="relative w-64">
+      <div className="space-y-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-1 flex-wrap items-center gap-2">
+            <div className="relative w-full max-w-sm">
               <input
-                type="text"
-                placeholder="Tìm theo tiêu đề hoặc mã task..."
+                className="h-9 w-full rounded border border-[#dfe1e6] bg-white pl-9 pr-3 text-sm text-[#172b4d] outline-none hover:bg-[#f7f8f9] focus:border-[#0c66e4]"
+                onChange={(event) => setSearchKeyword(event.target.value)}
+                placeholder="Tìm theo tiêu đề hoặc mã task"
                 value={searchKeyword}
-                onChange={(e) => setSearchKeyword(e.target.value)}
-                className="w-full h-9 pl-9 pr-4 rounded-xl border border-zinc-300 bg-zinc-50/50 text-xs outline-none focus:bg-white focus:border-blue-500 transition-all font-medium"
               />
-              <svg className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              <svg className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6b778c]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="m21 21-4.3-4.3M10 18a8 8 0 1 1 0-16 8 8 0 0 1 0 16Z" />
               </svg>
             </div>
 
-            {/* Avatars filter */}
-            <div className="flex items-center gap-1.5 border-l border-zinc-200 pl-3">
-              <span className="text-[10px] font-bold text-zinc-400 uppercase mr-1">Người được gán:</span>
-              <button
-                onClick={() => setSelectedAssigneeId(null)}
-                className={`h-7 px-2.5 rounded-lg text-[10px] font-bold transition-all ${
-                  selectedAssigneeId === null
-                    ? "bg-zinc-900 text-white shadow-sm"
-                    : "bg-zinc-100 hover:bg-zinc-200 text-zinc-600"
-                }`}
-              >
-                Tất cả
-              </button>
-              <div className="flex -space-x-1">
-                {members.slice(0, 5).map((m) => {
-                  const initial = m.fullName ? m.fullName.charAt(0).toUpperCase() : "?";
-                  const isSelected = selectedAssigneeId === m.userId;
-                  return (
-                    <button
-                      key={m.userId}
-                      onClick={() => setSelectedAssigneeId(isSelected ? null : m.userId)}
-                      title={m.fullName || m.email || undefined}
-                      className={`h-7 w-7 rounded-full text-[10px] font-bold border-2 flex items-center justify-center transition-all ${
-                        isSelected
-                          ? "border-blue-600 bg-blue-100 text-blue-800 scale-110 z-10"
-                          : "border-white bg-emerald-500 text-slate-950 hover:scale-105"
-                      }`}
-                    >
-                      {initial}
-                    </button>
-                  );
-                })}
-              </div>
+            <button
+              className={`h-8 rounded border px-3 text-sm font-medium ${
+                selectedAssigneeId === null
+                  ? "border-[#0c66e4] bg-[#e9f2ff] text-[#0c66e4]"
+                  : "border-[#dfe1e6] bg-white text-[#44546f] hover:bg-[#f1f2f4]"
+              }`}
+              onClick={() => setSelectedAssigneeId(null)}
+              type="button"
+            >
+              Tất cả
+            </button>
+
+            <div className="flex -space-x-1">
+              {members.slice(0, 6).map((member) => {
+                const initial = member.fullName ? member.fullName.charAt(0).toUpperCase() : "?";
+                const selected = selectedAssigneeId === member.userId;
+
+                return (
+                  <button
+                    className={`flex h-8 w-8 items-center justify-center rounded-full border-2 text-xs font-semibold ${
+                      selected
+                        ? "z-10 border-[#0c66e4] bg-[#deebff] text-[#0c66e4]"
+                        : "border-white bg-[#00875a] text-white hover:bg-[#216e4e]"
+                    }`}
+                    key={member.userId}
+                    onClick={() => setSelectedAssigneeId(selected ? null : member.userId)}
+                    title={member.fullName || member.email || undefined}
+                    type="button"
+                  >
+                    {initial}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
-          {/* Action buttons */}
           <div className="flex items-center gap-2">
             <button
-              onClick={() => void loadData()}
+              className="h-9 rounded border border-[#dfe1e6] bg-white px-3 text-sm font-medium text-[#44546f] hover:bg-[#f1f2f4] disabled:opacity-60"
               disabled={isLoading}
-              className="h-9 rounded-xl border border-zinc-200 bg-white px-3.5 text-xs font-semibold text-zinc-700 hover:bg-zinc-50 transition"
+              onClick={() => void loadData()}
+              type="button"
             >
               Làm mới
             </button>
-            {canWrite && (
+            {canWrite ? (
               <Link
+                className="flex h-9 items-center rounded bg-[#0c66e4] px-3 text-sm font-semibold text-white hover:bg-[#0055cc]"
                 href={`/workspaces/${params.workspaceId}/projects/${params.projectId}/tasks/create`}
-                className="flex h-9 items-center rounded-xl bg-blue-600 px-4 text-xs font-bold text-white shadow-md hover:bg-blue-700 transition"
               >
-                Tạo Task
+                Tạo task
               </Link>
-            )}
+            ) : null}
           </div>
         </div>
 
-        {message && (
-          <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs font-semibold text-amber-900">
+        {message ? (
+          <div className="rounded border border-[#f5cd47] bg-[#fff7d6] px-3 py-2 text-sm font-medium text-[#7f5f01]">
             {message}
           </div>
-        )}
+        ) : null}
 
-        {/* KANBAN BOARD CONTAINER */}
         {isLoading ? (
-          <div className="flex h-96 items-center justify-center bg-white rounded-2xl border border-zinc-200/80 shadow-sm">
-            <div className="flex flex-col items-center gap-2">
-              <div className="h-6 w-6 animate-spin rounded-full border-2 border-blue-600 border-t-transparent"></div>
-              <p className="text-xs text-zinc-400 font-medium">Đang tải bảng công việc...</p>
-            </div>
+          <div className="flex h-80 items-center justify-center rounded border border-[#dfe1e6] bg-white">
+            <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#0c66e4] border-t-transparent" />
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-start overflow-x-auto min-w-[64rem] pb-4">
-            {KANBAN_COLUMNS.map((col) => {
-              const colTasks = getTasksByStatus(col.key);
-              const isOver = dragOverColumn === col.key;
+          <div className="grid min-w-[1180px] grid-cols-5 gap-3 overflow-x-auto pb-3">
+            {columns.map((column) => {
+              const columnTasks = getTasksByStatus(column.key);
+              const isOver = dragOverColumn === column.key;
 
               return (
-                <div
-                  key={col.key}
-                  onDragOver={(e) => handleDragOver(e, col.key)}
-                  onDrop={(e) => void handleDrop(e, col.key)}
-                  className={`bg-zinc-50/50 rounded-2xl border transition-all duration-200 p-3 min-h-[35rem] flex flex-col ${col.borderCol} ${
-                    isOver ? "bg-blue-50/80 border-blue-300 shadow-md ring-2 ring-blue-500/10 scale-[1.01]" : ""
+                <section
+                  className={`flex min-h-[calc(100vh-260px)] flex-col rounded bg-[#f1f2f4] transition ${
+                    isOver ? "ring-2 ring-[#0c66e4]" : ""
                   }`}
+                  key={column.key}
+                  onDragOver={(event) => {
+                    event.preventDefault();
+                    setDragOverColumn(column.key);
+                  }}
+                  onDrop={(event) => void handleDrop(event, column.key)}
                 >
-                  {/* Column Header */}
-                  <div className={`p-2.5 rounded-xl border font-bold text-xs flex justify-between items-center mb-4 shadow-sm ${col.bgHeader}`}>
-                    <span>{col.label}</span>
-                    <span className="bg-white/70 px-2 py-0.5 rounded-full text-[10px] text-zinc-500 font-mono">
-                      {colTasks.length}
+                  <div className="flex h-11 items-center justify-between px-3">
+                    <h2 className="text-xs font-semibold uppercase tracking-wide text-[#44546f]">
+                      {column.label}
+                    </h2>
+                    <span className="rounded bg-[#dfe1e6] px-1.5 py-0.5 text-xs font-semibold text-[#44546f]">
+                      {columnTasks.length}
                     </span>
                   </div>
 
-                  {/* Column Task Cards */}
-                  <div className="flex-1 space-y-3 overflow-y-auto">
-                    {colTasks.map((task) => (
-                      <div
-                        key={task.id}
+                  <div className="flex-1 space-y-2 px-2 pb-2">
+                    {columnTasks.map((task) => (
+                      <article
+                        className={`rounded border border-[#dfe1e6] bg-white p-3 shadow-[0_1px_1px_rgba(9,30,66,0.16)] transition hover:border-[#b3b9c4] ${
+                          activeDragTaskId === task.id ? "opacity-50" : ""
+                        } ${canWrite ? "cursor-grab" : ""}`}
                         draggable={canWrite}
-                        onDragStart={(e) => handleDragStart(e, task.id)}
+                        key={task.id}
                         onDragEnd={handleDragEnd}
-                        className={`bg-white p-4 rounded-xl border border-zinc-200/80 shadow-sm space-y-3 cursor-grab transition-all select-none hover:shadow-md hover:border-zinc-300 ${
-                          activeDragTaskId === task.id ? "opacity-40" : ""
-                        }`}
+                        onDragStart={(event) => handleDragStart(event, task.id)}
                       >
-                        {/* Task Code */}
-                        <div className="flex items-center justify-between">
-                          <span className={`font-mono text-[10px] font-bold px-1.5 py-0.5 rounded bg-zinc-100 text-zinc-600 ${
-                            task.status === "DONE" ? "line-through text-zinc-400" : ""
-                          }`}>
-                            {task.taskCode}
-                          </span>
-                          {renderPriorityBadge(task.priority)}
-                        </div>
-
-                        {/* Title */}
                         <Link
+                          className="line-clamp-2 text-sm font-medium leading-5 text-[#172b4d] hover:text-[#0c66e4]"
                           href={`/workspaces/${params.workspaceId}/projects/${params.projectId}/tasks/${task.id}`}
-                          className={`text-xs font-bold text-zinc-800 line-clamp-2 leading-snug hover:text-blue-600 transition ${
-                            task.status === "DONE" ? "line-through text-zinc-400" : ""
-                          }`}
                         >
                           {task.title}
                         </Link>
 
-                        {/* Bottom Info: Assignee + Date */}
-                        <div className="flex items-center justify-between border-t border-zinc-100 pt-3 text-[10px] font-medium text-zinc-500">
-                          <span>
-                            {task.dueDate ? new Date(task.dueDate).toLocaleDateString("vi-VN") : "-"}
+                        <div className="mt-2 flex flex-wrap gap-1">
+                          {task.sprint ? (
+                            <span className="rounded border border-[#dfe1e6] px-1.5 py-0.5 text-xs text-[#44546f]">
+                              {task.sprint.name}
+                            </span>
+                          ) : null}
+                          <span className="rounded border border-[#dfe1e6] px-1.5 py-0.5 text-xs text-[#44546f]">
+                            {formatDate(task.dueDate)}
                           </span>
+                        </div>
 
-                          <div className="flex items-center gap-2">
-                            {/* Mobile action quick select status */}
-                            {canWrite && (
-                              <div className="relative group/menu">
-                                <button className="p-0.5 rounded hover:bg-zinc-100 text-zinc-400 hover:text-zinc-700">
-                                  <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z" />
-                                  </svg>
-                                </button>
-                                <div className="absolute right-0 bottom-full mb-1 w-36 bg-white border border-zinc-200 rounded-xl shadow-lg py-1 hidden group-hover/menu:block z-20">
-                                  <p className="px-2 py-1 text-[8px] font-bold text-zinc-400 uppercase tracking-widest border-b border-zinc-100">
-                                    Chuyển trạng thái
-                                  </p>
-                                  {KANBAN_COLUMNS.filter((c) => c.key !== col.key).map((c) => (
-                                    <button
-                                      key={c.key}
-                                      onClick={() => void handleMoveStatusQuick(task.id, c.key)}
-                                      className="w-full text-left px-2 py-1.5 hover:bg-zinc-50 text-[10px] font-semibold text-zinc-700 transition"
-                                    >
-                                      {c.label}
-                                    </button>
-                                  ))}
-                                </div>
-                              </div>
-                            )}
+                        <div className="mt-3 flex items-center justify-between gap-2">
+                          <div className="flex min-w-0 items-center gap-2">
+                            <span className="font-mono text-xs font-medium text-[#6b778c]">
+                              {task.taskCode}
+                            </span>
+                            <span className={`text-xs font-semibold ${priorityClass(task.priority)}`}>
+                              {priorityText(task.priority)}
+                            </span>
+                          </div>
 
-                            {/* Avatar */}
-                            <div
-                              className="h-5.5 w-5.5 rounded-full bg-emerald-500 border border-white text-slate-950 font-bold flex items-center justify-center shadow-sm text-[9px]"
+                          <div className="flex shrink-0 items-center gap-2">
+                            {canWrite ? (
+                              <select
+                                className="h-7 rounded border border-[#dfe1e6] bg-white px-1 text-xs text-[#44546f]"
+                                onChange={(event) =>
+                                  void handleMoveStatusQuick(task.id, event.target.value as TaskStatus)
+                                }
+                                value={task.status}
+                              >
+                                {columns.map((item) => (
+                                  <option key={item.key} value={item.key}>
+                                    {item.label}
+                                  </option>
+                                ))}
+                              </select>
+                            ) : null}
+                            <span
+                              className="flex h-6 w-6 items-center justify-center rounded-full bg-[#00875a] text-xs font-semibold text-white"
                               title={task.assignee?.fullName ?? "Chưa gán"}
                             >
                               {task.assignee?.fullName ? task.assignee.fullName.charAt(0).toUpperCase() : "-"}
-                            </div>
+                            </span>
                           </div>
                         </div>
-                      </div>
+                      </article>
                     ))}
 
-                    {colTasks.length === 0 && (
-                      <div className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-zinc-200 rounded-2xl min-h-[10rem] text-center text-zinc-400 text-[10px] font-medium">
-                        Không có task
+                    {columnTasks.length === 0 ? (
+                      <div className="rounded border-2 border-dashed border-[#dfe1e6] px-3 py-8 text-center text-sm font-medium text-[#6b778c]">
+                        Chưa có task
                       </div>
-                    )}
+                    ) : null}
                   </div>
-                </div>
+                </section>
               );
             })}
           </div>

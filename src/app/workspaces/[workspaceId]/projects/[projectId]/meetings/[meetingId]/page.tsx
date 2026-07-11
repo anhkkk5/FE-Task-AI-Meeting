@@ -77,7 +77,7 @@ export default function MeetingDetailPage() {
       setMyRole(roleRes.data.role);
     } catch (error) {
       setMessage(
-        error instanceof Error ? error.message : "Tai chi tiet meeting that bai.",
+        error instanceof Error ? error.message : "Tải chi tiết meeting thất bại.",
       );
     } finally {
       setIsLoading(false);
@@ -110,26 +110,26 @@ export default function MeetingDetailPage() {
       );
       setMeeting(response.data.meeting);
       setIsEditing(false);
-      setMessage("Da cap nhat meeting.");
+      setMessage("Đã cập nhật meeting.");
     } catch (error) {
       setMessage(
-        error instanceof Error ? error.message : "Cap nhat meeting that bai.",
+        error instanceof Error ? error.message : "Cập nhật meeting thất bại.",
       );
     }
   }
 
   async function handleCancel() {
     if (!meeting) return;
-    if (!window.confirm("Ban muon cancel meeting nay?")) return;
+    if (!window.confirm("Bạn muốn hủy meeting này?")) return;
 
     setIsMutating(true);
     try {
       await cancelMeeting(params.workspaceId, params.projectId, meeting.id);
       await loadData();
-      setMessage("Da cancel meeting.");
+      setMessage("Đã hủy meeting.");
     } catch (error) {
       setMessage(
-        error instanceof Error ? error.message : "Cancel meeting that bai.",
+        error instanceof Error ? error.message : "Hủy meeting thất bại.",
       );
     } finally {
       setIsMutating(false);
@@ -143,10 +143,10 @@ export default function MeetingDetailPage() {
     try {
       await completeMeeting(params.workspaceId, params.projectId, meeting.id);
       await loadData();
-      setMessage("Da complete meeting.");
+      setMessage("Đã hoàn thành meeting.");
     } catch (error) {
       setMessage(
-        error instanceof Error ? error.message : "Complete meeting that bai.",
+        error instanceof Error ? error.message : "Hoàn thành meeting thất bại.",
       );
     } finally {
       setIsMutating(false);
@@ -173,7 +173,7 @@ export default function MeetingDetailPage() {
             className="rounded-xl border border-zinc-200 bg-white px-4 py-2 text-xs font-bold text-zinc-700 transition hover:bg-zinc-50"
             href={`/workspaces/${params.workspaceId}/projects/${params.projectId}/meetings`}
           >
-            Back to meetings
+            Quay lại danh sách meeting
           </Link>
           {canManage && meeting ? (
             <button
@@ -181,7 +181,7 @@ export default function MeetingDetailPage() {
               type="button"
               onClick={() => setIsEditing((value) => !value)}
             >
-              {isEditing ? "Dong form sua" : "Sua meeting"}
+              {isEditing ? "Đóng form sửa" : "Sửa meeting"}
             </button>
           ) : null}
         </div>
@@ -209,15 +209,15 @@ export default function MeetingDetailPage() {
             />
 
             {isEditing && canManage ? (
-              <section className="rounded-2xl border border-zinc-200/80 bg-white p-6 shadow-sm">
-                <h2 className="mb-5 text-lg font-black text-zinc-950">
-                  Cap nhat meeting
+              <section className="rounded border border-[#dfe1e6] bg-white p-5">
+                <h2 className="mb-5 text-lg font-semibold text-[#172b4d]">
+                  Cập nhật meeting
                 </h2>
                 <MeetingForm
                   initialMeeting={meeting}
                   members={members}
                   sprints={sprints}
-                  submitLabel="Cap nhat"
+                  submitLabel="Cập nhật"
                   onSubmit={handleUpdate}
                 />
               </section>
@@ -225,7 +225,7 @@ export default function MeetingDetailPage() {
           </>
         ) : (
           <div className="rounded-2xl border border-zinc-200 bg-white p-6 text-sm font-semibold text-zinc-700 shadow-sm">
-            Khong tim thay meeting.
+            Không tìm thấy meeting.
           </div>
         )}
       </div>

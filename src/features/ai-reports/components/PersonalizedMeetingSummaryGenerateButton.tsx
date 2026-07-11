@@ -19,10 +19,10 @@ export function PersonalizedMeetingSummaryGenerateButton({
 }: PersonalizedMeetingSummaryGenerateButtonProps) {
   const mode: GenerateMode = selectedMemberId ? "member" : "me";
   const primaryLabel = selectedMemberId
-    ? "Generate for member"
+    ? "Tạo cho thành viên"
     : hasSummary
-      ? "Use latest personal summary"
-      : "Generate my summary";
+      ? "Dùng tóm tắt cá nhân mới nhất"
+      : "Tạo tóm tắt của tôi";
 
   return (
     <div className="flex flex-wrap gap-2">
@@ -40,7 +40,7 @@ export function PersonalizedMeetingSummaryGenerateButton({
         type="button"
         onClick={() => onGenerate(mode, true)}
       >
-        Regenerate
+        Tạo lại
       </button>
       {canManage ? (
         <button
@@ -49,7 +49,7 @@ export function PersonalizedMeetingSummaryGenerateButton({
           type="button"
           onClick={() => onGenerate("all", false)}
         >
-          Generate all participants
+          Tạo cho tất cả thành viên
         </button>
       ) : null}
     </div>

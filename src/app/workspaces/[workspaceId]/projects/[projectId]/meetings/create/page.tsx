@@ -57,7 +57,7 @@ export default function CreateMeetingPage() {
       setMyRole(roleRes.data.role);
     } catch (error) {
       setMessage(
-        error instanceof Error ? error.message : "Tai du lieu meeting that bai.",
+        error instanceof Error ? error.message : "Tải dữ liệu meeting thất bại.",
       );
     } finally {
       setIsLoading(false);
@@ -74,7 +74,7 @@ export default function CreateMeetingPage() {
     payload: CreateMeetingPayload | UpdateMeetingPayload,
   ) {
     if (!canManage) {
-      setMessage("Ban khong co quyen tao meeting trong project nay.");
+      setMessage("Bạn không có quyền tạo meeting trong project này.");
       return;
     }
 
@@ -89,7 +89,7 @@ export default function CreateMeetingPage() {
       );
     } catch (error) {
       setMessage(
-        error instanceof Error ? error.message : "Tao meeting that bai.",
+        error instanceof Error ? error.message : "Tạo meeting thất bại.",
       );
     }
   }
@@ -108,52 +108,52 @@ export default function CreateMeetingPage() {
       title={project?.name}
       workspaceId={params.workspaceId}
     >
-      <div className="mx-auto max-w-5xl space-y-6 pb-12">
-        <section className="rounded-2xl border border-zinc-200/80 bg-white p-6 shadow-sm">
+      <div className="mx-auto max-w-5xl space-y-4 pb-12">
+        <section className="rounded border border-[#dfe1e6] bg-white p-5">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.18em] text-blue-600">
-                New meeting
+              <p className="text-xs font-semibold uppercase tracking-wide text-[#0c66e4]">
+                Tạo cuộc họp
               </p>
-              <h1 className="mt-1 text-2xl font-black text-zinc-950">
-                Tao meeting
+              <h1 className="mt-1 text-2xl font-semibold text-[#172b4d]">
+                Tạo cuộc họp mới
               </h1>
-              <p className="mt-2 text-sm font-medium text-zinc-500">
-                {project?.name ?? "Project"} {myRole ? `- Vai tro: ${myRole}` : ""}
+              <p className="mt-2 text-sm text-[#44546f]">
+                {project?.name ?? "Project"} {myRole ? `- Vai trò: ${myRole}` : ""}
               </p>
             </div>
             <Link
-              className="flex h-10 items-center rounded-xl border border-zinc-200 bg-white px-4 text-xs font-bold text-zinc-700 transition hover:bg-zinc-50"
+              className="flex h-9 items-center rounded border border-[#dfe1e6] bg-white px-3 text-sm font-medium text-[#44546f] hover:bg-[#f1f2f4]"
               href={`/workspaces/${params.workspaceId}/projects/${params.projectId}/meetings`}
             >
-              Danh sach meetings
+              Danh sách cuộc họp
             </Link>
           </div>
         </section>
 
         {message ? (
-          <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-900">
+          <div className="rounded border border-[#f5cd47] bg-[#fff7d6] px-4 py-3 text-sm font-medium text-[#7f5f01]">
             {message}
           </div>
         ) : null}
 
         {isLoading ? (
-          <div className="flex h-48 items-center justify-center rounded-2xl border border-zinc-200 bg-white">
-            <div className="h-6 w-6 animate-spin rounded-full border-2 border-blue-600 border-t-transparent"></div>
+          <div className="flex h-48 items-center justify-center rounded border border-[#dfe1e6] bg-white">
+            <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#0c66e4] border-t-transparent"></div>
           </div>
         ) : canManage ? (
-          <section className="rounded-2xl border border-zinc-200/80 bg-white p-6 shadow-sm">
+          <section className="rounded border border-[#dfe1e6] bg-white p-5">
             <MeetingForm
               members={members}
               sprints={sprints}
-              submitLabel="Tao meeting"
+              submitLabel="Tạo cuộc họp"
               onSubmit={handleSubmit}
             />
           </section>
         ) : (
-          <div className="rounded-2xl border border-zinc-200 bg-white p-6 text-sm font-semibold text-zinc-700 shadow-sm">
-            Ban can la OWNER, SCRUM_MASTER hoac PROJECT_MANAGER va project phai
-            ACTIVE de tao meeting.
+          <div className="rounded border border-[#dfe1e6] bg-white p-5 text-sm font-medium text-[#44546f]">
+            Bạn cần là OWNER, SCRUM_MASTER hoặc PROJECT_MANAGER và project phải
+            ACTIVE để tạo meeting.
           </div>
         )}
       </div>

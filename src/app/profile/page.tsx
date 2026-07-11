@@ -2,28 +2,69 @@
 
 import { useEffect, useState } from "react";
 import { AppShell } from "@/components/layout/AppShell";
-import { useAuth } from "@/hooks/useAuth";
 import { updateProfile, changePassword } from "@/features/users/api/users.api";
+import { useAuth } from "@/hooks/useAuth";
+
+type Notice = {
+  type: "" | "success" | "error";
+  text: string;
+};
+
+function NoticeBox({ notice }: { notice: Notice }) {
+  if (!notice.text) return null;
+
+  return (
+    <div
+      className={`rounded border px-3 py-2 text-sm ${
+        notice.type === "success"
+          ? "border-[#abf5d1] bg-[#dcfff1] text-[#216e4e]"
+          : "border-[#ffd2cc] bg-[#fff4f2] text-[#ae2a19]"
+      }`}
+    >
+      {notice.text}
+    </div>
+  );
+}
+
+function Field({
+  label,
+  children,
+  required,
+}: {
+  label: string;
+  children: React.ReactNode;
+  required?: boolean;
+}) {
+  return (
+    <label className="block space-y-1.5">
+      <span className="text-sm font-semibold text-[#172b4d]">
+        {label}
+        {required ? " *" : ""}
+      </span>
+      {children}
+    </label>
+  );
+}
+
+const inputClass =
+  "h-10 w-full rounded border border-[#dfe1e6] bg-white px-3 text-sm text-[#172b4d] outline-none transition placeholder:text-[#7a869a] hover:bg-[#f7f8f9] focus:border-[#0c66e4] focus:bg-white focus:ring-1 focus:ring-[#0c66e4]";
 
 export default function ProfilePage() {
   const { user, isLoading: authLoading, logoutUser, refreshUser } = useAuth(true);
 
-  // Form Profile state
   const [fullName, setFullName] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [jobTitle, setJobTitle] = useState("");
-  const [profileMessage, setProfileMessage] = useState({ type: "", text: "" });
+  const [profileMessage, setProfileMessage] = useState<Notice>({ type: "", text: "" });
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
 
-  // Form Password state
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [passwordMessage, setPasswordMessage] = useState({ type: "", text: "" });
+  const [passwordMessage, setPasswordMessage] = useState<Notice>({ type: "", text: "" });
   const [isChangingPassword, setIsChangingPassword] = useState(false);
 
-  // Load user data into form
   useEffect(() => {
     if (user) {
       setFullName(user.fullName || "");
@@ -35,17 +76,14 @@ export default function ProfilePage() {
 
   if (authLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-zinc-50">
-        <div className="flex flex-col items-center gap-3">
-          <div className="h-10 w-10 animate-spin rounded-full border-4 border-slate-900 border-t-transparent"></div>
-          <p className="text-sm font-medium text-zinc-600">Đang tải hồ sơ...</p>
-        </div>
+      <div className="flex min-h-screen items-center justify-center bg-[#f7f8f9]">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#0c66e4] border-t-transparent" />
       </div>
     );
   }
 
-  const handleUpdateProfile = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleUpdateProfile = async (event: React.FormEvent) => {
+    event.preventDefault();
     setProfileMessage({ type: "", text: "" });
     setIsUpdatingProfile(true);
 
@@ -61,15 +99,12 @@ export default function ProfilePage() {
         jobTitle: jobTitle.trim() || undefined,
       });
 
-      if (res.success) {
-        setProfileMessage({
-          type: "success",
-          text: "Cập nhật thông tin cá nhân thành công!",
-        });
-        await refreshUser();
-      } else {
+      if (!res.success) {
         throw new Error(res.message || "Không thể cập nhật hồ sơ");
       }
+
+      setProfileMessage({ type: "success", text: "Đã lưu thay đổi hồ sơ." });
+      await refreshUser();
     } catch (error) {
       setProfileMessage({
         type: "error",
@@ -80,8 +115,8 @@ export default function ProfilePage() {
     }
   };
 
-  const handleChangePassword = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleChangePassword = async (event: React.FormEvent) => {
+    event.preventDefault();
     setPasswordMessage({ type: "", text: "" });
     setIsChangingPassword(true);
 
@@ -96,29 +131,23 @@ export default function ProfilePage() {
         throw new Error("Xác nhận mật khẩu mới không khớp");
       }
 
-      const res = await changePassword({
-        currentPassword,
-        newPassword,
-      });
+      const res = await changePassword({ currentPassword, newPassword });
 
-      if (res.success) {
-        setPasswordMessage({
-          type: "success",
-          text: "Đổi mật khẩu thành công! Bạn sẽ bị đăng xuất sau giây lát...",
-        });
-        
-        // Reset form
-        setCurrentPassword("");
-        setNewPassword("");
-        setConfirmPassword("");
-
-        // Yêu cầu logout sau 2 giây để user kịp nhìn thấy thông báo thành công
-        setTimeout(() => {
-          void logoutUser();
-        }, 2000);
-      } else {
+      if (!res.success) {
         throw new Error(res.message || "Đổi mật khẩu thất bại");
       }
+
+      setPasswordMessage({
+        type: "success",
+        text: "Đã đổi mật khẩu. Hệ thống sẽ đăng xuất sau giây lát.",
+      });
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+
+      setTimeout(() => {
+        void logoutUser();
+      }, 2000);
     } catch (error) {
       setPasswordMessage({
         type: "error",
@@ -133,205 +162,158 @@ export default function ProfilePage() {
 
   return (
     <AppShell title="Trang cá nhân">
-      <div className="max-w-5xl mx-auto space-y-8 pb-12">
-        {/* Banner Welcome */}
-        <div className="relative overflow-hidden bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 p-8 rounded-3xl text-white shadow-xl">
-          <div className="absolute right-0 top-0 -mt-6 -mr-6 w-48 h-48 rounded-full bg-white/5 blur-2xl pointer-events-none"></div>
-          <div className="absolute left-1/3 bottom-0 w-32 h-32 rounded-full bg-emerald-500/10 blur-xl pointer-events-none"></div>
-          
-          <div className="relative flex flex-col md:flex-row items-center gap-6">
-            <div className="relative group">
+      <div className="mx-auto max-w-6xl space-y-4">
+        <section className="overflow-hidden rounded border border-[#dfe1e6] bg-white">
+          <div className="h-28 border-b border-[#dfe1e6] bg-[#deebff]" />
+          <div className="flex flex-col gap-4 px-6 pb-5 sm:flex-row sm:items-end sm:justify-between">
+            <div className="-mt-12 flex items-end gap-4">
               {avatarUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={avatarUrl}
                   alt={fullName}
-                  className="w-24 h-24 rounded-full object-cover border-4 border-white/20 shadow-md transition-transform duration-300 group-hover:scale-105"
+                  className="h-24 w-24 rounded-full border-4 border-white object-cover"
                   onError={() => setAvatarUrl("")}
                 />
               ) : (
-                <div className="w-24 h-24 rounded-full bg-emerald-500 text-slate-950 font-bold text-3xl flex items-center justify-center border-4 border-white/20 shadow-md transition-transform duration-300 group-hover:scale-105">
+                <div className="flex h-24 w-24 items-center justify-center rounded-full border-4 border-white bg-[#36b37e] text-4xl font-semibold text-[#172b4d]">
                   {userInitial}
                 </div>
               )}
+              <div className="pb-1">
+                <h1 className="text-2xl font-semibold text-[#172b4d]">{fullName || "Thành viên"}</h1>
+                <p className="mt-1 text-sm text-[#44546f]">{user?.email}</p>
+                {jobTitle ? <p className="mt-1 text-sm text-[#6b778c]">{jobTitle}</p> : null}
+              </div>
             </div>
-            
-            <div className="text-center md:text-left space-y-1">
-              <h1 className="text-2xl font-bold tracking-tight">{fullName || "Thành viên"}</h1>
-              <p className="text-sm text-slate-300 font-medium">{user?.email}</p>
-              {jobTitle && (
-                <span className="inline-block mt-2 px-3 py-1 bg-white/10 backdrop-blur-md rounded-full text-xs font-semibold text-emerald-400">
-                  {jobTitle}
-                </span>
-              )}
+            <div className="flex gap-2 pb-1 text-sm">
+              <span className="rounded bg-[#f1f2f4] px-2 py-1 font-medium text-[#44546f]">
+                Hồ sơ cá nhân
+              </span>
             </div>
           </div>
-        </div>
+        </section>
 
-        {/* 2 Form Panels */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* Thông tin cá nhân */}
-          <div className="bg-white p-8 rounded-3xl border border-zinc-200/80 shadow-sm flex flex-col justify-between">
-            <div className="space-y-6">
-              <div>
-                <h2 className="text-lg font-bold text-zinc-900">Thông tin cá nhân</h2>
-                <p className="text-xs font-medium text-zinc-500 mt-1">
-                  Cập nhật các thông tin cơ bản về tài khoản của bạn.
-                </p>
-              </div>
+        <div className="grid gap-4 lg:grid-cols-[1fr_380px]">
+          <section className="rounded border border-[#dfe1e6] bg-white">
+            <div className="border-b border-[#dfe1e6] px-5 py-4">
+              <h2 className="text-lg font-semibold text-[#172b4d]">Thông tin cá nhân</h2>
+              <p className="mt-1 text-sm text-[#6b778c]">
+                Cập nhật thông tin cơ bản để thành viên khác nhận diện bạn trong workspace.
+              </p>
+            </div>
 
-              {profileMessage.text && (
-                <div
-                  className={`p-4 rounded-2xl text-xs font-semibold border ${
-                    profileMessage.type === "success"
-                      ? "bg-emerald-50 border-emerald-200 text-emerald-950"
-                      : "bg-red-50 border-red-200 text-red-950"
-                  }`}
-                >
-                  {profileMessage.text}
-                </div>
-              )}
+            <form onSubmit={handleUpdateProfile} className="space-y-4 px-5 py-5">
+              <NoticeBox notice={profileMessage} />
 
-              <form onSubmit={handleUpdateProfile} className="space-y-4">
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-zinc-700 block">Họ và tên *</label>
+              <Field label="Họ và tên" required>
+                <input
+                  className={inputClass}
+                  onChange={(event) => setFullName(event.target.value)}
+                  placeholder="Nguyễn Văn A"
+                  required
+                  type="text"
+                  value={fullName}
+                />
+              </Field>
+
+              <div className="grid gap-4 md:grid-cols-2">
+                <Field label="Chức danh / Vị trí">
                   <input
-                    type="text"
-                    required
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    placeholder="Nguyễn Văn A"
-                    className="w-full h-11 px-4 rounded-xl border border-zinc-200 bg-zinc-50/50 text-sm outline-none focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all font-medium"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-zinc-700 block">Chức danh / Vị trí</label>
-                  <input
+                    className={inputClass}
+                    onChange={(event) => setJobTitle(event.target.value)}
+                    placeholder="Software Engineer, Product Manager..."
                     type="text"
                     value={jobTitle}
-                    onChange={(e) => setJobTitle(e.target.value)}
-                    placeholder="Software Engineer, Product Manager..."
-                    className="w-full h-11 px-4 rounded-xl border border-zinc-200 bg-zinc-50/50 text-sm outline-none focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all font-medium"
                   />
-                </div>
+                </Field>
 
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-zinc-700 block">Số điện thoại</label>
+                <Field label="Số điện thoại">
                   <input
+                    className={inputClass}
+                    onChange={(event) => setPhoneNumber(event.target.value)}
+                    placeholder="09xxxxxxxx"
                     type="text"
                     value={phoneNumber}
-                    onChange={(e) => setPhoneNumber(e.target.value)}
-                    placeholder="09xxxxxxxx"
-                    className="w-full h-11 px-4 rounded-xl border border-zinc-200 bg-zinc-50/50 text-sm outline-none focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all font-medium"
                   />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-zinc-700 block">Avatar URL</label>
-                  <input
-                    type="url"
-                    value={avatarUrl}
-                    onChange={(e) => setAvatarUrl(e.target.value)}
-                    placeholder="https://example.com/avatar.jpg"
-                    className="w-full h-11 px-4 rounded-xl border border-zinc-200 bg-zinc-50/50 text-sm outline-none focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all font-medium"
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={isUpdatingProfile}
-                  className="w-full h-11 rounded-xl bg-slate-900 hover:bg-slate-800 text-sm font-bold text-white shadow-md hover:shadow-lg transition disabled:opacity-50 flex items-center justify-center gap-2"
-                >
-                  {isUpdatingProfile ? (
-                    <>
-                      <div className="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin"></div>
-                      <span>Đang cập nhật...</span>
-                    </>
-                  ) : (
-                    <span>Lưu thay đổi</span>
-                  )}
-                </button>
-              </form>
-            </div>
-          </div>
-
-          {/* Bảo mật & Đổi mật khẩu */}
-          <div className="bg-white p-8 rounded-3xl border border-zinc-200/80 shadow-sm flex flex-col justify-between">
-            <div className="space-y-6">
-              <div>
-                <h2 className="text-lg font-bold text-zinc-900">Bảo mật & Đổi mật khẩu</h2>
-                <p className="text-xs font-medium text-zinc-500 mt-1">
-                  Đổi mật khẩu định kỳ để bảo vệ tài khoản của bạn.
-                </p>
+                </Field>
               </div>
 
-              {passwordMessage.text && (
-                <div
-                  className={`p-4 rounded-2xl text-xs font-semibold border ${
-                    passwordMessage.type === "success"
-                      ? "bg-emerald-50 border-emerald-200 text-emerald-950"
-                      : "bg-red-50 border-red-200 text-red-950"
-                  }`}
-                >
-                  {passwordMessage.text}
-                </div>
-              )}
+              <Field label="Avatar URL">
+                <input
+                  className={inputClass}
+                  onChange={(event) => setAvatarUrl(event.target.value)}
+                  placeholder="https://example.com/avatar.jpg"
+                  type="url"
+                  value={avatarUrl}
+                />
+              </Field>
 
-              <form onSubmit={handleChangePassword} className="space-y-4">
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-zinc-700 block">Mật khẩu hiện tại *</label>
-                  <input
-                    type="password"
-                    required
-                    value={currentPassword}
-                    onChange={(e) => setCurrentPassword(e.target.value)}
-                    placeholder="••••••••"
-                    className="w-full h-11 px-4 rounded-xl border border-zinc-200 bg-zinc-50/50 text-sm outline-none focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all font-medium"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-zinc-700 block">Mật khẩu mới *</label>
-                  <input
-                    type="password"
-                    required
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                    placeholder="Tối thiểu 6 ký tự"
-                    className="w-full h-11 px-4 rounded-xl border border-zinc-200 bg-zinc-50/50 text-sm outline-none focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all font-medium"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-zinc-700 block">Xác nhận mật khẩu mới *</label>
-                  <input
-                    type="password"
-                    required
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder="Nhập lại mật khẩu mới"
-                    className="w-full h-11 px-4 rounded-xl border border-zinc-200 bg-zinc-50/50 text-sm outline-none focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all font-medium"
-                  />
-                </div>
-
+              <div className="flex justify-end border-t border-[#dfe1e6] pt-4">
                 <button
+                  className="h-9 rounded bg-[#0c66e4] px-4 text-sm font-semibold text-white hover:bg-[#0055cc] disabled:cursor-not-allowed disabled:opacity-60"
+                  disabled={isUpdatingProfile}
                   type="submit"
-                  disabled={isChangingPassword}
-                  className="w-full h-11 rounded-xl bg-slate-900 hover:bg-slate-800 text-sm font-bold text-white shadow-md hover:shadow-lg transition disabled:opacity-50 flex items-center justify-center gap-2"
                 >
-                  {isChangingPassword ? (
-                    <>
-                      <div className="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin"></div>
-                      <span>Đang cập nhật...</span>
-                    </>
-                  ) : (
-                    <span>Đổi mật khẩu</span>
-                  )}
+                  {isUpdatingProfile ? "Đang lưu..." : "Lưu thay đổi"}
                 </button>
-              </form>
+              </div>
+            </form>
+          </section>
+
+          <section className="rounded border border-[#dfe1e6] bg-white">
+            <div className="border-b border-[#dfe1e6] px-5 py-4">
+              <h2 className="text-lg font-semibold text-[#172b4d]">Bảo mật</h2>
+              <p className="mt-1 text-sm text-[#6b778c]">Đổi mật khẩu định kỳ để bảo vệ tài khoản.</p>
             </div>
-          </div>
+
+            <form onSubmit={handleChangePassword} className="space-y-4 px-5 py-5">
+              <NoticeBox notice={passwordMessage} />
+
+              <Field label="Mật khẩu hiện tại" required>
+                <input
+                  className={inputClass}
+                  onChange={(event) => setCurrentPassword(event.target.value)}
+                  placeholder="Nhập mật khẩu hiện tại"
+                  required
+                  type="password"
+                  value={currentPassword}
+                />
+              </Field>
+
+              <Field label="Mật khẩu mới" required>
+                <input
+                  className={inputClass}
+                  onChange={(event) => setNewPassword(event.target.value)}
+                  placeholder="Tối thiểu 6 ký tự"
+                  required
+                  type="password"
+                  value={newPassword}
+                />
+              </Field>
+
+              <Field label="Xác nhận mật khẩu mới" required>
+                <input
+                  className={inputClass}
+                  onChange={(event) => setConfirmPassword(event.target.value)}
+                  placeholder="Nhập lại mật khẩu mới"
+                  required
+                  type="password"
+                  value={confirmPassword}
+                />
+              </Field>
+
+              <div className="flex justify-end border-t border-[#dfe1e6] pt-4">
+                <button
+                  className="h-9 rounded bg-[#172b4d] px-4 text-sm font-semibold text-white hover:bg-[#0c1f3f] disabled:cursor-not-allowed disabled:opacity-60"
+                  disabled={isChangingPassword}
+                  type="submit"
+                >
+                  {isChangingPassword ? "Đang đổi..." : "Đổi mật khẩu"}
+                </button>
+              </div>
+            </form>
+          </section>
         </div>
       </div>
     </AppShell>
