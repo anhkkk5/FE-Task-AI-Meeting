@@ -29,6 +29,8 @@ export default function MeetingRoomPage() {
     localStream,
     remotePeers,
     selfPeer,
+    joinRequests,
+    isWaitingApproval,
     isConnecting,
     isConnected,
     audioEnabled,
@@ -40,6 +42,7 @@ export default function MeetingRoomPage() {
     startScreenShare,
     stopScreenShare,
     leaveMeeting,
+    admitParticipant,
   } = useMeetingWebRtc({
     workspaceId: params.workspaceId,
     projectId: params.projectId,
@@ -50,10 +53,11 @@ export default function MeetingRoomPage() {
 
   const participantCount = remotePeers.length + (selfPeer ? 1 : 0);
   const roomStatus = useMemo(() => {
-    if (isConnecting) return "Dang ket noi";
-    if (isConnected) return "Dang online";
-    return "Chua ket noi";
-  }, [isConnecting, isConnected]);
+    if (isConnecting) return "Đang kết nối";
+    if (isWaitingApproval) return "Chờ duyệt";
+    if (isConnected) return "Đang online";
+    return "Chưa kết nối";
+  }, [isConnecting, isConnected, isWaitingApproval]);
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
@@ -71,7 +75,7 @@ export default function MeetingRoomPage() {
       setMessage(
         loadError instanceof Error
           ? loadError.message
-          : "Tai thong tin phong hop that bai.",
+          : "Tải thông tin phòng họp thất bại.",
       );
     } finally {
       setIsLoading(false);
@@ -89,6 +93,34 @@ export default function MeetingRoomPage() {
     router.push(
       `/workspaces/${params.workspaceId}/projects/${params.projectId}/meetings/${params.meetingId}`,
     );
+  }
+
+  async function handleEnableRemoteAudio() {
+    const audioElements = Array.from(
+      document.querySelectorAll<HTMLAudioElement>(
+        'audio[data-meeting-audio="true"]',
+      ),
+    );
+
+    if (!audioElements.length) {
+      setMessage("Chua co am thanh tu nguoi khac trong phong hop.");
+      return;
+    }
+
+    try {
+      await Promise.all(
+        audioElements.map((audio) => {
+          audio.muted = false;
+          audio.volume = 1;
+          return audio.play();
+        }),
+      );
+      setMessage("Da bat am thanh cuoc hop.");
+    } catch {
+      setMessage(
+        "Trinh duyet dang chan am thanh tu dong. Hay bam lai nut bat am thanh va kiem tra am luong thiet bi.",
+      );
+    }
   }
 
   if (authLoading) {
@@ -111,7 +143,7 @@ export default function MeetingRoomPage() {
             <div className="min-w-0">
               <div className="mb-2 flex flex-wrap items-center gap-2">
                 <span className="rounded-full bg-blue-500 px-3 py-1 text-[10px] font-black uppercase tracking-wider text-white">
-                  Meeting room
+                  Phòng họp
                 </span>
                 <span
                   className={`rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-wider ${
@@ -123,14 +155,14 @@ export default function MeetingRoomPage() {
                   {roomStatus}
                 </span>
                 <span className="rounded-full bg-white/10 px-3 py-1 text-[10px] font-black uppercase tracking-wider text-zinc-200">
-                  {participantCount} online
+                  {participantCount} đang online
                 </span>
               </div>
               <h1 className="truncate text-2xl font-black">
-                {meeting?.title ?? "Phong hop"}
+                {meeting?.title ?? "Phòng họp"}
               </h1>
               <p className="mt-1 truncate text-sm font-medium text-zinc-400">
-                {project?.name ?? "Project"} / {params.meetingId}
+                {project?.name ?? "Dự án"} / {params.meetingId}
               </p>
             </div>
 
@@ -139,14 +171,14 @@ export default function MeetingRoomPage() {
                 className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-xs font-bold text-zinc-100 transition hover:bg-white/10"
                 href={`/workspaces/${params.workspaceId}/projects/${params.projectId}/meetings/${params.meetingId}`}
               >
-                Detail
+                Chi tiết
               </Link>
               <button
                 className="rounded-xl bg-red-600 px-4 py-2 text-xs font-black text-white transition hover:bg-red-700"
                 type="button"
                 onClick={handleLeave}
               >
-                Leave
+                Rời phòng
               </button>
             </div>
           </div>
@@ -156,6 +188,13 @@ export default function MeetingRoomPage() {
               {message || error ? (
                 <div className="rounded-2xl border border-amber-300/30 bg-amber-400/10 px-4 py-3 text-sm font-semibold text-amber-100">
                   {message || error}
+                </div>
+              ) : null}
+
+              {isWaitingApproval ? (
+                <div className="rounded-2xl border border-blue-300/30 bg-blue-400/10 px-4 py-3 text-sm font-semibold text-blue-100">
+                  Bạn đang ở phòng chờ. Chủ phòng hoặc quản lý dự án cần bấm
+                  cho vào phòng họp.
                 </div>
               ) : null}
 
@@ -174,7 +213,7 @@ export default function MeetingRoomPage() {
                   <MeetingVideoTile
                     audioEnabled={audioEnabled}
                     isLocal
-                    label={user?.fullName ?? "You"}
+                    label={user?.fullName ?? "Bạn"}
                     muted
                     screenSharing={screenSharing}
                     stream={localStream}
@@ -186,7 +225,7 @@ export default function MeetingRoomPage() {
                       <MeetingVideoTile
                         key={peer.socketId}
                         audioEnabled={peer.audioEnabled}
-                        label={peer.fullName || peer.email || "Participant"}
+                        label={peer.fullName || peer.email || "Người tham gia"}
                         screenSharing={peer.screenSharing}
                         stream={peer.stream}
                         videoEnabled={peer.videoEnabled}
@@ -196,11 +235,11 @@ export default function MeetingRoomPage() {
                     <div className="flex min-h-64 items-center justify-center rounded-2xl border border-dashed border-white/15 bg-white/[0.03] p-6 text-center">
                       <div>
                         <p className="text-sm font-black text-white">
-                          Dang cho nguoi khac vao phong
+                          Đang chờ người khác vào phòng
                         </p>
                         <p className="mt-2 max-w-sm text-xs leading-relaxed text-zinc-400">
-                          Mo cung URL nay tren trinh duyet khac hoac gui link
-                          phong hop cho thanh vien.
+                          Mở cùng URL này trên trình duyệt khác hoặc gửi link
+                          phòng họp cho thành viên.
                         </p>
                       </div>
                     </div>
@@ -211,7 +250,9 @@ export default function MeetingRoomPage() {
 
             <aside className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
               <div className="flex items-center justify-between">
-                <h2 className="text-sm font-black text-white">Participants</h2>
+                <h2 className="text-sm font-black text-white">
+                  Người tham gia
+                </h2>
                 <span className="rounded-lg bg-white/10 px-2 py-1 text-[10px] font-black text-zinc-200">
                   {participantCount}
                 </span>
@@ -220,7 +261,7 @@ export default function MeetingRoomPage() {
               <div className="mt-4 space-y-2">
                 <ParticipantRow
                   audioEnabled={audioEnabled}
-                  fullName={user?.fullName ?? "You"}
+                  fullName={user?.fullName ?? "Bạn"}
                   isLocal
                   videoEnabled={videoEnabled}
                 />
@@ -228,12 +269,70 @@ export default function MeetingRoomPage() {
                   <ParticipantRow
                     key={peer.socketId}
                     audioEnabled={peer.audioEnabled}
-                    fullName={peer.fullName || peer.email || "Participant"}
+                    fullName={peer.fullName || peer.email || "Người tham gia"}
                     screenSharing={peer.screenSharing}
                     videoEnabled={peer.videoEnabled}
                   />
                 ))}
               </div>
+
+              {joinRequests.length ? (
+                <div className="mt-5 border-t border-white/10 pt-4">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-xs font-black text-white">
+                      Phòng chờ
+                    </h3>
+                    <span className="rounded-lg bg-amber-400/15 px-2 py-1 text-[10px] font-black text-amber-100 ring-1 ring-amber-300/20">
+                      {joinRequests.length}
+                    </span>
+                  </div>
+                  <div className="mt-3 space-y-2">
+                    {joinRequests.map((request) => (
+                      <div
+                        key={request.socketId}
+                        className="rounded-xl bg-white/[0.06] p-3"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-500 text-sm font-black text-white">
+                            {(request.fullName || request.email)
+                              .trim()
+                              .charAt(0)
+                              .toUpperCase() || "U"}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate text-xs font-black text-white">
+                              {request.fullName || "Người tham gia"}
+                            </p>
+                            <p className="mt-0.5 truncate text-[10px] font-semibold text-zinc-400">
+                              {request.email}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="mt-3 grid grid-cols-2 gap-2">
+                          <button
+                            className="rounded-lg bg-emerald-500 px-3 py-2 text-[10px] font-black text-white transition hover:bg-emerald-600"
+                            type="button"
+                            onClick={() =>
+                              admitParticipant(request.socketId, true)
+                            }
+                          >
+                            Cho vào
+                          </button>
+                          <button
+                            className="rounded-lg bg-white/10 px-3 py-2 text-[10px] font-black text-zinc-100 transition hover:bg-white/15"
+                            type="button"
+                            onClick={() =>
+                              admitParticipant(request.socketId, false)
+                            }
+                          >
+                            Từ chối
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
 
               <div className="mt-5 grid grid-cols-2 gap-2">
                 <button
@@ -245,7 +344,7 @@ export default function MeetingRoomPage() {
                   type="button"
                   onClick={() => void toggleAudio()}
                 >
-                  {audioEnabled ? "Mute mic" : "Unmute"}
+                  {audioEnabled ? "Tắt mic" : "Bật mic"}
                 </button>
                 <button
                   className={`rounded-xl px-3 py-3 text-xs font-black transition ${
@@ -256,7 +355,7 @@ export default function MeetingRoomPage() {
                   type="button"
                   onClick={() => void toggleVideo()}
                 >
-                  {videoEnabled ? "Camera off" : "Camera on"}
+                  {videoEnabled ? "Tắt camera" : "Bật camera"}
                 </button>
                 <button
                   className={`col-span-2 rounded-xl px-3 py-3 text-xs font-black transition ${
@@ -271,14 +370,21 @@ export default function MeetingRoomPage() {
                       : void startScreenShare()
                   }
                 >
-                  {screenSharing ? "Stop screen share" : "Share screen"}
+                  {screenSharing ? "Dừng chia sẻ màn hình" : "Chia sẻ màn hình"}
+                </button>
+                <button
+                  className="col-span-2 rounded-xl bg-emerald-600 px-3 py-3 text-xs font-black text-white transition hover:bg-emerald-700"
+                  type="button"
+                  onClick={() => void handleEnableRemoteAudio()}
+                >
+                  Bật âm thanh cuộc họp
                 </button>
                 <button
                   className="col-span-2 rounded-xl bg-red-600 px-3 py-3 text-xs font-black text-white transition hover:bg-red-700"
                   type="button"
                   onClick={handleLeave}
                 >
-                  Leave meeting
+                  Rời phòng họp
                 </button>
               </div>
             </aside>
@@ -312,18 +418,18 @@ function ParticipantRow({
       <div className="min-w-0 flex-1">
         <p className="truncate text-xs font-black text-white">
           {fullName}
-          {isLocal ? " (You)" : ""}
+          {isLocal ? " (Bạn)" : ""}
         </p>
         <p className="mt-0.5 truncate text-[10px] font-semibold text-zinc-400">
-          {screenSharing ? "Screen sharing" : "In room"}
+          {screenSharing ? "Đang chia sẻ màn hình" : "Trong phòng"}
         </p>
       </div>
       <div className="flex shrink-0 gap-1">
         <span className="rounded-md bg-white/10 px-1.5 py-1 text-[9px] font-black text-zinc-200">
-          {audioEnabled ? "MIC" : "MUTE"}
+          {audioEnabled ? "MIC" : "TẮT MIC"}
         </span>
         <span className="rounded-md bg-white/10 px-1.5 py-1 text-[9px] font-black text-zinc-200">
-          {videoEnabled ? "CAM" : "OFF"}
+          {videoEnabled ? "CAM" : "TẮT CAM"}
         </span>
       </div>
     </div>

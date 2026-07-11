@@ -17,15 +17,51 @@ export default function RegisterPage() {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+
+    const nextEmail = email.trim();
+    const nextFullName = fullName.trim();
+    const nextPassword = password.trim();
+
+    if (!nextFullName || !nextEmail || !nextPassword) {
+      setMessage("Vui long nhap day du ho ten, email va mat khau.");
+      return;
+    }
+
+    if (nextFullName.length < 2) {
+      setMessage("Ho ten phai co it nhat 2 ky tu.");
+      return;
+    }
+
+    if (!nextEmail.includes("@")) {
+      setMessage("Email khong dung dinh dang.");
+      return;
+    }
+
+    if (nextPassword.length < 8) {
+      setMessage("Mat khau phai co it nhat 8 ky tu.");
+      return;
+    }
+
     setIsSubmitting(true);
     setMessage("");
 
     try {
-      const response = await register({ email, fullName, password });
-      saveAccessToken(response.data.tokens.accessToken);
-      router.push("/workspaces");
+      const response = await register({
+        email: nextEmail,
+        fullName: nextFullName,
+        password: nextPassword,
+      });
+      const accessToken = response.data.tokens.accessToken;
+
+      if (!accessToken) {
+        throw new Error("Backend khong tra ve access token.");
+      }
+
+      saveAccessToken(accessToken);
+      router.replace("/workspaces");
+      router.refresh();
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : "Register failed");
+      setMessage(error instanceof Error ? error.message : "Dang ky that bai.");
     } finally {
       setIsSubmitting(false);
     }
@@ -36,16 +72,16 @@ export default function RegisterPage() {
       asideText="Khoi tao tai khoan, tao workspace dau tien va moi thanh vien vao dung vai tro."
       asideTitle="Set up your team workspace in minutes."
       subtitle="Tao tai khoan moi de bat dau quan ly workspace va project."
-      title="Create your account"
+      title="Tao tai khoan"
     >
         {message ? (
           <p className="mb-4 rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
             {message}
           </p>
         ) : null}
-        <form className="grid gap-4" onSubmit={handleSubmit}>
+        <form className="grid gap-4" noValidate onSubmit={handleSubmit}>
           <label className="grid gap-2 text-sm font-medium text-zinc-700">
-            Full name
+            Ho ten
             <input
               className="h-11 rounded-md border border-zinc-300 bg-white px-3 text-sm font-normal outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
               placeholder="Nguyen Van A"
@@ -68,10 +104,10 @@ export default function RegisterPage() {
             />
           </label>
           <label className="grid gap-2 text-sm font-medium text-zinc-700">
-            Password
+            Mat khau
             <input
               className="h-11 rounded-md border border-zinc-300 bg-white px-3 text-sm font-normal outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
-              placeholder="At least 8 characters"
+              placeholder="It nhat 8 ky tu"
               type="password"
               minLength={8}
               value={password}
@@ -84,13 +120,13 @@ export default function RegisterPage() {
             disabled={isSubmitting}
             type="submit"
           >
-            {isSubmitting ? "Creating..." : "Register"}
+            {isSubmitting ? "Dang tao..." : "Dang ky"}
           </button>
         </form>
         <p className="mt-6 text-center text-sm text-zinc-600">
-          Already have an account?{" "}
+          Da co tai khoan?{" "}
           <Link className="font-semibold text-emerald-700" href="/login">
-            Login
+            Dang nhap
           </Link>
         </p>
     </AuthShell>

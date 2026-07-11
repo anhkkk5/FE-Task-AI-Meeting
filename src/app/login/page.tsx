@@ -16,15 +16,44 @@ export default function LoginPage() {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+
+    const nextEmail = email.trim();
+    const nextPassword = password.trim();
+
+    if (!nextEmail || !nextPassword) {
+      setMessage("Vui long nhap email va mat khau.");
+      return;
+    }
+
+    if (!nextEmail.includes("@")) {
+      setMessage("Email khong dung dinh dang.");
+      return;
+    }
+
+    if (nextPassword.length < 8) {
+      setMessage("Mat khau phai co it nhat 8 ky tu.");
+      return;
+    }
+
     setIsSubmitting(true);
     setMessage("");
 
     try {
-      const response = await login({ email, password });
-      saveAccessToken(response.data.tokens.accessToken);
-      router.push("/workspaces");
+      const response = await login({
+        email: nextEmail,
+        password: nextPassword,
+      });
+      const accessToken = response.data.tokens.accessToken;
+
+      if (!accessToken) {
+        throw new Error("Backend khong tra ve access token.");
+      }
+
+      saveAccessToken(accessToken);
+      router.replace("/workspaces");
+      router.refresh();
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : "Login failed");
+      setMessage(error instanceof Error ? error.message : "Dang nhap that bai.");
     } finally {
       setIsSubmitting(false);
     }
@@ -35,14 +64,14 @@ export default function LoginPage() {
       asideText="Theo doi workspace, quan ly thanh vien va dieu phoi project tren mot man hinh gon gang."
       asideTitle="Move from idea to sprint-ready work."
       subtitle="Dang nhap de tiep tuc quan ly workspace cua nhom."
-      title="Welcome back"
+      title="Chao mung tro lai"
     >
         {message ? (
           <p className="mb-4 rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
             {message}
           </p>
         ) : null}
-        <form className="grid gap-4" onSubmit={handleSubmit}>
+        <form className="grid gap-4" noValidate onSubmit={handleSubmit}>
           <label className="grid gap-2 text-sm font-medium text-zinc-700">
             Email
             <input
@@ -55,10 +84,10 @@ export default function LoginPage() {
             />
           </label>
           <label className="grid gap-2 text-sm font-medium text-zinc-700">
-            Password
+            Mat khau
             <input
               className="h-11 rounded-md border border-zinc-300 bg-white px-3 text-sm font-normal outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
-              placeholder="Enter your password"
+              placeholder="Nhap mat khau"
               type="password"
               minLength={8}
               value={password}
@@ -71,13 +100,13 @@ export default function LoginPage() {
             disabled={isSubmitting}
             type="submit"
           >
-            {isSubmitting ? "Logging in..." : "Login"}
+            {isSubmitting ? "Dang dang nhap..." : "Dang nhap"}
           </button>
         </form>
         <p className="mt-6 text-center text-sm text-zinc-600">
-          New to Agile AI?{" "}
+          Chua co tai khoan?{" "}
           <Link className="font-semibold text-emerald-700" href="/register">
-            Create an account
+            Tao tai khoan
           </Link>
         </p>
     </AuthShell>

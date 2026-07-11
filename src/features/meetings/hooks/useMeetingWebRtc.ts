@@ -19,10 +19,20 @@ export type MeetingPeer = {
   fullName: string;
   avatarUrl: string | null;
   joinedAt: string;
+  canManage?: boolean;
   audioEnabled: boolean;
   videoEnabled: boolean;
   screenSharing: boolean;
   stream?: MediaStream;
+};
+
+export type MeetingJoinRequest = {
+  socketId: string;
+  userId: string;
+  email: string;
+  fullName: string;
+  avatarUrl: string | null;
+  requestedAt: string;
 };
 
 type MeetingJoinedEvent = {
@@ -56,6 +66,37 @@ const iceServers: RTCIceServer[] = [
   { urls: "stun:stun1.l.google.com:19302" },
 ];
 
+function isLocalhost(hostname: string) {
+  return ["localhost", "127.0.0.1", "::1"].includes(hostname);
+}
+
+function getMediaAccessErrorMessage(error?: unknown) {
+  const isInsecureLan =
+    typeof window !== "undefined" &&
+    !window.isSecureContext &&
+    !isLocalhost(window.location.hostname);
+
+  if (isInsecureLan) {
+    return "Dien thoai dang mo bang HTTP qua IP LAN nen Safari/iOS khong cap quyen camera/microphone. Can dung HTTPS tunnel/deploy de test cam va mic tren dien thoai.";
+  }
+
+  if (error instanceof DOMException) {
+    if (error.name === "NotAllowedError") {
+      return "Ban chua cap quyen camera/microphone cho trinh duyet.";
+    }
+
+    if (error.name === "NotFoundError") {
+      return "Khong tim thay camera hoac microphone tren thiet bi.";
+    }
+
+    if (error.name === "SecurityError") {
+      return "Trinh duyet dang chan camera/microphone vi trang khong duoc xem la an toan.";
+    }
+  }
+
+  return "Khong bat duoc camera/microphone, ban van co the vao phong de xem nguoi khac.";
+}
+
 function getSocketBaseUrl() {
   if (process.env.NEXT_PUBLIC_SOCKET_BASE_URL) {
     return process.env.NEXT_PUBLIC_SOCKET_BASE_URL;
@@ -85,10 +126,12 @@ export function useMeetingWebRtc({
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const [remotePeers, setRemotePeers] = useState<MeetingPeer[]>([]);
   const [selfPeer, setSelfPeer] = useState<MeetingPeer | null>(null);
+  const [joinRequests, setJoinRequests] = useState<MeetingJoinRequest[]>([]);
+  const [isWaitingApproval, setIsWaitingApproval] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
-  const [audioEnabled, setAudioEnabled] = useState(true);
-  const [videoEnabled, setVideoEnabled] = useState(true);
+  const [audioEnabled, setAudioEnabled] = useState(false);
+  const [videoEnabled, setVideoEnabled] = useState(false);
   const [screenSharing, setScreenSharing] = useState(false);
   const [error, setError] = useState("");
 
@@ -103,7 +146,7 @@ export function useMeetingWebRtc({
         socketId: peer.socketId,
         userId: peer.userId ?? current?.userId ?? "",
         email: peer.email ?? current?.email ?? "",
-        fullName: peer.fullName ?? current?.fullName ?? "Participant",
+        fullName: peer.fullName ?? current?.fullName ?? "Người tham gia",
         avatarUrl: peer.avatarUrl ?? current?.avatarUrl ?? null,
         joinedAt: peer.joinedAt ?? current?.joinedAt ?? new Date().toISOString(),
         audioEnabled: peer.audioEnabled ?? current?.audioEnabled ?? true,
@@ -224,7 +267,9 @@ export function useMeetingWebRtc({
     }
 
     if (!navigator.mediaDevices?.getUserMedia) {
-      setError("Trinh duyet khong ho tro camera/microphone.");
+      setAudioEnabled(false);
+      setVideoEnabled(false);
+      setError(getMediaAccessErrorMessage());
       return null;
     }
 
@@ -242,10 +287,10 @@ export function useMeetingWebRtc({
 
       peersRef.current.forEach((connection) => attachLocalTracks(connection));
       return stream;
-    } catch {
+    } catch (mediaError) {
       setAudioEnabled(false);
       setVideoEnabled(false);
-      setError("Chua cap quyen camera/microphone, ban van co the vao phong.");
+      setError(getMediaAccessErrorMessage(mediaError));
       return null;
     }
   }, [attachLocalTracks]);
@@ -273,6 +318,8 @@ export function useMeetingWebRtc({
     setLocalStream(null);
     setRemotePeers([]);
     setSelfPeer(null);
+    setJoinRequests([]);
+    setIsWaitingApproval(false);
     setIsConnected(false);
     setIsConnecting(false);
     setScreenSharing(false);
@@ -327,11 +374,51 @@ export function useMeetingWebRtc({
         setError(payload.message || "Loi phong hop.");
       });
 
+      socket.on("exception", (payload: { message?: string }) => {
+        setError(payload.message || "Loi phong hop.");
+      });
+
       socket.on("meeting-joined", (payload: MeetingJoinedEvent) => {
         setSelfPeer(payload.self);
+        setIsWaitingApproval(false);
         payload.participants.forEach((participant) => {
           upsertRemotePeer(participant);
         });
+      });
+
+      socket.on("join-request-pending", (payload: { message?: string }) => {
+        setIsWaitingApproval(true);
+        setError(payload.message || "Đang chờ chủ phòng cho phép vào phòng họp.");
+      });
+
+      socket.on("join-request-approved", () => {
+        setIsWaitingApproval(false);
+        setError("");
+      });
+
+      socket.on("join-request-denied", (payload: { message?: string }) => {
+        setIsWaitingApproval(false);
+        setError(payload.message || "Chủ phòng đã từ chối cho vào phòng họp.");
+      });
+
+      socket.on("join-requests", (payload: { items?: MeetingJoinRequest[] }) => {
+        setJoinRequests(payload.items ?? []);
+      });
+
+      socket.on("join-requested", (request: MeetingJoinRequest) => {
+        setJoinRequests((current) => {
+          if (current.some((item) => item.socketId === request.socketId)) {
+            return current;
+          }
+
+          return [...current, request];
+        });
+      });
+
+      socket.on("join-request-cancelled", (payload: { socketId?: string }) => {
+        setJoinRequests((current) =>
+          current.filter((item) => item.socketId !== payload.socketId),
+        );
       });
 
       socket.on("participant-joined", (participant: MeetingPeer) => {
@@ -406,6 +493,11 @@ export function useMeetingWebRtc({
 
   const toggleAudio = useCallback(async () => {
     const stream = await startLocalMedia();
+
+    if (!stream) {
+      return;
+    }
+
     const nextValue = !audioEnabled;
 
     stream?.getAudioTracks().forEach((track) => {
@@ -418,6 +510,11 @@ export function useMeetingWebRtc({
 
   const toggleVideo = useCallback(async () => {
     const stream = await startLocalMedia();
+
+    if (!stream) {
+      return;
+    }
+
     const nextValue = !videoEnabled;
 
     stream?.getVideoTracks().forEach((track) => {
@@ -507,10 +604,25 @@ export function useMeetingWebRtc({
     cleanup();
   }, [cleanup]);
 
+  const admitParticipant = useCallback(
+    (socketId: string, approved: boolean) => {
+      socketRef.current?.emit("admit-participant", {
+        socketId,
+        approved,
+      });
+      setJoinRequests((current) =>
+        current.filter((item) => item.socketId !== socketId),
+      );
+    },
+    [],
+  );
+
   return {
     localStream,
     remotePeers,
     selfPeer,
+    joinRequests,
+    isWaitingApproval,
     isConnecting,
     isConnected,
     audioEnabled,
@@ -522,5 +634,6 @@ export function useMeetingWebRtc({
     startScreenShare,
     stopScreenShare,
     leaveMeeting,
+    admitParticipant,
   };
 }

@@ -22,23 +22,39 @@ export function MeetingVideoTile({
   screenSharing = false,
 }: MeetingVideoTileProps) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
-    if (videoRef.current) {
-      videoRef.current.srcObject = stream ?? null;
+    const video = videoRef.current;
+    const audio = audioRef.current;
+
+    if (video) {
+      video.srcObject = stream ?? null;
+      void video.play().catch(() => undefined);
     }
-  }, [stream]);
+
+    if (audio) {
+      audio.srcObject = stream ?? null;
+      audio.muted = Boolean(muted || isLocal);
+      audio.volume = 1;
+      void audio.play().catch(() => undefined);
+    }
+  }, [isLocal, muted, stream, videoEnabled]);
 
   const initial = label.trim().charAt(0).toUpperCase() || "U";
 
   return (
     <article className="relative min-h-64 overflow-hidden rounded-2xl border border-white/10 bg-zinc-950 shadow-2xl shadow-zinc-950/20">
+      {stream && !isLocal ? (
+        <audio ref={audioRef} autoPlay data-meeting-audio="true" />
+      ) : null}
+
       {stream && videoEnabled ? (
         <video
           ref={videoRef}
           autoPlay
           className="h-full min-h-64 w-full bg-zinc-950 object-cover"
-          muted={muted}
+          muted
           playsInline
         />
       ) : (
@@ -53,11 +69,11 @@ export function MeetingVideoTile({
         <div className="min-w-0">
           <p className="truncate text-sm font-black text-white">
             {label}
-            {isLocal ? " (You)" : ""}
+            {isLocal ? " (Bạn)" : ""}
           </p>
           {screenSharing ? (
             <p className="mt-1 text-[11px] font-bold text-blue-200">
-              Dang chia se man hinh
+              Đang chia sẻ màn hình
             </p>
           ) : null}
         </div>
@@ -69,7 +85,7 @@ export function MeetingVideoTile({
                 : "bg-red-400/15 text-red-100 ring-1 ring-red-300/20"
             }`}
           >
-            {audioEnabled ? "MIC" : "MUTE"}
+            {audioEnabled ? "MIC" : "TẮT MIC"}
           </span>
           <span
             className={`rounded-lg px-2 py-1 text-[10px] font-black ${
@@ -78,7 +94,7 @@ export function MeetingVideoTile({
                 : "bg-zinc-400/15 text-zinc-100 ring-1 ring-zinc-300/20"
             }`}
           >
-            {videoEnabled ? "CAM" : "OFF"}
+            {videoEnabled ? "CAM" : "TẮT CAM"}
           </span>
         </div>
       </div>
