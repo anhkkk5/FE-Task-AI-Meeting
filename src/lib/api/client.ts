@@ -37,6 +37,26 @@ export async function apiRequest<T>(path: string, options: ApiOptions = {}) {
   return payload;
 }
 
+export async function apiBlob(path: string, options: ApiOptions = {}) {
+  const token = options.token || getStoredAccessToken();
+  let response = await fetchApi(path, options, token);
+
+  if (response.status === 401 && !options.skipAuthRefresh) {
+    const refreshedToken = await refreshAccessToken();
+
+    if (refreshedToken) {
+      response = await fetchApi(path, options, refreshedToken);
+    }
+  }
+
+  if (!response.ok) {
+    const payload = await readJson<{ message?: string }>(response);
+    throw new Error(payload.message || "Request failed");
+  }
+
+  return response.blob();
+}
+
 async function refreshAccessToken() {
   const response = await fetchApi("/auth/refresh", {
     method: "POST",
@@ -70,16 +90,24 @@ async function fetchApi(path: string, options: ApiOptions, token?: string) {
     () => controller.abort(),
     REQUEST_TIMEOUT_MS,
   );
+  const isFormData =
+    typeof FormData !== "undefined" && options.body instanceof FormData;
+  const requestBody =
+    options.body === undefined
+      ? undefined
+      : isFormData
+        ? (options.body as BodyInit)
+        : JSON.stringify(options.body);
 
   try {
     return await fetch(`${API_BASE_URL}${path}`, {
       method: options.method ?? "GET",
       credentials: "include",
       headers: {
-        "Content-Type": "application/json",
+        ...(isFormData ? {} : { "Content-Type": "application/json" }),
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
-      body: options.body ? JSON.stringify(options.body) : undefined,
+      body: requestBody,
       cache: "no-store",
       signal: controller.signal,
     });

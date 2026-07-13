@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { DragEvent, useCallback, useEffect, useState } from "react";
 import { AppShell } from "@/components/layout/AppShell";
 import { getMyWorkspaceRole, getWorkspaceMembers } from "@/features/members/api/members.api";
 import { WorkspaceMember } from "@/features/members/types/member.type";
@@ -10,11 +10,32 @@ import { getProjectDetail } from "@/features/projects/api/projects.api";
 import { Project } from "@/features/projects/types/project.type";
 import { completeSprint, getSprints, startSprint } from "@/features/sprints/api/sprints.api";
 import { Sprint } from "@/features/sprints/types/sprint.type";
-import { getTasks, moveTaskToSprint, updateTaskStatus } from "@/features/tasks/api/tasks.api";
+import {
+  assignTask,
+  cancelTask,
+  getTasks,
+  moveTaskToSprint,
+  updateTaskStatus,
+} from "@/features/tasks/api/tasks.api";
+import { TaskDetailDrawer } from "@/features/tasks/components/TaskDetailDrawer";
+import { TaskImportPanel } from "@/features/tasks/components/TaskImportPanel";
 import { Task, TaskPriority, TaskStatus } from "@/features/tasks/types/task.type";
 import { useAuth } from "@/hooks/useAuth";
 
 const writeRoles = ["OWNER", "SCRUM_MASTER", "PROJECT_MANAGER"];
+const backlogDropTarget = "backlog";
+
+type DropTargetId = typeof backlogDropTarget | string;
+
+const statusFilterOptions: Array<{ value: "ALL" | TaskStatus; label: string }> = [
+  { value: "ALL", label: "Tat ca trang thai" },
+  { value: "BACKLOG", label: "Backlog" },
+  { value: "TODO", label: "Can lam" },
+  { value: "IN_PROGRESS", label: "Dang lam" },
+  { value: "REVIEW", label: "Dang review" },
+  { value: "DONE", label: "Hoan thanh" },
+  { value: "CANCELLED", label: "Da huy" },
+];
 
 function formatDate(value: string | null | undefined) {
   if (!value) return "-";
@@ -72,6 +93,20 @@ function sprintStatusClass(status: Sprint["status"]) {
   }
 }
 
+function sprintStatusLabel(status: Sprint["status"]) {
+  switch (status) {
+    case "ACTIVE":
+      return "Đang chạy";
+    case "COMPLETED":
+      return "Hoàn thành";
+    case "CANCELLED":
+      return "Đã hủy";
+    case "PLANNED":
+    default:
+      return "Đã lên kế hoạch";
+  }
+}
+
 function priorityMark(priority: TaskPriority) {
   switch (priority) {
     case "URGENT":
@@ -98,8 +133,13 @@ export default function BacklogPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [searchKeyword, setSearchKeyword] = useState("");
+  const [selectedStatus, setSelectedStatus] = useState<"ALL" | TaskStatus>("ALL");
   const [selectedAssigneeId, setSelectedAssigneeId] = useState<string | null>(null);
   const [collapsedSprints, setCollapsedSprints] = useState<Record<string, boolean>>({});
+  const [showImportPanel, setShowImportPanel] = useState(false);
+  const [draggedTaskId, setDraggedTaskId] = useState<string | null>(null);
+  const [dragOverTarget, setDragOverTarget] = useState<DropTargetId | null>(null);
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
   const canWrite = writeRoles.includes(myRole) && project?.status === "ACTIVE";
 
@@ -140,14 +180,26 @@ export default function BacklogPage() {
     }
   }, [user, params.workspaceId, params.projectId, loadData]);
 
+  const syncTask = (updatedTask: Task) => {
+    setTasks((prev) =>
+      prev.map((task) => (task.id === updatedTask.id ? updatedTask : task)),
+    );
+    setSelectedTask((current) =>
+      current?.id === updatedTask.id ? updatedTask : current,
+    );
+  };
+
   const handleToggleTaskStatus = async (task: Task) => {
     const newStatus: TaskStatus = task.status === "DONE" ? "TODO" : "DONE";
 
     try {
-      await updateTaskStatus(params.workspaceId, params.projectId, task.id, { status: newStatus });
-      setTasks((prev) =>
-        prev.map((item) => (item.id === task.id ? { ...item, status: newStatus } : item)),
+      const response = await updateTaskStatus(
+        params.workspaceId,
+        params.projectId,
+        task.id,
+        { status: newStatus },
       );
+      syncTask(response.data.task);
     } catch (error) {
       alert(error instanceof Error ? error.message : "Không thể cập nhật trạng thái task");
     }
@@ -155,29 +207,99 @@ export default function BacklogPage() {
 
   const handleMoveTask = async (taskId: string, targetSprintId: string | null) => {
     try {
-      await moveTaskToSprint(params.workspaceId, params.projectId, taskId, {
+      const response = await moveTaskToSprint(params.workspaceId, params.projectId, taskId, {
         sprintId: targetSprintId,
       });
-      setTasks((prev) =>
-        prev.map((task) =>
-          task.id === taskId
-            ? {
-                ...task,
-                sprintId: targetSprintId,
-                sprint: targetSprintId
-                  ? {
-                      id: targetSprintId,
-                      name: sprints.find((sprint) => sprint.id === targetSprintId)?.name || "Sprint",
-                      status: sprints.find((sprint) => sprint.id === targetSprintId)?.status || "PLANNED",
-                    }
-                  : null,
-              }
-            : task,
-        ),
-      );
+      syncTask(response.data.task);
     } catch (error) {
       alert(error instanceof Error ? error.message : "Không thể di chuyển task");
     }
+  };
+
+  const handleDrawerStatusChange = async (task: Task, status: TaskStatus) => {
+    const response = await updateTaskStatus(params.workspaceId, params.projectId, task.id, {
+      status,
+    });
+    syncTask(response.data.task);
+  };
+
+  const handleDrawerAssign = async (task: Task, assigneeId: string | null) => {
+    const response = await assignTask(params.workspaceId, params.projectId, task.id, {
+      assigneeId,
+    });
+    syncTask(response.data.task);
+  };
+
+  const handleDrawerMoveSprint = async (task: Task, sprintId: string | null) => {
+    const response = await moveTaskToSprint(params.workspaceId, params.projectId, task.id, {
+      sprintId,
+    });
+    syncTask(response.data.task);
+  };
+
+  const handleDrawerCancel = async (task: Task) => {
+    const response = await cancelTask(params.workspaceId, params.projectId, task.id);
+    syncTask(response.data.task);
+  };
+
+  const handleTaskDragStart = (event: DragEvent<HTMLDivElement>, taskId: string) => {
+    if (!canWrite) return;
+
+    event.dataTransfer.effectAllowed = "move";
+    event.dataTransfer.setData("text/plain", taskId);
+    setDraggedTaskId(taskId);
+  };
+
+  const handleTaskDragEnd = () => {
+    setDraggedTaskId(null);
+    setDragOverTarget(null);
+  };
+
+  const handleDropZoneDragOver = (
+    event: DragEvent<HTMLElement>,
+    target: DropTargetId,
+    disabled = false,
+  ) => {
+    if (!canWrite || disabled) return;
+
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "move";
+    setDragOverTarget(target);
+  };
+
+  const handleDropZoneDragLeave = (
+    event: DragEvent<HTMLElement>,
+    target: DropTargetId,
+  ) => {
+    const nextTarget = event.relatedTarget;
+    if (nextTarget instanceof Node && event.currentTarget.contains(nextTarget)) return;
+
+    setDragOverTarget((current) => (current === target ? null : current));
+  };
+
+  const handleTaskDrop = async (
+    event: DragEvent<HTMLElement>,
+    target: DropTargetId,
+    disabled = false,
+  ) => {
+    event.preventDefault();
+
+    if (!canWrite || disabled) {
+      setDraggedTaskId(null);
+      setDragOverTarget(null);
+      return;
+    }
+
+    const taskId = event.dataTransfer.getData("text/plain") || draggedTaskId;
+    const targetSprintId = target === backlogDropTarget ? null : target;
+    const task = tasks.find((item) => item.id === taskId);
+
+    setDraggedTaskId(null);
+    setDragOverTarget(null);
+
+    if (!task || task.sprintId === targetSprintId) return;
+
+    await handleMoveTask(task.id, targetSprintId);
   };
 
   const handleStartSprint = async (sprintId: string) => {
@@ -211,7 +333,8 @@ export default function BacklogPage() {
     const matchesKeyword =
       task.title.toLowerCase().includes(keyword) || task.taskCode.toLowerCase().includes(keyword);
     const matchesAssignee = selectedAssigneeId ? task.assigneeId === selectedAssigneeId : true;
-    return matchesKeyword && matchesAssignee;
+    const matchesStatus = selectedStatus === "ALL" ? true : task.status === selectedStatus;
+    return matchesKeyword && matchesAssignee && matchesStatus;
   });
 
   const getTasksBySprint = (sprintId: string | null) =>
@@ -228,8 +351,13 @@ export default function BacklogPage() {
 
   const renderTaskRow = (task: Task, currentSprintId: string | null) => (
     <div
-      className="grid grid-cols-[28px_minmax(120px,1fr)_110px_110px_90px_36px] items-center gap-3 border-t border-[#dfe1e6] bg-white px-3 py-2 text-sm hover:bg-[#f7f8f9]"
+      className={`grid grid-cols-[28px_minmax(120px,1fr)_110px_110px_90px_36px] items-center gap-3 border-t border-[#dfe1e6] bg-white px-3 py-2 text-sm transition hover:bg-[#f7f8f9] ${
+        canWrite ? "cursor-grab active:cursor-grabbing" : ""
+      } ${draggedTaskId === task.id ? "opacity-50" : ""}`}
+      draggable={canWrite}
       key={task.id}
+      onDragEnd={handleTaskDragEnd}
+      onDragStart={(event) => handleTaskDragStart(event, task.id)}
     >
       <input
         checked={task.status === "DONE"}
@@ -247,14 +375,15 @@ export default function BacklogPage() {
         >
           {task.taskCode}
         </span>
-        <Link
-          className={`truncate font-medium text-[#172b4d] hover:text-[#0c66e4] ${
+        <button
+          className={`truncate text-left font-medium text-[#172b4d] hover:text-[#0c66e4] ${
             task.status === "DONE" ? "line-through text-[#6b778c]" : ""
           }`}
-          href={`/workspaces/${params.workspaceId}/projects/${params.projectId}/tasks/${task.id}`}
+          onClick={() => setSelectedTask(task)}
+          type="button"
         >
           {task.title}
-        </Link>
+        </button>
       </div>
 
       <span className={`w-fit rounded px-1.5 py-0.5 text-xs font-semibold ${statusClass(task.status)}`}>
@@ -296,9 +425,19 @@ export default function BacklogPage() {
     const sprintTasks = getTasksBySprint(sprint.id);
     const isCollapsed = collapsedSprints[sprint.id];
     const counts = getSprintTaskCounts(sprint.id);
+    const isDropDisabled = sprint.status === "COMPLETED" || sprint.status === "CANCELLED";
+    const isDragOver = dragOverTarget === sprint.id && !isDropDisabled;
 
     return (
-      <section className="overflow-hidden rounded border border-[#dfe1e6] bg-white" key={sprint.id}>
+      <section
+        className={`overflow-hidden rounded border bg-white transition ${
+          isDragOver ? "border-[#0c66e4] shadow-[0_0_0_2px_#e9f2ff]" : "border-[#dfe1e6]"
+        } ${isDropDisabled ? "opacity-80" : ""}`}
+        key={sprint.id}
+        onDragLeave={(event) => handleDropZoneDragLeave(event, sprint.id)}
+        onDragOver={(event) => handleDropZoneDragOver(event, sprint.id, isDropDisabled)}
+        onDrop={(event) => void handleTaskDrop(event, sprint.id, isDropDisabled)}
+      >
         <div className="flex min-h-12 flex-wrap items-center justify-between gap-3 bg-[#f7f8f9] px-3 py-2">
           <div className="flex min-w-0 items-center gap-2">
             <button
@@ -322,7 +461,7 @@ export default function BacklogPage() {
                   {formatDate(sprint.startDate)} - {formatDate(sprint.endDate)} ({sprintTasks.length} task)
                 </span>
                 <span className={`rounded px-1.5 py-0.5 text-xs font-semibold ${sprintStatusClass(sprint.status)}`}>
-                  {sprint.status}
+                  {sprintStatusLabel(sprint.status)}
                 </span>
               </div>
               {sprint.goal ? <p className="truncate text-xs text-[#6b778c]">{sprint.goal}</p> : null}
@@ -369,7 +508,7 @@ export default function BacklogPage() {
           <>
             {sprintTasks.map((task) => renderTaskRow(task, sprint.id))}
             {sprintTasks.length === 0 ? (
-              <div className="border-t border-[#dfe1e6] bg-white px-3 py-8 text-center text-sm text-[#6b778c]">
+              <div className={`border-t border-[#dfe1e6] px-3 py-8 text-center text-sm ${isDragOver ? "bg-[#e9f2ff] text-[#0c66e4]" : "bg-white text-[#6b778c]"}`}>
                 Chưa có task trong sprint này.
               </div>
             ) : null}
@@ -390,11 +529,174 @@ export default function BacklogPage() {
   const backlogTasks = getTasksBySprint(null);
   const backlogCounts = getSprintTaskCounts(null);
   const backlogCollapsed = collapsedSprints.backlog;
+  const isBacklogDragOver = dragOverTarget === backlogDropTarget;
+  const activeSprintCount = sprints.filter((sprint) => sprint.status === "ACTIVE").length;
+  const plannedSprintCount = sprints.filter((sprint) => sprint.status === "PLANNED").length;
+  const taskSummary = {
+    total: tasks.length,
+    backlog: tasks.filter((task) => task.sprintId === null).length,
+    todo: tasks.filter((task) => task.status === "TODO" || task.status === "BACKLOG").length,
+    inProgress: tasks.filter((task) => task.status === "IN_PROGRESS" || task.status === "REVIEW").length,
+    done: tasks.filter((task) => task.status === "DONE").length,
+  };
+  const hasActiveFilters =
+    searchKeyword.trim().length > 0 ||
+    selectedStatus !== "ALL" ||
+    selectedAssigneeId !== null;
+
+  const clearFilters = () => {
+    setSearchKeyword("");
+    setSelectedStatus("ALL");
+    setSelectedAssigneeId(null);
+  };
 
   return (
     <AppShell projectId={params.projectId} title={project?.name} workspaceId={params.workspaceId}>
       <div className="space-y-4">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <section className="rounded border border-[#dfe1e6] bg-white shadow-sm">
+          <div className="flex flex-col gap-4 border-b border-[#dfe1e6] px-4 py-4 xl:flex-row xl:items-end xl:justify-between">
+            <div className="grid flex-1 gap-3 md:grid-cols-[minmax(240px,1fr)_180px_220px_auto] md:items-end">
+              <label className="grid gap-1 text-xs font-semibold text-[#44546f]">
+                Tim task
+                <div className="relative">
+                  <input
+                    className="h-10 w-full rounded border border-[#dfe1e6] bg-white pl-9 pr-3 text-sm text-[#172b4d] outline-none hover:bg-[#f7f8f9] focus:border-[#0c66e4]"
+                    onChange={(event) => setSearchKeyword(event.target.value)}
+                    placeholder="Nhap ten task hoac ma task"
+                    value={searchKeyword}
+                  />
+                  <svg
+                    className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6b778c]"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="m21 21-4.3-4.3M10 18a8 8 0 1 1 0-16 8 8 0 0 1 0 16Z"
+                    />
+                  </svg>
+                </div>
+              </label>
+
+              <label className="grid gap-1 text-xs font-semibold text-[#44546f]">
+                Trang thai
+                <select
+                  className="h-10 rounded border border-[#dfe1e6] bg-white px-3 text-sm text-[#172b4d] outline-none hover:bg-[#f7f8f9] focus:border-[#0c66e4]"
+                  onChange={(event) =>
+                    setSelectedStatus(event.target.value as "ALL" | TaskStatus)
+                  }
+                  value={selectedStatus}
+                >
+                  {statusFilterOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="grid gap-1 text-xs font-semibold text-[#44546f]">
+                Nguoi nhan
+                <select
+                  className="h-10 rounded border border-[#dfe1e6] bg-white px-3 text-sm text-[#172b4d] outline-none hover:bg-[#f7f8f9] focus:border-[#0c66e4]"
+                  onChange={(event) => setSelectedAssigneeId(event.target.value || null)}
+                  value={selectedAssigneeId ?? ""}
+                >
+                  <option value="">Tat ca thanh vien</option>
+                  {members.map((member) => (
+                    <option key={member.userId} value={member.userId}>
+                      {member.fullName || member.email || member.userId}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <button
+                className="h-10 rounded border border-[#dfe1e6] bg-white px-3 text-sm font-semibold text-[#44546f] hover:bg-[#f1f2f4] disabled:opacity-50"
+                disabled={!hasActiveFilters}
+                onClick={clearFilters}
+                type="button"
+              >
+                Xoa loc
+              </button>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                className="h-10 rounded border border-[#dfe1e6] bg-white px-3 text-sm font-semibold text-[#44546f] hover:bg-[#f1f2f4] disabled:opacity-60"
+                disabled={isLoading}
+                onClick={() => void loadData()}
+                type="button"
+              >
+                Lam moi
+              </button>
+              {canWrite ? (
+                <>
+                  <Link
+                    className="flex h-10 items-center rounded border border-[#dfe1e6] bg-white px-3 text-sm font-semibold text-[#44546f] hover:bg-[#f1f2f4]"
+                    href={`/workspaces/${params.workspaceId}/projects/${params.projectId}/sprints/create`}
+                  >
+                    Tao sprint
+                  </Link>
+                  <button
+                    className={`h-10 rounded border px-3 text-sm font-semibold ${
+                      showImportPanel
+                        ? "border-[#0c66e4] bg-[#e9f2ff] text-[#0c66e4]"
+                        : "border-[#dfe1e6] bg-white text-[#44546f] hover:bg-[#f1f2f4]"
+                    }`}
+                    onClick={() => setShowImportPanel((prev) => !prev)}
+                    type="button"
+                  >
+                    Nhap Excel
+                  </button>
+                  <Link
+                    className="flex h-10 items-center rounded bg-[#0c66e4] px-4 text-sm font-semibold text-white hover:bg-[#0055cc]"
+                    href={`/workspaces/${params.workspaceId}/projects/${params.projectId}/tasks/create`}
+                  >
+                    Tao task
+                  </Link>
+                </>
+              ) : null}
+            </div>
+          </div>
+
+          <div className="grid gap-0 border-b border-[#dfe1e6] md:grid-cols-5">
+            <div className="border-b border-[#dfe1e6] px-4 py-3 md:border-b-0 md:border-r">
+              <p className="text-[11px] font-bold uppercase tracking-wide text-[#6b778c]">Tong task</p>
+              <p className="mt-1 text-xl font-semibold text-[#172b4d]">{taskSummary.total}</p>
+            </div>
+            <div className="border-b border-[#dfe1e6] px-4 py-3 md:border-b-0 md:border-r">
+              <p className="text-[11px] font-bold uppercase tracking-wide text-[#6b778c]">Backlog</p>
+              <p className="mt-1 text-xl font-semibold text-[#172b4d]">{taskSummary.backlog}</p>
+            </div>
+            <div className="border-b border-[#dfe1e6] px-4 py-3 md:border-b-0 md:border-r">
+              <p className="text-[11px] font-bold uppercase tracking-wide text-[#6b778c]">Can lam</p>
+              <p className="mt-1 text-xl font-semibold text-[#44546f]">{taskSummary.todo}</p>
+            </div>
+            <div className="border-b border-[#dfe1e6] px-4 py-3 md:border-b-0 md:border-r">
+              <p className="text-[11px] font-bold uppercase tracking-wide text-[#6b778c]">Dang xu ly</p>
+              <p className="mt-1 text-xl font-semibold text-[#0c66e4]">{taskSummary.inProgress}</p>
+            </div>
+            <div className="px-4 py-3">
+              <p className="text-[11px] font-bold uppercase tracking-wide text-[#6b778c]">Hoan thanh</p>
+              <p className="mt-1 text-xl font-semibold text-[#216e4e]">{taskSummary.done}</p>
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-2 px-4 py-3 text-xs text-[#6b778c] lg:flex-row lg:items-center lg:justify-between">
+            <p>
+              Keo task giua Backlog va Sprint de sap xep cong viec. Bam ten task de mo bang chi tiet ben phai.
+            </p>
+            <p className="font-semibold text-[#44546f]">
+              Sprint dang chay: {activeSprintCount} · Sprint sap toi: {plannedSprintCount}
+            </p>
+          </div>
+        </section>
+
+        <div className="hidden">
           <div className="flex flex-1 flex-wrap items-center gap-2">
             <div className="relative w-full max-w-xs">
               <input
@@ -461,6 +763,13 @@ export default function BacklogPage() {
                 >
                   Tạo sprint
                 </Link>
+                <button
+                  className="h-9 rounded border border-[#dfe1e6] bg-white px-3 text-sm font-medium text-[#44546f] hover:bg-[#f1f2f4]"
+                  onClick={() => setShowImportPanel((prev) => !prev)}
+                  type="button"
+                >
+                  Nhập Excel
+                </button>
                 <Link
                   className="flex h-9 items-center rounded bg-[#0c66e4] px-3 text-sm font-semibold text-white hover:bg-[#0055cc]"
                   href={`/workspaces/${params.workspaceId}/projects/${params.projectId}/tasks/create`}
@@ -478,6 +787,18 @@ export default function BacklogPage() {
           </div>
         ) : null}
 
+        {showImportPanel && canWrite ? (
+          <TaskImportPanel
+            onClose={() => setShowImportPanel(false)}
+            onImported={async (createdCount) => {
+              setMessage(`Đã nhập ${createdCount} task từ Excel.`);
+              await loadData();
+            }}
+            projectId={params.projectId}
+            workspaceId={params.workspaceId}
+          />
+        ) : null}
+
         {isLoading ? (
           <div className="flex h-72 items-center justify-center rounded border border-[#dfe1e6] bg-white">
             <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#0c66e4] border-t-transparent" />
@@ -487,7 +808,14 @@ export default function BacklogPage() {
             <div className="min-w-[920px] space-y-3">
               {sprints.map((sprint) => renderSprint(sprint))}
 
-              <section className="overflow-hidden rounded border border-[#dfe1e6] bg-white">
+              <section
+                className={`overflow-hidden rounded border bg-white transition ${
+                  isBacklogDragOver ? "border-[#0c66e4] shadow-[0_0_0_2px_#e9f2ff]" : "border-[#dfe1e6]"
+                }`}
+                onDragLeave={(event) => handleDropZoneDragLeave(event, backlogDropTarget)}
+                onDragOver={(event) => handleDropZoneDragOver(event, backlogDropTarget)}
+                onDrop={(event) => void handleTaskDrop(event, backlogDropTarget)}
+              >
                 <div className="flex min-h-12 flex-wrap items-center justify-between gap-3 bg-[#f7f8f9] px-3 py-2">
                   <div className="flex items-center gap-2">
                     <button
@@ -535,7 +863,7 @@ export default function BacklogPage() {
                   <>
                     {backlogTasks.map((task) => renderTaskRow(task, null))}
                     {backlogTasks.length === 0 ? (
-                      <div className="border-t border-[#dfe1e6] bg-white px-3 py-8 text-center text-sm text-[#6b778c]">
+                      <div className={`border-t border-[#dfe1e6] px-3 py-8 text-center text-sm ${isBacklogDragOver ? "bg-[#e9f2ff] text-[#0c66e4]" : "bg-white text-[#6b778c]"}`}>
                         Backlog đang trống.
                       </div>
                     ) : null}
@@ -545,6 +873,24 @@ export default function BacklogPage() {
             </div>
           </div>
         )}
+
+        <TaskDetailDrawer
+          canChangeStatus={
+            canWrite ||
+            (myRole === "MEMBER" && selectedTask?.assigneeId === user?.id)
+          }
+          canManage={canWrite}
+          members={members}
+          onAssign={handleDrawerAssign}
+          onCancel={handleDrawerCancel}
+          onClose={() => setSelectedTask(null)}
+          onMoveSprint={handleDrawerMoveSprint}
+          onStatusChange={handleDrawerStatusChange}
+          projectId={params.projectId}
+          sprints={sprints}
+          task={selectedTask}
+          workspaceId={params.workspaceId}
+        />
       </div>
     </AppShell>
   );

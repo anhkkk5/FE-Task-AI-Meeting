@@ -1,9 +1,12 @@
-import { apiRequest } from "@/lib/api/client";
+import { apiBlob, apiRequest } from "@/lib/api/client";
 import {
   AssignTaskPayload,
   CreateTaskPayload,
   MoveTaskSprintPayload,
   Task,
+  TaskImportItem,
+  TaskImportPreviewRow,
+  TaskImportPreviewSummary,
   TaskQuery,
   UpdateTaskPayload,
   UpdateTaskStatusPayload,
@@ -72,6 +75,48 @@ export function getSprintTasks(
   return apiRequest<ApiResponse<{ items: Task[] }>>(
     `/workspaces/${workspaceId}/projects/${projectId}/sprints/${sprintId}/tasks`,
   );
+}
+
+export function downloadTaskImportTemplate(
+  workspaceId: string,
+  projectId: string,
+) {
+  return apiBlob(`${taskBasePath(workspaceId, projectId)}/import/template`);
+}
+
+export function previewTaskImport(
+  workspaceId: string,
+  projectId: string,
+  file: File,
+) {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  return apiRequest<
+    ApiResponse<{
+      items: TaskImportPreviewRow[];
+      summary: TaskImportPreviewSummary;
+    }>
+  >(`${taskBasePath(workspaceId, projectId)}/import/preview`, {
+    method: "POST",
+    body: formData,
+  });
+}
+
+export function commitTaskImport(
+  workspaceId: string,
+  projectId: string,
+  items: TaskImportItem[],
+) {
+  return apiRequest<
+    ApiResponse<{
+      items: Task[];
+      summary: { created: number };
+    }>
+  >(`${taskBasePath(workspaceId, projectId)}/import/commit`, {
+    method: "POST",
+    body: { items },
+  });
 }
 
 export function getTaskDetail(

@@ -83,3 +83,32 @@ export type AssignTaskPayload = {
 export type MoveTaskSprintPayload = {
   sprintId: string | null;
 };
+
+export type TaskImportItem = {
+  rowNumber?: number;
+  title: string;
+  description?: string | null;
+  sprintId?: string | null;
+  sprintName?: string | null;
+  status?: TaskStatus;
+  priority?: TaskPriority;
+  assigneeId?: string | null;
+  assigneeEmail?: string | null;
+  dueDate?: string | null;
+  estimatedHours?: number | null;
+  storyPoints?: number | null;
+};
+
+export type TaskImportPreviewRow = {
+  rowNumber: number;
+  valid: boolean;
+  errors: string[];
+  data: TaskImportItem;
+  raw: Record<string, string>;
+};
+
+export type TaskImportPreviewSummary = {
+  totalRows: number;
+  validRows: number;
+  invalidRows: number;
+};

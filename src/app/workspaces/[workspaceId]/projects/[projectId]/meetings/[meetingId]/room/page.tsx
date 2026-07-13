@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { AppShell } from "@/components/layout/AppShell";
 import { getMeetingDetail } from "@/features/meetings/api/meetings.api";
+import { MeetingLiveTranscriptPanel } from "@/features/meetings/components/MeetingLiveTranscriptPanel";
 import { MeetingVideoTile } from "@/features/meetings/components/MeetingVideoTile";
 import { useMeetingWebRtc } from "@/features/meetings/hooks/useMeetingWebRtc";
 import { Meeting } from "@/features/meetings/types/meeting.type";
@@ -386,6 +387,15 @@ export default function MeetingRoomPage() {
                 >
                   Rời phòng họp
                 </button>
+              </div>
+
+              <div className="mt-5">
+                <MeetingLiveTranscriptPanel
+                  disabled={!isConnected || isWaitingApproval}
+                  meetingId={params.meetingId}
+                  projectId={params.projectId}
+                  workspaceId={params.workspaceId}
+                />
               </div>
             </aside>
           </div>

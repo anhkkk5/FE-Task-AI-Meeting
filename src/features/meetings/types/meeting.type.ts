@@ -64,6 +64,13 @@ export type MeetingTranscriptSpeaker = {
   text: string;
 };
 
+export type MeetingTranscriptSegment = MeetingTranscriptSpeaker & {
+  startedAt: string;
+  endedAt?: string | null;
+  confidence?: number | null;
+  source: string;
+};
+
 export type MeetingTranscript = {
   id: string;
   meetingId: string;
@@ -72,6 +79,7 @@ export type MeetingTranscript = {
   sprintId: string | null;
   rawTranscript: string;
   speakers: MeetingTranscriptSpeaker[];
+  liveSegments?: MeetingTranscriptSegment[];
   createdBy: string;
   createdAt?: string;
   updatedAt?: string;
@@ -123,4 +131,12 @@ export type UpdateParticipantAttendancePayload = {
 export type SaveMeetingTranscriptPayload = {
   rawTranscript: string;
   speakers?: MeetingTranscriptSpeaker[];
+};
+
+export type AppendLiveTranscriptSegmentPayload = {
+  text: string;
+  startedAt?: string;
+  endedAt?: string;
+  confidence?: number;
+  source?: string;
 };

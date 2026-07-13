@@ -1,6 +1,7 @@
 import { apiRequest } from "@/lib/api/client";
 import {
   AddMeetingParticipantsPayload,
+  AppendLiveTranscriptSegmentPayload,
   CreateMeetingPayload,
   Meeting,
   MeetingParticipant,
@@ -182,4 +183,23 @@ export function getMeetingTranscript(
   return apiRequest<ApiResponse<{ transcript: MeetingTranscript }>>(
     `${meetingBasePath(workspaceId, projectId)}/${meetingId}/transcript`,
   );
+}
+
+export function appendLiveTranscriptSegment(
+  workspaceId: string,
+  projectId: string,
+  meetingId: string,
+  payload: AppendLiveTranscriptSegmentPayload,
+) {
+  return apiRequest<
+    ApiResponse<{
+      segment: MeetingTranscript["liveSegments"] extends Array<infer T>
+        ? T
+        : never;
+      transcript: MeetingTranscript;
+    }>
+  >(`${meetingBasePath(workspaceId, projectId)}/${meetingId}/transcript/live-segments`, {
+    method: "POST",
+    body: payload,
+  });
 }
