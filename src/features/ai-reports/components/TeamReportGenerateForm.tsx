@@ -80,9 +80,8 @@ export function TeamReportGenerateForm({
       </div>
 
       <div className="rounded-2xl border border-indigo-100 bg-indigo-50 px-4 py-3 text-sm font-semibold leading-relaxed text-indigo-950">
-        AI chi nhan du lieu da sanitize tu workspace, project, sprint, daily
-        update va task. Password, token, API key va secret khong duoc dua vao
-        prompt.
+        Báo cáo được tổng hợp từ tiến độ công việc, sprint, cập nhật hằng ngày
+        và các nhiệm vụ trong dự án.
       </div>
 
       <button

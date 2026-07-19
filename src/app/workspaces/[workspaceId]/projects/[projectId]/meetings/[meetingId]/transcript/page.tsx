@@ -70,7 +70,7 @@ export default function MeetingTranscriptPage() {
         const text =
           error instanceof Error
             ? error.message
-            : "Không tìm thấy biên bản meeting";
+            : "Không tìm thấy nội dung cuộc họp";
 
         if (!text.toLowerCase().includes("not found")) {
           setMessage(text);
@@ -78,7 +78,7 @@ export default function MeetingTranscriptPage() {
       }
     } catch (error) {
       setMessage(
-        error instanceof Error ? error.message : "Tải biên bản thất bại.",
+        error instanceof Error ? error.message : "Tải nội dung cuộc họp thất bại.",
       );
     } finally {
       setIsLoading(false);
@@ -106,10 +106,10 @@ export default function MeetingTranscriptPage() {
         payload,
       );
       setTranscript(response.data.transcript);
-      setMessage("Đã lưu biên bản.");
+      setMessage("Đã lưu nội dung cuộc họp.");
     } catch (error) {
       setMessage(
-        error instanceof Error ? error.message : "Lưu biên bản thất bại.",
+        error instanceof Error ? error.message : "Lưu nội dung cuộc họp thất bại.",
       );
     }
   }
@@ -133,13 +133,14 @@ export default function MeetingTranscriptPage() {
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
               <p className="text-[10px] font-black uppercase tracking-[0.18em] text-blue-600">
-                Biên bản meeting
+                Nội dung cuộc họp
               </p>
               <h1 className="mt-1 text-2xl font-black text-zinc-950">
-                {meeting?.title ?? "Biên bản"}
+                {meeting?.title ?? "Nội dung cuộc họp"}
               </h1>
               <p className="mt-2 text-sm font-medium text-zinc-500">
-                Biên bản được lưu trong MongoDB và dùng làm dữ liệu đầu vào cho tóm tắt AI.
+                Ghi nhận nội dung cuộc họp để đội nhóm có thể xem lại và tạo
+                tóm tắt.
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -147,13 +148,13 @@ export default function MeetingTranscriptPage() {
                 className="flex h-10 items-center rounded-xl border border-zinc-200 bg-white px-4 text-xs font-bold text-zinc-700 transition hover:bg-zinc-50"
                 href={`/workspaces/${params.workspaceId}/projects/${params.projectId}/meetings/${params.meetingId}`}
               >
-                Chi tiết meeting
+                Chi tiết cuộc họp
               </Link>
               <Link
                 className="flex h-10 items-center rounded-xl bg-blue-600 px-4 text-xs font-bold text-white shadow-md shadow-blue-500/20 transition hover:bg-blue-700"
                 href={`/workspaces/${params.workspaceId}/projects/${params.projectId}/meetings/${params.meetingId}/summary`}
               >
-                Tóm tắt AI
+                Tóm tắt cuộc họp
               </Link>
             </div>
           </div>
@@ -179,7 +180,7 @@ export default function MeetingTranscriptPage() {
               />
             ) : (
               <section className="rounded-2xl border border-zinc-200 bg-white p-6 text-sm font-semibold text-zinc-700 shadow-sm">
-                Chỉ OWNER, SCRUM_MASTER hoặc PROJECT_MANAGER được nhập biên bản.
+                Chỉ owner, scrum master hoặc quản lý dự án được nhập nội dung cuộc họp.
               </section>
             )}
           </div>

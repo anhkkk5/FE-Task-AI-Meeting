@@ -21,7 +21,7 @@ export function PersonalizedMeetingSummaryGenerateButton({
   const primaryLabel = selectedMemberId
     ? "Tạo cho thành viên"
     : hasSummary
-      ? "Dùng tóm tắt cá nhân mới nhất"
+      ? "Dùng tóm tắt mới nhất"
       : "Tạo tóm tắt của tôi";
 
   return (

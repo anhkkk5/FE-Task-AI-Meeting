@@ -116,7 +116,7 @@ export function MeetingLiveTranscriptPanel({
         setMessage(
           error instanceof Error
             ? error.message
-            : "Khong luu duoc transcript live.",
+            : "Không lưu được nội dung cuộc họp.",
         );
       } finally {
         setIsSaving(false);
@@ -128,7 +128,7 @@ export function MeetingLiveTranscriptPanel({
   function startListening() {
     if (!recognitionSupported || disabled) {
       setMessage(
-        "Trinh duyet nay chua ho tro nhan giong noi. Ban co the nhap transcript thu cong ben duoi.",
+        "Trình duyệt này chưa hỗ trợ nhận giọng nói. Bạn có thể nhập nội dung thủ công bên dưới.",
       );
       return;
     }
@@ -178,8 +178,8 @@ export function MeetingLiveTranscriptPanel({
     recognition.onerror = (event) => {
       setMessage(
         event.error
-          ? `Nhan giong noi bi loi: ${event.error}`
-          : "Nhan giong noi bi loi.",
+          ? `Nhận giọng nói bị lỗi: ${event.error}`
+          : "Nhận giọng nói bị lỗi.",
       );
     };
 
@@ -216,9 +216,9 @@ export function MeetingLiveTranscriptPanel({
     <section className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <h2 className="text-sm font-black text-white">Transcript live</h2>
+          <h2 className="text-sm font-black text-white">Ghi nội dung cuộc họp</h2>
           <p className="mt-1 text-xs font-semibold leading-relaxed text-zinc-400">
-            Moi nguoi gui loi noi cua minh rieng, AI se biet ai noi gi.
+            Mỗi người ghi phần mình nói để tóm tắt cuối buổi rõ ràng hơn.
           </p>
         </div>
         <span className="rounded-lg bg-white/10 px-2 py-1 text-[10px] font-black text-zinc-200">
@@ -237,7 +237,7 @@ export function MeetingLiveTranscriptPanel({
           type="button"
           onClick={isListening ? stopListening : startListening}
         >
-          {isListening ? "Dung ghi" : "Ghi loi noi"}
+          {isListening ? "Dừng ghi" : "Ghi lời nói"}
         </button>
         <button
           className="rounded-xl bg-white/10 px-3 py-3 text-xs font-black text-white transition hover:bg-white/15"
@@ -245,20 +245,20 @@ export function MeetingLiveTranscriptPanel({
           type="button"
           onClick={() => void loadSegments()}
         >
-          Tai lai
+          Tải lại
         </button>
       </div>
 
       {!recognitionSupported ? (
         <p className="mt-3 rounded-xl border border-amber-300/30 bg-amber-400/10 px-3 py-2 text-xs font-semibold text-amber-100">
-          Trinh duyet nay chua ho tro SpeechRecognition. Test tren Chrome/Edge
-          hoac nhap tay transcript.
+          Trình duyệt này chưa hỗ trợ nhận giọng nói. Bạn vẫn có thể nhập nội
+          dung thủ công.
         </p>
       ) : null}
 
       {interimText ? (
         <p className="mt-3 rounded-xl border border-blue-300/30 bg-blue-400/10 px-3 py-2 text-xs font-semibold text-blue-100">
-          Dang nghe: {interimText}
+          Đang nghe: {interimText}
         </p>
       ) : null}
 
@@ -271,7 +271,7 @@ export function MeetingLiveTranscriptPanel({
       <div className="mt-4 space-y-2">
         <textarea
           className="min-h-20 w-full resize-none rounded-xl border border-white/10 bg-zinc-950 px-3 py-2 text-xs font-semibold text-white outline-none transition placeholder:text-zinc-500 focus:border-blue-400"
-          placeholder="Nhap nhanh mot cau de test transcript..."
+          placeholder="Nhập nhanh nội dung vừa trao đổi..."
           value={manualText}
           onChange={(event) => setManualText(event.target.value)}
         />
@@ -281,7 +281,7 @@ export function MeetingLiveTranscriptPanel({
           type="button"
           onClick={() => void handleManualSubmit()}
         >
-          {isSaving ? "Dang luu..." : "Gui transcript"}
+          {isSaving ? "Đang lưu..." : "Gửi nội dung"}
         </button>
       </div>
 
@@ -292,7 +292,7 @@ export function MeetingLiveTranscriptPanel({
             className="rounded-xl bg-white/[0.06] px-3 py-2"
           >
             <p className="truncate text-[11px] font-black text-white">
-              {segment.speakerName || "Nguoi noi"}
+              {segment.speakerName || "Người nói"}
             </p>
             <p className="mt-1 text-xs font-medium leading-relaxed text-zinc-300">
               {segment.text}
@@ -301,7 +301,7 @@ export function MeetingLiveTranscriptPanel({
         ))}
         {!segments.length ? (
           <p className="rounded-xl border border-dashed border-white/10 px-3 py-4 text-center text-xs font-semibold text-zinc-500">
-            Chua co transcript live.
+            Chưa có nội dung nào.
           </p>
         ) : null}
       </div>

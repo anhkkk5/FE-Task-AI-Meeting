@@ -112,9 +112,8 @@ export function PersonalReportGenerateForm({
       </div>
 
       <div className="rounded-2xl border border-blue-100 bg-blue-50 px-4 py-3 text-sm font-semibold leading-relaxed text-blue-900">
-        AI chi nhan du lieu da co trong he thong: daily update, task, sprint va
-        thong tin public cua user. Password, token va secret khong duoc dua vao
-        prompt.
+        Báo cáo cá nhân được tổng hợp từ công việc được giao, sprint và cập nhật
+        hằng ngày của thành viên.
       </div>
 
       <button

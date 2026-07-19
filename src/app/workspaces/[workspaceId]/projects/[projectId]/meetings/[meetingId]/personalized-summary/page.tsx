@@ -86,7 +86,7 @@ export default function PersonalizedMeetingSummaryPage() {
 
       if (!readerRoles.includes(role)) {
         setSummary(null);
-        setMessage("VIEWER can not generate or view personalized summaries.");
+        setMessage("Bạn không có quyền xem tóm tắt cá nhân của cuộc họp này.");
         return;
       }
 
@@ -117,7 +117,7 @@ export default function PersonalizedMeetingSummaryPage() {
       setMessage(
         error instanceof Error
           ? error.message
-          : "Load personalized summary failed.",
+          : "Tải tóm tắt cá nhân thất bại.",
       );
     } finally {
       setIsLoading(false);
@@ -165,7 +165,7 @@ export default function PersonalizedMeetingSummaryPage() {
 
         setGeneratedItems(items);
         setSummary(preferredSummary);
-        setMessage(`Generated ${items.length} participant summaries.`);
+        setMessage(`Đã tạo tóm tắt cho ${items.length} thành viên.`);
         return;
       }
 
@@ -190,7 +190,7 @@ export default function PersonalizedMeetingSummaryPage() {
       setMessage(
         forceRegenerate
           ? "Đã tạo lại tóm tắt cá nhân."
-          : "Đã tải tóm tắt cá nhân.",
+          : "Đã tạo tóm tắt cá nhân.",
       );
     } catch (error) {
       setMessage(
@@ -222,14 +222,14 @@ export default function PersonalizedMeetingSummaryPage() {
           <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div>
               <p className="text-[10px] font-black uppercase tracking-[0.18em] text-blue-600">
-                Tóm tắt cá nhân bằng AI
+                Tóm tắt theo thành viên
               </p>
               <h1 className="mt-1 text-2xl font-black text-zinc-950">
-                {meeting?.title ?? "Tóm tắt cá nhân"}
+                {meeting?.title ?? "Tóm tắt theo thành viên"}
               </h1>
               <p className="mt-2 max-w-2xl text-sm font-medium leading-relaxed text-zinc-500">
-                Tạo tóm tắt riêng cho từng người từ tóm tắt chung của cuộc họp.
-                Chức năng này không tự cập nhật task, sprint hoặc project.
+                Mỗi thành viên có thể xem phần nội dung liên quan đến mình,
+                gồm việc cần làm, quyết định liên quan và điểm cần theo dõi.
               </p>
             </div>
             <div className="flex flex-col items-start gap-3 lg:items-end">
@@ -281,7 +281,7 @@ export default function PersonalizedMeetingSummaryPage() {
 
         {!hasMeetingSummary ? (
           <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-900">
-            Hãy tạo tóm tắt chung của cuộc họp trước khi tạo tóm tắt cá nhân.
+            Hãy tạo tóm tắt cuộc họp trước khi tạo tóm tắt theo thành viên.
           </div>
         ) : null}
 
@@ -307,10 +307,10 @@ export default function PersonalizedMeetingSummaryPage() {
               ) : (
                 <section className="rounded-2xl border border-dashed border-zinc-300 bg-white px-6 py-14 text-center shadow-sm">
                   <p className="text-sm font-bold text-zinc-700">
-                    No personalized summary yet.
+                    Chưa có tóm tắt cá nhân.
                   </p>
                   <p className="mt-2 text-xs font-medium text-zinc-500">
-                    Generate one after the base meeting summary is available.
+                    Sau khi có tóm tắt cuộc họp, bạn có thể tạo tóm tắt theo từng thành viên.
                   </p>
                 </section>
               )}

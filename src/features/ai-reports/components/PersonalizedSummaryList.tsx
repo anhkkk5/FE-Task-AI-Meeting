@@ -21,14 +21,14 @@ export function PersonalizedSummaryList({
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 className="text-sm font-black text-zinc-950">
-            Generated participant summaries
+            Tóm tắt vừa tạo
           </h2>
           <p className="mt-1 text-xs font-medium text-zinc-500">
-            Latest results returned from the all-participants generation.
+            Kết quả mới nhất cho các thành viên trong cuộc họp.
           </p>
         </div>
         <span className="rounded-lg bg-violet-50 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-violet-700">
-          {items.length} summaries
+          {items.length} bản tóm tắt
         </span>
       </div>
       <div className="grid gap-2">
@@ -40,7 +40,7 @@ export function PersonalizedSummaryList({
           >
             <div className="flex flex-wrap items-center justify-between gap-2">
               <p className="break-all text-sm font-bold text-zinc-900">
-                Member: {item.userId}
+                Thành viên: {item.userId}
               </p>
               <span className="text-xs font-semibold text-zinc-500">
                 {item.createdAt?.slice(0, 16).replace("T", " ") ?? "-"}

@@ -91,7 +91,7 @@ export default function MeetingSummaryPage() {
       }
     } catch (error) {
       setMessage(
-        error instanceof Error ? error.message : "Load meeting summary failed.",
+        error instanceof Error ? error.message : "Tải tóm tắt cuộc họp thất bại.",
       );
     } finally {
       setIsLoading(false);
@@ -132,7 +132,7 @@ export default function MeetingSummaryPage() {
       setMessage(
         forceRegenerate
           ? "Đã tạo lại tóm tắt cuộc họp."
-          : "Đã tải tóm tắt cuộc họp.",
+          : "Đã tạo tóm tắt cuộc họp.",
       );
     } catch (error) {
       setMessage(
@@ -164,15 +164,14 @@ export default function MeetingSummaryPage() {
           <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div>
               <p className="text-[10px] font-black uppercase tracking-[0.18em] text-blue-600">
-                Tóm tắt AI
+                Tóm tắt cuộc họp
               </p>
               <h1 className="mt-1 text-2xl font-black text-zinc-950">
                 {meeting?.title ?? "Tóm tắt cuộc họp"}
               </h1>
               <p className="mt-2 max-w-2xl text-sm font-medium leading-relaxed text-zinc-500">
-                Tạo tóm tắt có cấu trúc từ biên bản đã lưu trong MongoDB.
-                Giao diện chỉ gửi access token, refresh token vẫn nằm trong
-                HttpOnly cookie.
+                Xem các ý chính, quyết định, rủi ro và việc cần làm được tổng hợp
+                từ nội dung cuộc họp.
               </p>
             </div>
             <div className="flex flex-col items-start gap-3 lg:items-end">
@@ -194,7 +193,7 @@ export default function MeetingSummaryPage() {
                   className="flex h-10 items-center rounded-xl border border-zinc-200 bg-white px-4 text-xs font-bold text-zinc-700 transition hover:bg-zinc-50"
                   href={`/workspaces/${params.workspaceId}/projects/${params.projectId}/meetings/${params.meetingId}/transcript`}
                 >
-                  Biên bản
+                  Nội dung cuộc họp
                 </Link>
                 <Link
                   className="flex h-10 items-center rounded-xl bg-violet-600 px-4 text-xs font-bold text-white shadow-md shadow-violet-500/20 transition hover:bg-violet-700"
@@ -209,8 +208,8 @@ export default function MeetingSummaryPage() {
 
         {!hasTranscript ? (
           <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-900">
-            Cuộc họp này chưa có biên bản. Hãy thêm biên bản trước khi tạo
-            tóm tắt AI.
+            Cuộc họp này chưa có nội dung ghi nhận. Hãy ghi nhận nội dung cuộc
+            họp trước khi tạo tóm tắt.
           </div>
         ) : null}
 
@@ -232,11 +231,10 @@ export default function MeetingSummaryPage() {
               ) : (
                 <section className="rounded-2xl border border-dashed border-zinc-300 bg-white px-6 py-14 text-center shadow-sm">
                   <p className="text-sm font-bold text-zinc-700">
-                    No AI summary yet.
+                    Chưa có tóm tắt.
                   </p>
                   <p className="mt-2 text-xs font-medium text-zinc-500">
-                    Generate one from the transcript when the meeting notes are
-                    ready.
+                    Khi đã có nội dung cuộc họp, bạn có thể tạo tóm tắt tại đây.
                   </p>
                 </section>
               )}

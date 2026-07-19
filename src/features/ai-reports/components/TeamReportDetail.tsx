@@ -38,11 +38,6 @@ export function TeamReportDetail({ report }: TeamReportDetailProps) {
               <span className="rounded-lg bg-emerald-50 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-emerald-700">
                 {report.status}
               </span>
-              {report.model ? (
-                <span className="rounded-lg bg-zinc-100 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-zinc-500">
-                  {report.model}
-                </span>
-              ) : null}
             </div>
             <h1 className="text-2xl font-black text-zinc-950">
               {output.title}
@@ -54,7 +49,7 @@ export function TeamReportDetail({ report }: TeamReportDetailProps) {
           <div className="grid min-w-[220px] gap-2 rounded-2xl border border-zinc-200 bg-zinc-50 p-4 text-sm">
             <div>
               <p className="text-[10px] font-black uppercase tracking-wider text-zinc-400">
-                Report date
+                Ngày báo cáo
               </p>
               <p className="font-bold text-zinc-900">{report.reportDate}</p>
             </div>
@@ -63,12 +58,12 @@ export function TeamReportDetail({ report }: TeamReportDetailProps) {
                 Sprint
               </p>
               <p className="break-all font-bold text-zinc-900">
-                {report.sprintId ?? "All project"}
+                {report.sprintId ?? "Toàn dự án"}
               </p>
             </div>
             <div>
               <p className="text-[10px] font-black uppercase tracking-wider text-zinc-400">
-                Created by
+                Người tạo
               </p>
               <p className="break-all font-bold text-zinc-900">
                 {report.createdBy}
@@ -80,7 +75,7 @@ export function TeamReportDetail({ report }: TeamReportDetailProps) {
 
       <section className="rounded-2xl border border-indigo-100 bg-indigo-50 p-6 shadow-sm">
         <h2 className="text-[10px] font-black uppercase tracking-[0.18em] text-indigo-700">
-          AI generated team report
+          Nội dung báo cáo
         </h2>
         <p className="mt-3 whitespace-pre-line text-sm font-medium leading-7 text-indigo-950">
           {output.generatedText}
@@ -163,20 +158,6 @@ export function TeamReportDetail({ report }: TeamReportDetailProps) {
         <RenderList items={output.recommendations} />
       </section>
 
-      {report.inputData ? (
-        <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
-          <h2 className="text-sm font-black text-zinc-950">
-            Du lieu da dua vao prompt
-          </h2>
-          <p className="mt-1 text-xs font-medium text-zinc-500">
-            Chi gom du lieu nghiep vu da sanitize, khong chua password, token,
-            API key hoac secret.
-          </p>
-          <pre className="mt-4 max-h-96 overflow-auto rounded-xl bg-zinc-950 p-4 text-xs leading-relaxed text-zinc-100">
-            {JSON.stringify(report.inputData, null, 2)}
-          </pre>
-        </section>
-      ) : null}
     </div>
   );
 }

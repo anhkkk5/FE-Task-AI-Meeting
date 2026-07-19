@@ -16,7 +16,7 @@ export function MeetingSummaryGenerateButton({
   if (!canManage) {
     return (
       <p className="rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-xs font-bold text-zinc-500">
-        Chỉ OWNER, SCRUM_MASTER hoặc PROJECT_MANAGER mới được tạo tóm tắt.
+        Chỉ owner, scrum master hoặc quản lý dự án mới được tạo tóm tắt.
       </p>
     );
   }

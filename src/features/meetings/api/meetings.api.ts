@@ -116,6 +116,19 @@ export function completeMeeting(
   );
 }
 
+export function deleteMeeting(
+  workspaceId: string,
+  projectId: string,
+  meetingId: string,
+) {
+  return apiRequest<ApiResponse<null>>(
+    `${meetingBasePath(workspaceId, projectId)}/${meetingId}`,
+    {
+      method: "DELETE",
+    },
+  );
+}
+
 export function addMeetingParticipants(
   workspaceId: string,
   projectId: string,

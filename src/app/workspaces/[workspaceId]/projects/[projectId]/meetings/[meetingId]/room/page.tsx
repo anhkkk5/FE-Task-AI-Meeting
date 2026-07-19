@@ -13,6 +13,23 @@ import { getProjectDetail } from "@/features/projects/api/projects.api";
 import { Project } from "@/features/projects/types/project.type";
 import { useAuth } from "@/hooks/useAuth";
 
+function getMeetingEndTime(meeting: Meeting) {
+  if (meeting.endTime) {
+    return new Date(meeting.endTime).getTime();
+  }
+
+  return new Date(`${meeting.meetingDate}T23:59:59`).getTime();
+}
+
+function isMeetingClosed(meeting: Meeting) {
+  const endTime = getMeetingEndTime(meeting);
+
+  return (
+    meeting.status !== "SCHEDULED" ||
+    (Number.isFinite(endTime) && endTime < Date.now())
+  );
+}
+
 export default function MeetingRoomPage() {
   const params = useParams<{
     workspaceId: string;
@@ -25,6 +42,7 @@ export default function MeetingRoomPage() {
   const [meeting, setMeeting] = useState<Meeting | null>(null);
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const roomClosed = meeting ? isMeetingClosed(meeting) : false;
 
   const {
     localStream,
@@ -49,7 +67,7 @@ export default function MeetingRoomPage() {
     projectId: params.projectId,
     meetingId: params.meetingId,
     user,
-    enabled: Boolean(user && meeting),
+    enabled: Boolean(user && meeting && !roomClosed),
   });
 
   const participantCount = remotePeers.length + (selfPeer ? 1 : 0);
@@ -72,6 +90,11 @@ export default function MeetingRoomPage() {
 
       setProject(projectRes.data.project);
       setMeeting(meetingRes.data.meeting);
+      if (isMeetingClosed(meetingRes.data.meeting)) {
+        setMessage(
+          "Cuộc họp đã hết thời gian hoặc không còn ở trạng thái đã lên lịch nên không thể vào phòng.",
+        );
+      }
     } catch (loadError) {
       setMessage(
         loadError instanceof Error
@@ -139,6 +162,24 @@ export default function MeetingRoomPage() {
       workspaceId={params.workspaceId}
     >
       <div className="mx-auto max-w-7xl space-y-5 pb-10">
+        {roomClosed ? (
+          <section className="rounded border border-[#f5cd47] bg-[#fff7d6] p-5">
+            <h1 className="text-xl font-semibold text-[#172b4d]">
+              Không thể vào phòng họp
+            </h1>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-[#7f5f01]">
+              Cuộc họp này đã quá thời gian kết thúc hoặc đã được đóng. Bạn vẫn
+              có thể xem chi tiết, biên bản và tóm tắt nếu đã có dữ liệu.
+            </p>
+            <Link
+              className="mt-4 inline-flex h-9 items-center rounded bg-[#172b4d] px-3 text-sm font-semibold text-white hover:bg-[#0c1f3f]"
+              href={`/workspaces/${params.workspaceId}/projects/${params.projectId}/meetings/${params.meetingId}`}
+            >
+              Quay lại chi tiết cuộc họp
+            </Link>
+          </section>
+        ) : null}
+        {!roomClosed ? (
         <section className="overflow-hidden rounded-3xl border border-zinc-800 bg-zinc-950 text-white shadow-2xl shadow-zinc-950/20">
           <div className="flex flex-col gap-4 border-b border-white/10 bg-white/[0.03] px-5 py-4 lg:flex-row lg:items-center lg:justify-between">
             <div className="min-w-0">
@@ -400,6 +441,7 @@ export default function MeetingRoomPage() {
             </aside>
           </div>
         </section>
+        ) : null}
       </div>
     </AppShell>
   );

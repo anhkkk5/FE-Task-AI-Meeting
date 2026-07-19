@@ -6,6 +6,10 @@ type MeetingListProps = {
   workspaceId: string;
   projectId: string;
   emptyText: string;
+  currentUserId?: string;
+  canManage?: boolean;
+  deletingMeetingId?: string | null;
+  onDelete?: (meeting: Meeting) => void;
 };
 
 export function MeetingList({
@@ -13,6 +17,10 @@ export function MeetingList({
   workspaceId,
   projectId,
   emptyText,
+  currentUserId,
+  canManage,
+  deletingMeetingId,
+  onDelete,
 }: MeetingListProps) {
   if (!items.length) {
     return (
@@ -27,9 +35,12 @@ export function MeetingList({
       {items.map((meeting) => (
         <MeetingCard
           key={meeting.id}
+          canDelete={Boolean(canManage || meeting.createdBy === currentUserId)}
+          isDeleting={deletingMeetingId === meeting.id}
           meeting={meeting}
           projectId={projectId}
           workspaceId={workspaceId}
+          onDelete={onDelete}
         />
       ))}
     </div>

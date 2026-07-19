@@ -54,7 +54,7 @@ export default function RegisterPage() {
       const accessToken = response.data.tokens.accessToken;
 
       if (!accessToken) {
-        throw new Error("Backend khong tra ve access token.");
+        throw new Error("Tạo tài khoản chưa nhận được phiên làm việc.");
       }
 
       saveAccessToken(accessToken);

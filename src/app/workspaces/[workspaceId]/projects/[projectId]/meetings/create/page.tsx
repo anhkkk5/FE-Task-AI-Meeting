@@ -34,7 +34,8 @@ export default function CreateMeetingPage() {
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const canManage = managerRoles.includes(myRole) && project?.status === "ACTIVE";
+  const canManage =
+    managerRoles.includes(myRole) && project?.status === "ACTIVE";
 
   const loadContext = useCallback(async () => {
     setIsLoading(true);
@@ -57,7 +58,9 @@ export default function CreateMeetingPage() {
       setMyRole(roleRes.data.role);
     } catch (error) {
       setMessage(
-        error instanceof Error ? error.message : "Tải dữ liệu meeting thất bại.",
+        error instanceof Error
+          ? error.message
+          : "Tải dữ liệu tạo cuộc họp thất bại.",
       );
     } finally {
       setIsLoading(false);
@@ -74,7 +77,7 @@ export default function CreateMeetingPage() {
     payload: CreateMeetingPayload | UpdateMeetingPayload,
   ) {
     if (!canManage) {
-      setMessage("Bạn không có quyền tạo meeting trong project này.");
+      setMessage("Bạn không có quyền tạo cuộc họp trong dự án này.");
       return;
     }
 
@@ -89,7 +92,7 @@ export default function CreateMeetingPage() {
       );
     } catch (error) {
       setMessage(
-        error instanceof Error ? error.message : "Tạo meeting thất bại.",
+        error instanceof Error ? error.message : "Tạo cuộc họp thất bại.",
       );
     }
   }
@@ -119,7 +122,7 @@ export default function CreateMeetingPage() {
                 Tạo cuộc họp mới
               </h1>
               <p className="mt-2 text-sm text-[#44546f]">
-                {project?.name ?? "Project"} {myRole ? `- Vai trò: ${myRole}` : ""}
+                {project?.name ?? "Dự án"} {myRole ? `- Vai trò: ${myRole}` : ""}
               </p>
             </div>
             <Link
@@ -152,8 +155,8 @@ export default function CreateMeetingPage() {
           </section>
         ) : (
           <div className="rounded border border-[#dfe1e6] bg-white p-5 text-sm font-medium text-[#44546f]">
-            Bạn cần là OWNER, SCRUM_MASTER hoặc PROJECT_MANAGER và project phải
-            ACTIVE để tạo meeting.
+            Bạn cần là chủ workspace, scrum master hoặc quản lý dự án. Dự án
+            cũng cần đang hoạt động để tạo cuộc họp.
           </div>
         )}
       </div>

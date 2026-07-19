@@ -40,10 +40,11 @@ export function MeetingTranscriptEditor({
       <div className="mb-4 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
         <div>
           <h2 className="text-base font-black text-zinc-950">
-            Trình nhập biên bản
+            Nhập nội dung cuộc họp
           </h2>
           <p className="mt-1 text-xs font-medium text-zinc-500">
-            Lưu nội dung biên bản vào MongoDB để chuẩn bị cho phần tóm tắt AI.
+            Ghi lại nội dung chính của cuộc họp để đội nhóm có thể xem lại và
+            tạo tóm tắt.
           </p>
         </div>
         <span className="rounded-lg bg-zinc-100 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-zinc-500">
@@ -54,7 +55,7 @@ export function MeetingTranscriptEditor({
         className="min-h-96 w-full resize-y rounded-2xl border border-zinc-300 bg-zinc-50 px-4 py-4 text-sm leading-7 text-zinc-800 outline-none transition focus:border-blue-600 focus:bg-white"
         maxLength={50000}
         minLength={1}
-        placeholder="Nguyễn Văn A: Hôm nay mình thống nhất backlog...\nNguyễn Văn B: Em phụ trách API meeting..."
+        placeholder="Nguyễn Văn A: Hôm nay mình thống nhất backlog...\nNguyễn Văn B: Em phụ trách phần cuộc họp..."
         required
         value={rawTranscript}
         onChange={(event) => setRawTranscript(event.target.value)}
@@ -64,7 +65,7 @@ export function MeetingTranscriptEditor({
         disabled={isSaving}
         type="submit"
       >
-        {isSaving ? "Đang lưu..." : "Lưu biên bản"}
+        {isSaving ? "Đang lưu..." : "Lưu nội dung"}
       </button>
     </form>
   );

@@ -104,13 +104,8 @@ export function PersonalizedMeetingSummaryDetail({
                 Tóm tắt cá nhân
               </span>
               <span className="rounded-lg bg-emerald-50 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-emerald-700">
-                {summary.status}
+                Đã tạo
               </span>
-              {summary.model ? (
-                <span className="rounded-lg bg-zinc-100 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-zinc-500">
-                  {summary.model}
-                </span>
-              ) : null}
             </div>
             <h1 className="text-2xl font-black text-zinc-950">
               {output.title}
@@ -119,38 +114,20 @@ export function PersonalizedMeetingSummaryDetail({
               {output.personalSummary || summary.personalSummary}
             </p>
           </div>
-          <div className="grid min-w-[260px] gap-2 rounded-2xl border border-zinc-200 bg-zinc-50 p-4 text-sm">
-            <div>
-              <p className="text-[10px] font-black uppercase tracking-wider text-zinc-400">
-                ID thành viên
-              </p>
-              <p className="break-all font-bold text-zinc-900">
-                {summary.userId}
-              </p>
-            </div>
-            <div>
-              <p className="text-[10px] font-black uppercase tracking-wider text-zinc-400">
-                ID cuộc họp
-              </p>
-              <p className="break-all font-bold text-zinc-900">
-                {summary.meetingId}
-              </p>
-            </div>
-            <div>
-              <p className="text-[10px] font-black uppercase tracking-wider text-zinc-400">
-                Thời điểm tạo
-              </p>
-              <p className="font-bold text-zinc-900">
-                {summary.createdAt?.slice(0, 16).replace("T", " ") ?? "-"}
-              </p>
-            </div>
+          <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-4 text-sm">
+            <p className="text-[10px] font-black uppercase tracking-wider text-zinc-400">
+              Thời điểm tạo
+            </p>
+            <p className="mt-1 font-bold text-zinc-900">
+              {summary.createdAt?.slice(0, 16).replace("T", " ") ?? "-"}
+            </p>
           </div>
         </div>
       </section>
 
       <section className="rounded-2xl border border-blue-100 bg-blue-50 p-6 shadow-sm">
         <h2 className="text-[10px] font-black uppercase tracking-[0.18em] text-blue-700">
-          Góc nhìn cá nhân do AI tạo
+          Góc nhìn cá nhân
         </h2>
         <p className="mt-3 whitespace-pre-line text-sm font-medium leading-7 text-blue-950">
           {output.generatedText}
@@ -186,7 +163,7 @@ export function PersonalizedMeetingSummaryDetail({
         <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
           <h2 className="mb-4 text-sm font-black text-zinc-950">Nhắc đến</h2>
           <RenderList
-            emptyText="Chưa có đoạn biên bản nhắc trực tiếp."
+            emptyText="Chưa có đoạn nội dung nhắc trực tiếp."
             items={output.mentions ?? []}
             tone="emerald"
           />

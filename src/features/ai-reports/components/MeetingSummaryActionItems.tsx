@@ -10,7 +10,7 @@ export function MeetingSummaryActionItems({
   if (!items.length) {
     return (
       <p className="rounded-xl border border-dashed border-zinc-300 bg-zinc-50 px-4 py-6 text-center text-sm font-semibold text-zinc-500">
-        No action items were detected from the transcript.
+        Chưa có việc cần làm được ghi nhận.
       </p>
     );
   }
@@ -20,10 +20,10 @@ export function MeetingSummaryActionItems({
       <table className="min-w-full divide-y divide-zinc-200 text-left text-sm">
         <thead className="bg-zinc-50 text-[10px] font-black uppercase tracking-wider text-zinc-500">
           <tr>
-            <th className="px-4 py-3">Action</th>
-            <th className="px-4 py-3">Assignee</th>
-            <th className="px-4 py-3">Due date</th>
-            <th className="px-4 py-3">Status</th>
+            <th className="px-4 py-3">Việc cần làm</th>
+            <th className="px-4 py-3">Người phụ trách</th>
+            <th className="px-4 py-3">Hạn xử lý</th>
+            <th className="px-4 py-3">Trạng thái</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-zinc-100 bg-white">

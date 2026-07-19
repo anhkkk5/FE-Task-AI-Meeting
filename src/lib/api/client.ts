@@ -10,7 +10,7 @@ export const API_BASE_URL =
 const REQUEST_TIMEOUT_MS = 10000;
 
 type ApiOptions = {
-  method?: "GET" | "POST" | "PATCH";
+  method?: "GET" | "POST" | "PATCH" | "DELETE";
   token?: string;
   body?: unknown;
   skipAuthRefresh?: boolean;
@@ -114,12 +114,12 @@ async function fetchApi(path: string, options: ApiOptions, token?: string) {
   } catch (error) {
     if (error instanceof DOMException && error.name === "AbortError") {
       throw new Error(
-        "Ket noi API qua lau. Hay kiem tra backend co dang chay va dien thoai co truy cap duoc cong 3002 khong.",
+        "Kết nối API quá lâu. Hãy kiểm tra backend có đang chạy và thiết bị có truy cập được cổng 3002 không.",
       );
     }
 
     throw new Error(
-      "Khong ket noi duoc backend. Hay thu mo API health tren dien thoai va kiem tra Windows Firewall/port 3002.",
+      "Không kết nối được backend. Hãy thử mở API health trên thiết bị và kiểm tra Windows Firewall/cổng 3002.",
     );
   } finally {
     globalThis.clearTimeout(timeout);

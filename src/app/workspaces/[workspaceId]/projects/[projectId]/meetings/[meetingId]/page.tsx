@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { AppShell } from "@/components/layout/AppShell";
 import {
   cancelMeeting,
   completeMeeting,
+  deleteMeeting,
   getMeetingDetail,
   updateMeeting,
 } from "@/features/meetings/api/meetings.api";
@@ -36,6 +37,7 @@ export default function MeetingDetailPage() {
     projectId: string;
     meetingId: string;
   }>();
+  const router = useRouter();
   const { user, isLoading: authLoading } = useAuth(true);
   const [project, setProject] = useState<Project | null>(null);
   const [meeting, setMeeting] = useState<Meeting | null>(null);
@@ -48,6 +50,7 @@ export default function MeetingDetailPage() {
   const [message, setMessage] = useState("");
 
   const canManage = managerRoles.includes(myRole);
+  const canDelete = Boolean(meeting && (canManage || meeting.createdBy === user?.id));
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
@@ -77,7 +80,9 @@ export default function MeetingDetailPage() {
       setMyRole(roleRes.data.role);
     } catch (error) {
       setMessage(
-        error instanceof Error ? error.message : "Tải chi tiết meeting thất bại.",
+        error instanceof Error
+          ? error.message
+          : "Tải chi tiết cuộc họp thất bại.",
       );
     } finally {
       setIsLoading(false);
@@ -101,6 +106,7 @@ export default function MeetingDetailPage() {
   ) {
     if (!meeting) return;
 
+    setIsMutating(true);
     try {
       const response = await updateMeeting(
         params.workspaceId,
@@ -110,26 +116,28 @@ export default function MeetingDetailPage() {
       );
       setMeeting(response.data.meeting);
       setIsEditing(false);
-      setMessage("Đã cập nhật meeting.");
+      setMessage("Đã cập nhật cuộc họp.");
     } catch (error) {
       setMessage(
-        error instanceof Error ? error.message : "Cập nhật meeting thất bại.",
+        error instanceof Error ? error.message : "Cập nhật cuộc họp thất bại.",
       );
+    } finally {
+      setIsMutating(false);
     }
   }
 
   async function handleCancel() {
     if (!meeting) return;
-    if (!window.confirm("Bạn muốn hủy meeting này?")) return;
+    if (!window.confirm("Bạn muốn hủy cuộc họp này?")) return;
 
     setIsMutating(true);
     try {
       await cancelMeeting(params.workspaceId, params.projectId, meeting.id);
       await loadData();
-      setMessage("Đã hủy meeting.");
+      setMessage("Đã hủy cuộc họp.");
     } catch (error) {
       setMessage(
-        error instanceof Error ? error.message : "Hủy meeting thất bại.",
+        error instanceof Error ? error.message : "Hủy cuộc họp thất bại.",
       );
     } finally {
       setIsMutating(false);
@@ -143,12 +151,32 @@ export default function MeetingDetailPage() {
     try {
       await completeMeeting(params.workspaceId, params.projectId, meeting.id);
       await loadData();
-      setMessage("Đã hoàn thành meeting.");
+      setMessage("Đã hoàn thành cuộc họp.");
     } catch (error) {
       setMessage(
-        error instanceof Error ? error.message : "Hoàn thành meeting thất bại.",
+        error instanceof Error
+          ? error.message
+          : "Hoàn thành cuộc họp thất bại.",
       );
     } finally {
+      setIsMutating(false);
+    }
+  }
+
+  async function handleDelete() {
+    if (!meeting || !canDelete) return;
+    if (!window.confirm("Bạn muốn xóa cuộc họp này khỏi danh sách?")) return;
+
+    setIsMutating(true);
+    try {
+      await deleteMeeting(params.workspaceId, params.projectId, meeting.id);
+      router.push(
+        `/workspaces/${params.workspaceId}/projects/${params.projectId}/meetings`,
+      );
+    } catch (error) {
+      setMessage(
+        error instanceof Error ? error.message : "Xóa cuộc họp thất bại.",
+      );
       setIsMutating(false);
     }
   }
@@ -170,35 +198,36 @@ export default function MeetingDetailPage() {
       <div className="mx-auto max-w-6xl space-y-6 pb-12">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <Link
-            className="rounded-xl border border-zinc-200 bg-white px-4 py-2 text-xs font-bold text-zinc-700 transition hover:bg-zinc-50"
+            className="rounded border border-[#dfe1e6] bg-white px-4 py-2 text-sm font-semibold text-[#172b4d] transition hover:bg-[#f4f5f7]"
             href={`/workspaces/${params.workspaceId}/projects/${params.projectId}/meetings`}
           >
-            Quay lại danh sách meeting
+            Quay lại danh sách cuộc họp
           </Link>
           {canManage && meeting ? (
             <button
-              className="rounded-xl border border-zinc-200 bg-white px-4 py-2 text-xs font-bold text-zinc-700 transition hover:bg-zinc-50"
+              className="rounded border border-[#dfe1e6] bg-white px-4 py-2 text-sm font-semibold text-[#172b4d] transition hover:bg-[#f4f5f7]"
               type="button"
               onClick={() => setIsEditing((value) => !value)}
             >
-              {isEditing ? "Đóng form sửa" : "Sửa meeting"}
+              {isEditing ? "Đóng form sửa" : "Sửa cuộc họp"}
             </button>
           ) : null}
         </div>
 
         {message ? (
-          <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-900">
+          <div className="rounded border border-[#f5cd47] bg-[#fff7d6] px-4 py-3 text-sm font-semibold text-[#7f5f01]">
             {message}
           </div>
         ) : null}
 
         {isLoading ? (
-          <div className="flex h-48 items-center justify-center rounded-2xl border border-zinc-200 bg-white">
-            <div className="h-6 w-6 animate-spin rounded-full border-2 border-blue-600 border-t-transparent"></div>
+          <div className="flex h-48 items-center justify-center rounded border border-[#dfe1e6] bg-white">
+            <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#0c66e4] border-t-transparent"></div>
           </div>
         ) : meeting ? (
           <>
             <MeetingDetail
+              canDelete={canDelete}
               canManage={canManage}
               isMutating={isMutating}
               meeting={meeting}
@@ -206,12 +235,13 @@ export default function MeetingDetailPage() {
               workspaceId={params.workspaceId}
               onCancel={() => void handleCancel()}
               onComplete={() => void handleComplete()}
+              onDelete={() => void handleDelete()}
             />
 
             {isEditing && canManage ? (
               <section className="rounded border border-[#dfe1e6] bg-white p-5">
                 <h2 className="mb-5 text-lg font-semibold text-[#172b4d]">
-                  Cập nhật meeting
+                  Cập nhật cuộc họp
                 </h2>
                 <MeetingForm
                   initialMeeting={meeting}
@@ -224,8 +254,8 @@ export default function MeetingDetailPage() {
             ) : null}
           </>
         ) : (
-          <div className="rounded-2xl border border-zinc-200 bg-white p-6 text-sm font-semibold text-zinc-700 shadow-sm">
-            Không tìm thấy meeting.
+          <div className="rounded border border-[#dfe1e6] bg-white p-6 text-sm font-semibold text-[#44546f]">
+            Không tìm thấy cuộc họp.
           </div>
         )}
       </div>

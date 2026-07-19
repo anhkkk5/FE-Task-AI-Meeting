@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { Meeting } from "../types/meeting.type";
 
@@ -5,13 +7,16 @@ type MeetingCardProps = {
   meeting: Meeting;
   workspaceId: string;
   projectId: string;
+  canDelete?: boolean;
+  isDeleting?: boolean;
+  onDelete?: (meeting: Meeting) => void;
 };
 
 const typeLabels: Record<Meeting["meetingType"], string> = {
   SPRINT_PLANNING: "Lập kế hoạch sprint",
-  DAILY_SCRUM: "Daily Scrum",
-  SPRINT_REVIEW: "Review sprint",
-  RETROSPECTIVE: "Retrospective",
+  DAILY_SCRUM: "Họp daily",
+  SPRINT_REVIEW: "Tổng kết sprint",
+  RETROSPECTIVE: "Cải tiến sprint",
   GENERAL: "Tổng quan",
 };
 
@@ -35,7 +40,35 @@ function formatTime(value: string | null) {
   return value.slice(11, 16);
 }
 
-export function MeetingCard({ meeting, workspaceId, projectId }: MeetingCardProps) {
+function formatDate(value: string) {
+  const [year, month, day] = value.slice(0, 10).split("-");
+  return year && month && day ? `${day}/${month}/${year}` : value;
+}
+
+function getMeetingEndTime(meeting: Meeting) {
+  if (meeting.endTime) {
+    return new Date(meeting.endTime).getTime();
+  }
+
+  return new Date(`${meeting.meetingDate}T23:59:59`).getTime();
+}
+
+function isMeetingExpired(meeting: Meeting) {
+  const endTime = getMeetingEndTime(meeting);
+  return Number.isFinite(endTime) && endTime < Date.now();
+}
+
+export function MeetingCard({
+  meeting,
+  workspaceId,
+  projectId,
+  canDelete,
+  isDeleting,
+  onDelete,
+}: MeetingCardProps) {
+  const expired = isMeetingExpired(meeting);
+  const canEnterRoom = meeting.status === "SCHEDULED" && !expired;
+
   return (
     <article className="rounded border border-[#dfe1e6] bg-white transition hover:border-[#b3b9c4]">
       <div className="flex flex-col gap-4 p-4 lg:flex-row lg:items-start lg:justify-between">
@@ -44,9 +77,16 @@ export function MeetingCard({ meeting, workspaceId, projectId }: MeetingCardProp
             <span className="rounded bg-[#f1f2f4] px-2 py-0.5 text-xs font-semibold text-[#44546f]">
               {typeLabels[meeting.meetingType]}
             </span>
-            <span className={`rounded px-2 py-0.5 text-xs font-semibold ${statusTones[meeting.status]}`}>
+            <span
+              className={`rounded px-2 py-0.5 text-xs font-semibold ${statusTones[meeting.status]}`}
+            >
               {statusLabels[meeting.status]}
             </span>
+            {expired && meeting.status === "SCHEDULED" ? (
+              <span className="rounded bg-[#fff4f2] px-2 py-0.5 text-xs font-semibold text-[#ae2a19]">
+                Đã quá giờ
+              </span>
+            ) : null}
             {meeting.sprint ? (
               <span className="rounded border border-[#dfe1e6] px-2 py-0.5 text-xs font-medium text-[#44546f]">
                 {meeting.sprint.name}
@@ -68,16 +108,28 @@ export function MeetingCard({ meeting, workspaceId, projectId }: MeetingCardProp
 
         <div className="grid min-w-56 grid-cols-3 gap-px overflow-hidden rounded border border-[#dfe1e6] bg-[#dfe1e6] text-center">
           <div className="bg-white p-2">
-            <p className="text-[11px] font-semibold uppercase text-[#6b778c]">Ngày</p>
-            <p className="mt-1 text-xs font-semibold text-[#172b4d]">{meeting.meetingDate}</p>
+            <p className="text-[11px] font-semibold uppercase text-[#6b778c]">
+              Ngày
+            </p>
+            <p className="mt-1 text-xs font-semibold text-[#172b4d]">
+              {formatDate(meeting.meetingDate)}
+            </p>
           </div>
           <div className="bg-white p-2">
-            <p className="text-[11px] font-semibold uppercase text-[#6b778c]">Bắt đầu</p>
-            <p className="mt-1 text-xs font-semibold text-[#172b4d]">{formatTime(meeting.startTime)}</p>
+            <p className="text-[11px] font-semibold uppercase text-[#6b778c]">
+              Bắt đầu
+            </p>
+            <p className="mt-1 text-xs font-semibold text-[#172b4d]">
+              {formatTime(meeting.startTime)}
+            </p>
           </div>
           <div className="bg-white p-2">
-            <p className="text-[11px] font-semibold uppercase text-[#6b778c]">Kết thúc</p>
-            <p className="mt-1 text-xs font-semibold text-[#172b4d]">{formatTime(meeting.endTime)}</p>
+            <p className="text-[11px] font-semibold uppercase text-[#6b778c]">
+              Kết thúc
+            </p>
+            <p className="mt-1 text-xs font-semibold text-[#172b4d]">
+              {formatTime(meeting.endTime)}
+            </p>
           </div>
         </div>
       </div>
@@ -85,16 +137,24 @@ export function MeetingCard({ meeting, workspaceId, projectId }: MeetingCardProp
       <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[#dfe1e6] px-4 py-3">
         <div className="text-sm text-[#6b778c]">
           {meeting.participants?.length ?? 0} người tham gia
-          {meeting.mongoTranscriptId ? " · Đã có biên bản" : " · Chưa có biên bản"}
+          {meeting.mongoTranscriptId
+            ? " · Đã có biên bản"
+            : " · Chưa có biên bản"}
           {meeting.mongoSummaryId ? " · Đã có tóm tắt" : " · Chưa có tóm tắt"}
         </div>
         <div className="flex flex-wrap gap-2">
-          <Link
-            className="rounded bg-[#172b4d] px-3 py-1.5 text-sm font-semibold text-white hover:bg-[#0c1f3f]"
-            href={`/workspaces/${workspaceId}/projects/${projectId}/meetings/${meeting.id}/room`}
-          >
-            Vào phòng
-          </Link>
+          {canEnterRoom ? (
+            <Link
+              className="rounded bg-[#172b4d] px-3 py-1.5 text-sm font-semibold text-white hover:bg-[#0c1f3f]"
+              href={`/workspaces/${workspaceId}/projects/${projectId}/meetings/${meeting.id}/room`}
+            >
+              Vào phòng
+            </Link>
+          ) : (
+            <span className="rounded bg-[#f1f2f4] px-3 py-1.5 text-sm font-semibold text-[#6b778c]">
+              Không thể vào
+            </span>
+          )}
           <Link
             className="rounded border border-[#dfe1e6] bg-white px-3 py-1.5 text-sm font-medium text-[#44546f] hover:bg-[#f1f2f4]"
             href={`/workspaces/${workspaceId}/projects/${projectId}/meetings/${meeting.id}/participants`}
@@ -119,6 +179,16 @@ export function MeetingCard({ meeting, workspaceId, projectId }: MeetingCardProp
           >
             Tóm tắt của tôi
           </Link>
+          {canDelete ? (
+            <button
+              className="rounded border border-[#ffbdad] bg-white px-3 py-1.5 text-sm font-semibold text-[#ae2a19] hover:bg-[#fff4f2] disabled:cursor-not-allowed disabled:opacity-60"
+              disabled={isDeleting}
+              type="button"
+              onClick={() => onDelete?.(meeting)}
+            >
+              {isDeleting ? "Đang xóa..." : "Xóa"}
+            </button>
+          ) : null}
         </div>
       </div>
     </article>

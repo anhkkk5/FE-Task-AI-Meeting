@@ -46,7 +46,7 @@ export default function LoginPage() {
       const accessToken = response.data.tokens.accessToken;
 
       if (!accessToken) {
-        throw new Error("Backend khong tra ve access token.");
+        throw new Error("Đăng nhập chưa nhận được phiên làm việc.");
       }
 
       saveAccessToken(accessToken);

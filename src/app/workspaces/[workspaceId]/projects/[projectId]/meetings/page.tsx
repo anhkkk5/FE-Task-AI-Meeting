@@ -4,7 +4,10 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { AppShell } from "@/components/layout/AppShell";
-import { getMeetings } from "@/features/meetings/api/meetings.api";
+import {
+  deleteMeeting,
+  getMeetings,
+} from "@/features/meetings/api/meetings.api";
 import { MeetingList } from "@/features/meetings/components/MeetingList";
 import {
   Meeting,
@@ -45,9 +48,9 @@ const statusLabels: Record<MeetingStatus, string> = {
 
 const typeLabels: Record<MeetingType, string> = {
   SPRINT_PLANNING: "Lập kế hoạch sprint",
-  DAILY_SCRUM: "Daily Scrum",
-  SPRINT_REVIEW: "Review sprint",
-  RETROSPECTIVE: "Retrospective",
+  DAILY_SCRUM: "Họp daily",
+  SPRINT_REVIEW: "Tổng kết sprint",
+  RETROSPECTIVE: "Cải tiến sprint",
   GENERAL: "Tổng quan",
 };
 
@@ -61,6 +64,9 @@ export default function MeetingsPage() {
   const [query, setQuery] = useState<MeetingQuery>({ page: 1, limit: 20 });
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [deletingMeetingId, setDeletingMeetingId] = useState<string | null>(
+    null,
+  );
 
   const canManage = managerRoles.includes(myRole);
 
@@ -85,7 +91,9 @@ export default function MeetingsPage() {
       setItems(meetingsRes.data.items);
     } catch (error) {
       setMessage(
-        error instanceof Error ? error.message : "Tải danh sách meeting thất bại.",
+        error instanceof Error
+          ? error.message
+          : "Tải danh sách cuộc họp thất bại.",
       );
     } finally {
       setIsLoading(false);
@@ -105,6 +113,27 @@ export default function MeetingsPage() {
       page: 1,
       limit: 20,
     }));
+  }
+
+  async function handleDeleteMeeting(meeting: Meeting) {
+    if (!window.confirm(`Bạn có chắc muốn xóa cuộc họp "${meeting.title}"?`)) {
+      return;
+    }
+
+    setDeletingMeetingId(meeting.id);
+    setMessage("");
+
+    try {
+      await deleteMeeting(params.workspaceId, params.projectId, meeting.id);
+      setItems((current) => current.filter((item) => item.id !== meeting.id));
+      setMessage("Đã xóa cuộc họp.");
+    } catch (error) {
+      setMessage(
+        error instanceof Error ? error.message : "Xóa cuộc họp thất bại.",
+      );
+    } finally {
+      setDeletingMeetingId(null);
+    }
   }
 
   if (authLoading) {
@@ -129,10 +158,11 @@ export default function MeetingsPage() {
                 Cuộc họp
               </p>
               <h1 className="mt-1 text-2xl font-semibold text-[#172b4d]">
-                Cuộc họp trong project
+                Cuộc họp trong dự án
               </h1>
               <p className="mt-2 max-w-2xl text-sm text-[#6b778c]">
-                Quản lý lịch họp, người tham gia và biên bản theo từng project hoặc sprint.
+                Quản lý lịch họp, người tham gia và biên bản theo từng dự án
+                hoặc sprint.
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -158,7 +188,7 @@ export default function MeetingsPage() {
         <section className="grid gap-3 rounded border border-[#dfe1e6] bg-white p-3 lg:grid-cols-[1fr_180px_180px_220px_auto]">
           <input
             className="h-9 rounded border border-[#dfe1e6] bg-white px-3 text-sm outline-none hover:bg-[#f7f8f9] focus:border-[#0c66e4]"
-            placeholder="Tìm meeting..."
+            placeholder="Tìm cuộc họp..."
             value={query.keyword ?? ""}
             onChange={(event) => patchQuery({ keyword: event.target.value })}
           />
@@ -233,10 +263,14 @@ export default function MeetingsPage() {
           </div>
         ) : (
           <MeetingList
-            emptyText="Chưa có meeting nào trong bộ lọc hiện tại."
+            canManage={canManage}
+            currentUserId={user?.id}
+            deletingMeetingId={deletingMeetingId}
+            emptyText="Chưa có cuộc họp nào trong bộ lọc hiện tại."
             items={items}
             projectId={params.projectId}
             workspaceId={params.workspaceId}
+            onDelete={(meeting) => void handleDeleteMeeting(meeting)}
           />
         )}
       </div>
