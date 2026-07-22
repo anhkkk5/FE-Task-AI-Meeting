@@ -2,7 +2,19 @@
 
 import { useEffect, useState } from "react";
 import { AppShell } from "@/components/layout/AppShell";
-import { updateProfile, changePassword } from "@/features/users/api/users.api";
+import {
+  changePassword,
+  getAiUserPreferences,
+  resetAiUserPreferences,
+  updateAiUserPreferences,
+  updateProfile,
+} from "@/features/users/api/users.api";
+import type {
+  AiFocusArea,
+  AiResponseStyle,
+  AiTone,
+  AiUserPreferences,
+} from "@/features/users/types/user-profile.type";
 import { useAuth } from "@/hooks/useAuth";
 
 type Notice = {
@@ -49,6 +61,32 @@ function Field({
 const inputClass =
   "h-10 w-full rounded border border-[#dfe1e6] bg-white px-3 text-sm text-[#172b4d] outline-none transition placeholder:text-[#7a869a] hover:bg-[#f7f8f9] focus:border-[#0c66e4] focus:bg-white focus:ring-1 focus:ring-[#0c66e4]";
 
+const defaultAiPreferences: AiUserPreferences = {
+  responseStyle: "BALANCED",
+  tone: "PROFESSIONAL",
+  focusAreas: ["PROGRESS", "BLOCKERS", "DECISIONS", "ACTION_ITEMS"],
+};
+
+const responseStyleOptions: Array<{ value: AiResponseStyle; label: string }> = [
+  { value: "CONCISE", label: "Ngắn gọn" },
+  { value: "BALANCED", label: "Cân bằng" },
+  { value: "DETAILED", label: "Chi tiết" },
+];
+
+const toneOptions: Array<{ value: AiTone; label: string }> = [
+  { value: "PROFESSIONAL", label: "Chuyên nghiệp" },
+  { value: "DIRECT", label: "Thẳng vào vấn đề" },
+  { value: "SUPPORTIVE", label: "Tích cực, hỗ trợ" },
+];
+
+const focusAreaOptions: Array<{ value: AiFocusArea; label: string }> = [
+  { value: "PROGRESS", label: "Tiến độ" },
+  { value: "BLOCKERS", label: "Vướng mắc" },
+  { value: "DEADLINES", label: "Thời hạn" },
+  { value: "DECISIONS", label: "Quyết định" },
+  { value: "ACTION_ITEMS", label: "Việc cần làm" },
+];
+
 export default function ProfilePage() {
   const { user, isLoading: authLoading, logoutUser, refreshUser } = useAuth(true);
 
@@ -64,6 +102,15 @@ export default function ProfilePage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordMessage, setPasswordMessage] = useState<Notice>({ type: "", text: "" });
   const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [aiPreferences, setAiPreferences] = useState<AiUserPreferences>(
+    defaultAiPreferences,
+  );
+  const [aiPreferencesMessage, setAiPreferencesMessage] = useState<Notice>({
+    type: "",
+    text: "",
+  });
+  const [isLoadingAiPreferences, setIsLoadingAiPreferences] = useState(true);
+  const [isSavingAiPreferences, setIsSavingAiPreferences] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -72,6 +119,33 @@ export default function ProfilePage() {
       setPhoneNumber(user.phoneNumber || "");
       setJobTitle(user.jobTitle || "");
     }
+  }, [user]);
+
+  useEffect(() => {
+    if (!user) return;
+
+    let active = true;
+    void getAiUserPreferences()
+      .then((response) => {
+        if (active) setAiPreferences(response.data);
+      })
+      .catch((error) => {
+        if (!active) return;
+        setAiPreferencesMessage({
+          type: "error",
+          text:
+            error instanceof Error
+              ? error.message
+              : "Không thể tải tùy chọn trợ lý AI.",
+        });
+      })
+      .finally(() => {
+        if (active) setIsLoadingAiPreferences(false);
+      });
+
+    return () => {
+      active = false;
+    };
   }, [user]);
 
   if (authLoading) {
@@ -159,6 +233,66 @@ export default function ProfilePage() {
   };
 
   const userInitial = fullName ? fullName.charAt(0).toUpperCase() : "U";
+
+  const toggleFocusArea = (focusArea: AiFocusArea) => {
+    setAiPreferences((current) => {
+      const isSelected = current.focusAreas.includes(focusArea);
+      if (isSelected && current.focusAreas.length === 1) return current;
+
+      return {
+        ...current,
+        focusAreas: isSelected
+          ? current.focusAreas.filter((item) => item !== focusArea)
+          : [...current.focusAreas, focusArea],
+      };
+    });
+  };
+
+  const handleSaveAiPreferences = async () => {
+    setAiPreferencesMessage({ type: "", text: "" });
+    setIsSavingAiPreferences(true);
+    try {
+      const response = await updateAiUserPreferences(aiPreferences);
+      setAiPreferences(response.data);
+      setAiPreferencesMessage({
+        type: "success",
+        text: "Đã lưu cách trợ lý AI hỗ trợ bạn.",
+      });
+    } catch (error) {
+      setAiPreferencesMessage({
+        type: "error",
+        text:
+          error instanceof Error
+            ? error.message
+            : "Không thể lưu tùy chọn trợ lý AI.",
+      });
+    } finally {
+      setIsSavingAiPreferences(false);
+    }
+  };
+
+  const handleResetAiPreferences = async () => {
+    setAiPreferencesMessage({ type: "", text: "" });
+    setIsSavingAiPreferences(true);
+    try {
+      const response = await resetAiUserPreferences();
+      setAiPreferences(response.data);
+      setAiPreferencesMessage({
+        type: "success",
+        text: "Đã khôi phục tùy chọn mặc định.",
+      });
+    } catch (error) {
+      setAiPreferencesMessage({
+        type: "error",
+        text:
+          error instanceof Error
+            ? error.message
+            : "Không thể khôi phục tùy chọn mặc định.",
+      });
+    } finally {
+      setIsSavingAiPreferences(false);
+    }
+  };
 
   return (
     <AppShell title="Trang cá nhân">
@@ -315,6 +449,111 @@ export default function ProfilePage() {
             </form>
           </section>
         </div>
+
+        <section className="rounded border border-[#dfe1e6] bg-white">
+          <div className="border-b border-[#dfe1e6] px-5 py-4">
+            <h2 className="text-lg font-semibold text-[#172b4d]">
+              Trợ lý AI của bạn
+            </h2>
+            <p className="mt-1 text-sm text-[#6b778c]">
+              Chọn cách trình bày phù hợp cho báo cáo giao ban và tóm tắt cuộc
+              họp cá nhân.
+            </p>
+          </div>
+
+          <div className="space-y-5 px-5 py-5">
+            <NoticeBox notice={aiPreferencesMessage} />
+
+            <div className="grid gap-5 md:grid-cols-2">
+              <Field label="Mức độ chi tiết">
+                <div className="grid grid-cols-3 gap-1 rounded bg-[#f1f2f4] p-1">
+                  {responseStyleOptions.map((option) => (
+                    <button
+                      className={`h-9 rounded px-2 text-sm font-medium transition ${
+                        aiPreferences.responseStyle === option.value
+                          ? "bg-white text-[#0c66e4] shadow-sm"
+                          : "text-[#44546f] hover:bg-[#dcdfe4]"
+                      }`}
+                      disabled={isLoadingAiPreferences}
+                      key={option.value}
+                      onClick={() =>
+                        setAiPreferences((current) => ({
+                          ...current,
+                          responseStyle: option.value,
+                        }))
+                      }
+                      type="button"
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              </Field>
+
+              <Field label="Giọng điệu">
+                <select
+                  className={inputClass}
+                  disabled={isLoadingAiPreferences}
+                  onChange={(event) =>
+                    setAiPreferences((current) => ({
+                      ...current,
+                      tone: event.target.value as AiTone,
+                    }))
+                  }
+                  value={aiPreferences.tone}
+                >
+                  {toneOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+            </div>
+
+            <fieldset>
+              <legend className="text-sm font-semibold text-[#172b4d]">
+                Nội dung cần ưu tiên
+              </legend>
+              <div className="mt-2 flex flex-wrap gap-x-6 gap-y-3">
+                {focusAreaOptions.map((option) => (
+                  <label
+                    className="flex cursor-pointer items-center gap-2 text-sm text-[#44546f]"
+                    key={option.value}
+                  >
+                    <input
+                      checked={aiPreferences.focusAreas.includes(option.value)}
+                      className="h-4 w-4 accent-[#0c66e4]"
+                      disabled={isLoadingAiPreferences}
+                      onChange={() => toggleFocusArea(option.value)}
+                      type="checkbox"
+                    />
+                    {option.label}
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+
+            <div className="flex flex-wrap justify-end gap-2 border-t border-[#dfe1e6] pt-4">
+              <button
+                className="h-9 rounded px-4 text-sm font-semibold text-[#44546f] hover:bg-[#f1f2f4] disabled:opacity-60"
+                disabled={isLoadingAiPreferences || isSavingAiPreferences}
+                onClick={() => void handleResetAiPreferences()}
+                type="button"
+              >
+                Khôi phục mặc định
+              </button>
+              <button
+                className="h-9 rounded bg-[#0c66e4] px-4 text-sm font-semibold text-white hover:bg-[#0055cc] disabled:opacity-60"
+                disabled={isLoadingAiPreferences || isSavingAiPreferences}
+                onClick={() => void handleSaveAiPreferences()}
+                type="button"
+              >
+                {isSavingAiPreferences ? "Đang lưu..." : "Lưu tùy chọn"}
+              </button>
+            </div>
+          </div>
+        </section>
       </div>
     </AppShell>
   );

@@ -33,3 +33,26 @@ export type ChangePasswordResponse = {
   message: string;
   data: null;
 };
+
+export type AiResponseStyle = "CONCISE" | "BALANCED" | "DETAILED";
+export type AiTone = "PROFESSIONAL" | "DIRECT" | "SUPPORTIVE";
+export type AiFocusArea =
+  | "PROGRESS"
+  | "BLOCKERS"
+  | "DEADLINES"
+  | "DECISIONS"
+  | "ACTION_ITEMS";
+
+export type AiUserPreferences = {
+  responseStyle: AiResponseStyle;
+  tone: AiTone;
+  focusAreas: AiFocusArea[];
+};
+
+export type AiUserPreferencesResponse = {
+  success: boolean;
+  message: string;
+  data: AiUserPreferences;
+};
+
+export type UpdateAiUserPreferencesPayload = Partial<AiUserPreferences>;
