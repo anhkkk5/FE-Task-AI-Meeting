@@ -33,7 +33,13 @@ type NavLinkItem = {
   active: boolean;
 };
 
-function Icon({ name, className = "h-4 w-4" }: { name: NavIcon; className?: string }) {
+function Icon({
+  name,
+  className = "h-4 w-4",
+}: {
+  name: NavIcon;
+  className?: string;
+}) {
   const common = {
     className,
     fill: "none",
@@ -127,13 +133,28 @@ function SidebarLink({ item }: { item: NavLinkItem }) {
 
 function Chevron() {
   return (
-    <svg className="h-4 w-4 text-[#7a869a]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="m9 5 7 7-7 7" />
+    <svg
+      className="h-4 w-4 text-[#7a869a]"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="m9 5 7 7-7 7"
+      />
     </svg>
   );
 }
 
-export function AppShell({ children, workspaceId, projectId, title }: AppShellProps) {
+export function AppShell({
+  children,
+  workspaceId,
+  projectId,
+  title,
+}: AppShellProps) {
   const { user, isLoading, logoutUser } = useAuth(true);
   const router = useRouter();
   const pathname = usePathname();
@@ -141,7 +162,9 @@ export function AppShell({ children, workspaceId, projectId, title }: AppShellPr
   const activeWorkspaceId = workspaceId || (params.workspaceId as string);
 
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
-  const [currentWorkspace, setCurrentWorkspace] = useState<Workspace | null>(null);
+  const [currentWorkspace, setCurrentWorkspace] = useState<Workspace | null>(
+    null,
+  );
   const [showUserDropdown, setShowUserDropdown] = useState(false);
   const [pendingHandovers, setPendingHandovers] = useState(0);
 
@@ -151,7 +174,9 @@ export function AppShell({ children, workspaceId, projectId, title }: AppShellPr
       setWorkspaces(res.data.items);
 
       if (activeWorkspaceId) {
-        const current = res.data.items.find((workspace) => workspace.id === activeWorkspaceId);
+        const current = res.data.items.find(
+          (workspace) => workspace.id === activeWorkspaceId,
+        );
         setCurrentWorkspace(current ?? null);
       }
     } catch (error) {
@@ -199,7 +224,9 @@ export function AppShell({ children, workspaceId, projectId, title }: AppShellPr
       <div className="flex min-h-screen items-center justify-center bg-[#f7f8f9]">
         <div className="flex flex-col items-center gap-3">
           <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#0c66e4] border-t-transparent" />
-          <p className="text-sm font-medium text-[#44546f]">Đang tải ứng dụng...</p>
+          <p className="text-sm font-medium text-[#44546f]">
+            Đang tải ứng dụng...
+          </p>
         </div>
       </div>
     );
@@ -207,7 +234,9 @@ export function AppShell({ children, workspaceId, projectId, title }: AppShellPr
 
   if (!user) return null;
 
-  const userInitial = user.fullName ? user.fullName.charAt(0).toUpperCase() : "U";
+  const userInitial = user.fullName
+    ? user.fullName.charAt(0).toUpperCase()
+    : "U";
 
   const breadcrumbs = [{ label: "Workspaces", href: "/workspaces" }];
 
@@ -239,6 +268,7 @@ export function AppShell({ children, workspaceId, projectId, title }: AppShellPr
       ["/meetings", "Cuộc họp"],
       ["/shift-handovers", "Bàn giao"],
       ["/ai-reports", "Báo cáo AI"],
+      ["/assistant", "Trợ lý dự án"],
     ].find(([segment]) => pathname.includes(segment));
 
     if (section) {
@@ -253,9 +283,15 @@ export function AppShell({ children, workspaceId, projectId, title }: AppShellPr
       href: `/workspaces/${activeWorkspaceId}/members`,
     });
   } else if (pathname.includes("/settings")) {
-    breadcrumbs.push({ label: "Settings", href: `/workspaces/${activeWorkspaceId}/settings` });
+    breadcrumbs.push({
+      label: "Settings",
+      href: `/workspaces/${activeWorkspaceId}/settings`,
+    });
   } else if (pathname.includes("/projects")) {
-    breadcrumbs.push({ label: "Projects", href: `/workspaces/${activeWorkspaceId}/projects` });
+    breadcrumbs.push({
+      label: "Projects",
+      href: `/workspaces/${activeWorkspaceId}/projects`,
+    });
   }
 
   const workspaceLinks: NavLinkItem[] = activeWorkspaceId
@@ -287,51 +323,60 @@ export function AppShell({ children, workspaceId, projectId, title }: AppShellPr
       ]
     : [];
 
-  const projectTabs = projectId && activeWorkspaceId
-    ? [
-        {
-          href: `/workspaces/${activeWorkspaceId}/projects/${projectId}`,
-          label: "Chi tiết",
-          active: pathname === `/workspaces/${activeWorkspaceId}/projects/${projectId}`,
-        },
-        {
-          href: `/workspaces/${activeWorkspaceId}/projects/${projectId}/sprints`,
-          label: "Backlog",
-          active: pathname.includes("/sprints"),
-        },
-        {
-          href: `/workspaces/${activeWorkspaceId}/projects/${projectId}/tasks`,
-          label: "Board",
-          active: pathname.includes("/tasks") && !pathname.includes("/sprints"),
-        },
-        {
-          href: `/workspaces/${activeWorkspaceId}/projects/${projectId}/daily-updates/me`,
-          label: "Cập nhật hằng ngày",
-          active: pathname.includes("/daily-updates"),
-        },
-        {
-          href: `/workspaces/${activeWorkspaceId}/projects/${projectId}/meetings`,
-          label: "Cuộc họp",
-          active: pathname.includes("/meetings"),
-        },
-        {
-          href: `/workspaces/${activeWorkspaceId}/projects/${projectId}/shift-handovers`,
-          label: "Bàn giao",
-          active: pathname.includes("/shift-handovers"),
-          badge: pendingHandovers,
-        },
-        {
-          href: `/workspaces/${activeWorkspaceId}/projects/${projectId}/ai-reports/personal`,
-          label: "Báo cáo AI",
-          active: pathname.includes("/ai-reports"),
-        },
-        {
-          href: `/workspaces/${activeWorkspaceId}/projects/${projectId}/settings`,
-          label: "Cài đặt dự án",
-          active: pathname.includes("/settings"),
-        },
-      ]
-    : [];
+  const projectTabs =
+    projectId && activeWorkspaceId
+      ? [
+          {
+            href: `/workspaces/${activeWorkspaceId}/projects/${projectId}`,
+            label: "Chi tiết",
+            active:
+              pathname ===
+              `/workspaces/${activeWorkspaceId}/projects/${projectId}`,
+          },
+          {
+            href: `/workspaces/${activeWorkspaceId}/projects/${projectId}/sprints`,
+            label: "Backlog",
+            active: pathname.includes("/sprints"),
+          },
+          {
+            href: `/workspaces/${activeWorkspaceId}/projects/${projectId}/tasks`,
+            label: "Board",
+            active:
+              pathname.includes("/tasks") && !pathname.includes("/sprints"),
+          },
+          {
+            href: `/workspaces/${activeWorkspaceId}/projects/${projectId}/daily-updates/me`,
+            label: "Cập nhật hằng ngày",
+            active: pathname.includes("/daily-updates"),
+          },
+          {
+            href: `/workspaces/${activeWorkspaceId}/projects/${projectId}/meetings`,
+            label: "Cuộc họp",
+            active: pathname.includes("/meetings"),
+          },
+          {
+            href: `/workspaces/${activeWorkspaceId}/projects/${projectId}/shift-handovers`,
+            label: "Bàn giao",
+            active: pathname.includes("/shift-handovers"),
+            badge: pendingHandovers,
+          },
+          {
+            href: `/workspaces/${activeWorkspaceId}/projects/${projectId}/ai-reports/personal`,
+            label: "Báo cáo AI",
+            active: pathname.includes("/ai-reports"),
+          },
+          {
+            href: `/workspaces/${activeWorkspaceId}/projects/${projectId}/assistant`,
+            label: "Trợ lý dự án",
+            active: pathname.includes("/assistant"),
+          },
+          {
+            href: `/workspaces/${activeWorkspaceId}/projects/${projectId}/settings`,
+            label: "Cài đặt dự án",
+            active: pathname.includes("/settings"),
+          },
+        ]
+      : [];
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-[#f7f8f9] font-sans text-[#172b4d]">
@@ -341,7 +386,9 @@ export function AppShell({ children, workspaceId, projectId, title }: AppShellPr
             A
           </div>
           <div className="min-w-0">
-            <h1 className="truncate text-sm font-semibold text-[#172b4d]">Agile AI</h1>
+            <h1 className="truncate text-sm font-semibold text-[#172b4d]">
+              Agile AI
+            </h1>
             <p className="truncate text-[11px] font-semibold uppercase tracking-wide text-[#0c66e4]">
               Project Manager
             </p>
@@ -405,18 +452,29 @@ export function AppShell({ children, workspaceId, projectId, title }: AppShellPr
 
         <div className="border-t border-[#dfe1e6] p-3">
           <div className="flex items-center justify-between gap-2">
-            <Link href="/profile" className="flex min-w-0 flex-1 items-center gap-2 rounded px-1 py-1 hover:bg-[#f1f2f4]">
+            <Link
+              href="/profile"
+              className="flex min-w-0 flex-1 items-center gap-2 rounded px-1 py-1 hover:bg-[#f1f2f4]"
+            >
               {user.avatarUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={user.avatarUrl} alt={user.fullName} className="h-8 w-8 rounded-full object-cover" />
+                <img
+                  src={user.avatarUrl}
+                  alt={user.fullName}
+                  className="h-8 w-8 rounded-full object-cover"
+                />
               ) : (
                 <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#deebff] text-sm font-bold text-[#0747a6]">
                   {userInitial}
                 </div>
               )}
               <div className="min-w-0">
-                <p className="truncate text-sm font-semibold text-[#172b4d]">{user.fullName}</p>
-                <p className="truncate text-[11px] text-[#6b778c]">{user.email}</p>
+                <p className="truncate text-sm font-semibold text-[#172b4d]">
+                  {user.fullName}
+                </p>
+                <p className="truncate text-[11px] text-[#6b778c]">
+                  {user.email}
+                </p>
               </div>
             </Link>
             <button
@@ -441,12 +499,20 @@ export function AppShell({ children, workspaceId, projectId, title }: AppShellPr
 
             <div className="flex min-w-0 items-center gap-1 text-sm text-[#44546f] lg:ml-2">
               {breadcrumbs.map((crumb, index) => (
-                <span key={`${crumb.href}-${index}`} className="flex min-w-0 items-center gap-1">
+                <span
+                  key={`${crumb.href}-${index}`}
+                  className="flex min-w-0 items-center gap-1"
+                >
                   {index > 0 ? <Chevron /> : null}
                   {index === breadcrumbs.length - 1 ? (
-                    <span className="truncate font-semibold text-[#172b4d]">{crumb.label}</span>
+                    <span className="truncate font-semibold text-[#172b4d]">
+                      {crumb.label}
+                    </span>
                   ) : (
-                    <Link href={crumb.href} className="truncate hover:text-[#0c66e4]">
+                    <Link
+                      href={crumb.href}
+                      className="truncate hover:text-[#0c66e4]"
+                    >
                       {crumb.label}
                     </Link>
                   )}
@@ -463,7 +529,11 @@ export function AppShell({ children, workspaceId, projectId, title }: AppShellPr
             >
               {user.avatarUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={user.avatarUrl} alt={user.fullName} className="h-8 w-8 rounded-full object-cover" />
+                <img
+                  src={user.avatarUrl}
+                  alt={user.fullName}
+                  className="h-8 w-8 rounded-full object-cover"
+                />
               ) : (
                 <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#dcfff1] text-sm font-bold text-[#216e4e]">
                   {userInitial}
@@ -472,16 +542,30 @@ export function AppShell({ children, workspaceId, projectId, title }: AppShellPr
               <span className="hidden max-w-32 truncate text-sm font-semibold text-[#44546f] md:inline">
                 {user.fullName}
               </span>
-              <svg className="h-4 w-4 text-[#6b778c]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="m6 9 6 6 6-6" />
+              <svg
+                className="h-4 w-4 text-[#6b778c]"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="m6 9 6 6 6-6"
+                />
               </svg>
             </button>
 
             {showUserDropdown ? (
               <div className="absolute right-0 z-50 mt-2 w-64 rounded border border-[#dfe1e6] bg-white py-1 shadow-lg">
                 <div className="border-b border-[#dfe1e6] px-3 py-2">
-                  <p className="truncate text-sm font-semibold text-[#172b4d]">{user.fullName}</p>
-                  <p className="truncate text-xs text-[#6b778c]">{user.email}</p>
+                  <p className="truncate text-sm font-semibold text-[#172b4d]">
+                    {user.fullName}
+                  </p>
+                  <p className="truncate text-xs text-[#6b778c]">
+                    {user.email}
+                  </p>
                 </div>
                 <Link
                   href="/profile"
@@ -513,12 +597,16 @@ export function AppShell({ children, workspaceId, projectId, title }: AppShellPr
                 </div>
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
-                    <h2 className="truncate text-xl font-semibold text-[#172b4d]">{title || "Dự án"}</h2>
+                    <h2 className="truncate text-xl font-semibold text-[#172b4d]">
+                      {title || "Dự án"}
+                    </h2>
                     <span className="rounded bg-[#f1f2f4] px-1.5 py-0.5 text-[11px] font-semibold uppercase text-[#44546f]">
                       Active
                     </span>
                   </div>
-                  <p className="mt-0.5 truncate font-mono text-xs text-[#6b778c]">Project ID: {projectId}</p>
+                  <p className="mt-0.5 truncate font-mono text-xs text-[#6b778c]">
+                    Project ID: {projectId}
+                  </p>
                 </div>
               </div>
             </div>
@@ -546,7 +634,9 @@ export function AppShell({ children, workspaceId, projectId, title }: AppShellPr
           </section>
         ) : null}
 
-        <main className="flex-1 overflow-y-auto bg-[#f7f8f9] p-4">{children}</main>
+        <main className="flex-1 overflow-y-auto bg-[#f7f8f9] p-4">
+          {children}
+        </main>
       </div>
     </div>
   );
