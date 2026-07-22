@@ -123,6 +123,9 @@ export function MeetingSummaryDetail({ summary }: MeetingSummaryDetailProps) {
           Việc cần làm
         </h2>
         <MeetingSummaryActionItems
+          workspaceId={summary.workspaceId}
+          projectId={summary.projectId}
+          summaryId={summary.id}
           items={output.actionItems ?? summary.actionItems}
         />
       </section>

@@ -4,10 +4,12 @@ import {
   AiPersonalReport,
   AiTeamReport,
   AiReportsQuery,
+  ApproveMeetingActionItemPayload,
   GenerateMeetingSummaryPayload,
   GeneratePersonalReportPayload,
   GenerateTeamReportPayload,
   MeetingSummariesQuery,
+  ReviewedMeetingActionItem,
 } from "../types/ai-report.type";
 
 type ApiResponse<T> = {
@@ -237,5 +239,65 @@ export function getMeetingSummaryDetail(
 ) {
   return apiRequest<ApiResponse<{ summary: AiMeetingSummary }>>(
     `${aiBasePath(workspaceId, projectId)}/meeting-summaries/${summaryId}`,
+  );
+}
+
+function meetingSummaryActionItemsPath(
+  workspaceId: string,
+  projectId: string,
+  summaryId: string,
+) {
+  return `${aiBasePath(
+    workspaceId,
+    projectId,
+  )}/meeting-summaries/${summaryId}/action-items`;
+}
+
+export function getMeetingActionItems(
+  workspaceId: string,
+  projectId: string,
+  summaryId: string,
+) {
+  return apiRequest<
+    ApiResponse<{ canReview: boolean; items: ReviewedMeetingActionItem[] }>
+  >(meetingSummaryActionItemsPath(workspaceId, projectId, summaryId));
+}
+
+export function approveMeetingActionItem(
+  workspaceId: string,
+  projectId: string,
+  summaryId: string,
+  actionItemIndex: number,
+  payload: ApproveMeetingActionItemPayload = {},
+) {
+  return apiRequest<
+    ApiResponse<{
+      actionItem: ReviewedMeetingActionItem;
+      task: { id: string; taskCode: string; title: string };
+    }>
+  >(
+    `${meetingSummaryActionItemsPath(
+      workspaceId,
+      projectId,
+      summaryId,
+    )}/${actionItemIndex}/approve`,
+    { method: "POST", body: payload },
+  );
+}
+
+export function rejectMeetingActionItem(
+  workspaceId: string,
+  projectId: string,
+  summaryId: string,
+  actionItemIndex: number,
+  reason?: string,
+) {
+  return apiRequest<ApiResponse<{ actionItem: ReviewedMeetingActionItem }>>(
+    `${meetingSummaryActionItemsPath(
+      workspaceId,
+      projectId,
+      summaryId,
+    )}/${actionItemIndex}/reject`,
+    { method: "POST", body: reason ? { reason } : {} },
   );
 }

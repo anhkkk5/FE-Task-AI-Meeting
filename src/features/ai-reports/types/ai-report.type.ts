@@ -46,6 +46,27 @@ export type MeetingSummaryActionItem = {
   source?: string | null;
 };
 
+export type MeetingActionItemReviewStatus =
+  | "PENDING"
+  | "TASK_CREATED"
+  | "REJECTED";
+
+export type ReviewedMeetingActionItem = MeetingSummaryActionItem & {
+  index: number;
+  aiStatus?: string | null;
+  reviewStatus: MeetingActionItemReviewStatus;
+  createdTaskId?: string | null;
+  rejectionReason?: string | null;
+  reviewedAt?: string | null;
+};
+
+export type ApproveMeetingActionItemPayload = {
+  title?: string;
+  assigneeId?: string;
+  sprintId?: string;
+  dueDate?: string;
+};
+
 export type MeetingSummaryOutput = {
   title: string;
   summary: string;
