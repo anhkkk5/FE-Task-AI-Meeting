@@ -42,11 +42,6 @@ export function MyMeetingActionItems({
                 <span className="rounded-lg bg-zinc-100 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-zinc-500">
                   {item.deadline ?? "No deadline"}
                 </span>
-                {item.priority ? (
-                  <span className="rounded-lg bg-violet-50 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-violet-700">
-                    {item.priority}
-                  </span>
-                ) : null}
               </div>
               <h2 className="text-base font-black text-zinc-950">
                 {item.title}

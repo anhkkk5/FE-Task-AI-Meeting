@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { AppShell } from "@/components/layout/AppShell";
 import { getMyWorkspaceRole, getWorkspaceMembers } from "@/features/members/api/members.api";
@@ -13,11 +13,11 @@ import { Sprint } from "@/features/sprints/types/sprint.type";
 import {
   assignTask,
   cancelTask,
+  deleteTask,
   getTaskDetail,
   moveTaskToSprint,
   updateTaskStatus,
 } from "@/features/tasks/api/tasks.api";
-import { TaskPriorityBadge } from "@/features/tasks/components/TaskPriorityBadge";
 import { TaskStatusSelect } from "@/features/tasks/components/TaskStatusSelect";
 import { Task, TaskStatus } from "@/features/tasks/types/task.type";
 import { useAuth } from "@/hooks/useAuth";
@@ -37,6 +37,7 @@ function formatDateTime(value: string | null | undefined) {
 }
 
 export default function TaskDetailPage() {
+  const router = useRouter();
   const params = useParams<{
     workspaceId: string;
     projectId: string;
@@ -55,8 +56,21 @@ export default function TaskDetailPage() {
   const [actionBusy, setActionBusy] = useState(false);
 
   const canManage = writeRoles.includes(myRole) && project?.status === "ACTIVE";
+  const currentAssigneeId = task?.assigneeId ?? task?.assignee?.id ?? null;
+  const isCurrentAssignee = Boolean(
+    task && user && currentAssigneeId === user.id,
+  );
   const canChangeStatus =
-    canManage || (myRole === "MEMBER" && task?.assigneeId === user?.id);
+    canManage || (myRole === "MEMBER" && isCurrentAssignee);
+  const canDelete = Boolean(
+    task && user && (writeRoles.includes(myRole) || task.createdBy === user.id),
+  );
+  const canHandover = Boolean(
+    task &&
+      user &&
+      isCurrentAssignee &&
+      ["IN_PROGRESS", "REVIEW"].includes(task.status),
+  );
 
   const loadTask = useCallback(
     async () => {
@@ -202,6 +216,28 @@ export default function TaskDetailPage() {
     }
   }
 
+  async function handleDelete() {
+    if (!task || !canDelete) return;
+    if (!confirm("Xóa công việc này? Công việc sẽ biến mất khỏi Backlog và Sprint.")) {
+      return;
+    }
+
+    setActionBusy(true);
+    setMessage("");
+
+    try {
+      await deleteTask(params.workspaceId, params.projectId, task.id);
+      router.replace(
+        `/workspaces/${params.workspaceId}/projects/${params.projectId}/sprints`,
+      );
+    } catch (error) {
+      setMessage(
+        error instanceof Error ? error.message : "Xóa công việc thất bại.",
+      );
+      setActionBusy(false);
+    }
+  }
+
   if (authLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-zinc-50">
@@ -232,6 +268,14 @@ export default function TaskDetailPage() {
             </div>
 
             <div className="flex flex-wrap gap-2">
+              {canHandover ? (
+                <Link
+                  className="flex h-9 items-center rounded-lg bg-blue-600 px-4 text-xs font-semibold text-white transition hover:bg-blue-700"
+                  href={`/workspaces/${params.workspaceId}/projects/${params.projectId}/shift-handovers?taskId=${task?.id}`}
+                >
+                  Tạo bản bàn giao
+                </Link>
+              ) : null}
               <Link
                 className="flex h-9 items-center rounded-lg border border-zinc-200 bg-white px-4 text-xs font-semibold text-zinc-700 transition hover:bg-zinc-50"
                 href={`/workspaces/${params.workspaceId}/projects/${params.projectId}/tasks`}
@@ -273,7 +317,6 @@ export default function TaskDetailPage() {
                   </h2>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  <TaskPriorityBadge priority={task.priority} />
                   <span className="rounded-lg border border-zinc-200 bg-zinc-100 px-2 py-0.5 text-[10px] font-bold text-zinc-700">
                     {task.status}
                   </span>
@@ -297,6 +340,11 @@ export default function TaskDetailPage() {
                   <dd className="mt-1 text-xs font-semibold text-zinc-800">
                     {task.assignee?.fullName ?? "Chưa gán"}
                   </dd>
+                  {task.assignee?.email ? (
+                    <dd className="mt-1 break-all text-[11px] text-zinc-500">
+                      {task.assignee.email}
+                    </dd>
+                  ) : null}
                 </div>
                 <div className="rounded-xl border border-zinc-100 bg-zinc-50 p-4">
                   <dt className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
@@ -326,6 +374,31 @@ export default function TaskDetailPage() {
             </section>
 
             <aside className="space-y-4">
+              <div className="rounded-2xl border border-blue-200 bg-blue-50/60 p-5 shadow-sm">
+                <h3 className="text-sm font-bold text-zinc-900">
+                  Bàn giao công việc
+                </h3>
+                {canHandover ? (
+                  <>
+                    <p className="mt-1 text-xs leading-5 text-zinc-600">
+                      Chuyển task cùng toàn bộ bối cảnh cho một thành viên khác xác nhận tiếp nhận.
+                    </p>
+                    <Link
+                      className="mt-4 flex h-10 items-center justify-center rounded-xl bg-blue-600 px-4 text-xs font-bold text-white transition hover:bg-blue-700"
+                      href={`/workspaces/${params.workspaceId}/projects/${params.projectId}/shift-handovers?taskId=${task.id}`}
+                    >
+                      Tạo bản bàn giao
+                    </Link>
+                  </>
+                ) : (
+                  <p className="mt-2 text-xs leading-5 text-zinc-600">
+                    {!isCurrentAssignee
+                      ? `Chỉ người đang phụ trách task (${task.assignee?.email ?? "chưa xác định"}) mới có thể bàn giao.`
+                      : "Task phải ở trạng thái Đang làm hoặc Review mới có thể bàn giao."}
+                  </p>
+                )}
+              </div>
+
               <div className="rounded-2xl border border-zinc-200/80 bg-white p-5 shadow-sm">
                 <h3 className="text-sm font-bold text-zinc-900">
                   Cập nhật trạng thái
@@ -356,7 +429,7 @@ export default function TaskDetailPage() {
                     <option value="">Chưa gán</option>
                     {members.map((member) => (
                       <option key={member.userId} value={member.userId}>
-                        {member.fullName || member.email || member.userId}
+                        {member.fullName || "Chưa đặt tên"} ({member.email || member.userId})
                       </option>
                     ))}
                   </select>
@@ -397,8 +470,19 @@ export default function TaskDetailPage() {
                     type="button"
                     onClick={() => void handleCancel()}
                   >
-                    Cancel task
+                    Hủy công việc
                   </button>
+
+                  {canDelete ? (
+                    <button
+                      className="h-10 rounded-xl bg-red-600 px-4 text-xs font-bold text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:bg-zinc-300"
+                      disabled={actionBusy}
+                      type="button"
+                      onClick={() => void handleDelete()}
+                    >
+                      Xóa công việc
+                    </button>
+                  ) : null}
                 </div>
               </div>
 

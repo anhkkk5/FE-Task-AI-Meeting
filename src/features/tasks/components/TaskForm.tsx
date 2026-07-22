@@ -3,7 +3,7 @@
 import { FormEvent, useState } from "react";
 import { Sprint } from "@/features/sprints/types/sprint.type";
 import { WorkspaceMember } from "@/features/members/types/member.type";
-import { CreateTaskPayload, TaskPriority } from "../types/task.type";
+import { CreateTaskPayload } from "../types/task.type";
 
 type TaskFormProps = {
   members: WorkspaceMember[];
@@ -11,8 +11,6 @@ type TaskFormProps = {
   submitLabel: string;
   onSubmit: (payload: CreateTaskPayload) => Promise<void>;
 };
-
-const priorities: TaskPriority[] = ["LOW", "MEDIUM", "HIGH", "URGENT"];
 
 export function TaskForm({
   members,
@@ -24,7 +22,6 @@ export function TaskForm({
   const [description, setDescription] = useState("");
   const [sprintId, setSprintId] = useState("");
   const [assigneeId, setAssigneeId] = useState("");
-  const [priority, setPriority] = useState<TaskPriority>("MEDIUM");
   const [dueDate, setDueDate] = useState("");
   const [estimatedHours, setEstimatedHours] = useState("");
   const [storyPoints, setStoryPoints] = useState("");
@@ -40,7 +37,6 @@ export function TaskForm({
         description: description || undefined,
         sprintId: sprintId || undefined,
         assigneeId: assigneeId || undefined,
-        priority,
         dueDate: dueDate || undefined,
         estimatedHours: estimatedHours ? Number(estimatedHours) : undefined,
         storyPoints: storyPoints ? Number(storyPoints) : undefined,
@@ -110,22 +106,7 @@ export function TaskForm({
         </label>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <label className="grid gap-2 text-sm font-semibold text-zinc-700">
-          Priority
-          <select
-            className="h-11 rounded-xl border border-zinc-300 bg-white px-3 text-sm font-normal outline-none transition focus:border-zinc-900"
-            value={priority}
-            onChange={(event) => setPriority(event.target.value as TaskPriority)}
-          >
-            {priorities.map((item) => (
-              <option key={item} value={item}>
-                {item}
-              </option>
-            ))}
-          </select>
-        </label>
-
+      <div className="grid gap-4 sm:grid-cols-3">
         <label className="grid gap-2 text-sm font-semibold text-zinc-700">
           Due date
           <input

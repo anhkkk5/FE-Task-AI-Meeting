@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { getMe, logout } from "@/features/auth/api/auth.api";
+import { ApiError } from "@/lib/api/client";
 import {
   clearAccessToken,
   getStoredAccessToken,
@@ -44,11 +45,13 @@ export function useAuth(requireAuth = true) {
         throw new Error("Failed to fetch user profile");
       }
     } catch (error) {
-      console.error("Auth error:", error);
+      if (!(error instanceof ApiError && error.status === 401)) {
+        console.warn("Không thể khôi phục phiên đăng nhập:", error);
+      }
       clearAccessToken();
       setUser(null);
       if (requireAuth) {
-        router.push("/login");
+        router.replace("/login");
       }
     } finally {
       setIsLoading(false);

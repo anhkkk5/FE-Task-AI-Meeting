@@ -3,11 +3,23 @@ import {
   getStoredAccessToken,
   saveAccessToken,
 } from "@/features/auth/utils/token-storage";
+import { resolveRuntimeUrl } from "@/lib/api/runtime-url";
 
 export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:3001/api/v1";
 
 const REQUEST_TIMEOUT_MS = 10000;
+let refreshPromise: Promise<string> | null = null;
+
+export class ApiError extends Error {
+  constructor(
+    message: string,
+    public readonly status: number,
+  ) {
+    super(message);
+    this.name = "ApiError";
+  }
+}
 
 type ApiOptions = {
   method?: "GET" | "POST" | "PATCH" | "DELETE";
@@ -21,7 +33,7 @@ export async function apiRequest<T>(path: string, options: ApiOptions = {}) {
   let response = await fetchApi(path, options, token);
 
   if (response.status === 401 && !options.skipAuthRefresh) {
-    const refreshedToken = await refreshAccessToken();
+    const refreshedToken = await getRefreshedAccessToken();
 
     if (refreshedToken) {
       response = await fetchApi(path, options, refreshedToken);
@@ -31,7 +43,7 @@ export async function apiRequest<T>(path: string, options: ApiOptions = {}) {
   const payload = await readJson<T & { message?: string }>(response);
 
   if (!response.ok) {
-    throw new Error(payload.message || "Request failed");
+    throw new ApiError(payload.message || "Yêu cầu không thành công.", response.status);
   }
 
   return payload;
@@ -42,7 +54,7 @@ export async function apiBlob(path: string, options: ApiOptions = {}) {
   let response = await fetchApi(path, options, token);
 
   if (response.status === 401 && !options.skipAuthRefresh) {
-    const refreshedToken = await refreshAccessToken();
+    const refreshedToken = await getRefreshedAccessToken();
 
     if (refreshedToken) {
       response = await fetchApi(path, options, refreshedToken);
@@ -51,10 +63,20 @@ export async function apiBlob(path: string, options: ApiOptions = {}) {
 
   if (!response.ok) {
     const payload = await readJson<{ message?: string }>(response);
-    throw new Error(payload.message || "Request failed");
+    throw new ApiError(payload.message || "Yêu cầu không thành công.", response.status);
   }
 
   return response.blob();
+}
+
+function getRefreshedAccessToken() {
+  if (!refreshPromise) {
+    refreshPromise = refreshAccessToken().finally(() => {
+      refreshPromise = null;
+    });
+  }
+
+  return refreshPromise;
 }
 
 async function refreshAccessToken() {
@@ -100,7 +122,7 @@ async function fetchApi(path: string, options: ApiOptions, token?: string) {
         : JSON.stringify(options.body);
 
   try {
-    return await fetch(`${API_BASE_URL}${path}`, {
+    return await fetch(`${resolveRuntimeUrl(API_BASE_URL)}${path}`, {
       method: options.method ?? "GET",
       credentials: "include",
       headers: {

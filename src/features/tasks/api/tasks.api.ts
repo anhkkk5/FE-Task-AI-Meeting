@@ -46,7 +46,6 @@ export function getTasks(
   if (query.sprintId) params.set("sprintId", query.sprintId);
   if (query.status) params.set("status", query.status);
   if (query.assigneeId) params.set("assigneeId", query.assigneeId);
-  if (query.priority) params.set("priority", query.priority);
   if (query.keyword) params.set("keyword", query.keyword);
   if (query.page) params.set("page", String(query.page));
   if (query.limit) params.set("limit", String(query.limit));
@@ -199,5 +198,16 @@ export function cancelTask(
     {
       method: "PATCH",
     },
+  );
+}
+
+export function deleteTask(
+  workspaceId: string,
+  projectId: string,
+  taskId: string,
+) {
+  return apiRequest<ApiResponse<null>>(
+    `${taskBasePath(workspaceId, projectId)}/${taskId}`,
+    { method: "DELETE" },
   );
 }

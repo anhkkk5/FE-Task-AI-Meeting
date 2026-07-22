@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { AppShell } from "@/components/layout/AppShell";
 import { getMyWorkspaceRole } from "@/features/members/api/members.api";
@@ -10,6 +10,7 @@ import { Project } from "@/features/projects/types/project.type";
 import {
   cancelSprint,
   completeSprint,
+  deleteSprint,
   getSprintDetail,
   startSprint,
 } from "@/features/sprints/api/sprints.api";
@@ -38,6 +39,7 @@ export default function SprintDetailPage() {
     sprintId: string;
   }>();
   const { user, isLoading: authLoading } = useAuth(true);
+  const router = useRouter();
   const [project, setProject] = useState<Project | null>(null);
   const [sprint, setSprint] = useState<Sprint | null>(null);
   const [myRole, setMyRole] = useState("");
@@ -156,6 +158,25 @@ export default function SprintDetailPage() {
     }
   }
 
+  async function handleDelete() {
+    if (!sprint) return;
+    if (!confirm(`Xóa sprint "${sprint.name}"? Các task sẽ được đưa về Backlog.`)) {
+      return;
+    }
+    setActionBusy(true);
+    setMessage("");
+
+    try {
+      await deleteSprint(params.workspaceId, params.projectId, sprint.id);
+      router.replace(
+        `/workspaces/${params.workspaceId}/projects/${params.projectId}/sprints`,
+      );
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Xóa sprint thất bại.");
+      setActionBusy(false);
+    }
+  }
+
   if (authLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-zinc-50">
@@ -168,6 +189,11 @@ export default function SprintDetailPage() {
   const canComplete = canWrite && sprint?.status === "ACTIVE";
   const canCancel =
     canWrite && (sprint?.status === "PLANNED" || sprint?.status === "ACTIVE");
+  const canDelete = Boolean(
+    sprint &&
+      sprint.status !== "ACTIVE" &&
+      (canWrite || sprint.createdBy === user?.id),
+  );
 
   return (
     <AppShell
@@ -219,6 +245,16 @@ export default function SprintDetailPage() {
               >
                 Làm mới
               </button>
+              {canDelete ? (
+                <button
+                  className="h-9 rounded-lg border border-red-200 bg-white px-4 text-xs font-semibold text-red-700 transition hover:bg-red-50 disabled:opacity-50"
+                  disabled={actionBusy}
+                  onClick={() => void handleDelete()}
+                  type="button"
+                >
+                  Xóa sprint
+                </button>
+              ) : null}
             </div>
           </div>
         </div>

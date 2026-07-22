@@ -9,7 +9,7 @@ import { WorkspaceMember } from "@/features/members/types/member.type";
 import { getProjectDetail } from "@/features/projects/api/projects.api";
 import { Project } from "@/features/projects/types/project.type";
 import { getTasks, updateTaskStatus } from "@/features/tasks/api/tasks.api";
-import { Task, TaskPriority, TaskStatus } from "@/features/tasks/types/task.type";
+import { Task, TaskStatus } from "@/features/tasks/types/task.type";
 import { useAuth } from "@/hooks/useAuth";
 
 const writeRoles = ["OWNER", "SCRUM_MASTER", "PROJECT_MANAGER"];
@@ -21,34 +21,6 @@ const columns: { key: TaskStatus; label: string }[] = [
   { key: "REVIEW", label: "Review" },
   { key: "DONE", label: "Hoàn thành" },
 ];
-
-function priorityText(priority: TaskPriority) {
-  switch (priority) {
-    case "URGENT":
-      return "Cao nhất";
-    case "HIGH":
-      return "Cao";
-    case "MEDIUM":
-      return "Vừa";
-    case "LOW":
-    default:
-      return "Thấp";
-  }
-}
-
-function priorityClass(priority: TaskPriority) {
-  switch (priority) {
-    case "URGENT":
-      return "text-[#ae2a19]";
-    case "HIGH":
-      return "text-[#c25100]";
-    case "MEDIUM":
-      return "text-[#974f0c]";
-    case "LOW":
-    default:
-      return "text-[#6b778c]";
-  }
-}
 
 function formatDate(value: string | null) {
   if (!value) return "-";
@@ -317,9 +289,6 @@ export default function KanbanBoardPage() {
                           <div className="flex min-w-0 items-center gap-2">
                             <span className="font-mono text-xs font-medium text-[#6b778c]">
                               {task.taskCode}
-                            </span>
-                            <span className={`text-xs font-semibold ${priorityClass(task.priority)}`}>
-                              {priorityText(task.priority)}
                             </span>
                           </div>
 

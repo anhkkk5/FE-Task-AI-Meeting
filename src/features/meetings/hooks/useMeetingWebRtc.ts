@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { io, Socket } from "socket.io-client";
 import { getStoredAccessToken } from "@/features/auth/utils/token-storage";
 import { API_BASE_URL } from "@/lib/api/client";
+import { resolveRuntimeUrl } from "@/lib/api/runtime-url";
 
 type CurrentUser = {
   id: string;
@@ -99,11 +100,11 @@ function getMediaAccessErrorMessage(error?: unknown) {
 
 function getSocketBaseUrl() {
   if (process.env.NEXT_PUBLIC_SOCKET_BASE_URL) {
-    return process.env.NEXT_PUBLIC_SOCKET_BASE_URL;
+    return resolveRuntimeUrl(process.env.NEXT_PUBLIC_SOCKET_BASE_URL);
   }
 
   try {
-    return new URL(API_BASE_URL).origin;
+    return new URL(resolveRuntimeUrl(API_BASE_URL)).origin;
   } catch {
     return "http://localhost:3001";
   }

@@ -117,3 +117,14 @@ export function cancelSprint(
     },
   );
 }
+
+export function deleteSprint(
+  workspaceId: string,
+  projectId: string,
+  sprintId: string,
+) {
+  return apiRequest<ApiResponse<null>>(
+    `${sprintBasePath(workspaceId, projectId)}/${sprintId}`,
+    { method: "DELETE" },
+  );
+}

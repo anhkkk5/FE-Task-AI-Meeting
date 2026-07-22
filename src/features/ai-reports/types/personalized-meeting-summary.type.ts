@@ -5,7 +5,6 @@ export type PersonalizedMeetingActionItem = {
   assigneeId?: string | null;
   assigneeName?: string | null;
   deadline?: string | null;
-  priority?: string | null;
   source?: string | null;
 };
 

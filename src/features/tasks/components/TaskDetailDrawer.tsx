@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { WorkspaceMember } from "@/features/members/types/member.type";
 import { Sprint } from "@/features/sprints/types/sprint.type";
-import { TaskPriorityBadge } from "./TaskPriorityBadge";
 import { TaskStatusSelect } from "./TaskStatusSelect";
 import { Task, TaskStatus } from "../types/task.type";
 
@@ -16,11 +15,13 @@ type TaskDetailDrawerProps = {
   sprints: Sprint[];
   canManage: boolean;
   canChangeStatus: boolean;
+  canDelete: boolean;
   onClose: () => void;
   onStatusChange: (task: Task, status: TaskStatus) => Promise<void>;
   onAssign: (task: Task, assigneeId: string | null) => Promise<void>;
   onMoveSprint: (task: Task, sprintId: string | null) => Promise<void>;
   onCancel: (task: Task) => Promise<void>;
+  onDelete: (task: Task) => Promise<void>;
 };
 
 function formatDate(value: string | null | undefined) {
@@ -58,11 +59,13 @@ export function TaskDetailDrawer({
   sprints,
   canManage,
   canChangeStatus,
+  canDelete,
   onClose,
   onStatusChange,
   onAssign,
   onMoveSprint,
   onCancel,
+  onDelete,
 }: TaskDetailDrawerProps) {
   const [assigneeId, setAssigneeId] = useState("");
   const [sprintId, setSprintId] = useState("");
@@ -132,7 +135,6 @@ export function TaskDetailDrawer({
 
           <section className="space-y-3">
             <div className="flex flex-wrap items-center gap-2">
-              <TaskPriorityBadge priority={task.priority} />
               <span className="rounded border border-[#dfe1e6] bg-[#f1f2f4] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#44546f]">
                 {statusLabel(task.status)}
               </span>
@@ -294,8 +296,21 @@ export function TaskDetailDrawer({
             }}
             type="button"
           >
-            Huy task
+            Hủy công việc
           </button>
+          {canDelete ? (
+            <button
+              className="rounded bg-[#c9372c] px-3 py-2 text-sm font-semibold text-white hover:bg-[#ae2a19] disabled:cursor-not-allowed disabled:bg-[#b3b9c4]"
+              disabled={isBusy}
+              onClick={() => {
+                if (!confirm("Xóa công việc này khỏi Backlog và Sprint?")) return;
+                void runAction(() => onDelete(task), "Đã xóa công việc.");
+              }}
+              type="button"
+            >
+              Xóa công việc
+            </button>
+          ) : null}
         </footer>
       </aside>
     </div>

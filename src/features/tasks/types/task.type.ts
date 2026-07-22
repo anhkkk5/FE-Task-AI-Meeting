@@ -6,8 +6,6 @@ export type TaskStatus =
   | "DONE"
   | "CANCELLED";
 
-export type TaskPriority = "LOW" | "MEDIUM" | "HIGH" | "URGENT";
-
 export type TaskUserSummary = {
   id: string;
   fullName: string;
@@ -29,7 +27,6 @@ export type Task = {
   title: string;
   description: string | null;
   status: TaskStatus;
-  priority: TaskPriority;
   assigneeId: string | null;
   assignee: TaskUserSummary | null;
   createdBy: string;
@@ -46,7 +43,6 @@ export type TaskQuery = {
   sprintId?: string;
   status?: TaskStatus;
   assigneeId?: string;
-  priority?: TaskPriority;
   keyword?: string;
   page?: number;
   limit?: number;
@@ -57,7 +53,6 @@ export type CreateTaskPayload = {
   description?: string;
   sprintId?: string;
   assigneeId?: string;
-  priority?: TaskPriority;
   dueDate?: string;
   estimatedHours?: number;
   storyPoints?: number;
@@ -66,7 +61,6 @@ export type CreateTaskPayload = {
 export type UpdateTaskPayload = {
   title?: string;
   description?: string;
-  priority?: TaskPriority;
   dueDate?: string;
   estimatedHours?: number;
   storyPoints?: number;
@@ -91,7 +85,6 @@ export type TaskImportItem = {
   sprintId?: string | null;
   sprintName?: string | null;
   status?: TaskStatus;
-  priority?: TaskPriority;
   assigneeId?: string | null;
   assigneeEmail?: string | null;
   dueDate?: string | null;

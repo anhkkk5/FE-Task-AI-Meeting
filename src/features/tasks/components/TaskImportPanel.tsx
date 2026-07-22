@@ -10,7 +10,6 @@ import {
   TaskImportItem,
   TaskImportPreviewRow,
   TaskImportPreviewSummary,
-  TaskPriority,
   TaskStatus,
 } from "../types/task.type";
 
@@ -28,13 +27,6 @@ const statusLabels: Record<TaskStatus, string> = {
   REVIEW: "Review",
   DONE: "Hoàn thành",
   CANCELLED: "Đã hủy",
-};
-
-const priorityLabels: Record<TaskPriority, string> = {
-  LOW: "Thấp",
-  MEDIUM: "Trung bình",
-  HIGH: "Cao",
-  URGENT: "Gấp",
 };
 
 function downloadBlob(blob: Blob, fileName: string) {
@@ -238,7 +230,6 @@ export function TaskImportPanel({
                   <th className="px-3 py-2">Tiêu đề</th>
                   <th className="w-44 px-3 py-2">Sprint</th>
                   <th className="w-52 px-3 py-2">Người nhận</th>
-                  <th className="w-28 px-3 py-2">Ưu tiên</th>
                   <th className="w-32 px-3 py-2">Trạng thái</th>
                   <th className="w-72 px-3 py-2">Kiểm tra</th>
                 </tr>
@@ -260,11 +251,6 @@ export function TaskImportPanel({
                     </td>
                     <td className="px-3 py-2 text-[#44546f]">
                       {row.data.assigneeEmail || row.data.assigneeId || "-"}
-                    </td>
-                    <td className="px-3 py-2 text-[#44546f]">
-                      {row.data.priority
-                        ? priorityLabels[row.data.priority]
-                        : "-"}
                     </td>
                     <td className="px-3 py-2 text-[#44546f]">
                       {row.data.status ? statusLabels[row.data.status] : "-"}

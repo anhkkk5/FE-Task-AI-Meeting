@@ -8,18 +8,24 @@ import { getMyWorkspaceRole, getWorkspaceMembers } from "@/features/members/api/
 import { WorkspaceMember } from "@/features/members/types/member.type";
 import { getProjectDetail } from "@/features/projects/api/projects.api";
 import { Project } from "@/features/projects/types/project.type";
-import { completeSprint, getSprints, startSprint } from "@/features/sprints/api/sprints.api";
+import {
+  completeSprint,
+  deleteSprint,
+  getSprints,
+  startSprint,
+} from "@/features/sprints/api/sprints.api";
 import { Sprint } from "@/features/sprints/types/sprint.type";
 import {
   assignTask,
   cancelTask,
+  deleteTask,
   getTasks,
   moveTaskToSprint,
   updateTaskStatus,
 } from "@/features/tasks/api/tasks.api";
 import { TaskDetailDrawer } from "@/features/tasks/components/TaskDetailDrawer";
 import { TaskImportPanel } from "@/features/tasks/components/TaskImportPanel";
-import { Task, TaskPriority, TaskStatus } from "@/features/tasks/types/task.type";
+import { Task, TaskStatus } from "@/features/tasks/types/task.type";
 import { useAuth } from "@/hooks/useAuth";
 
 const writeRoles = ["OWNER", "SCRUM_MASTER", "PROJECT_MANAGER"];
@@ -104,20 +110,6 @@ function sprintStatusLabel(status: Sprint["status"]) {
     case "PLANNED":
     default:
       return "Đã lên kế hoạch";
-  }
-}
-
-function priorityMark(priority: TaskPriority) {
-  switch (priority) {
-    case "URGENT":
-      return <span className="font-bold text-[#ae2a19]">↑↑</span>;
-    case "HIGH":
-      return <span className="font-bold text-[#c25100]">↑</span>;
-    case "MEDIUM":
-      return <span className="font-bold text-[#974f0c]">=</span>;
-    case "LOW":
-    default:
-      return <span className="font-bold text-[#6b778c]">↓</span>;
   }
 }
 
@@ -242,6 +234,12 @@ export default function BacklogPage() {
     syncTask(response.data.task);
   };
 
+  const handleDrawerDelete = async (task: Task) => {
+    await deleteTask(params.workspaceId, params.projectId, task.id);
+    setTasks((current) => current.filter((item) => item.id !== task.id));
+    setSelectedTask(null);
+  };
+
   const handleTaskDragStart = (event: DragEvent<HTMLDivElement>, taskId: string) => {
     if (!canWrite) return;
 
@@ -321,6 +319,19 @@ export default function BacklogPage() {
       await loadData();
     } catch (error) {
       alert(error instanceof Error ? error.message : "Hoàn thành sprint thất bại");
+    }
+  };
+
+  const handleDeleteSprint = async (sprint: Sprint) => {
+    if (!confirm(`Xóa sprint "${sprint.name}"? Các task sẽ được đưa về Backlog.`)) {
+      return;
+    }
+
+    try {
+      await deleteSprint(params.workspaceId, params.projectId, sprint.id);
+      await loadData();
+    } catch (error) {
+      alert(error instanceof Error ? error.message : "Xóa sprint thất bại");
     }
   };
 
@@ -409,7 +420,6 @@ export default function BacklogPage() {
 
       <div className="flex items-center gap-2 text-xs text-[#6b778c]">
         <span>{formatDate(task.dueDate)}</span>
-        {priorityMark(task.priority)}
       </div>
 
       <span
@@ -499,6 +509,17 @@ export default function BacklogPage() {
                 type="button"
               >
                 Hoàn thành sprint
+              </button>
+            ) : null}
+
+            {sprint.status !== "ACTIVE" &&
+            (canWrite || sprint.createdBy === user?.id) ? (
+              <button
+                className="h-8 rounded border border-[#ffbdad] bg-white px-3 text-sm font-medium text-[#ae2a19] hover:bg-[#fff4f2]"
+                onClick={() => void handleDeleteSprint(sprint)}
+                type="button"
+              >
+                Xóa
               </button>
             ) : null}
           </div>
@@ -880,9 +901,15 @@ export default function BacklogPage() {
             (myRole === "MEMBER" && selectedTask?.assigneeId === user?.id)
           }
           canManage={canWrite}
+          canDelete={Boolean(
+            selectedTask &&
+              user &&
+              (writeRoles.includes(myRole) || selectedTask.createdBy === user.id),
+          )}
           members={members}
           onAssign={handleDrawerAssign}
           onCancel={handleDrawerCancel}
+          onDelete={handleDrawerDelete}
           onClose={() => setSelectedTask(null)}
           onMoveSprint={handleDrawerMoveSprint}
           onStatusChange={handleDrawerStatusChange}

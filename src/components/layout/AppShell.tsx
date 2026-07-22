@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useParams, usePathname, useRouter } from "next/navigation";
 import { ReactNode, useCallback, useEffect, useState } from "react";
+import { getHandovers } from "@/features/shift-handovers/api/shift-handovers.api";
 import { getMyWorkspaces } from "@/features/workspaces/api/workspaces.api";
 import { Workspace } from "@/features/workspaces/types/workspace.type";
 import { useAuth } from "@/hooks/useAuth";
@@ -142,6 +143,7 @@ export function AppShell({ children, workspaceId, projectId, title }: AppShellPr
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
   const [currentWorkspace, setCurrentWorkspace] = useState<Workspace | null>(null);
   const [showUserDropdown, setShowUserDropdown] = useState(false);
+  const [pendingHandovers, setPendingHandovers] = useState(0);
 
   const loadWorkspaces = useCallback(async () => {
     try {
@@ -162,6 +164,35 @@ export function AppShell({ children, workspaceId, projectId, title }: AppShellPr
       void loadWorkspaces();
     }
   }, [user, loadWorkspaces]);
+
+  useEffect(() => {
+    if (!user || !activeWorkspaceId || !projectId) {
+      setPendingHandovers(0);
+      return;
+    }
+
+    let cancelled = false;
+    getHandovers(activeWorkspaceId, projectId, {
+      memberId: user.id,
+      status: "PENDING",
+      page: 1,
+      limit: 100,
+    })
+      .then((response) => {
+        if (cancelled) return;
+        const received = response.data.items.filter(
+          (handover) => handover.receiverId === user.id,
+        );
+        setPendingHandovers(received.length);
+      })
+      .catch(() => {
+        if (!cancelled) setPendingHandovers(0);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [activeWorkspaceId, projectId, user]);
 
   if (isLoading) {
     return (
@@ -206,6 +237,7 @@ export function AppShell({ children, workspaceId, projectId, title }: AppShellPr
       ["/tasks", "Board"],
       ["/daily-updates", "Cập nhật hằng ngày"],
       ["/meetings", "Cuộc họp"],
+      ["/shift-handovers", "Bàn giao"],
       ["/ai-reports", "Báo cáo AI"],
     ].find(([segment]) => pathname.includes(segment));
 
@@ -216,7 +248,10 @@ export function AppShell({ children, workspaceId, projectId, title }: AppShellPr
       });
     }
   } else if (pathname.includes("/members")) {
-    breadcrumbs.push({ label: "Members", href: `/workspaces/${activeWorkspaceId}/members` });
+    breadcrumbs.push({
+      label: "Thành viên",
+      href: `/workspaces/${activeWorkspaceId}/members`,
+    });
   } else if (pathname.includes("/settings")) {
     breadcrumbs.push({ label: "Settings", href: `/workspaces/${activeWorkspaceId}/settings` });
   } else if (pathname.includes("/projects")) {
@@ -280,14 +315,15 @@ export function AppShell({ children, workspaceId, projectId, title }: AppShellPr
           active: pathname.includes("/meetings"),
         },
         {
+          href: `/workspaces/${activeWorkspaceId}/projects/${projectId}/shift-handovers`,
+          label: "Bàn giao",
+          active: pathname.includes("/shift-handovers"),
+          badge: pendingHandovers,
+        },
+        {
           href: `/workspaces/${activeWorkspaceId}/projects/${projectId}/ai-reports/personal`,
           label: "Báo cáo AI",
           active: pathname.includes("/ai-reports"),
-        },
-        {
-          href: `/workspaces/${activeWorkspaceId}/members`,
-          label: "Thành viên",
-          active: pathname.includes("/members"),
         },
         {
           href: `/workspaces/${activeWorkspaceId}/projects/${projectId}/settings`,
@@ -499,6 +535,11 @@ export function AppShell({ children, workspaceId, projectId, title }: AppShellPr
                   }`}
                 >
                   {tab.label}
+                  {tab.badge ? (
+                    <span className="ml-1.5 rounded-full bg-[#de350b] px-1.5 py-0.5 text-[10px] font-semibold text-white">
+                      {tab.badge > 99 ? "99+" : tab.badge}
+                    </span>
+                  ) : null}
                 </Link>
               ))}
             </div>

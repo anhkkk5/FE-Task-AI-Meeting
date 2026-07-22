@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { Task } from "../types/task.type";
-import { TaskPriorityBadge } from "./TaskPriorityBadge";
 
 type TaskCardProps = {
   task: Task;
@@ -82,7 +81,6 @@ export function TaskCard({ task, workspaceId, projectId }: TaskCardProps) {
       </div>
 
       <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-zinc-100 pt-4">
-        <TaskPriorityBadge priority={task.priority} />
         <Link
           className="rounded-lg border border-zinc-200 px-3 py-1.5 text-xs font-semibold text-zinc-700 transition hover:bg-zinc-50 hover:text-zinc-900"
           href={`/workspaces/${workspaceId}/projects/${projectId}/tasks/${task.id}`}
