@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useParams, usePathname, useRouter } from "next/navigation";
 import { ReactNode, useCallback, useEffect, useState } from "react";
+import { ProjectAssistantChatbot } from "@/features/project-assistant/components/ProjectAssistantChatbot";
 import { getHandovers } from "@/features/shift-handovers/api/shift-handovers.api";
 import { getMyWorkspaces } from "@/features/workspaces/api/workspaces.api";
 import { Workspace } from "@/features/workspaces/types/workspace.type";
@@ -638,6 +639,10 @@ export function AppShell({
           {children}
         </main>
       </div>
+      <ProjectAssistantChatbot
+        workspaceId={activeWorkspaceId}
+        projectId={projectId}
+      />
     </div>
   );
 }
