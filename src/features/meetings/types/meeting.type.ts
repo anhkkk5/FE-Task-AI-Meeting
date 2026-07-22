@@ -65,6 +65,7 @@ export type MeetingTranscriptSpeaker = {
 };
 
 export type MeetingTranscriptSegment = MeetingTranscriptSpeaker & {
+  chunkId?: string;
   startedAt: string;
   endedAt?: string | null;
   confidence?: number | null;
@@ -139,4 +140,11 @@ export type AppendLiveTranscriptSegmentPayload = {
   endedAt?: string;
   confidence?: number;
   source?: string;
+};
+
+export type UploadMeetingAudioChunkPayload = {
+  audio: Blob;
+  chunkId: string;
+  startedAt: string;
+  endedAt: string;
 };

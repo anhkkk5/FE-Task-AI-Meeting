@@ -26,6 +26,7 @@ type ApiOptions = {
   token?: string;
   body?: unknown;
   skipAuthRefresh?: boolean;
+  timeoutMs?: number;
 };
 
 export async function apiRequest<T>(path: string, options: ApiOptions = {}) {
@@ -43,7 +44,10 @@ export async function apiRequest<T>(path: string, options: ApiOptions = {}) {
   const payload = await readJson<T & { message?: string }>(response);
 
   if (!response.ok) {
-    throw new ApiError(payload.message || "Yêu cầu không thành công.", response.status);
+    throw new ApiError(
+      payload.message || "Yêu cầu không thành công.",
+      response.status,
+    );
   }
 
   return payload;
@@ -63,7 +67,10 @@ export async function apiBlob(path: string, options: ApiOptions = {}) {
 
   if (!response.ok) {
     const payload = await readJson<{ message?: string }>(response);
-    throw new ApiError(payload.message || "Yêu cầu không thành công.", response.status);
+    throw new ApiError(
+      payload.message || "Yêu cầu không thành công.",
+      response.status,
+    );
   }
 
   return response.blob();
@@ -91,11 +98,7 @@ async function refreshAccessToken() {
   }
 
   const payload = await readJson<{
-    data?: {
-      tokens?: {
-        accessToken?: string;
-      };
-    };
+    data?: { tokens?: { accessToken?: string } };
   }>(response);
   const accessToken = payload.data?.tokens?.accessToken ?? "";
 
@@ -110,7 +113,7 @@ async function fetchApi(path: string, options: ApiOptions, token?: string) {
   const controller = new AbortController();
   const timeout = globalThis.setTimeout(
     () => controller.abort(),
-    REQUEST_TIMEOUT_MS,
+    options.timeoutMs ?? REQUEST_TIMEOUT_MS,
   );
   const isFormData =
     typeof FormData !== "undefined" && options.body instanceof FormData;
@@ -136,12 +139,12 @@ async function fetchApi(path: string, options: ApiOptions, token?: string) {
   } catch (error) {
     if (error instanceof DOMException && error.name === "AbortError") {
       throw new Error(
-        "Kết nối API quá lâu. Hãy kiểm tra backend có đang chạy và thiết bị có truy cập được cổng 3002 không.",
+        "Kết nối API quá lâu. Hãy kiểm tra backend và đường truyền mạng.",
       );
     }
 
     throw new Error(
-      "Không kết nối được backend. Hãy thử mở API health trên thiết bị và kiểm tra Windows Firewall/cổng 3002.",
+      "Không kết nối được backend. Hãy kiểm tra API và Windows Firewall.",
     );
   } finally {
     globalThis.clearTimeout(timeout);

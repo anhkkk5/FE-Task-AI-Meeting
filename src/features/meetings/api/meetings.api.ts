@@ -10,6 +10,7 @@ import {
   SaveMeetingTranscriptPayload,
   UpdateMeetingPayload,
   UpdateParticipantAttendancePayload,
+  UploadMeetingAudioChunkPayload,
 } from "../types/meeting.type";
 
 type ApiResponse<T> = {
@@ -214,5 +215,32 @@ export function appendLiveTranscriptSegment(
   >(`${meetingBasePath(workspaceId, projectId)}/${meetingId}/transcript/live-segments`, {
     method: "POST",
     body: payload,
+  });
+}
+
+export function uploadMeetingAudioChunk(
+  workspaceId: string,
+  projectId: string,
+  meetingId: string,
+  payload: UploadMeetingAudioChunkPayload,
+) {
+  const formData = new FormData();
+  const extension = payload.audio.type.includes("mp4") ? "m4a" : "webm";
+  formData.append("audio", payload.audio, `meeting-chunk.${extension}`);
+  formData.append("chunkId", payload.chunkId);
+  formData.append("startedAt", payload.startedAt);
+  formData.append("endedAt", payload.endedAt);
+
+  return apiRequest<
+    ApiResponse<{
+      segment: MeetingTranscript["liveSegments"] extends Array<infer T>
+        ? T
+        : never;
+      transcript: MeetingTranscript;
+    }>
+  >(`${meetingBasePath(workspaceId, projectId)}/${meetingId}/transcript/audio-chunks`, {
+    method: "POST",
+    body: formData,
+    timeoutMs: 60000,
   });
 }
