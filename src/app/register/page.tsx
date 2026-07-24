@@ -11,7 +11,10 @@ export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [fullName, setFullName] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [agreeTerms, setAgreeTerms] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -21,8 +24,9 @@ export default function RegisterPage() {
     const nextEmail = email.trim();
     const nextFullName = fullName.trim();
     const nextPassword = password.trim();
+    const nextConfirmPassword = confirmPassword.trim();
 
-    if (!nextFullName || !nextEmail || !nextPassword) {
+    if (!nextFullName || !nextEmail || !nextPassword || !nextConfirmPassword) {
       setMessage("Vui lòng nhập đầy đủ họ tên, email và mật khẩu.");
       return;
     }
@@ -39,6 +43,16 @@ export default function RegisterPage() {
 
     if (nextPassword.length < 8) {
       setMessage("Mật khẩu phải có ít nhất 8 ký tự.");
+      return;
+    }
+
+    if (nextPassword !== nextConfirmPassword) {
+      setMessage("Mật khẩu xác nhận không khớp.");
+      return;
+    }
+
+    if (!agreeTerms) {
+      setMessage("Bạn cần đồng ý với Điều khoản dịch vụ và Chính sách bảo mật.");
       return;
     }
 
@@ -68,30 +82,31 @@ export default function RegisterPage() {
 
   return (
     <AuthShell
-      title="Create Account 👋"
-      subtitle="Sign up to start managing your team workspace."
+      variant="register"
+      title="Get Started"
+      subtitle="Create your high-velocity workspace today."
       footerText="Already have an account?"
-      footerLinkText="Sign in"
+      footerLinkText="Sign In"
       footerLinkHref="/login"
     >
       {message ? (
-        <div className="mb-5 flex items-start gap-3 rounded-xl border border-red-200/80 bg-red-50/90 p-3.5 text-xs text-red-700 shadow-2xs">
+        <div className="mb-4 flex items-start gap-2.5 rounded-xl border border-red-200/80 bg-red-50/90 p-3 text-xs text-red-700 shadow-2xs">
           <div className="w-1.5 h-1.5 rounded-full bg-red-500 mt-1 shrink-0 animate-ping" />
           <span className="font-medium leading-relaxed">{message}</span>
         </div>
       ) : null}
 
-      <form className="space-y-4" noValidate onSubmit={handleSubmit}>
+      <form className="space-y-3.5" noValidate onSubmit={handleSubmit}>
         {/* Full Name Field */}
         <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+          <label className="block text-xs font-semibold text-slate-700 mb-1">
             Full Name
           </label>
           <div className="relative flex items-center">
             <User className="absolute left-3.5 w-4 h-4 text-slate-400 pointer-events-none" />
             <input
-              className="w-full h-11 pl-10 pr-3.5 rounded-xl border border-slate-200 bg-slate-50/50 text-sm font-medium text-slate-800 placeholder:text-slate-400 placeholder:font-normal outline-none transition duration-200 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
-              placeholder="Nguyen Van A"
+              className="w-full h-10.5 pl-10 pr-3.5 rounded-xl border border-slate-200 bg-slate-50/50 text-sm font-medium text-slate-800 placeholder:text-slate-400 placeholder:font-normal outline-none transition duration-200 focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10"
+              placeholder="John Doe"
               minLength={2}
               maxLength={120}
               value={fullName}
@@ -101,16 +116,16 @@ export default function RegisterPage() {
           </div>
         </div>
 
-        {/* Work Email Field */}
+        {/* Email Address Field */}
         <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-            Work Email
+          <label className="block text-xs font-semibold text-slate-700 mb-1">
+            Email Address
           </label>
           <div className="relative flex items-center">
             <Mail className="absolute left-3.5 w-4 h-4 text-slate-400 pointer-events-none" />
             <input
-              className="w-full h-11 pl-10 pr-3.5 rounded-xl border border-slate-200 bg-slate-50/50 text-sm font-medium text-slate-800 placeholder:text-slate-400 placeholder:font-normal outline-none transition duration-200 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
-              placeholder="name@company.com"
+              className="w-full h-10.5 pl-10 pr-3.5 rounded-xl border border-slate-200 bg-slate-50/50 text-sm font-medium text-slate-800 placeholder:text-slate-400 placeholder:font-normal outline-none transition duration-200 focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10"
+              placeholder="john@company.com"
               type="email"
               value={email}
               onChange={(event) => setEmail(event.target.value)}
@@ -119,47 +134,112 @@ export default function RegisterPage() {
           </div>
         </div>
 
-        {/* Password Field */}
-        <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-            Password
-          </label>
-          <div className="relative flex items-center">
-            <Lock className="absolute left-3.5 w-4 h-4 text-slate-400 pointer-events-none" />
-            <input
-              className="w-full h-11 pl-10 pr-10 rounded-xl border border-slate-200 bg-slate-50/50 text-sm font-medium text-slate-800 placeholder:text-slate-400 placeholder:font-normal outline-none transition duration-200 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
-              placeholder="At least 8 characters"
-              type={showPassword ? "text" : "password"}
-              minLength={8}
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              required
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3.5 text-slate-400 hover:text-slate-600 transition"
-              tabIndex={-1}
-            >
-              {showPassword ? (
-                <EyeOff className="w-4 h-4" />
-              ) : (
-                <Eye className="w-4 h-4" />
-              )}
-            </button>
+        {/* Password & Confirm Password Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {/* Password */}
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">
+              Password
+            </label>
+            <div className="relative flex items-center">
+              <Lock className="absolute left-3 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
+              <input
+                className="w-full h-10.5 pl-8.5 pr-8 rounded-xl border border-slate-200 bg-slate-50/50 text-sm font-medium text-slate-800 placeholder:text-slate-400 placeholder:font-normal outline-none transition duration-200 focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10"
+                placeholder="••••••••"
+                type={showPassword ? "text" : "password"}
+                minLength={8}
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-2.5 text-slate-400 hover:text-slate-600 transition"
+                tabIndex={-1}
+              >
+                {showPassword ? (
+                  <EyeOff className="w-3.5 h-3.5" />
+                ) : (
+                  <Eye className="w-3.5 h-3.5" />
+                )}
+              </button>
+            </div>
           </div>
+
+          {/* Confirm */}
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">
+              Confirm
+            </label>
+            <div className="relative flex items-center">
+              <Lock className="absolute left-3 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
+              <input
+                className="w-full h-10.5 pl-8.5 pr-8 rounded-xl border border-slate-200 bg-slate-50/50 text-sm font-medium text-slate-800 placeholder:text-slate-400 placeholder:font-normal outline-none transition duration-200 focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10"
+                placeholder="••••••••"
+                type={showConfirmPassword ? "text" : "password"}
+                minLength={8}
+                value={confirmPassword}
+                onChange={(event) => setConfirmPassword(event.target.value)}
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute right-2.5 text-slate-400 hover:text-slate-600 transition"
+                tabIndex={-1}
+              >
+                {showConfirmPassword ? (
+                  <EyeOff className="w-3.5 h-3.5" />
+                ) : (
+                  <Eye className="w-3.5 h-3.5" />
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Terms Agreement Checkbox */}
+        <div className="pt-0.5">
+          <label className="flex items-start gap-2 cursor-pointer text-[11px] text-slate-600 font-medium select-none leading-tight">
+            <input
+              type="checkbox"
+              checked={agreeTerms}
+              onChange={(e) => setAgreeTerms(e.target.checked)}
+              className="mt-0.5 w-3.5 h-3.5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500/20 transition cursor-pointer shrink-0"
+            />
+            <span>
+              I agree to the{" "}
+              <a
+                href="#"
+                onClick={(e) => e.preventDefault()}
+                className="font-bold text-indigo-600 hover:underline"
+              >
+                Terms of Service
+              </a>{" "}
+              and{" "}
+              <a
+                href="#"
+                onClick={(e) => e.preventDefault()}
+                className="font-bold text-indigo-600 hover:underline"
+              >
+                Privacy Policy
+              </a>
+              .
+            </span>
+          </label>
         </div>
 
         {/* Submit Button */}
         <button
-          className="w-full mt-2 h-11 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-500 text-white font-semibold text-sm shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/35 transition-all duration-200 active:scale-[0.99] disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          className="w-full mt-1.5 h-11 rounded-xl bg-gradient-to-r from-indigo-600 via-blue-600 to-cyan-500 text-white font-semibold text-sm shadow-md shadow-indigo-500/25 hover:shadow-lg hover:shadow-indigo-500/35 transition-all duration-200 active:scale-[0.99] disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           disabled={isSubmitting}
           type="submit"
         >
           {isSubmitting ? (
             <>
               <Loader2 className="w-4 h-4 animate-spin" />
-              <span>Creating account...</span>
+              <span>Creating Account...</span>
             </>
           ) : (
             <>
@@ -168,6 +248,71 @@ export default function RegisterPage() {
             </>
           )}
         </button>
+
+        {/* Divider */}
+        <div className="relative my-4 flex items-center justify-center">
+          <div className="w-full border-t border-slate-200/80"></div>
+          <span className="absolute bg-white px-3 text-[10px] font-bold uppercase tracking-widest text-slate-400">
+            Or register with
+          </span>
+        </div>
+
+        {/* Social Registration Buttons */}
+        <div className="grid grid-cols-3 gap-2.5">
+          {/* Google */}
+          <button
+            type="button"
+            onClick={() => alert("Đăng ký với Google sắp ra mắt.")}
+            className="flex items-center justify-center h-10 rounded-xl border border-slate-200 bg-white hover:bg-slate-50/80 transition shadow-2xs group"
+            title="Register with Google"
+          >
+            <svg className="w-4 h-4 group-hover:scale-110 transition duration-200" viewBox="0 0 24 24">
+              <path
+                fill="#4285F4"
+                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+              />
+              <path
+                fill="#34A853"
+                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+              />
+              <path
+                fill="#FBBC05"
+                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
+              />
+              <path
+                fill="#EA4335"
+                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
+              />
+            </svg>
+          </button>
+
+          {/* Microsoft */}
+          <button
+            type="button"
+            onClick={() => alert("Đăng ký với Microsoft sắp ra mắt.")}
+            className="flex items-center justify-center h-10 rounded-xl border border-slate-200 bg-white hover:bg-slate-50/80 transition shadow-2xs group"
+            title="Register with Microsoft"
+          >
+            <svg className="w-4 h-4 group-hover:scale-110 transition duration-200" viewBox="0 0 23 23">
+              <path fill="#f35325" d="M1 1h10v10H1z" />
+              <path fill="#81bc06" d="M12 1h10v10H12z" />
+              <path fill="#05a6f0" d="M1 12h10v10H1z" />
+              <path fill="#ffba08" d="M12 12h10v10H12z" />
+            </svg>
+          </button>
+
+          {/* GitHub */}
+          <button
+            type="button"
+            onClick={() => alert("Đăng ký với GitHub sắp ra mắt.")}
+            className="flex items-center justify-center h-10 rounded-xl border border-slate-200 bg-white hover:bg-slate-50/80 transition shadow-2xs group"
+            title="Register with GitHub"
+          >
+            <svg className="w-4 h-4 fill-slate-800 group-hover:scale-110 transition duration-200" viewBox="0 0 24 24">
+              <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
+            </svg>
+          </button>
+        </div>
       </form>
     </AuthShell>
   );
