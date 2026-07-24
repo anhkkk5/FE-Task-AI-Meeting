@@ -6,9 +6,10 @@ import {
 import { resolveRuntimeUrl } from "@/lib/api/runtime-url";
 
 export const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:3001/api/v1";
+  process.env.NEXT_PUBLIC_API_BASE_URL ||
+  (process.env.NODE_ENV === "production" ? "" : "http://localhost:3001/api/v1");
 
-const REQUEST_TIMEOUT_MS = 10000;
+const REQUEST_TIMEOUT_MS = 30000;
 let refreshPromise: Promise<string> | null = null;
 
 export class ApiError extends Error {
@@ -110,6 +111,14 @@ async function refreshAccessToken() {
 }
 
 async function fetchApi(path: string, options: ApiOptions, token?: string) {
+  const baseUrl = resolveRuntimeUrl(API_BASE_URL);
+
+  if (!baseUrl) {
+    throw new Error(
+      "Frontend chưa được cấu hình NEXT_PUBLIC_API_BASE_URL. Hãy thêm biến môi trường trên Vercel rồi redeploy.",
+    );
+  }
+
   const controller = new AbortController();
   const timeout = globalThis.setTimeout(
     () => controller.abort(),
@@ -125,7 +134,7 @@ async function fetchApi(path: string, options: ApiOptions, token?: string) {
         : JSON.stringify(options.body);
 
   try {
-    return await fetch(`${resolveRuntimeUrl(API_BASE_URL)}${path}`, {
+    return await fetch(`${baseUrl}${path}`, {
       method: options.method ?? "GET",
       credentials: "include",
       headers: {
@@ -139,12 +148,12 @@ async function fetchApi(path: string, options: ApiOptions, token?: string) {
   } catch (error) {
     if (error instanceof DOMException && error.name === "AbortError") {
       throw new Error(
-        "Kết nối API quá lâu. Hãy kiểm tra backend và đường truyền mạng.",
+        "Kết nối API quá lâu. Backend có thể đang khởi động, hãy thử lại sau vài giây.",
       );
     }
 
     throw new Error(
-      "Không kết nối được backend. Hãy kiểm tra API và Windows Firewall.",
+      "Không kết nối được backend. Hãy kiểm tra URL API hoặc trạng thái backend.",
     );
   } finally {
     globalThis.clearTimeout(timeout);
