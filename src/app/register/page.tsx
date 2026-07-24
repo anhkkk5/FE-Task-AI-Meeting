@@ -1,14 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { register } from "@/features/auth/api/auth.api";
 import { AuthShell } from "@/features/auth/components/AuthShell";
 import { saveAccessToken } from "@/features/auth/utils/token-storage";
 
 export default function RegisterPage() {
-  const router = useRouter();
   const [email, setEmail] = useState("");
   const [fullName, setFullName] = useState("");
   const [password, setPassword] = useState("");
@@ -58,8 +56,7 @@ export default function RegisterPage() {
       }
 
       saveAccessToken(accessToken);
-      router.replace("/workspaces");
-      router.refresh();
+      window.location.assign("/workspaces");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Dang ky that bai.");
     } finally {
