@@ -94,7 +94,9 @@ async function refreshAccessToken() {
   });
 
   if (!response.ok) {
-    clearAccessToken();
+    if (response.status === 401 || response.status === 403) {
+      clearAccessToken();
+    }
     return "";
   }
 

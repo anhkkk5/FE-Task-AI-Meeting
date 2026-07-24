@@ -8,7 +8,7 @@ import {
 } from "../api/meetings.api";
 import { MeetingTranscriptSegment } from "../types/meeting.type";
 
-const AUDIO_CHUNK_DURATION_MS = 30_000;
+const AUDIO_CHUNK_DURATION_MS = 5_000;
 
 type MeetingLiveTranscriptPanelProps = {
   workspaceId: string;
@@ -126,10 +126,10 @@ export function MeetingLiveTranscriptPanel({
     }
 
     const mimeType = getSupportedAudioMimeType();
-    const recorder = new MediaRecorder(
-      new MediaStream(audioTracks),
-      mimeType ? { mimeType } : undefined,
-    );
+      const recorder = new MediaRecorder(new MediaStream(audioTracks), {
+        ...(mimeType ? { mimeType } : {}),
+        audioBitsPerSecond: 96_000,
+      });
     const parts: BlobPart[] = [];
     const startedAt = new Date().toISOString();
 

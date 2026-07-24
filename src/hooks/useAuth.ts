@@ -45,14 +45,20 @@ export function useAuth(requireAuth = true) {
         throw new Error("Failed to fetch user profile");
       }
     } catch (error) {
-      if (!(error instanceof ApiError && error.status === 401)) {
-        console.warn("Không thể khôi phục phiên đăng nhập:", error);
+      const isSessionInvalid =
+        error instanceof ApiError &&
+        (error.status === 401 || error.status === 403);
+
+      if (isSessionInvalid) {
+        clearAccessToken();
+        setUser(null);
+        if (requireAuth) {
+          router.replace("/login");
+        }
+        return;
       }
-      clearAccessToken();
-      setUser(null);
-      if (requireAuth) {
-        router.replace("/login");
-      }
+
+      console.warn("Không thể khôi phục phiên đăng nhập:", error);
     } finally {
       setIsLoading(false);
     }

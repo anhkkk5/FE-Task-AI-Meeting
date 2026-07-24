@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { FormEvent, useState } from "react";
+import { Mail, Lock, Eye, EyeOff, Loader2, ArrowRight } from "lucide-react";
 import { login } from "@/features/auth/api/auth.api";
 import { AuthShell } from "@/features/auth/components/AuthShell";
 import { saveAccessToken } from "@/features/auth/utils/token-storage";
@@ -9,6 +10,8 @@ import { saveAccessToken } from "@/features/auth/utils/token-storage";
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -19,17 +22,17 @@ export default function LoginPage() {
     const nextPassword = password.trim();
 
     if (!nextEmail || !nextPassword) {
-      setMessage("Vui long nhap email va mat khau.");
+      setMessage("Vui lòng nhập đầy đủ email và mật khẩu.");
       return;
     }
 
     if (!nextEmail.includes("@")) {
-      setMessage("Email khong dung dinh dang.");
+      setMessage("Email không đúng định dạng.");
       return;
     }
 
     if (nextPassword.length < 8) {
-      setMessage("Mat khau phai co it nhat 8 ky tu.");
+      setMessage("Mật khẩu phải có ít nhất 8 ký tự.");
       return;
     }
 
@@ -50,7 +53,7 @@ export default function LoginPage() {
       saveAccessToken(accessToken);
       window.location.assign("/workspaces");
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : "Dang nhap that bai.");
+      setMessage(error instanceof Error ? error.message : "Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.");
     } finally {
       setIsSubmitting(false);
     }
@@ -58,54 +61,178 @@ export default function LoginPage() {
 
   return (
     <AuthShell
-      asideText="Theo doi workspace, quan ly thanh vien va dieu phoi project tren mot man hinh gon gang."
-      asideTitle="Move from idea to sprint-ready work."
-      subtitle="Dang nhap de tiep tuc quan ly workspace cua nhom."
-      title="Chao mung tro lai"
+      title="Welcome Back 👋"
+      subtitle="Sign in to continue managing your projects."
+      footerText="Don't have an account?"
+      footerLinkText="Create one"
+      footerLinkHref="/register"
     >
-        {message ? (
-          <p className="mb-4 rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-            {message}
-          </p>
-        ) : null}
-        <form className="grid gap-4" noValidate onSubmit={handleSubmit}>
-          <label className="grid gap-2 text-sm font-medium text-zinc-700">
-            Email
+      {message ? (
+        <div className="mb-5 flex items-start gap-3 rounded-xl border border-red-200/80 bg-red-50/90 p-3.5 text-xs text-red-700 shadow-2xs">
+          <div className="w-1.5 h-1.5 rounded-full bg-red-500 mt-1 shrink-0 animate-ping" />
+          <span className="font-medium leading-relaxed">{message}</span>
+        </div>
+      ) : null}
+
+      <form className="space-y-4" noValidate onSubmit={handleSubmit}>
+        {/* Work Email Field */}
+        <div>
+          <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+            Work Email
+          </label>
+          <div className="relative flex items-center">
+            <Mail className="absolute left-3.5 w-4 h-4 text-slate-400 pointer-events-none" />
             <input
-              className="h-11 rounded-md border border-zinc-300 bg-white px-3 text-sm font-normal outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
-              placeholder="you@company.com"
+              className="w-full h-11 pl-10 pr-3.5 rounded-xl border border-slate-200 bg-slate-50/50 text-sm font-medium text-slate-800 placeholder:text-slate-400 placeholder:font-normal outline-none transition duration-200 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
+              placeholder="name@company.com"
               type="email"
               value={email}
               onChange={(event) => setEmail(event.target.value)}
               required
             />
-          </label>
-          <label className="grid gap-2 text-sm font-medium text-zinc-700">
-            Mat khau
+          </div>
+        </div>
+
+        {/* Password Field */}
+        <div>
+          <div className="flex items-center justify-between mb-1.5">
+            <label className="text-xs font-semibold text-slate-700">
+              Password
+            </label>
+            <a
+              href="#"
+              onClick={(e) => {
+                e.preventDefault();
+                alert("Tính năng quên mật khẩu đang được kết nối.");
+              }}
+              className="text-[11px] font-semibold text-blue-600 hover:text-blue-700 transition hover:underline"
+            >
+              Forgot password?
+            </a>
+          </div>
+          <div className="relative flex items-center">
+            <Lock className="absolute left-3.5 w-4 h-4 text-slate-400 pointer-events-none" />
             <input
-              className="h-11 rounded-md border border-zinc-300 bg-white px-3 text-sm font-normal outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
-              placeholder="Nhap mat khau"
-              type="password"
+              className="w-full h-11 pl-10 pr-10 rounded-xl border border-slate-200 bg-slate-50/50 text-sm font-medium text-slate-800 placeholder:text-slate-400 placeholder:font-normal outline-none transition duration-200 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
+              placeholder="••••••••"
+              type={showPassword ? "text" : "password"}
               minLength={8}
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               required
             />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3.5 text-slate-400 hover:text-slate-600 transition"
+              tabIndex={-1}
+            >
+              {showPassword ? (
+                <EyeOff className="w-4 h-4" />
+              ) : (
+                <Eye className="w-4 h-4" />
+              )}
+            </button>
+          </div>
+        </div>
+
+        {/* Remember Me Checkbox */}
+        <div className="flex items-center pt-1">
+          <label className="flex items-center gap-2.5 cursor-pointer text-xs text-slate-600 font-medium select-none">
+            <input
+              type="checkbox"
+              checked={rememberMe}
+              onChange={(e) => setRememberMe(e.target.checked)}
+              className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500/20 transition cursor-pointer"
+            />
+            <span>Remember me for 30 days</span>
           </label>
+        </div>
+
+        {/* Submit Button */}
+        <button
+          className="w-full mt-2 h-11 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-500 text-white font-semibold text-sm shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/35 transition-all duration-200 active:scale-[0.99] disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          disabled={isSubmitting}
+          type="submit"
+        >
+          {isSubmitting ? (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin" />
+              <span>Signing in...</span>
+            </>
+          ) : (
+            <>
+              <span>Sign In to Workspace</span>
+              <ArrowRight className="w-4 h-4" />
+            </>
+          )}
+        </button>
+
+        {/* Divider */}
+        <div className="relative my-6 flex items-center justify-center">
+          <div className="w-full border-t border-slate-200/80"></div>
+          <span className="absolute bg-white px-3 text-[10px] font-bold uppercase tracking-widest text-slate-400">
+            CONTINUE WITH
+          </span>
+        </div>
+
+        {/* Social Sign-In Buttons */}
+        <div className="grid grid-cols-3 gap-3">
+          {/* Social 1: Google */}
           <button
-            className="mt-1 h-11 rounded-md bg-[#0f172a] px-5 text-sm font-semibold text-white transition hover:bg-[#1e293b] disabled:cursor-not-allowed disabled:bg-zinc-400"
-            disabled={isSubmitting}
-            type="submit"
+            type="button"
+            onClick={() => alert("Đăng nhập Google sắp ra mắt.")}
+            className="flex items-center justify-center h-10 rounded-xl border border-slate-200 bg-white hover:bg-slate-50/80 transition shadow-2xs group"
+            title="Sign in with Google"
           >
-            {isSubmitting ? "Dang dang nhap..." : "Dang nhap"}
+            <svg className="w-4 h-4 group-hover:scale-110 transition duration-200" viewBox="0 0 24 24">
+              <path
+                fill="#4285F4"
+                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+              />
+              <path
+                fill="#34A853"
+                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+              />
+              <path
+                fill="#FBBC05"
+                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
+              />
+              <path
+                fill="#EA4335"
+                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
+              />
+            </svg>
           </button>
-        </form>
-        <p className="mt-6 text-center text-sm text-zinc-600">
-          Chua co tai khoan?{" "}
-          <Link className="font-semibold text-emerald-700" href="/register">
-            Tao tai khoan
-          </Link>
-        </p>
+
+          {/* Social 2: Microsoft */}
+          <button
+            type="button"
+            onClick={() => alert("Đăng nhập Microsoft sắp ra mắt.")}
+            className="flex items-center justify-center h-10 rounded-xl border border-slate-200 bg-white hover:bg-slate-50/80 transition shadow-2xs group"
+            title="Sign in with Microsoft"
+          >
+            <svg className="w-4 h-4 group-hover:scale-110 transition duration-200" viewBox="0 0 23 23">
+              <path fill="#f35325" d="M1 1h10v10H1z" />
+              <path fill="#81bc06" d="M12 1h10v10H12z" />
+              <path fill="#05a6f0" d="M1 12h10v10H1z" />
+              <path fill="#ffba08" d="M12 12h10v10H12z" />
+            </svg>
+          </button>
+
+          {/* Social 3: GitHub */}
+          <button
+            type="button"
+            onClick={() => alert("Đăng nhập GitHub sắp ra mắt.")}
+            className="flex items-center justify-center h-10 rounded-xl border border-slate-200 bg-white hover:bg-slate-50/80 transition shadow-2xs group"
+            title="Sign in with GitHub"
+          >
+            <svg className="w-4 h-4 fill-slate-800 group-hover:scale-110 transition duration-200" viewBox="0 0 24 24">
+              <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
+            </svg>
+          </button>
+        </div>
+      </form>
     </AuthShell>
   );
 }
