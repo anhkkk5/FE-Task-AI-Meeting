@@ -105,7 +105,7 @@ export default function RegisterPage() {
           <div className="relative flex items-center">
             <User className="absolute left-3.5 w-4 h-4 text-slate-400 pointer-events-none" />
             <input
-              className="w-full h-10.5 pl-10 pr-3.5 rounded-xl border border-slate-200 bg-slate-50/50 text-sm font-medium text-slate-800 placeholder:text-slate-400 placeholder:font-normal outline-none transition duration-200 focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10"
+              className="w-full h-10.5 pl-10 pr-3.5 rounded-xl border border-slate-200 bg-slate-50/50 text-sm font-medium text-slate-800 placeholder:text-slate-400 placeholder:font-normal outline-none transition duration-200 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
               placeholder="John Doe"
               minLength={2}
               maxLength={120}
@@ -124,7 +124,7 @@ export default function RegisterPage() {
           <div className="relative flex items-center">
             <Mail className="absolute left-3.5 w-4 h-4 text-slate-400 pointer-events-none" />
             <input
-              className="w-full h-10.5 pl-10 pr-3.5 rounded-xl border border-slate-200 bg-slate-50/50 text-sm font-medium text-slate-800 placeholder:text-slate-400 placeholder:font-normal outline-none transition duration-200 focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10"
+              className="w-full h-10.5 pl-10 pr-3.5 rounded-xl border border-slate-200 bg-slate-50/50 text-sm font-medium text-slate-800 placeholder:text-slate-400 placeholder:font-normal outline-none transition duration-200 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
               placeholder="john@company.com"
               type="email"
               value={email}
@@ -144,7 +144,7 @@ export default function RegisterPage() {
             <div className="relative flex items-center">
               <Lock className="absolute left-3 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
               <input
-                className="w-full h-10.5 pl-8.5 pr-8 rounded-xl border border-slate-200 bg-slate-50/50 text-sm font-medium text-slate-800 placeholder:text-slate-400 placeholder:font-normal outline-none transition duration-200 focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10"
+                className="w-full h-10.5 pl-8.5 pr-8 rounded-xl border border-slate-200 bg-slate-50/50 text-sm font-medium text-slate-800 placeholder:text-slate-400 placeholder:font-normal outline-none transition duration-200 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
                 placeholder="••••••••"
                 type={showPassword ? "text" : "password"}
                 minLength={8}
@@ -175,7 +175,7 @@ export default function RegisterPage() {
             <div className="relative flex items-center">
               <Lock className="absolute left-3 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
               <input
-                className="w-full h-10.5 pl-8.5 pr-8 rounded-xl border border-slate-200 bg-slate-50/50 text-sm font-medium text-slate-800 placeholder:text-slate-400 placeholder:font-normal outline-none transition duration-200 focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10"
+                className="w-full h-10.5 pl-8.5 pr-8 rounded-xl border border-slate-200 bg-slate-50/50 text-sm font-medium text-slate-800 placeholder:text-slate-400 placeholder:font-normal outline-none transition duration-200 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
                 placeholder="••••••••"
                 type={showConfirmPassword ? "text" : "password"}
                 minLength={8}
@@ -206,14 +206,14 @@ export default function RegisterPage() {
               type="checkbox"
               checked={agreeTerms}
               onChange={(e) => setAgreeTerms(e.target.checked)}
-              className="mt-0.5 w-3.5 h-3.5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500/20 transition cursor-pointer shrink-0"
+              className="mt-0.5 w-3.5 h-3.5 rounded border-slate-300 text-blue-600 focus:ring-blue-500/20 transition cursor-pointer shrink-0"
             />
             <span>
               I agree to the{" "}
               <a
                 href="#"
                 onClick={(e) => e.preventDefault()}
-                className="font-bold text-indigo-600 hover:underline"
+                className="font-bold text-blue-600 hover:underline"
               >
                 Terms of Service
               </a>{" "}
@@ -221,7 +221,7 @@ export default function RegisterPage() {
               <a
                 href="#"
                 onClick={(e) => e.preventDefault()}
-                className="font-bold text-indigo-600 hover:underline"
+                className="font-bold text-blue-600 hover:underline"
               >
                 Privacy Policy
               </a>
@@ -232,7 +232,7 @@ export default function RegisterPage() {
 
         {/* Submit Button */}
         <button
-          className="w-full mt-1.5 h-11 rounded-xl bg-gradient-to-r from-indigo-600 via-blue-600 to-cyan-500 text-white font-semibold text-sm shadow-md shadow-indigo-500/25 hover:shadow-lg hover:shadow-indigo-500/35 transition-all duration-200 active:scale-[0.99] disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          className="w-full mt-1.5 h-11 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm shadow-md shadow-blue-500/20 transition-all duration-200 active:scale-[0.99] disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           disabled={isSubmitting}
           type="submit"
         >
