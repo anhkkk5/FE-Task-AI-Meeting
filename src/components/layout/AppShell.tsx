@@ -443,6 +443,14 @@ export function AppShell({
           </p>
           <SidebarLink
             item={{
+              href: "/dashboard",
+              label: "Dashboard",
+              icon: "grid",
+              active: pathname === "/dashboard",
+            }}
+          />
+          <SidebarLink
+            item={{
               href: "/workspaces",
               label: "Tất cả Workspaces",
               icon: "box",
