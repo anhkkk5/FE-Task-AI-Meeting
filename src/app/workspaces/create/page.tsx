@@ -28,35 +28,36 @@ export default function CreateWorkspacePage() {
 
   if (authLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-zinc-50">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-900 border-t-transparent"></div>
+      <div className="flex min-h-screen items-center justify-center bg-[#f8fafc]">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
       </div>
     );
   }
 
   return (
     <AppShell>
-      <div className="max-w-3xl space-y-6">
+      <div className="max-w-3xl space-y-6 mx-auto">
         {/* Header Section */}
-        <div className="bg-white p-6 rounded-2xl border border-zinc-200/80 shadow-sm">
-          <h1 className="text-xl font-bold text-zinc-900">Tạo Không gian làm việc mới</h1>
-          <p className="mt-1 text-xs font-medium text-zinc-500">
+        <div className="bg-white p-8 rounded-3xl border border-slate-200/80 shadow-sm">
+          <h1 className="text-2xl font-extrabold text-slate-900">Tạo Không gian làm việc mới</h1>
+          <p className="mt-2 text-sm font-medium text-slate-500">
             Bạn sẽ tự động trở thành OWNER của không gian này.
           </p>
         </div>
 
         {/* Message Banner */}
         {message ? (
-          <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs font-semibold text-amber-900">
+          <div className="rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm font-bold text-amber-900">
             {message}
           </div>
         ) : null}
 
         {/* Form Panel */}
-        <div className="border border-zinc-200/80 bg-white p-6 rounded-2xl shadow-sm">
+        <div className="border border-slate-200/80 bg-white p-8 rounded-3xl shadow-sm">
           <WorkspaceForm submitLabel="Tạo Workspace" onSubmit={handleCreate} />
         </div>
       </div>
     </AppShell>
   );
 }
+

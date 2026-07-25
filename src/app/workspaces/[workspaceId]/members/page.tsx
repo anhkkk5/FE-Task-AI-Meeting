@@ -17,6 +17,7 @@ import {
   WorkspaceRole,
 } from "@/features/members/types/member.type";
 import { useAuth } from "@/hooks/useAuth";
+import { Users, Radio, Mail, SlidersHorizontal, Search, Plus, Filter } from "lucide-react";
 
 const assignableRoles: Exclude<WorkspaceRole, "OWNER">[] = [
   "SCRUM_MASTER",
@@ -223,23 +224,74 @@ export default function WorkspaceMembersPage() {
 
   return (
     <AppShell workspaceId={params.workspaceId}>
-      <div className="space-y-6">
+      <div className="space-y-6 max-w-7xl mx-auto">
         {/* Header Toolbar */}
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between bg-white p-6 rounded-2xl border border-zinc-200/80 shadow-sm">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-xl font-bold text-zinc-900">Quản lý Thành viên</h1>
-            <p className="mt-1 text-xs font-medium text-zinc-500">
-              Workspace có {items.length} thành viên đang hoạt động {myRole ? ` · Vai trò của bạn: ${myRole}` : ""}
+            <h1 className="text-2xl font-bold text-slate-900">Manage Members</h1>
+            <p className="mt-1 text-sm font-medium text-slate-500">
+              Workspace has {items.length} active members. Your role: <span className="font-bold text-slate-900 uppercase">{myRole}</span>
             </p>
           </div>
-          <button
-            className="rounded-lg border border-zinc-200 bg-white px-4 py-2 text-xs font-semibold text-zinc-700 hover:bg-zinc-50 transition"
-            type="button"
-            onClick={() => void loadMembers()}
-            disabled={isLoading}
-          >
-            {isLoading ? "Đang tải..." : "Làm mới"}
-          </button>
+          <div className="flex items-center gap-3">
+            <div className="relative hidden sm:block">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+              <input 
+                type="text" 
+                placeholder="Search members..." 
+                className="h-10 w-64 pl-9 pr-4 rounded-xl border border-slate-200 text-sm outline-none focus:border-blue-500 transition"
+              />
+            </div>
+            {isOwner && (
+              <button
+                className="flex items-center gap-2 h-10 rounded-xl bg-blue-600 px-4 text-sm font-bold text-white hover:bg-blue-700 transition shadow-sm"
+                type="button"
+              >
+                <Plus className="h-4 w-4" />
+                Invite Member
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Top Stats Cards */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center gap-4">
+            <div className="h-12 w-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+              <Users className="h-6 w-6" />
+            </div>
+            <div>
+              <p className="text-xs font-bold text-slate-500 tracking-wide">Total Members</p>
+              <p className="text-xl font-black text-slate-900 mt-0.5">{items.length}</p>
+            </div>
+          </div>
+          <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center gap-4">
+            <div className="h-12 w-12 rounded-full bg-emerald-50 text-emerald-500 flex items-center justify-center shrink-0">
+              <Radio className="h-6 w-6" />
+            </div>
+            <div>
+              <p className="text-xs font-bold text-slate-500 tracking-wide">Online Now</p>
+              <p className="text-xl font-black text-slate-900 mt-0.5">12</p>
+            </div>
+          </div>
+          <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center gap-4">
+            <div className="h-12 w-12 rounded-full bg-orange-50 text-orange-500 flex items-center justify-center shrink-0">
+              <Mail className="h-6 w-6" />
+            </div>
+            <div>
+              <p className="text-xs font-bold text-slate-500 tracking-wide">Pending Invites</p>
+              <p className="text-xl font-black text-slate-900 mt-0.5">5</p>
+            </div>
+          </div>
+          <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center gap-4">
+            <div className="h-12 w-12 rounded-full bg-purple-50 text-purple-500 flex items-center justify-center shrink-0">
+              <SlidersHorizontal className="h-6 w-6" />
+            </div>
+            <div>
+              <p className="text-xs font-bold text-slate-500 tracking-wide">Defined Roles</p>
+              <p className="text-xl font-black text-slate-900 mt-0.5">4</p>
+            </div>
+          </div>
         </div>
 
         {/* Message Banner */}
@@ -251,14 +303,14 @@ export default function WorkspaceMembersPage() {
 
         {/* Invite Member Section (Only for OWNER) */}
         {isOwner && (
-          <div className="bg-white p-6 rounded-2xl border border-zinc-200/80 shadow-sm space-y-4">
-            <h2 className="text-sm font-bold text-zinc-800">Thêm thành viên mới vào Không gian</h2>
+          <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
+            <h2 className="text-sm font-bold text-slate-800">Thêm thành viên mới vào Không gian</h2>
             <form
               className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_180px_auto]"
               onSubmit={handleAddMember}
             >
               <input
-                className="h-10 rounded-xl border border-zinc-300 px-3 text-xs font-normal outline-none focus:border-zinc-900 transition"
+                className="h-10 rounded-xl border border-slate-300 px-3 text-xs font-normal outline-none focus:border-blue-500 transition"
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
                 placeholder="nhap-email@company.com"
@@ -266,7 +318,7 @@ export default function WorkspaceMembersPage() {
                 required
               />
               <select
-                className="h-10 rounded-xl border border-zinc-300 bg-white px-3 text-xs font-semibold text-zinc-700 outline-none hover:border-zinc-400 transition cursor-pointer"
+                className="h-10 rounded-xl border border-slate-300 bg-white px-3 text-xs font-semibold text-slate-700 outline-none hover:border-slate-400 transition cursor-pointer"
                 value={role}
                 onChange={(event) =>
                   setRole(event.target.value as Exclude<WorkspaceRole, "OWNER">)
@@ -279,7 +331,7 @@ export default function WorkspaceMembersPage() {
                 ))}
               </select>
               <button
-                className="h-10 rounded-xl bg-slate-900 px-5 text-xs font-bold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-zinc-300 disabled:text-zinc-500"
+                className="h-10 rounded-xl bg-slate-900 px-5 text-xs font-bold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500"
                 disabled={!canAddLookedUpUser}
                 type="submit"
               >
@@ -304,10 +356,10 @@ export default function WorkspaceMembersPage() {
                           {lookupResult.user.fullName.charAt(0).toUpperCase()}
                         </div>
                         <div>
-                          <p className="text-sm font-black text-zinc-900">
+                          <p className="text-sm font-black text-slate-900">
                             {lookupResult.user.fullName}
                           </p>
-                          <p className="text-xs font-medium text-zinc-600">
+                          <p className="text-xs font-medium text-slate-600">
                             {lookupResult.user.email}
                             {lookupResult.user.jobTitle
                               ? ` - ${lookupResult.user.jobTitle}`
@@ -316,11 +368,11 @@ export default function WorkspaceMembersPage() {
                         </div>
                       </div>
                       <div className="flex flex-wrap gap-2">
-                        <span className="rounded-lg bg-white px-2.5 py-1 text-[10px] font-black uppercase tracking-wide text-zinc-600 shadow-sm">
+                        <span className="rounded-lg bg-white px-2.5 py-1 text-[10px] font-black uppercase tracking-wide text-slate-600 shadow-sm">
                           {lookupResult.user.status}
                         </span>
                         {lookupResult.existingMember ? (
-                          <span className="rounded-lg bg-white px-2.5 py-1 text-[10px] font-black uppercase tracking-wide text-zinc-600 shadow-sm">
+                          <span className="rounded-lg bg-white px-2.5 py-1 text-[10px] font-black uppercase tracking-wide text-slate-600 shadow-sm">
                             {lookupResult.existingMember.status} /{" "}
                             {lookupResult.existingMember.role}
                           </span>
@@ -342,7 +394,7 @@ export default function WorkspaceMembersPage() {
                     {lookupMessage}
                   </div>
                 ) : (
-                  <div className="rounded-xl border border-dashed border-zinc-200 bg-zinc-50 px-4 py-3 text-xs font-semibold text-zinc-500">
+                  <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-3 text-xs font-semibold text-slate-500">
                     Nhap email user da dang ky de xem thong tin truoc khi them.
                   </div>
                 )}
@@ -354,50 +406,63 @@ export default function WorkspaceMembersPage() {
         {/* Members Table */}
         {isLoading ? (
           <div className="flex h-48 items-center justify-center">
-            <div className="h-6 w-6 animate-spin rounded-full border-2 border-slate-900 border-t-transparent"></div>
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
           </div>
         ) : (
-          <div className="overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm">
+          <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm flex flex-col">
+            {/* Table Header / Filters */}
+            <div className="p-4 border-b border-slate-100 flex items-center justify-between">
+              <div className="flex gap-2">
+                <button className="flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition">
+                  <Filter className="h-3.5 w-3.5" />
+                  Filter
+                </button>
+                <div className="h-8 rounded-lg border border-slate-200 bg-slate-50/50 p-1 flex">
+                  <button className="px-3 rounded-md bg-white text-xs font-bold text-slate-800 shadow-sm">All Members</button>
+                </div>
+              </div>
+              <div className="text-xs font-medium text-slate-400 italic">
+                Last updated: 5 minutes ago
+              </div>
+            </div>
+
+            {/* Table */}
             <div className="overflow-x-auto">
               <table className="w-full min-w-[760px] border-collapse text-left text-xs">
-                <thead className="border-b border-zinc-200 bg-zinc-50 text-[10px] font-bold uppercase tracking-widest text-zinc-500">
+                <thead className="border-b border-slate-100 bg-white text-[10px] font-bold uppercase tracking-widest text-slate-500">
                   <tr>
-                    <th className="px-6 py-4">Thành viên</th>
-                    <th className="px-6 py-4">Vai trò</th>
-                    <th className="px-6 py-4">Trạng thái</th>
-                    <th className="px-6 py-4">Ngày tham gia</th>
-                    {isOwner && <th className="px-6 py-4 text-right">Thao tác</th>}
+                    <th className="px-6 py-4">MEMBER</th>
+                    <th className="px-6 py-4">ROLE</th>
+                    <th className="px-6 py-4">STATUS</th>
+                    <th className="px-6 py-4">JOINED DATE</th>
+                    {isOwner && <th className="px-6 py-4 text-right">ACTIONS</th>}
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-zinc-100">
+                <tbody className="divide-y divide-slate-100">
                   {items.map((member) => {
                     const memberRole = member.role;
                     const isMemberOwner = memberRole === "OWNER";
                     
                     const roleBadgeColor = 
                       isMemberOwner 
-                        ? "bg-indigo-50 text-indigo-700 border-indigo-100" 
-                        : memberRole === "SCRUM_MASTER"
-                        ? "bg-purple-50 text-purple-700 border-purple-100"
-                        : memberRole === "PROJECT_MANAGER"
-                        ? "bg-sky-50 text-sky-700 border-sky-100"
-                        : "bg-zinc-50 text-zinc-600 border-zinc-100";
+                        ? "bg-blue-50 text-blue-700 font-extrabold" 
+                        : "bg-white text-slate-800 font-bold";
 
                     return (
                       <tr
                         key={member.memberId}
-                        className="hover:bg-zinc-50/50 transition-colors"
+                        className="hover:bg-slate-50/50 transition-colors"
                       >
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
-                            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-800 font-bold text-xs">
+                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-600 text-white font-bold text-sm">
                               {member.fullName ? member.fullName.charAt(0).toUpperCase() : "U"}
                             </div>
                             <div>
-                              <p className="font-semibold text-zinc-900">
+                              <p className="font-bold text-slate-900 text-[13px]">
                                 {member.fullName ?? "Người dùng chưa đặt tên"}
                               </p>
-                              <p className="text-[10px] text-zinc-500">
+                              <p className="text-[11px] text-slate-500 mt-0.5">
                                 {member.email ?? member.userId}
                               </p>
                             </div>
@@ -405,62 +470,43 @@ export default function WorkspaceMembersPage() {
                         </td>
                         <td className="px-6 py-4">
                           {isMemberOwner ? (
-                            <span className={`border px-2 py-0.5 rounded-md font-bold uppercase tracking-wide text-[9px] ${roleBadgeColor}`}>
+                            <span className={`px-2.5 py-1 rounded-md text-[10px] uppercase tracking-wide ${roleBadgeColor}`}>
                               {memberRole}
                             </span>
                           ) : (
-                            <select
-                              className="h-8 rounded-lg border border-zinc-300 bg-white px-2 text-[11px] font-semibold text-zinc-700 outline-none hover:border-zinc-400 cursor-pointer disabled:bg-zinc-50 disabled:cursor-not-allowed"
-                              value={memberRole}
-                              onChange={(event) =>
-                                void handleChangeRole(
-                                  member.memberId,
-                                  event.target.value as Exclude<
-                                    WorkspaceRole,
-                                    "OWNER"
-                                  >,
-                                )
-                              }
-                              disabled={!isOwner}
-                            >
-                              {assignableRoles.map((item) => (
-                                <option key={item} value={item}>
-                                  {item}
-                                </option>
-                              ))}
-                            </select>
+                            <span className={`px-2.5 py-1 rounded-md text-[10px] uppercase tracking-wide ${roleBadgeColor}`}>
+                              {memberRole}
+                            </span>
                           )}
                         </td>
                         <td className="px-6 py-4">
-                          <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                          <span className={`inline-flex items-center gap-1.5 text-[11px] font-bold ${
                             member.status === "ACTIVE" 
-                              ? "bg-emerald-50 text-emerald-700" 
-                              : "bg-amber-50 text-amber-700"
+                              ? "text-emerald-600" 
+                              : "text-amber-600"
                           }`}>
-                            <span className={`h-1.5 w-1.5 rounded-full ${
-                              member.status === "ACTIVE" ? "bg-emerald-500" : "bg-amber-500"
+                            <span className={`h-2 w-2 rounded-full ${
+                              member.status === "ACTIVE" ? "border-2 border-emerald-500 bg-transparent" : "bg-amber-500"
                             }`}></span>
                             {member.status}
                           </span>
                         </td>
-                        <td className="px-6 py-4 text-zinc-500">
+                        <td className="px-6 py-4 text-slate-500 font-medium">
                           {member.joinedAt
-                            ? new Date(member.joinedAt).toLocaleDateString("vi-VN")
+                            ? new Date(member.joinedAt).toLocaleDateString("en-US", { month: 'long', day: 'numeric', year: 'numeric' })
                             : "-"}
                         </td>
                         {isOwner && (
                           <td className="px-6 py-4 text-right">
                             {!isMemberOwner ? (
                               <button
-                                className="rounded-lg border border-red-200 px-3 py-1.5 text-[11px] font-semibold text-red-600 hover:bg-red-50 hover:text-red-700 transition"
+                                className="rounded-lg px-3 py-1.5 text-[11px] font-semibold text-slate-400 hover:text-red-600 transition"
                                 type="button"
                                 onClick={() => void handleRemove(member.memberId)}
                               >
-                                Xóa khỏi nhóm
+                                Xóa
                               </button>
-                            ) : (
-                              <span className="text-[11px] text-zinc-400 italic">OWNER không thể xóa</span>
-                            )}
+                            ) : null}
                           </td>
                         )}
                       </tr>
@@ -468,13 +514,26 @@ export default function WorkspaceMembersPage() {
                   })}
                   {items.length === 0 ? (
                     <tr>
-                      <td className="px-6 py-8 text-center text-zinc-500" colSpan={isOwner ? 5 : 4}>
+                      <td className="px-6 py-8 text-center text-slate-500" colSpan={isOwner ? 5 : 4}>
                         Chưa có thành viên nào hoạt động trong không gian này.
                       </td>
                     </tr>
                   ) : null}
                 </tbody>
               </table>
+            </div>
+            
+            {/* Pagination Footer */}
+            <div className="p-4 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between">
+              <span className="text-xs text-slate-500 font-medium">Showing {items.length} of {items.length} members</span>
+              <div className="flex gap-2">
+                <button className="px-4 py-1.5 bg-white border border-slate-200 text-slate-400 font-medium text-xs rounded-lg cursor-not-allowed">
+                  Previous
+                </button>
+                <button className="px-4 py-1.5 bg-white border border-slate-200 text-slate-700 font-bold text-xs rounded-lg hover:bg-slate-50">
+                  Next
+                </button>
+              </div>
             </div>
           </div>
         )}

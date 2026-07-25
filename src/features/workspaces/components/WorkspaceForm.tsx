@@ -34,29 +34,31 @@ export function WorkspaceForm({
   }
 
   return (
-    <form className="grid gap-4" onSubmit={handleSubmit}>
-      <label className="grid gap-2 text-sm font-medium text-zinc-700">
+    <form className="grid gap-5" onSubmit={handleSubmit}>
+      <label className="grid gap-2 text-sm font-bold text-slate-700">
         Name
         <input
-          className="h-11 border border-zinc-300 px-3 text-sm font-normal outline-none focus:border-zinc-900"
+          className="h-11 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm font-medium text-slate-900 outline-none placeholder:text-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all"
           maxLength={100}
           minLength={2}
           required
+          placeholder="e.g. Acme Corp"
           value={name}
           onChange={(event) => setName(event.target.value)}
         />
       </label>
-      <label className="grid gap-2 text-sm font-medium text-zinc-700">
+      <label className="grid gap-2 text-sm font-bold text-slate-700">
         Description
         <textarea
-          className="min-h-28 resize-y border border-zinc-300 px-3 py-2 text-sm font-normal outline-none focus:border-zinc-900"
+          className="min-h-32 w-full resize-y rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-900 outline-none placeholder:text-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all"
           maxLength={500}
+          placeholder="What is this workspace for?"
           value={description}
           onChange={(event) => setDescription(event.target.value)}
         />
       </label>
       <button
-        className="h-11 w-fit bg-zinc-900 px-5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:bg-zinc-400"
+        className="h-11 w-fit rounded-xl bg-blue-600 px-6 text-sm font-bold text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-500/20 disabled:cursor-not-allowed disabled:bg-slate-300 transition-all mt-2"
         disabled={isSubmitting}
         type="submit"
       >
@@ -65,3 +67,4 @@ export function WorkspaceForm({
     </form>
   );
 }
+
