@@ -18,7 +18,7 @@ export type Workspace = {
   role?: WorkspaceRole;
   myRole?: WorkspaceRole;
   createdAt: string;
-  updatedAt?: string;
+  updatedAt: string;
 };
 
 export type CreateWorkspacePayload = {

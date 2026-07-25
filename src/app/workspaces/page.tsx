@@ -1,18 +1,21 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { AppShell } from "@/components/layout/AppShell";
 import { WorkspaceCard } from "@/features/workspaces/components/WorkspaceCard";
 import { getMyWorkspaces } from "@/features/workspaces/api/workspaces.api";
+import { getWorkspacesOverview } from "@/features/stats/api/stats.api";
+import { WorkspacesOverview } from "@/features/stats/types/stats.type";
 import { Workspace, WorkspaceStatus } from "@/features/workspaces/types/workspace.type";
 import { useAuth } from "@/hooks/useAuth";
-import { RefreshCw, Plus, Folder, Network, Users, Calendar, Search } from "lucide-react";
+import { RefreshCw, Plus, Folder, Network, Users, Calendar } from "lucide-react";
 
 export default function WorkspacesPage() {
   const { user, isLoading: authLoading } = useAuth(true);
   const [status, setStatus] = useState<WorkspaceStatus | "">("");
   const [items, setItems] = useState<Workspace[]>([]);
+  const [overview, setOverview] = useState<WorkspacesOverview | null>(null);
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -23,10 +26,30 @@ export default function WorkspacesPage() {
       setMessage("");
 
       try {
-        const response = await getMyWorkspaces(
-          status === "" ? undefined : status,
-        );
-        setItems(response.data.items);
+        // Gọi song song để không cộng dồn thời gian chờ, nhưng dùng allSettled:
+        // danh sách workspace là dữ liệu chính, không được mất chỉ vì stats lỗi.
+        const [workspacesResult, overviewResult] = await Promise.allSettled([
+          getMyWorkspaces(status === "" ? undefined : status),
+          getWorkspacesOverview(),
+        ]);
+
+        if (workspacesResult.status === "fulfilled") {
+          setItems(workspacesResult.value.data.items);
+        } else {
+          setItems([]);
+          setMessage(
+            workspacesResult.reason instanceof Error
+              ? workspacesResult.reason.message
+              : "Tải danh sách không gian thất bại.",
+          );
+        }
+
+        if (overviewResult.status === "fulfilled") {
+          setOverview(overviewResult.value.data);
+        } else {
+          // Stats lỗi thì các card tổng hợp hiện dấu "—" thay vì số sai.
+          setOverview(null);
+        }
       } catch (error) {
         setMessage(error instanceof Error ? error.message : "Tải danh sách không gian thất bại.");
       } finally {
@@ -41,6 +64,17 @@ export default function WorkspacesPage() {
       void loadWorkspaces();
     }
   }, [user, loadWorkspaces]);
+
+  // Map theo workspaceId để mỗi card tra cứu số liệu của chính nó, thay vì lặp mảng.
+  const statsByWorkspace = useMemo(() => {
+    return new Map(
+      (overview?.workspaces ?? []).map((item) => [item.workspaceId, item]),
+    );
+  }, [overview]);
+
+  // Chưa có số liệu thì hiện gạch ngang thay vì số 0 gây hiểu nhầm.
+  const summaryValue = (value: number | undefined) =>
+    value === undefined ? "—" : String(value);
 
   const filteredItems = items.filter(item => 
     item.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
@@ -103,7 +137,7 @@ export default function WorkspacesPage() {
             </div>
             <div>
               <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Projects</p>
-              <p className="text-xl font-black text-slate-900 mt-0.5">32</p>
+              <p className="text-xl font-black text-slate-900 mt-0.5">{summaryValue(overview?.summary.projects)}</p>
             </div>
           </div>
           <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center gap-4">
@@ -112,7 +146,7 @@ export default function WorkspacesPage() {
             </div>
             <div>
               <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Members</p>
-              <p className="text-xl font-black text-slate-900 mt-0.5">51</p>
+              <p className="text-xl font-black text-slate-900 mt-0.5">{summaryValue(overview?.summary.members)}</p>
             </div>
           </div>
           <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center gap-4">
@@ -121,7 +155,7 @@ export default function WorkspacesPage() {
             </div>
             <div>
               <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Meetings</p>
-              <p className="text-xl font-black text-slate-900 mt-0.5">18</p>
+              <p className="text-xl font-black text-slate-900 mt-0.5">{summaryValue(overview?.summary.meetings)}</p>
             </div>
           </div>
         </div>
@@ -141,7 +175,11 @@ export default function WorkspacesPage() {
         ) : (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {filteredItems.map((workspace) => (
-              <WorkspaceCard key={workspace.id} workspace={workspace} />
+              <WorkspaceCard
+                key={workspace.id}
+                workspace={workspace}
+                stats={statsByWorkspace.get(workspace.id)}
+              />
             ))}
             
             {/* Add Workspace Card */}

@@ -1,13 +1,23 @@
 import Link from "next/link";
 import { Workspace } from "../types/workspace.type";
+import { WorkspaceStatItem } from "@/features/stats/types/stats.type";
+import { formatRelativeTime } from "@/lib/utils/relative-time";
 import { Folder, Users, Clock, Eye, Settings, Boxes } from "lucide-react";
 
 type WorkspaceCardProps = {
   workspace: Workspace;
+  /** Số liệu thật từ API. Bỏ trống khi vẫn đang tải. */
+  stats?: WorkspaceStatItem;
 };
 
-export function WorkspaceCard({ workspace }: WorkspaceCardProps) {
+export function WorkspaceCard({ workspace, stats }: WorkspaceCardProps) {
   const role = workspace.role ?? workspace.myRole ?? "MEMBER";
+  // Chưa có stats thì hiện gạch ngang, tránh để người dùng hiểu nhầm là số thật.
+  const memberCount = stats ? String(stats.memberCount) : "—";
+  const projectCount = stats ? String(stats.projectCount) : "—";
+  const updatedLabel = formatRelativeTime(
+    stats?.updatedAt ?? workspace.updatedAt,
+  );
   
   // Xác định màu sắc badge dựa trên trạng thái
   const statusBadgeColor =
@@ -61,17 +71,17 @@ export function WorkspaceCard({ workspace }: WorkspaceCardProps) {
       <div className="mt-6 grid grid-cols-3 gap-2 py-4 border-t border-b border-zinc-100/80">
         <div className="flex flex-col items-center justify-center bg-zinc-50/50 rounded-xl py-2">
           <Users className="h-4 w-4 text-zinc-400 mb-1" />
-          <span className="text-sm font-bold text-zinc-900">12</span>
+          <span className="text-sm font-bold text-zinc-900">{memberCount}</span>
           <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest mt-0.5">Thành viên</span>
         </div>
         <div className="flex flex-col items-center justify-center bg-zinc-50/50 rounded-xl py-2">
           <Folder className="h-4 w-4 text-zinc-400 mb-1" />
-          <span className="text-sm font-bold text-zinc-900">5</span>
+          <span className="text-sm font-bold text-zinc-900">{projectCount}</span>
           <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest mt-0.5">Dự án</span>
         </div>
         <div className="flex flex-col items-center justify-center bg-zinc-50/50 rounded-xl py-2">
           <Clock className="h-4 w-4 text-zinc-400 mb-1" />
-          <span className="text-sm font-bold text-zinc-900">2h</span>
+          <span className="text-sm font-bold text-zinc-900">{updatedLabel}</span>
           <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest mt-0.5">Cập nhật</span>
         </div>
       </div>
