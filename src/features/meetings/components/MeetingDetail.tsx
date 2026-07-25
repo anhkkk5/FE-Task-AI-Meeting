@@ -23,6 +23,7 @@ const typeLabels: Record<Meeting["meetingType"], string> = {
 
 const statusLabels: Record<Meeting["status"], string> = {
   SCHEDULED: "Đã lên lịch",
+  IN_PROGRESS: "Đang diễn ra",
   COMPLETED: "Đã hoàn thành",
   CANCELLED: "Đã hủy",
   ARCHIVED: "Đã lưu trữ",
@@ -30,6 +31,7 @@ const statusLabels: Record<Meeting["status"], string> = {
 
 const statusTone: Record<Meeting["status"], string> = {
   SCHEDULED: "bg-[#e9f2ff] text-[#0c66e4]",
+  IN_PROGRESS: "bg-[#fff7d6] text-[#974f0c]",
   COMPLETED: "bg-[#dcfff1] text-[#216e4e]",
   CANCELLED: "bg-[#fff4f2] text-[#ae2a19]",
   ARCHIVED: "bg-[#f1f2f4] text-[#44546f]",
@@ -70,9 +72,22 @@ export function MeetingDetail({
   onDelete,
 }: MeetingDetailProps) {
   const expired = isMeetingExpired(meeting);
-  const canEnterRoom = meeting.status === "SCHEDULED" && !expired;
+  // IN_PROGRESS van cho vao lai: nguoi bi mat mang giua buoi hop can quay lai phong.
+  const canEnterRoom =
+    ["SCHEDULED", "IN_PROGRESS"].includes(meeting.status) && !expired;
   const canChangeStatus =
     canManage && !["CANCELLED", "ARCHIVED", "COMPLETED"].includes(meeting.status);
+  // Chot khi chua co bien ban thi AI khong co gi de tom tat, canh bao truoc.
+  const completeWarning = !meeting.mongoTranscriptId
+    ? "Cuộc họp chưa có biên bản nên AI sẽ không tạo được tóm tắt. Bạn vẫn muốn kết thúc?"
+    : null;
+  const handleComplete = () => {
+    if (completeWarning && !window.confirm(completeWarning)) {
+      return;
+    }
+
+    onComplete();
+  };
 
   return (
     <section className="rounded border border-[#dfe1e6] bg-white">
@@ -87,9 +102,14 @@ export function MeetingDetail({
             >
               {statusLabels[meeting.status]}
             </span>
-            {expired && meeting.status === "SCHEDULED" ? (
+            {expired && meeting.status !== "COMPLETED" ? (
               <span className="rounded bg-[#fff4f2] px-2 py-1 text-xs font-semibold text-[#ae2a19]">
                 Đã quá giờ
+              </span>
+            ) : null}
+            {meeting.autoCompleted ? (
+              <span className="rounded bg-[#f1f2f4] px-2 py-1 text-xs font-semibold text-[#44546f]">
+                Tự động kết thúc
               </span>
             ) : null}
             {meeting.sprint ? (
@@ -151,10 +171,11 @@ export function MeetingDetail({
               <button
                 className="h-9 rounded bg-[#00875a] px-3 text-sm font-semibold text-white hover:bg-[#216e4e] disabled:bg-[#b3b9c4]"
                 disabled={isMutating}
-                onClick={onComplete}
+                id="meeting-complete-button"
+                onClick={handleComplete}
                 type="button"
               >
-                Hoàn thành
+                Kết thúc cuộc họp
               </button>
               <button
                 className="h-9 rounded bg-[#de350b] px-3 text-sm font-semibold text-white hover:bg-[#ae2a19] disabled:bg-[#b3b9c4]"

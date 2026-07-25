@@ -26,6 +26,7 @@ const managerRoles = ["OWNER", "SCRUM_MASTER", "PROJECT_MANAGER"];
 
 const statusOptions: MeetingStatus[] = [
   "SCHEDULED",
+  "IN_PROGRESS",
   "COMPLETED",
   "CANCELLED",
   "ARCHIVED",
@@ -41,6 +42,7 @@ const typeOptions: MeetingType[] = [
 
 const statusLabels: Record<MeetingStatus, string> = {
   SCHEDULED: "Đã lên lịch",
+  IN_PROGRESS: "Đang diễn ra",
   COMPLETED: "Đã hoàn thành",
   CANCELLED: "Đã hủy",
   ARCHIVED: "Đã lưu trữ",

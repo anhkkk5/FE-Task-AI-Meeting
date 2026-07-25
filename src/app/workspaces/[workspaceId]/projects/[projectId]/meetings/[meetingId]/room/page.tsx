@@ -21,11 +21,14 @@ function getMeetingEndTime(meeting: Meeting) {
   return new Date(`${meeting.meetingDate}T23:59:59`).getTime();
 }
 
+// IN_PROGRESS van mo: nguoi bi mat mang giua buoi hop can quay lai phong.
+const openStatuses: Meeting["status"][] = ["SCHEDULED", "IN_PROGRESS"];
+
 function isMeetingClosed(meeting: Meeting) {
   const endTime = getMeetingEndTime(meeting);
 
   return (
-    meeting.status !== "SCHEDULED" ||
+    !openStatuses.includes(meeting.status) ||
     (Number.isFinite(endTime) && endTime < Date.now())
   );
 }

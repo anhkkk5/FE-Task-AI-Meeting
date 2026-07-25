@@ -121,6 +121,17 @@ export function TeamReportDetail({ report }: TeamReportDetailProps) {
         <RenderList items={output.missingDailyUpdates} />
       </section>
 
+      {output.handoverSummary?.trim() ? (
+        <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
+          <h2 className="mb-4 text-sm font-black text-zinc-950">
+            Ban giao cong viec
+          </h2>
+          <p className="whitespace-pre-line text-sm font-medium leading-relaxed text-zinc-600">
+            {output.handoverSummary}
+          </p>
+        </section>
+      ) : null}
+
       <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
         <h2 className="mb-4 text-sm font-black text-zinc-950">
           Tom tat theo member

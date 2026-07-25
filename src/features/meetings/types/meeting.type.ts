@@ -7,6 +7,7 @@ export type MeetingType =
 
 export type MeetingStatus =
   | "SCHEDULED"
+  | "IN_PROGRESS"
   | "COMPLETED"
   | "CANCELLED"
   | "ARCHIVED";
@@ -47,6 +48,9 @@ export type Meeting = {
   meetingDate: string;
   startTime: string | null;
   endTime: string | null;
+  actualStartTime?: string | null;
+  actualEndTime?: string | null;
+  autoCompleted?: boolean;
   status: MeetingStatus;
   createdBy: string;
   creator: MeetingUserSummary | null;

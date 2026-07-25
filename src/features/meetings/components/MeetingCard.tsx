@@ -22,6 +22,7 @@ const typeLabels: Record<Meeting["meetingType"], string> = {
 
 const statusLabels: Record<Meeting["status"], string> = {
   SCHEDULED: "Đã lên lịch",
+  IN_PROGRESS: "Đang diễn ra",
   COMPLETED: "Đã hoàn thành",
   CANCELLED: "Đã hủy",
   ARCHIVED: "Đã lưu trữ",
@@ -29,6 +30,7 @@ const statusLabels: Record<Meeting["status"], string> = {
 
 const statusTones: Record<Meeting["status"], string> = {
   SCHEDULED: "bg-[#e9f2ff] text-[#0c66e4]",
+  IN_PROGRESS: "bg-[#fff7d6] text-[#974f0c]",
   COMPLETED: "bg-[#dcfff1] text-[#216e4e]",
   CANCELLED: "bg-[#fff4f2] text-[#ae2a19]",
   ARCHIVED: "bg-[#f1f2f4] text-[#44546f]",
@@ -67,7 +69,9 @@ export function MeetingCard({
   onDelete,
 }: MeetingCardProps) {
   const expired = isMeetingExpired(meeting);
-  const canEnterRoom = meeting.status === "SCHEDULED" && !expired;
+  // IN_PROGRESS van cho vao lai: nguoi bi mat mang giua buoi hop can quay lai phong.
+  const canEnterRoom =
+    ["SCHEDULED", "IN_PROGRESS"].includes(meeting.status) && !expired;
 
   return (
     <article className="rounded border border-[#dfe1e6] bg-white transition hover:border-[#b3b9c4]">
@@ -82,7 +86,7 @@ export function MeetingCard({
             >
               {statusLabels[meeting.status]}
             </span>
-            {expired && meeting.status === "SCHEDULED" ? (
+            {expired && meeting.status !== "COMPLETED" ? (
               <span className="rounded bg-[#fff4f2] px-2 py-0.5 text-xs font-semibold text-[#ae2a19]">
                 Đã quá giờ
               </span>
