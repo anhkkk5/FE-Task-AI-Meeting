@@ -2,15 +2,14 @@
 
 import Link from "next/link";
 import { useParams, usePathname, useRouter } from "next/navigation";
-import { ReactNode, useCallback, useEffect, useState } from "react";
+import { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import {
   LayoutDashboard,
   Boxes,
   FolderKanban,
   CheckSquare,
-  Calendar,
+  ListChecks,
   Users,
-  BarChart3,
   Settings,
   Search,
   Bell,
@@ -48,42 +47,17 @@ export function AppShell({
   const routeWorkspaceId = workspaceId || (params.workspaceId as string);
 
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
-  const [selectedWorkspaceId, setSelectedWorkspaceId] = useState<string>("");
-  const [currentWorkspace, setCurrentWorkspace] = useState<Workspace | null>(null);
   const [showUserDropdown, setShowUserDropdown] = useState(false);
   const [pendingHandovers, setPendingHandovers] = useState(0);
 
-  // Load Workspaces and resolve active workspace ID
   const loadWorkspaces = useCallback(async () => {
     try {
       const res = await getMyWorkspaces("ACTIVE");
-      const items = res.data.items;
-      setWorkspaces(items);
-
-      let targetId = routeWorkspaceId;
-
-      if (!targetId && typeof window !== "undefined") {
-        const savedId = localStorage.getItem(LAST_WORKSPACE_KEY);
-        if (savedId && items.some((item) => item.id === savedId)) {
-          targetId = savedId;
-        } else if (items.length > 0) {
-          targetId = items[0].id;
-        }
-      }
-
-      if (targetId) {
-        setSelectedWorkspaceId(targetId);
-        const current = items.find((workspace) => workspace.id === targetId);
-        setCurrentWorkspace(current ?? null);
-
-        if (typeof window !== "undefined") {
-          localStorage.setItem(LAST_WORKSPACE_KEY, targetId);
-        }
-      }
+      setWorkspaces(res.data.items);
     } catch (error) {
       console.error("Load workspaces error:", error);
     }
-  }, [routeWorkspaceId]);
+  }, []);
 
   useEffect(() => {
     if (user) {
@@ -91,7 +65,26 @@ export function AppShell({
     }
   }, [user, loadWorkspaces]);
 
-  const activeWorkspaceId = routeWorkspaceId || selectedWorkspaceId;
+  /**
+   * Workspace dang mo duoc suy ra DUY NHAT tu URL.
+   * Truoc day gia tri nay con lay tu localStorage, nen o trang danh sach
+   * sidebar van dung menu cua mot workspace cu va bam vao la nhay thang
+   * vao do, nguoi dung khong duoc chon.
+   */
+  const activeWorkspaceId = routeWorkspaceId ?? "";
+
+  const currentWorkspace = useMemo(
+    () =>
+      workspaces.find((workspace) => workspace.id === activeWorkspaceId) ?? null,
+    [workspaces, activeWorkspaceId],
+  );
+
+  // Ghi nho workspace vua mo de trang Dashboard co the goi y mo lai nhanh.
+  useEffect(() => {
+    if (activeWorkspaceId && typeof window !== "undefined") {
+      localStorage.setItem(LAST_WORKSPACE_KEY, activeWorkspaceId);
+    }
+  }, [activeWorkspaceId]);
 
   useEffect(() => {
     if (!user || !activeWorkspaceId || !projectId) {
@@ -141,14 +134,27 @@ export function AppShell({
     ? user.fullName.charAt(0).toUpperCase()
     : "U";
 
-  // Breadcrumbs calculation
-  const breadcrumbs = [{ label: "Workspaces", href: "/workspaces" }];
+  /**
+   * Goc breadcrumb doi theo trang dang mo.
+   * Truoc day moi trang deu bat dau bang "Workspaces", ke ca Dashboard,
+   * lam nguoi dung tuong Dashboard nam ben trong workspace.
+   */
+  const breadcrumbs: { label: string; href: string }[] = [];
 
-  if (pathname === "/profile") {
+  if (pathname === "/dashboard") {
+    breadcrumbs.push({ label: "Dashboard", href: "/dashboard" });
+  } else if (pathname === "/my-work") {
+    breadcrumbs.push({ label: "Việc của tôi", href: "/my-work" });
+  } else if (pathname === "/profile") {
     breadcrumbs.push({ label: "Trang cá nhân", href: "/profile" });
+  } else {
+    breadcrumbs.push({ label: "Workspaces", href: "/workspaces" });
   }
 
-  if (currentWorkspace) {
+  // Chi hien ten workspace khi URL that su nam trong workspace do.
+  // Truoc day dung currentWorkspace (co the den tu localStorage) nen trang danh sach
+  // van hien ten mot workspace, khien nguoi dung tuong minh dang dung ben trong no.
+  if (routeWorkspaceId && currentWorkspace) {
     breadcrumbs.push({
       label: currentWorkspace.name,
       href: `/workspaces/${currentWorkspace.id}`,
@@ -157,7 +163,7 @@ export function AppShell({
 
   if (projectId) {
     breadcrumbs.push({
-      label: "Projects",
+      label: "Dự án",
       href: `/workspaces/${activeWorkspaceId}/projects`,
     });
     breadcrumbs.push({
@@ -188,77 +194,71 @@ export function AppShell({
     });
   } else if (pathname.includes("/settings")) {
     breadcrumbs.push({
-      label: "Settings",
+      label: "Cài đặt",
       href: `/workspaces/${activeWorkspaceId}/settings`,
     });
   } else if (pathname.includes("/projects")) {
     breadcrumbs.push({
-      label: "Projects",
+      label: "Dự án",
       href: `/workspaces/${activeWorkspaceId}/projects`,
     });
   }
 
-  // Smart resolution for global navigation items
+  // Menu toan cuc: khong phu thuoc workspace nao dang mo.
   const globalNavItems = [
-    { 
-      name: "Dashboard", 
-      icon: LayoutDashboard, 
-      href: "/dashboard", 
-      active: pathname === "/dashboard" 
+    {
+      name: "Dashboard",
+      icon: LayoutDashboard,
+      href: "/dashboard",
+      active: pathname === "/dashboard",
     },
-    { 
-      name: "Workspaces", 
-      icon: Boxes, 
-      href: "/workspaces", 
-      active: pathname === "/workspaces" || pathname === "/workspaces/create"
+    {
+      name: "Việc của tôi",
+      icon: ListChecks,
+      href: "/my-work",
+      active: pathname === "/my-work",
     },
-    { 
-      name: "Projects", 
-      icon: FolderKanban, 
-      href: activeWorkspaceId ? `/workspaces/${activeWorkspaceId}/projects` : "/workspaces",
-      active: pathname.includes("/projects") 
+    {
+      name: "Workspaces",
+      icon: Boxes,
+      href: "/workspaces",
+      active: pathname === "/workspaces" || pathname === "/workspaces/create",
     },
-    { 
-      name: "Tasks", 
-      icon: CheckSquare, 
-      href: activeWorkspaceId && projectId 
-        ? `/workspaces/${activeWorkspaceId}/projects/${projectId}/tasks` 
-        : activeWorkspaceId 
-        ? `/workspaces/${activeWorkspaceId}/projects` 
-        : "/workspaces",
-      active: pathname.includes("/tasks") 
+  ];
+
+  /**
+   * Menu thuoc pham vi workspace dang mo.
+   * Tach rieng khoi menu toan cuc de nguoi dung thay ro dang dieu huong ben trong
+   * workspace nao, thay vi bi nhay vao mot workspace tu suy ra.
+   * Cac muc thuoc pham vi project (Board, Cuoc hop, Bao cao AI) khong dat o day vi chung
+   * can chon project truoc, va da co san o thanh tab cua project.
+   */
+  const workspaceNavItems = [
+    {
+      name: "Tổng quan",
+      icon: LayoutDashboard,
+      href: `/workspaces/${activeWorkspaceId}`,
+      active: pathname === `/workspaces/${activeWorkspaceId}`,
     },
-    { 
-      name: "Calendar", 
-      icon: Calendar, 
-      href: activeWorkspaceId && projectId 
-        ? `/workspaces/${activeWorkspaceId}/projects/${projectId}/meetings` 
-        : activeWorkspaceId 
-        ? `/workspaces/${activeWorkspaceId}/projects` 
-        : "/workspaces",
-      active: pathname.includes("/meetings") 
+    {
+      name: "Dự án",
+      icon: FolderKanban,
+      href: `/workspaces/${activeWorkspaceId}/projects`,
+      active: pathname.includes("/projects"),
     },
-    { 
-      name: "Teams", 
-      icon: Users, 
-      href: activeWorkspaceId ? `/workspaces/${activeWorkspaceId}/members` : "/workspaces",
-      active: pathname.includes("/members") 
+    {
+      name: "Thành viên",
+      icon: Users,
+      href: `/workspaces/${activeWorkspaceId}/members`,
+      active: pathname.includes("/members"),
     },
-    { 
-      name: "Reports", 
-      icon: BarChart3, 
-      href: activeWorkspaceId && projectId 
-        ? `/workspaces/${activeWorkspaceId}/projects/${projectId}/ai-reports/personal` 
-        : activeWorkspaceId 
-        ? `/workspaces/${activeWorkspaceId}/projects` 
-        : "/workspaces",
-      active: pathname.includes("/ai-reports") 
-    },
-    { 
-      name: "Settings", 
-      icon: Settings, 
-      href: activeWorkspaceId ? `/workspaces/${activeWorkspaceId}/settings` : "/profile",
-      active: pathname.includes("/settings") || pathname === "/profile" 
+    {
+      name: "Cài đặt",
+      icon: Settings,
+      href: `/workspaces/${activeWorkspaceId}/settings`,
+      active:
+        pathname === `/workspaces/${activeWorkspaceId}/settings` ||
+        (pathname.includes("/settings") && !projectId),
     },
   ];
 
@@ -344,23 +344,17 @@ export function AppShell({
             </label>
             <select
               className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50/80 px-3 text-xs font-semibold text-slate-800 outline-none hover:bg-slate-100 focus:bg-white focus:border-blue-500 transition cursor-pointer"
-              value={activeWorkspaceId || ""}
+              value={activeWorkspaceId}
               onChange={(event) => {
                 const value = event.target.value;
                 if (value === "create") {
                   router.push("/workspaces/create");
                 } else if (value) {
-                  setSelectedWorkspaceId(value);
-                  if (typeof window !== "undefined") {
-                    localStorage.setItem(LAST_WORKSPACE_KEY, value);
-                  }
                   router.push(`/workspaces/${value}`);
                 }
               }}
             >
-              <option value="" disabled>
-                Chọn Workspace
-              </option>
+              <option value="">Chưa chọn workspace</option>
               {workspaces.map((workspace) => (
                 <option key={workspace.id} value={workspace.id}>
                   {workspace.name}
@@ -390,6 +384,57 @@ export function AppShell({
               );
             })}
           </nav>
+
+          {/* Nhom menu cua workspace dang mo, chi hien khi da xac dinh duoc workspace */}
+          {activeWorkspaceId ? (
+            <nav className="px-3 pb-3 space-y-1">
+              <p className="mb-1 px-4 pt-2 text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
+                <span className="truncate">
+                  {currentWorkspace?.name ?? "Workspace"}
+                </span>
+              </p>
+              {workspaceNavItems.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    className={`flex items-center gap-3.5 px-4 py-2.5 rounded-xl text-sm font-semibold transition duration-150 ${
+                      item.active
+                        ? "bg-blue-50 text-blue-600 shadow-2xs"
+                        : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                    }`}
+                  >
+                    <Icon className={`w-4 h-4 ${item.active ? "text-blue-600" : "text-slate-400"}`} />
+                    <span>{item.name}</span>
+                  </Link>
+                );
+              })}
+            </nav>
+          ) : (
+            /*
+             * Chua chon workspace thi khong dung menu cua mot workspace bat ky,
+             * chi moi nguoi dung chon truoc.
+             */
+            <div className="px-3 pb-3">
+              <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50/80 p-4">
+                <p className="text-[11px] font-bold text-slate-700">
+                  Chưa chọn workspace
+                </p>
+                <p className="mt-1 text-[11px] font-medium leading-relaxed text-slate-500">
+                  Dự án và task nằm bên trong workspace. Chọn một workspace để
+                  hiện menu của nó.
+                </p>
+                <Link
+                  href="/workspaces"
+                  className="mt-2.5 inline-flex items-center gap-1.5 text-[11px] font-bold text-blue-600 transition hover:text-blue-700"
+                >
+                  Chọn workspace
+                  <ChevronRight className="h-3 w-3" />
+                </Link>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* User Profile Bar at bottom of sidebar */}
@@ -567,7 +612,7 @@ export function AppShell({
                   className={`whitespace-nowrap border-b-2 px-3.5 py-2.5 text-xs font-bold transition ${
                     tab.active
                       ? "border-blue-600 text-blue-600"
-                      : "border-transparent text-slate-500 hover:bg-slate-800"
+                      : "border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-800"
                   }`}
                 >
                   {tab.label}
