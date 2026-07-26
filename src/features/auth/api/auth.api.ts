@@ -31,6 +31,24 @@ export type RegisterPayload = {
   password: string;
 };
 
+/**
+ * Phản hồi của bước 1: chỉ xác nhận đã gửi OTP, chưa có tài khoản và chưa có token.
+ */
+export type OtpChallengeResponse = {
+  success: boolean;
+  message: string;
+  data: {
+    email: string;
+    otpExpiresInSeconds: number;
+    resendAfterSeconds: number;
+  };
+};
+
+export type VerifyOtpPayload = {
+  email: string;
+  otp: string;
+};
+
 export function login(payload: LoginPayload) {
   return apiRequest<AuthResponse>("/auth/login", {
     method: "POST",
@@ -39,10 +57,28 @@ export function login(payload: LoginPayload) {
   });
 }
 
+/** Bước 1 của đăng ký: gửi mã OTP tới email, chưa tạo tài khoản. */
 export function register(payload: RegisterPayload) {
-  return apiRequest<AuthResponse>("/auth/register", {
+  return apiRequest<OtpChallengeResponse>("/auth/register", {
     method: "POST",
     body: payload,
+    skipAuthRefresh: true,
+  });
+}
+
+/** Bước 2 của đăng ký: OTP đúng thì tài khoản được tạo và trả về token. */
+export function verifyRegistrationOtp(payload: VerifyOtpPayload) {
+  return apiRequest<AuthResponse>("/auth/verify-otp", {
+    method: "POST",
+    body: payload,
+    skipAuthRefresh: true,
+  });
+}
+
+export function resendRegistrationOtp(email: string) {
+  return apiRequest<OtpChallengeResponse>("/auth/resend-otp", {
+    method: "POST",
+    body: { email },
     skipAuthRefresh: true,
   });
 }

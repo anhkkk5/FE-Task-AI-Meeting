@@ -5,6 +5,7 @@ import { FormEvent, useState } from "react";
 import { User, Mail, Lock, Eye, EyeOff, Loader2, ArrowRight } from "lucide-react";
 import { register } from "@/features/auth/api/auth.api";
 import { AuthShell } from "@/features/auth/components/AuthShell";
+import { OtpVerifyForm } from "@/features/auth/components/OtpVerifyForm";
 import { saveAccessToken } from "@/features/auth/utils/token-storage";
 
 export default function RegisterPage() {
@@ -17,6 +18,10 @@ export default function RegisterPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  // Bước OTP chỉ hiện sau khi backend xác nhận đã gửi mã.
+  const [step, setStep] = useState<"form" | "otp">("form");
+  const [otpEmail, setOtpEmail] = useState("");
+  const [resendAfterSeconds, setResendAfterSeconds] = useState(60);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -60,24 +65,49 @@ export default function RegisterPage() {
     setMessage("");
 
     try {
+      // Bước này chưa tạo tài khoản, chỉ gửi OTP về email.
       const response = await register({
         email: nextEmail,
         fullName: nextFullName,
         password: nextPassword,
       });
-      const accessToken = response.data.tokens.accessToken;
 
-      if (!accessToken) {
-        throw new Error("Tạo tài khoản chưa nhận được phiên làm việc.");
-      }
-
-      saveAccessToken(accessToken);
-      window.location.assign("/workspaces");
+      setOtpEmail(response.data.email || nextEmail);
+      setResendAfterSeconds(response.data.resendAfterSeconds ?? 60);
+      setStep("otp");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Đăng ký thất bại. Vui lòng thử lại.");
     } finally {
       setIsSubmitting(false);
     }
+  }
+
+  function handleVerified(accessToken: string) {
+    saveAccessToken(accessToken);
+    window.location.assign("/workspaces");
+  }
+
+  if (step === "otp") {
+    return (
+      <AuthShell
+        variant="register"
+        title="Xác thực email"
+        subtitle="Nhập mã 6 chữ số vừa được gửi tới email của bạn."
+        footerText="Đã có tài khoản?"
+        footerLinkText="Đăng nhập"
+        footerLinkHref="/login"
+      >
+        <OtpVerifyForm
+          email={otpEmail}
+          initialResendSeconds={resendAfterSeconds}
+          onVerified={handleVerified}
+          onChangeEmail={() => {
+            setStep("form");
+            setMessage("");
+          }}
+        />
+      </AuthShell>
+    );
   }
 
   return (
