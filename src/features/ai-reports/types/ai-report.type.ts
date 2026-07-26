@@ -5,6 +5,25 @@ export type AiReportType =
 
 export type AiReportStatus = "PENDING" | "COMPLETED" | "FAILED";
 
+/** Ket qua lan chay gan nhat cua lich tu dong tao bao cao giao ban. */
+export type AutomationLastRun = {
+  reportDate: string;
+  projects: number;
+  generated: number;
+  skipped: number;
+  failed: number;
+  finishedAt: string;
+};
+
+export type ReportAutomationStatus = {
+  enabled: boolean;
+  cron: string;
+  timeZone: string;
+  includeTeam: boolean;
+  nextRunAt: string | null;
+  lastRun: AutomationLastRun | null;
+};
+
 export type PersonalDailyReportOutput = {
   title: string;
   summary: string;

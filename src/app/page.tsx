@@ -85,7 +85,7 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="border-t border-slate-800 py-6 text-center text-xs text-slate-500">
-        <p>© 2026 Agile AI Project Management. All rights reserved.</p>
+        <p>© 2026 Agile AI Project Management. Bảo lưu mọi quyền.</p>
       </footer>
     </main>
   );

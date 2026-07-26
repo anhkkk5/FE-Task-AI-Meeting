@@ -4,11 +4,17 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { AppShell } from "@/components/layout/AppShell";
-import { getTeamDailyReports } from "@/features/ai-reports/api/ai-reports.api";
+import {
+  generateTeamDailyReport,
+  getReportAutomationStatus,
+  getTeamDailyReports,
+} from "@/features/ai-reports/api/ai-reports.api";
+import { ReportAutomationBanner } from "@/features/ai-reports/components/ReportAutomationBanner";
 import { TeamReportList } from "@/features/ai-reports/components/TeamReportList";
 import {
   AiReportsQuery,
   AiTeamReport,
+  ReportAutomationStatus,
 } from "@/features/ai-reports/types/ai-report.type";
 import { getMyWorkspaceRole } from "@/features/members/api/members.api";
 import { getProjectDetail } from "@/features/projects/api/projects.api";
@@ -38,8 +44,12 @@ export default function TeamAiReportsPage() {
   });
   const [myRole, setMyRole] = useState("");
   const [query, setQuery] = useState<AiReportsQuery>({ page: 1, limit: 20 });
+  const [automation, setAutomation] = useState<ReportAutomationStatus | null>(
+    null,
+  );
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isRegenerating, setIsRegenerating] = useState(false);
 
   const canManage = managerRoles.includes(myRole);
 
@@ -48,14 +58,18 @@ export default function TeamAiReportsPage() {
     setMessage("");
 
     try {
-      const [projectRes, sprintsRes, roleRes] = await Promise.all([
-        getProjectDetail(params.workspaceId, params.projectId),
-        getSprints(params.workspaceId, params.projectId, {
-          page: 1,
-          limit: 100,
-        }),
-        getMyWorkspaceRole(params.workspaceId),
-      ]);
+      const [projectRes, sprintsRes, roleRes, automationRes] =
+        await Promise.all([
+          getProjectDetail(params.workspaceId, params.projectId),
+          getSprints(params.workspaceId, params.projectId, {
+            page: 1,
+            limit: 100,
+          }),
+          getMyWorkspaceRole(params.workspaceId),
+          getReportAutomationStatus(params.workspaceId, params.projectId),
+        ]);
+
+      setAutomation(automationRes.data);
 
       const role = roleRes.data.role;
 
@@ -82,7 +96,7 @@ export default function TeamAiReportsPage() {
       setMeta(reportsRes.data.meta);
     } catch (error) {
       setMessage(
-        error instanceof Error ? error.message : "Tai AI team report that bai.",
+        error instanceof Error ? error.message : "Tải báo cáo nhóm thất bại.",
       );
     } finally {
       setIsLoading(false);
@@ -104,6 +118,33 @@ export default function TeamAiReportsPage() {
     }));
   }
 
+  /**
+   * Tao lai bao cao cua hom nay.
+   *
+   * Lich tu dong chi chay mot lan moi ngay nen khi can xem ngay hoac khi
+   * du lieu vua thay doi, manager van can mot duong tao lai.
+   */
+  async function handleRegenerateToday() {
+    setIsRegenerating(true);
+    setMessage("");
+
+    try {
+      await generateTeamDailyReport(params.workspaceId, params.projectId, {
+        reportDate: new Date().toLocaleDateString("en-CA"),
+        sprintId: query.sprintId,
+      });
+      await loadData();
+    } catch (error) {
+      setMessage(
+        error instanceof Error
+          ? error.message
+          : "Tạo lại báo cáo hôm nay thất bại.",
+      );
+    } finally {
+      setIsRegenerating(false);
+    }
+  }
+
   if (authLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-zinc-50">
@@ -123,14 +164,14 @@ export default function TeamAiReportsPage() {
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
               <p className="text-[10px] font-black uppercase tracking-[0.18em] text-indigo-600">
-                AI team reports
+                Báo cáo nhóm AI
               </p>
               <h1 className="mt-1 text-2xl font-black text-zinc-950">
-                Bao cao giao ban nhom bang AI
+                Báo cáo giao ban nhóm bằng AI
               </h1>
               <p className="mt-2 max-w-2xl text-sm font-medium leading-relaxed text-zinc-500">
-                Tong hop daily update, task, blocker, rui ro va member chua
-                cap nhat daily update trong project hoac sprint.
+                AI tự tổng hợp daily update, task, blocker, rủi ro và thành viên
+                chưa cập nhật daily update. Bạn không cần tạo thủ công.
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -138,30 +179,34 @@ export default function TeamAiReportsPage() {
                 className="flex h-10 items-center rounded-xl border border-zinc-200 bg-white px-4 text-xs font-bold text-zinc-700 transition hover:bg-zinc-50"
                 href={`/workspaces/${params.workspaceId}/projects/${params.projectId}/ai-reports/personal`}
               >
-                Personal reports
+                Báo cáo cá nhân
               </Link>
               <button
                 className="h-10 rounded-xl border border-zinc-200 bg-white px-4 text-xs font-bold text-zinc-700 transition hover:bg-zinc-50"
                 type="button"
                 onClick={() => void loadData()}
               >
-                Lam moi
+                Làm mới
               </button>
               {canManage ? (
-                <Link
-                  className="flex h-10 items-center rounded-xl bg-blue-600 px-4 text-xs font-bold text-white shadow-md shadow-blue-500/20 transition hover:bg-blue-700"
-                  href={`/workspaces/${params.workspaceId}/projects/${params.projectId}/ai-reports/team/generate`}
+                <button
+                  className="flex h-10 items-center rounded-xl bg-blue-600 px-4 text-xs font-bold text-white shadow-md shadow-blue-500/20 transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-zinc-400"
+                  disabled={isRegenerating}
+                  type="button"
+                  onClick={() => void handleRegenerateToday()}
                 >
-                  Tao team report
-                </Link>
+                  {isRegenerating ? "Đang tạo lại..." : "Tạo lại báo cáo hôm nay"}
+                </button>
               ) : null}
             </div>
           </div>
         </section>
 
+        <ReportAutomationBanner status={automation} />
+
         <section className="grid gap-3 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm lg:grid-cols-[180px_180px_1fr_auto]">
           <label className="grid gap-1 text-[10px] font-black uppercase tracking-wider text-zinc-400">
-            Tu ngay
+            Từ ngày
             <input
               className="h-11 rounded-xl border border-zinc-300 bg-white px-3 text-sm font-medium normal-case tracking-normal text-zinc-800 outline-none transition focus:border-blue-600"
               type="date"
@@ -172,7 +217,7 @@ export default function TeamAiReportsPage() {
             />
           </label>
           <label className="grid gap-1 text-[10px] font-black uppercase tracking-wider text-zinc-400">
-            Den ngay
+            Đến ngày
             <input
               className="h-11 rounded-xl border border-zinc-300 bg-white px-3 text-sm font-medium normal-case tracking-normal text-zinc-800 outline-none transition focus:border-blue-600"
               type="date"
@@ -191,7 +236,7 @@ export default function TeamAiReportsPage() {
                 patchQuery({ sprintId: event.target.value || undefined })
               }
             >
-              <option value="">Tat ca sprint</option>
+              <option value="">Tất cả sprint</option>
               {sprints.map((sprint) => (
                 <option key={sprint.id} value={sprint.id}>
                   {sprint.name}
@@ -204,7 +249,7 @@ export default function TeamAiReportsPage() {
             type="button"
             onClick={() => setQuery({ page: 1, limit: 20 })}
           >
-            Xoa loc
+            Xóa lọc
           </button>
         </section>
 
@@ -215,9 +260,9 @@ export default function TeamAiReportsPage() {
         ) : null}
 
         <div className="flex items-center justify-between text-xs font-bold text-zinc-500">
-          <span>{meta.total} report</span>
+          <span>{meta.total} báo cáo</span>
           <span>
-            Page {meta.page} / limit {meta.limit}
+            Trang {meta.page} · {meta.limit} báo cáo mỗi trang
           </span>
         </div>
 

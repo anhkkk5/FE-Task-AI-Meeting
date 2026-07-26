@@ -9,6 +9,7 @@ import {
   GeneratePersonalReportPayload,
   GenerateTeamReportPayload,
   MeetingSummariesQuery,
+  ReportAutomationStatus,
   ReviewedMeetingActionItem,
 } from "../types/ai-report.type";
 
@@ -51,6 +52,21 @@ function buildMeetingSummariesSearch(query: MeetingSummariesQuery = {}) {
 
   const search = params.toString();
   return search ? `?${search}` : "";
+}
+
+/**
+ * Doc trang thai lich tu dong tao bao cao giao ban.
+ *
+ * Dung de hien thi cho nguoi dung biet bao cao duoc may tu tao theo lich,
+ * thay vi de ho tuong phai bam tao thu cong.
+ */
+export function getReportAutomationStatus(
+  workspaceId: string,
+  projectId: string,
+) {
+  return apiRequest<ApiResponse<ReportAutomationStatus>>(
+    `${aiBasePath(workspaceId, projectId)}/daily-report-automation`,
+  );
 }
 
 export function generateMyPersonalDailyReport(

@@ -61,7 +61,7 @@ export default function GeneratePersonalAiReportPage() {
       setMessage(
         error instanceof Error
           ? error.message
-          : "Tai du lieu tao AI report that bai.",
+          : "Tải dữ liệu tạo báo cáo AI thất bại.",
       );
     } finally {
       setIsLoading(false);
@@ -103,7 +103,7 @@ export default function GeneratePersonalAiReportPage() {
       );
     } catch (error) {
       setMessage(
-        error instanceof Error ? error.message : "Tao AI report that bai.",
+        error instanceof Error ? error.message : "Tạo báo cáo AI thất bại.",
       );
     }
   }
@@ -127,13 +127,13 @@ export default function GeneratePersonalAiReportPage() {
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-[10px] font-black uppercase tracking-[0.18em] text-blue-600">
-                AI personal report
+                Báo cáo cá nhân AI
               </p>
               <h1 className="mt-1 text-2xl font-black text-zinc-950">
-                Tao bao cao ca nhan
+                Tạo báo cáo cá nhân
               </h1>
               <p className="mt-2 text-sm font-medium text-zinc-500">
-                {project?.name ?? "Project"} {myRole ? `- Vai tro: ${myRole}` : ""}
+                {project?.name ?? "Dự án"} {myRole ? `- Vai trò: ${myRole}` : ""}
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -141,13 +141,13 @@ export default function GeneratePersonalAiReportPage() {
                 className="flex h-10 items-center rounded-xl border border-zinc-200 bg-white px-4 text-xs font-bold text-zinc-700 transition hover:bg-zinc-50"
                 href={`/workspaces/${params.workspaceId}/projects/${params.projectId}/ai-reports/team`}
               >
-                Team reports
+                Báo cáo nhóm
               </Link>
               <Link
                 className="flex h-10 items-center rounded-xl border border-zinc-200 bg-white px-4 text-xs font-bold text-zinc-700 transition hover:bg-zinc-50"
                 href={`/workspaces/${params.workspaceId}/projects/${params.projectId}/ai-reports/personal`}
               >
-                Danh sach report
+                Danh sách báo cáo
               </Link>
             </div>
           </div>
@@ -169,14 +169,14 @@ export default function GeneratePersonalAiReportPage() {
               canManage={canManage}
               members={members}
               sprints={sprints}
-              submitLabel="Tao AI report"
+              submitLabel="Tạo báo cáo AI"
               onSubmit={handleSubmit}
             />
           </section>
         ) : (
           <div className="rounded-2xl border border-zinc-200 bg-white p-6 text-sm font-semibold text-zinc-700 shadow-sm">
-            Ban can la OWNER, SCRUM_MASTER, PROJECT_MANAGER hoac MEMBER de tao
-            AI report. VIEWER khong duoc su dung tinh nang nay.
+            Bạn cần là OWNER, SCRUM_MASTER, PROJECT_MANAGER hoặc MEMBER để tạo
+            báo cáo AI. VIEWER không sử dụng được tính năng này.
           </div>
         )}
       </div>

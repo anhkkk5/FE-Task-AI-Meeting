@@ -41,7 +41,7 @@ export default function PersonalAiReportDetailPage() {
       setReport(reportRes.data.report);
     } catch (error) {
       setMessage(
-        error instanceof Error ? error.message : "Tai AI report that bai.",
+        error instanceof Error ? error.message : "Tải báo cáo AI thất bại.",
       );
     } finally {
       setIsLoading(false);
@@ -79,13 +79,13 @@ export default function PersonalAiReportDetailPage() {
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-[10px] font-black uppercase tracking-[0.18em] text-blue-600">
-                AI report detail
+                Chi tiết báo cáo AI
               </p>
               <h1 className="mt-1 text-2xl font-black text-zinc-950">
-                Chi tiet bao cao
+                Chi tiết báo cáo cá nhân
               </h1>
               <p className="mt-2 break-all text-sm font-medium text-zinc-500">
-                Report ID: {params.reportId}
+                Mã báo cáo: {params.reportId}
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -94,19 +94,19 @@ export default function PersonalAiReportDetailPage() {
                 type="button"
                 onClick={() => void loadData()}
               >
-                Lam moi
+                Làm mới
               </button>
               <Link
                 className="flex h-10 items-center rounded-xl border border-zinc-200 bg-white px-4 text-xs font-bold text-zinc-700 transition hover:bg-zinc-50"
                 href={`/workspaces/${params.workspaceId}/projects/${params.projectId}/ai-reports/team`}
               >
-                Team reports
+                Báo cáo nhóm
               </Link>
               <Link
                 className="flex h-10 items-center rounded-xl bg-blue-600 px-4 text-xs font-bold text-white shadow-md shadow-blue-500/20 transition hover:bg-blue-700"
                 href={`/workspaces/${params.workspaceId}/projects/${params.projectId}/ai-reports/personal`}
               >
-                Danh sach report
+                Danh sách báo cáo
               </Link>
             </div>
           </div>
@@ -126,7 +126,7 @@ export default function PersonalAiReportDetailPage() {
           <PersonalReportDetail report={report} />
         ) : (
           <div className="rounded-2xl border border-zinc-200 bg-white p-6 text-sm font-semibold text-zinc-700 shadow-sm">
-            Khong tim thay AI report.
+            Không tìm thấy báo cáo AI.
           </div>
         )}
       </div>

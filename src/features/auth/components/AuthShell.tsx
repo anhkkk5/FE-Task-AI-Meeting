@@ -24,8 +24,8 @@ export function AuthShell({
   subtitle,
   children,
   variant = "login",
-  footerText = "Don't have an account?",
-  footerLinkText = "Create one",
+  footerText = "Chưa có tài khoản?",
+  footerLinkText = "Tạo tài khoản",
   footerLinkHref = "/register",
 }: AuthShellProps) {
   return (
@@ -53,21 +53,21 @@ export function AuthShell({
               <div className="relative z-10">
                 <div className="inline-flex items-center gap-2 rounded-full bg-blue-50/90 backdrop-blur-md px-3.5 py-1.5 text-xs font-bold text-blue-600 shadow-2xs border border-blue-100">
                   <Zap className="w-3.5 h-3.5 text-blue-600 fill-blue-600" />
-                  <span>ENTERPRISE VELOCITY</span>
+                  <span>HIỆU SUẤT DOANH NGHIỆP</span>
                 </div>
               </div>
 
               {/* Main Register Hero Content */}
               <div className="relative z-10 max-w-xl my-auto py-6">
                 <h1 className="text-4xl xl:text-5xl font-extrabold tracking-tight text-slate-900 leading-[1.15]">
-                  Build Better<br />
-                  Projects<br />
+                  Làm dự án tốt hơn<br />
+                  khi cả nhóm<br />
                   <span className="text-blue-600">
-                    Together
+                    cùng nhìn một hướng
                   </span>
                 </h1>
                 <p className="mt-4 text-base xl:text-lg text-slate-500 leading-relaxed font-normal">
-                  Join thousands of teams using AgileFlow to plan projects, organize tasks and deliver work faster with our minimal enterprise environment.
+                  Lập kế hoạch dự án, sắp xếp công việc và bàn giao nhanh hơn cùng AgileFlow, trong một không gian làm việc gọn gàng cho doanh nghiệp.
                 </p>
 
                 {/* 3 Feature Highlight Cards */}
@@ -79,10 +79,10 @@ export function AuthShell({
                     </div>
                     <div>
                       <h3 className="text-sm font-bold text-slate-800">
-                        Smart Task Management
+                        Quản lý công việc thông minh
                       </h3>
                       <p className="text-xs text-slate-500 mt-0.5">
-                        AI-powered prioritization and sprint mapping.
+                        AI xếp thứ tự ưu tiên và gợi ý phân bổ vào sprint.
                       </p>
                     </div>
                   </div>
@@ -94,10 +94,10 @@ export function AuthShell({
                     </div>
                     <div>
                       <h3 className="text-sm font-bold text-slate-800">
-                        Team Collaboration
+                        Phối hợp trong nhóm
                       </h3>
                       <p className="text-xs text-slate-500 mt-0.5">
-                        Seamless real-time updates across distributed teams.
+                        Cập nhật tức thời cho cả nhóm ở nhiều nơi khác nhau.
                       </p>
                     </div>
                   </div>
@@ -109,10 +109,10 @@ export function AuthShell({
                     </div>
                     <div>
                       <h3 className="text-sm font-bold text-slate-800">
-                        Real-time Progress Tracking
+                        Theo dõi tiến độ theo thời gian thực
                       </h3>
                       <p className="text-xs text-slate-500 mt-0.5">
-                        Live burn-down charts and velocity metrics.
+                        Biểu đồ burn-down và tốc độ hoàn thành cập nhật liên tục.
                       </p>
                     </div>
                   </div>
@@ -127,13 +127,13 @@ export function AuthShell({
               {/* Main Login Hero Content */}
               <div className="relative z-10 max-w-xl my-auto py-8">
                 <h1 className="text-4xl xl:text-5xl font-extrabold tracking-tight text-slate-900 leading-[1.15]">
-                  Manage Projects{" "}
+                  Quản lý dự án{" "}
                   <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                    Smarter
+                    thông minh hơn
                   </span>
                 </h1>
                 <p className="mt-4 text-base xl:text-lg text-slate-500 leading-relaxed font-normal">
-                  Plan sprints, assign tasks, collaborate with your team and track progress in one intelligent workspace.
+                  Lên kế hoạch sprint, giao việc, phối hợp cùng nhóm và theo dõi tiến độ trong một không gian làm việc duy nhất.
                 </p>
 
                 {/* Interactive Project Alpha Mockup Visual */}
@@ -144,7 +144,7 @@ export function AuthShell({
                       <div className="flex items-center gap-2.5">
                         <div className="w-2 h-6 rounded-full bg-blue-600" />
                         <h3 className="font-extrabold text-slate-900 text-lg font-serif">
-                          Project Alpha
+                          Dự án Alpha
                         </h3>
                       </div>
 
@@ -167,14 +167,14 @@ export function AuthShell({
                       {/* BACKLOG */}
                       <div>
                         <span className="font-bold text-slate-400 uppercase text-[10px] tracking-wider mb-2 block">
-                          BACKLOG
+                          CHỜ XỬ LÝ
                         </span>
                         <div className="space-y-2">
                           <div className="bg-slate-50 text-slate-800 p-2.5 rounded-xl font-medium border border-slate-200/70 shadow-2xs">
-                            Security Audit
+                            Rà soát bảo mật
                           </div>
                           <div className="bg-slate-50 text-slate-800 p-2.5 rounded-xl font-medium border border-slate-200/70 shadow-2xs">
-                            Cloud Migration
+                            Chuyển hạ tầng lên cloud
                           </div>
                         </div>
                       </div>
@@ -182,20 +182,20 @@ export function AuthShell({
                       {/* ACTIVE */}
                       <div>
                         <span className="font-bold text-teal-600 uppercase text-[10px] tracking-wider mb-2 block">
-                          ACTIVE
+                          ĐANG LÀM
                         </span>
                         <div className="bg-white text-slate-900 p-2.5 rounded-xl font-semibold border-2 border-blue-500 shadow-2xs">
-                          UI System Update
+                          Nâng cấp hệ thống giao diện
                         </div>
                       </div>
 
                       {/* COMPLETED */}
                       <div>
                         <span className="font-bold text-emerald-600 uppercase text-[10px] tracking-wider mb-2 block">
-                          COMPLETED
+                          HOÀN THÀNH
                         </span>
                         <div className="bg-slate-50 text-slate-400 p-2.5 rounded-xl font-medium border border-slate-200/50">
-                          Auth Flow
+                          Luồng đăng nhập
                         </div>
                       </div>
                     </div>
@@ -205,16 +205,16 @@ export function AuthShell({
                   <div className="absolute -bottom-6 -right-4 bg-white rounded-2xl p-4 shadow-xl shadow-slate-900/5 border border-slate-100 w-56 transform hover:-translate-y-1 transition duration-300">
                     <div className="flex items-center gap-2 mb-2.5">
                       <Bell className="w-3.5 h-3.5 text-blue-600" />
-                      <span className="text-xs font-extrabold text-slate-800">Recent Activity</span>
+                      <span className="text-xs font-extrabold text-slate-800">Hoạt động gần đây</span>
                     </div>
                     <div className="space-y-1.5 text-[11px]">
                       <div className="flex items-center gap-2 text-slate-600">
                         <span className="w-1.5 h-1.5 rounded-full bg-blue-600 shrink-0" />
-                        <span className="truncate">Sarah updated <strong className="font-bold text-slate-800">Sprint 4</strong></span>
+                        <span className="truncate">Minh vừa cập nhật <strong className="font-bold text-slate-800">Sprint 4</strong></span>
                       </div>
                       <div className="flex items-center gap-2 text-slate-400">
                         <span className="w-1.5 h-1.5 rounded-full bg-slate-300 shrink-0" />
-                        <span className="truncate">New task assigned</span>
+                        <span className="truncate">Có công việc mới được giao</span>
                       </div>
                     </div>
                   </div>
@@ -222,7 +222,7 @@ export function AuthShell({
                   {/* Floating Card 2: Team Velocity */}
                   <div className="absolute -bottom-10 -left-6 bg-white rounded-2xl p-4 shadow-xl shadow-slate-900/5 border border-slate-100 w-52 transform hover:-translate-y-1 transition duration-300">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-[11px] font-bold text-slate-800">Team Velocity</span>
+                      <span className="text-[11px] font-bold text-slate-800">Tốc độ của nhóm</span>
                       <span className="text-[11px] font-extrabold text-blue-600">+14%</span>
                     </div>
                     <div className="flex items-end gap-1.5 h-10 pt-2">
@@ -240,7 +240,7 @@ export function AuthShell({
 
           {/* Left Footer Info */}
           <div className="relative z-10 text-xs text-slate-400">
-            Intelligent Agile Workspace Platform
+            Nền tảng làm việc Agile có AI hỗ trợ
           </div>
         </section>
 
@@ -289,11 +289,11 @@ export function AuthShell({
 
           {/* Bottom Page Footer */}
           <div className="mt-6 pt-4 border-t border-slate-100 text-center sm:flex sm:items-center sm:justify-between text-xs text-slate-400 space-y-2 sm:space-y-0">
-            <span>© {new Date().getFullYear()} AgileFlow. Built for high-velocity teams.</span>
+            <span>© {new Date().getFullYear()} AgileFlow. Dành cho những nhóm làm việc nhanh.</span>
             <div className="flex justify-center gap-4 text-slate-400">
-              <a href="#" className="hover:text-slate-600 transition">Privacy Policy</a>
-              <a href="#" className="hover:text-slate-600 transition">Terms of Service</a>
-              <a href="#" className="hover:text-slate-600 transition">Support</a>
+              <a href="#" className="hover:text-slate-600 transition">Chính sách bảo mật</a>
+              <a href="#" className="hover:text-slate-600 transition">Điều khoản sử dụng</a>
+              <a href="#" className="hover:text-slate-600 transition">Hỗ trợ</a>
             </div>
           </div>
         </section>

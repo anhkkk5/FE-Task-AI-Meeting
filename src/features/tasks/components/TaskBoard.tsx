@@ -55,11 +55,6 @@ export function TaskBoard({ items }: TaskBoardProps) {
                         {task.sprint.name}
                       </span>
                     ) : null}
-                    {task.storyPoints ? (
-                      <span className="rounded border border-[#dfe1e6] bg-white px-1.5 py-0.5 text-xs text-[#44546f]">
-                        {task.storyPoints} SP
-                      </span>
-                    ) : null}
                   </div>
 
                   <div className="mt-3 flex items-center justify-between gap-2">

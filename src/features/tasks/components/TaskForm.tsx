@@ -23,8 +23,6 @@ export function TaskForm({
   const [sprintId, setSprintId] = useState("");
   const [assigneeId, setAssigneeId] = useState("");
   const [dueDate, setDueDate] = useState("");
-  const [estimatedHours, setEstimatedHours] = useState("");
-  const [storyPoints, setStoryPoints] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -38,8 +36,6 @@ export function TaskForm({
         sprintId: sprintId || undefined,
         assigneeId: assigneeId || undefined,
         dueDate: dueDate || undefined,
-        estimatedHours: estimatedHours ? Number(estimatedHours) : undefined,
-        storyPoints: storyPoints ? Number(storyPoints) : undefined,
       });
     } finally {
       setIsSubmitting(false);
@@ -106,7 +102,7 @@ export function TaskForm({
         </label>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2">
         <label className="grid gap-2 text-sm font-semibold text-zinc-700">
           Due date
           <input
@@ -114,30 +110,6 @@ export function TaskForm({
             type="date"
             value={dueDate}
             onChange={(event) => setDueDate(event.target.value)}
-          />
-        </label>
-
-        <label className="grid gap-2 text-sm font-semibold text-zinc-700">
-          Estimated hours
-          <input
-            className="h-11 rounded-xl border border-zinc-300 px-3 text-sm font-normal outline-none transition focus:border-zinc-900"
-            min="0.1"
-            step="0.1"
-            type="number"
-            value={estimatedHours}
-            onChange={(event) => setEstimatedHours(event.target.value)}
-          />
-        </label>
-
-        <label className="grid gap-2 text-sm font-semibold text-zinc-700">
-          Story points
-          <input
-            className="h-11 rounded-xl border border-zinc-300 px-3 text-sm font-normal outline-none transition focus:border-zinc-900"
-            min="1"
-            step="1"
-            type="number"
-            value={storyPoints}
-            onChange={(event) => setStoryPoints(event.target.value)}
           />
         </label>
       </div>

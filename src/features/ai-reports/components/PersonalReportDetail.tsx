@@ -6,7 +6,7 @@ type PersonalReportDetailProps = {
 
 function RenderList({ items }: { items?: string[] }) {
   if (!items?.length) {
-    return <p className="text-sm font-medium text-zinc-400">Khong co du lieu.</p>;
+    return <p className="text-sm font-medium text-zinc-400">Không có dữ liệu.</p>;
   }
 
   return (
@@ -85,13 +85,13 @@ export function PersonalReportDetail({ report }: PersonalReportDetailProps) {
       <section className="grid gap-4 lg:grid-cols-2">
         <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
           <h2 className="mb-4 text-sm font-black text-zinc-950">
-            Viec da hoan thanh
+            Việc đã hoàn thành
           </h2>
           <RenderList items={output.completedTasks} />
         </div>
         <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
           <h2 className="mb-4 text-sm font-black text-zinc-950">
-            Viec dang xu ly
+            Việc đang xử lý
           </h2>
           <RenderList items={output.inProgressTasks} />
         </div>
@@ -100,7 +100,7 @@ export function PersonalReportDetail({ report }: PersonalReportDetailProps) {
           <RenderList items={output.blockers} />
         </div>
         <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
-          <h2 className="mb-4 text-sm font-black text-zinc-950">Rui ro</h2>
+          <h2 className="mb-4 text-sm font-black text-zinc-950">Rủi ro</h2>
           <RenderList items={output.risks} />
         </div>
       </section>
@@ -108,7 +108,7 @@ export function PersonalReportDetail({ report }: PersonalReportDetailProps) {
       {output.handoverSummary?.trim() ? (
         <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
           <h2 className="mb-4 text-sm font-black text-zinc-950">
-            Ban giao cong viec
+            Bàn giao công việc
           </h2>
           <p className="whitespace-pre-line text-sm font-medium leading-relaxed text-zinc-600">
             {output.handoverSummary}
@@ -118,7 +118,7 @@ export function PersonalReportDetail({ report }: PersonalReportDetailProps) {
 
       <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
         <h2 className="mb-4 text-sm font-black text-zinc-950">
-          Goi y hanh dong
+          Gợi ý hành động
         </h2>
         <RenderList items={output.recommendations} />
       </section>

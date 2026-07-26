@@ -34,13 +34,13 @@ const backlogDropTarget = "backlog";
 type DropTargetId = typeof backlogDropTarget | string;
 
 const statusFilterOptions: Array<{ value: "ALL" | TaskStatus; label: string }> = [
-  { value: "ALL", label: "Tat ca trang thai" },
+  { value: "ALL", label: "Tất cả trạng thái" },
   { value: "BACKLOG", label: "Backlog" },
-  { value: "TODO", label: "Can lam" },
-  { value: "IN_PROGRESS", label: "Dang lam" },
-  { value: "REVIEW", label: "Dang review" },
-  { value: "DONE", label: "Hoan thanh" },
-  { value: "CANCELLED", label: "Da huy" },
+  { value: "TODO", label: "Cần làm" },
+  { value: "IN_PROGRESS", label: "Đang làm" },
+  { value: "REVIEW", label: "Đang review" },
+  { value: "DONE", label: "Hoàn thành" },
+  { value: "CANCELLED", label: "Đã hủy" },
 ];
 
 function formatDate(value: string | null | undefined) {
@@ -208,6 +208,39 @@ export default function BacklogPage() {
     }
   };
 
+  /**
+   * Doi trang thai ngay tren dong backlog.
+   *
+   * Tach rieng khoi handler cua drawer vi o day loi phai tu bao,
+   * drawer thi tu no da bat loi.
+   */
+  const handleRowStatusChange = async (task: Task, status: TaskStatus) => {
+    if (status === task.status) return;
+
+    try {
+      const response = await updateTaskStatus(params.workspaceId, params.projectId, task.id, {
+        status,
+      });
+      syncTask(response.data.task);
+    } catch (error) {
+      alert(error instanceof Error ? error.message : "Không thể cập nhật trạng thái task");
+    }
+  };
+
+  /** Doi nguoi phu trach ngay tren dong backlog. */
+  const handleRowAssign = async (task: Task, assigneeId: string | null) => {
+    if (assigneeId === (task.assigneeId ?? null)) return;
+
+    try {
+      const response = await assignTask(params.workspaceId, params.projectId, task.id, {
+        assigneeId,
+      });
+      syncTask(response.data.task);
+    } catch (error) {
+      alert(error instanceof Error ? error.message : "Không thể gán người phụ trách");
+    }
+  };
+
   const handleDrawerStatusChange = async (task: Task, status: TaskStatus) => {
     const response = await updateTaskStatus(params.workspaceId, params.projectId, task.id, {
       status,
@@ -360,9 +393,15 @@ export default function BacklogPage() {
     };
   };
 
-  const renderTaskRow = (task: Task, currentSprintId: string | null) => (
+  const renderTaskRow = (task: Task, currentSprintId: string | null) => {
+    // MEMBER duoc tu doi trang thai task cua chinh minh, giong Jira.
+    const canChangeStatus =
+      task.status !== "CANCELLED" &&
+      (canWrite || (myRole === "MEMBER" && task.assigneeId === user?.id));
+
+    return (
     <div
-      className={`grid grid-cols-[28px_minmax(120px,1fr)_110px_110px_90px_36px] items-center gap-3 border-t border-[#dfe1e6] bg-white px-3 py-2 text-sm transition hover:bg-[#f7f8f9] ${
+      className={`grid grid-cols-[28px_minmax(120px,1fr)_128px_110px_90px_150px] items-center gap-3 border-t border-[#dfe1e6] bg-white px-3 py-2 text-sm transition hover:bg-[#f7f8f9] ${
         canWrite ? "cursor-grab active:cursor-grabbing" : ""
       } ${draggedTaskId === task.id ? "opacity-50" : ""}`}
       draggable={canWrite}
@@ -397,9 +436,26 @@ export default function BacklogPage() {
         </button>
       </div>
 
-      <span className={`w-fit rounded px-1.5 py-0.5 text-xs font-semibold ${statusClass(task.status)}`}>
-        {statusLabel(task.status)}
-      </span>
+      {canChangeStatus ? (
+        <select
+          className={`h-7 w-full cursor-pointer rounded border-none px-1.5 text-xs font-semibold outline-none focus:ring-2 focus:ring-[#0c66e4] ${statusClass(task.status)}`}
+          onChange={(event) =>
+            void handleRowStatusChange(task, event.target.value as TaskStatus)
+          }
+          onClick={(event) => event.stopPropagation()}
+          value={task.status}
+        >
+          <option value="BACKLOG">Backlog</option>
+          <option value="TODO">Cần làm</option>
+          <option value="IN_PROGRESS">Đang làm</option>
+          <option value="REVIEW">Review</option>
+          <option value="DONE">Done</option>
+        </select>
+      ) : (
+        <span className={`w-fit rounded px-1.5 py-0.5 text-xs font-semibold ${statusClass(task.status)}`}>
+          {statusLabel(task.status)}
+        </span>
+      )}
 
       {canWrite ? (
         <select
@@ -422,14 +478,40 @@ export default function BacklogPage() {
         <span>{formatDate(task.dueDate)}</span>
       </div>
 
-      <span
-        className="flex h-6 w-6 items-center justify-center rounded-full bg-[#00875a] text-xs font-semibold text-white"
-        title={task.assignee?.fullName ?? "Chưa gán"}
-      >
-        {task.assignee?.fullName ? task.assignee.fullName.charAt(0).toUpperCase() : "-"}
-      </span>
+      <div className="flex min-w-0 items-center gap-2">
+        <span
+          className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-semibold ${
+            task.assignee ? "bg-[#00875a] text-white" : "bg-[#dfe1e6] text-[#6b778c]"
+          }`}
+          title={task.assignee?.fullName ?? "Chưa gán"}
+        >
+          {task.assignee?.fullName ? task.assignee.fullName.charAt(0).toUpperCase() : "-"}
+        </span>
+        {canWrite ? (
+          <select
+            className="h-7 min-w-0 flex-1 cursor-pointer rounded border border-[#dfe1e6] bg-white px-1.5 text-xs text-[#44546f] outline-none focus:border-[#0c66e4]"
+            onChange={(event) => void handleRowAssign(task, event.target.value || null)}
+            onClick={(event) => event.stopPropagation()}
+            value={task.assigneeId ?? ""}
+          >
+            <option value="">Chưa gán</option>
+            {members
+              .filter((member) => member.status === "ACTIVE")
+              .map((member) => (
+                <option key={member.userId} value={member.userId}>
+                  {member.fullName || member.email || member.userId}
+                </option>
+              ))}
+          </select>
+        ) : (
+          <span className="truncate text-xs text-[#6b778c]">
+            {task.assignee?.fullName ?? "Chưa gán"}
+          </span>
+        )}
+      </div>
     </div>
-  );
+    );
+  };
 
   const renderSprint = (sprint: Sprint) => {
     const sprintTasks = getTasksBySprint(sprint.id);
@@ -578,12 +660,12 @@ export default function BacklogPage() {
           <div className="flex flex-col gap-4 border-b border-[#dfe1e6] px-4 py-4 xl:flex-row xl:items-end xl:justify-between">
             <div className="grid flex-1 gap-3 md:grid-cols-[minmax(240px,1fr)_180px_220px_auto] md:items-end">
               <label className="grid gap-1 text-xs font-semibold text-[#44546f]">
-                Tim task
+                Tìm task
                 <div className="relative">
                   <input
                     className="h-10 w-full rounded border border-[#dfe1e6] bg-white pl-9 pr-3 text-sm text-[#172b4d] outline-none hover:bg-[#f7f8f9] focus:border-[#0c66e4]"
                     onChange={(event) => setSearchKeyword(event.target.value)}
-                    placeholder="Nhap ten task hoac ma task"
+                    placeholder="Nhập tên task hoặc mã task"
                     value={searchKeyword}
                   />
                   <svg
@@ -603,7 +685,7 @@ export default function BacklogPage() {
               </label>
 
               <label className="grid gap-1 text-xs font-semibold text-[#44546f]">
-                Trang thai
+                Trạng thái
                 <select
                   className="h-10 rounded border border-[#dfe1e6] bg-white px-3 text-sm text-[#172b4d] outline-none hover:bg-[#f7f8f9] focus:border-[#0c66e4]"
                   onChange={(event) =>
@@ -620,13 +702,13 @@ export default function BacklogPage() {
               </label>
 
               <label className="grid gap-1 text-xs font-semibold text-[#44546f]">
-                Nguoi nhan
+                Người nhận
                 <select
                   className="h-10 rounded border border-[#dfe1e6] bg-white px-3 text-sm text-[#172b4d] outline-none hover:bg-[#f7f8f9] focus:border-[#0c66e4]"
                   onChange={(event) => setSelectedAssigneeId(event.target.value || null)}
                   value={selectedAssigneeId ?? ""}
                 >
-                  <option value="">Tat ca thanh vien</option>
+                  <option value="">Tất cả thành viên</option>
                   {members.map((member) => (
                     <option key={member.userId} value={member.userId}>
                       {member.fullName || member.email || member.userId}
@@ -641,7 +723,7 @@ export default function BacklogPage() {
                 onClick={clearFilters}
                 type="button"
               >
-                Xoa loc
+                Xóa lọc
               </button>
             </div>
 
@@ -652,7 +734,7 @@ export default function BacklogPage() {
                 onClick={() => void loadData()}
                 type="button"
               >
-                Lam moi
+                Làm mới
               </button>
               {canWrite ? (
                 <>
@@ -660,7 +742,7 @@ export default function BacklogPage() {
                     className="flex h-10 items-center rounded border border-[#dfe1e6] bg-white px-3 text-sm font-semibold text-[#44546f] hover:bg-[#f1f2f4]"
                     href={`/workspaces/${params.workspaceId}/projects/${params.projectId}/sprints/create`}
                   >
-                    Tao sprint
+                    Tạo sprint
                   </Link>
                   <button
                     className={`h-10 rounded border px-3 text-sm font-semibold ${
@@ -671,13 +753,13 @@ export default function BacklogPage() {
                     onClick={() => setShowImportPanel((prev) => !prev)}
                     type="button"
                   >
-                    Nhap Excel
+                    Nhập Excel
                   </button>
                   <Link
                     className="flex h-10 items-center rounded bg-[#0c66e4] px-4 text-sm font-semibold text-white hover:bg-[#0055cc]"
                     href={`/workspaces/${params.workspaceId}/projects/${params.projectId}/tasks/create`}
                   >
-                    Tao task
+                    Tạo task
                   </Link>
                 </>
               ) : null}
@@ -686,7 +768,7 @@ export default function BacklogPage() {
 
           <div className="grid gap-0 border-b border-[#dfe1e6] md:grid-cols-5">
             <div className="border-b border-[#dfe1e6] px-4 py-3 md:border-b-0 md:border-r">
-              <p className="text-[11px] font-bold uppercase tracking-wide text-[#6b778c]">Tong task</p>
+              <p className="text-[11px] font-bold uppercase tracking-wide text-[#6b778c]">Tổng task</p>
               <p className="mt-1 text-xl font-semibold text-[#172b4d]">{taskSummary.total}</p>
             </div>
             <div className="border-b border-[#dfe1e6] px-4 py-3 md:border-b-0 md:border-r">
@@ -694,25 +776,25 @@ export default function BacklogPage() {
               <p className="mt-1 text-xl font-semibold text-[#172b4d]">{taskSummary.backlog}</p>
             </div>
             <div className="border-b border-[#dfe1e6] px-4 py-3 md:border-b-0 md:border-r">
-              <p className="text-[11px] font-bold uppercase tracking-wide text-[#6b778c]">Can lam</p>
+              <p className="text-[11px] font-bold uppercase tracking-wide text-[#6b778c]">Cần làm</p>
               <p className="mt-1 text-xl font-semibold text-[#44546f]">{taskSummary.todo}</p>
             </div>
             <div className="border-b border-[#dfe1e6] px-4 py-3 md:border-b-0 md:border-r">
-              <p className="text-[11px] font-bold uppercase tracking-wide text-[#6b778c]">Dang xu ly</p>
+              <p className="text-[11px] font-bold uppercase tracking-wide text-[#6b778c]">Đang xử lý</p>
               <p className="mt-1 text-xl font-semibold text-[#0c66e4]">{taskSummary.inProgress}</p>
             </div>
             <div className="px-4 py-3">
-              <p className="text-[11px] font-bold uppercase tracking-wide text-[#6b778c]">Hoan thanh</p>
+              <p className="text-[11px] font-bold uppercase tracking-wide text-[#6b778c]">Hoàn thành</p>
               <p className="mt-1 text-xl font-semibold text-[#216e4e]">{taskSummary.done}</p>
             </div>
           </div>
 
           <div className="flex flex-col gap-2 px-4 py-3 text-xs text-[#6b778c] lg:flex-row lg:items-center lg:justify-between">
             <p>
-              Keo task giua Backlog va Sprint de sap xep cong viec. Bam ten task de mo bang chi tiet ben phai.
+              Kéo task giữa Backlog và Sprint để sắp xếp công việc. Bấm tên task để mở bảng chi tiết bên phải.
             </p>
             <p className="font-semibold text-[#44546f]">
-              Sprint dang chay: {activeSprintCount} · Sprint sap toi: {plannedSprintCount}
+              Sprint đang chạy: {activeSprintCount} · Sprint sắp tới: {plannedSprintCount}
             </p>
           </div>
         </section>

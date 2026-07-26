@@ -87,7 +87,7 @@ function getMediaAccessErrorMessage(error?: unknown) {
     }
 
     if (error.name === "NotFoundError") {
-      return "Khong tim thay camera hoac microphone tren thiet bi.";
+      return "Không tìm thấy camera hoặc microphone trên thiết bị.";
     }
 
     if (error.name === "SecurityError") {
@@ -606,7 +606,7 @@ export function useMeetingWebRtc({
       setScreenSharing(true);
       emitMediaState({ screenSharing: true, videoEnabled: true });
     } catch {
-      setError("Da huy chia se man hinh.");
+      setError("Đã hủy chia sẻ màn hình.");
     }
   }, [emitMediaState, startLocalMedia, stopScreenShare]);
 

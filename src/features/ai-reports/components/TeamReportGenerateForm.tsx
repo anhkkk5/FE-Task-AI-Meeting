@@ -52,7 +52,7 @@ export function TeamReportGenerateForm({
     <form className="grid gap-5" onSubmit={handleSubmit}>
       <div className="grid gap-4 md:grid-cols-2">
         <label className="grid gap-2 text-sm font-semibold text-zinc-700">
-          Ngay bao cao
+          Ngày báo cáo
           <input
             className="h-11 rounded-xl border border-zinc-300 bg-white px-3 text-sm font-normal outline-none transition focus:border-blue-600"
             required
@@ -69,7 +69,7 @@ export function TeamReportGenerateForm({
             value={sprintId}
             onChange={(event) => setSprintId(event.target.value)}
           >
-            <option value="">Tat ca task trong project</option>
+            <option value="">Tất cả task trong dự án</option>
             {sprints.map((sprint) => (
               <option key={sprint.id} value={sprint.id}>
                 {sprint.name} ({sprint.status})
@@ -89,7 +89,7 @@ export function TeamReportGenerateForm({
         disabled={isSubmitting}
         type="submit"
       >
-        {isSubmitting ? "Dang tao team report..." : submitLabel}
+        {isSubmitting ? "Đang tạo báo cáo nhóm..." : submitLabel}
       </button>
     </form>
   );

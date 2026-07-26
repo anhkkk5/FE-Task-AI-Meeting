@@ -30,15 +30,15 @@ const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function getLookupReasonLabel(reason: WorkspaceMemberLookup["reason"]) {
   if (reason === "ALREADY_ACTIVE_MEMBER") {
-    return "Tai khoan nay da la thanh vien ACTIVE cua workspace.";
+    return "Tài khoản này đã là thành viên ACTIVE của workspace.";
   }
 
   if (reason === "USER_NOT_ACTIVE") {
-    return "Tai khoan nay khong o trang thai ACTIVE nen chua the them.";
+    return "Tài khoản này không ở trạng thái ACTIVE nên chưa thể thêm.";
   }
 
   if (reason === "USER_NOT_FOUND") {
-    return "Khong tim thay tai khoan da dang ky voi email nay.";
+    return "Không tìm thấy tài khoản đã đăng ký với email này.";
   }
 
   return "";
@@ -104,7 +104,7 @@ export default function WorkspaceMembersPage() {
 
     if (!emailPattern.test(normalizedEmail)) {
       setLookupResult(null);
-      setLookupMessage("Nhap dung dinh dang email de tim tai khoan.");
+      setLookupMessage("Nhập đúng định dạng email để tìm tài khoản.");
       setIsLookingUp(false);
       return undefined;
     }
@@ -127,21 +127,21 @@ export default function WorkspaceMembersPage() {
         setLookupResult(response.data);
 
         if (!response.data.user) {
-          setLookupMessage("Khong tim thay tai khoan da dang ky voi email nay.");
+          setLookupMessage("Không tìm thấy tài khoản đã đăng ký với email này.");
         } else if (!response.data.canAdd) {
           setLookupMessage(getLookupReasonLabel(response.data.reason));
         } else if (
           response.data.reason === "REMOVED_MEMBER_CAN_BE_REACTIVATED"
         ) {
           setLookupMessage(
-            "Tai khoan nay tung bi xoa khoi workspace. Bam them de kich hoat lai.",
+            "Tài khoản này từng bị xóa khỏi workspace. Bấm thêm để kích hoạt lại.",
           );
         }
       } catch (error) {
         if (!cancelled) {
           setLookupResult(null);
           setLookupMessage(
-            error instanceof Error ? error.message : "Tim tai khoan that bai.",
+            error instanceof Error ? error.message : "Tìm tài khoản thất bại.",
           );
         }
       } finally {
@@ -161,7 +161,7 @@ export default function WorkspaceMembersPage() {
     event.preventDefault();
 
     if (!canAddLookedUpUser) {
-      setMessage("Hay chon mot tai khoan hop le truoc khi them thanh vien.");
+      setMessage("Hãy chọn một tài khoản hợp lệ trước khi thêm thành viên.");
       return;
     }
 
@@ -340,7 +340,7 @@ export default function WorkspaceMembersPage() {
               <div className="sm:col-span-3">
                 {isLookingUp ? (
                   <div className="rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-xs font-semibold text-blue-700">
-                    Dang tim tai khoan...
+                    Đang tìm tài khoản...
                   </div>
                 ) : lookupResult?.user ? (
                   <div
@@ -395,7 +395,7 @@ export default function WorkspaceMembersPage() {
                   </div>
                 ) : (
                   <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-3 text-xs font-semibold text-slate-500">
-                    Nhap email user da dang ky de xem thong tin truoc khi them.
+                    Nhập email người dùng đã đăng ký để xem thông tin trước khi thêm.
                   </div>
                 )}
               </div>

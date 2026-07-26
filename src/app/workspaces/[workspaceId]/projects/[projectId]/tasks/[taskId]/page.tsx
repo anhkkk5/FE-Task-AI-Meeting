@@ -362,14 +362,6 @@ export default function TaskDetailPage() {
                     {formatDate(task.dueDate)}
                   </dd>
                 </div>
-                <div className="rounded-xl border border-zinc-100 bg-zinc-50 p-4">
-                  <dt className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
-                    Effort
-                  </dt>
-                  <dd className="mt-1 text-xs font-semibold text-zinc-800">
-                    {task.estimatedHours ?? "-"}h · {task.storyPoints ?? "-"} SP
-                  </dd>
-                </div>
               </dl>
             </section>
 

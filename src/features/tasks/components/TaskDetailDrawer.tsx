@@ -39,15 +39,15 @@ function statusLabel(status: TaskStatus) {
     case "BACKLOG":
       return "Backlog";
     case "TODO":
-      return "Can lam";
+      return "Cần làm";
     case "IN_PROGRESS":
-      return "Dang lam";
+      return "Đang làm";
     case "REVIEW":
       return "Review";
     case "DONE":
-      return "Hoan thanh";
+      return "Hoàn thành";
     case "CANCELLED":
-      return "Da huy";
+      return "Đã hủy";
   }
 }
 
@@ -92,7 +92,7 @@ export function TaskDetailDrawer({
       await action();
       setMessage(successMessage);
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : "Thao tac that bai.");
+      setMessage(error instanceof Error ? error.message : "Thao tác thất bại.");
     } finally {
       setIsBusy(false);
     }
@@ -101,7 +101,7 @@ export function TaskDetailDrawer({
   return (
     <div className="fixed inset-0 z-50 flex justify-end bg-slate-950/35">
       <button
-        aria-label="Dong chi tiet task"
+        aria-label="Đóng chi tiết task"
         className="hidden flex-1 cursor-default bg-transparent md:block"
         onClick={onClose}
         type="button"
@@ -145,10 +145,10 @@ export function TaskDetailDrawer({
 
             <div>
               <h3 className="text-xs font-bold uppercase tracking-wide text-[#6b778c]">
-                Mo ta
+                Mô tả
               </h3>
               <p className="mt-2 rounded border border-[#dfe1e6] bg-[#f7f8f9] px-3 py-3 text-sm leading-6 text-[#172b4d]">
-                {task.description || "Task nay chua co mo ta chi tiet."}
+                {task.description || "Task này chưa có mô tả chi tiết."}
               </p>
             </div>
           </section>
@@ -156,39 +156,36 @@ export function TaskDetailDrawer({
           <section className="grid gap-3 sm:grid-cols-2">
             <div className="rounded border border-[#dfe1e6] bg-white px-3 py-3">
               <p className="text-[10px] font-bold uppercase tracking-wide text-[#6b778c]">
-                Nguoi nhan
+                Người nhận
               </p>
               <p className="mt-1 text-sm font-semibold text-[#172b4d]">
-                {task.assignee?.fullName ?? "Chua gan"}
+                {task.assignee?.fullName ?? "Chưa gán"}
               </p>
               <p className="text-xs text-[#6b778c]">{task.assignee?.email ?? "-"}</p>
             </div>
 
             <div className="rounded border border-[#dfe1e6] bg-white px-3 py-3">
               <p className="text-[10px] font-bold uppercase tracking-wide text-[#6b778c]">
-                Han xu ly
+                Hạn xử lý
               </p>
               <p className="mt-1 text-sm font-semibold text-[#172b4d]">
                 {formatDate(task.dueDate)}
-              </p>
-              <p className="text-xs text-[#6b778c]">
-                {task.estimatedHours ?? "-"}h / {task.storyPoints ?? "-"} SP
               </p>
             </div>
           </section>
 
           <section className="rounded border border-[#dfe1e6] bg-white p-4">
-            <h3 className="text-sm font-semibold text-[#172b4d]">Cap nhat nhanh</h3>
+            <h3 className="text-sm font-semibold text-[#172b4d]">Cập nhật nhanh</h3>
 
             <div className="mt-4 grid gap-3">
               <label className="grid gap-1 text-xs font-semibold text-[#44546f]">
-                Trang thai
+                Trạng thái
                 <TaskStatusSelect
                   disabled={!canChangeStatus || isBusy || task.status === "CANCELLED"}
                   onChange={(status) =>
                     void runAction(
                       () => onStatusChange(task, status),
-                      "Da cap nhat trang thai task.",
+                      "Đã cập nhật trạng thái task.",
                     )
                   }
                   value={task.status}
@@ -196,14 +193,14 @@ export function TaskDetailDrawer({
               </label>
 
               <label className="grid gap-1 text-xs font-semibold text-[#44546f]">
-                Assignee
+                Người phụ trách
                 <select
                   className="h-10 rounded border border-[#dfe1e6] bg-white px-3 text-sm text-[#172b4d] outline-none focus:border-[#0c66e4] disabled:bg-[#f1f2f4]"
                   disabled={!canManage || isBusy}
                   onChange={(event) => setAssigneeId(event.target.value)}
                   value={assigneeId}
                 >
-                  <option value="">Chua gan</option>
+                  <option value="">Chưa gán</option>
                   {members.map((member) => (
                     <option key={member.userId} value={member.userId}>
                       {member.fullName || member.email || member.userId}
@@ -218,12 +215,12 @@ export function TaskDetailDrawer({
                 onClick={() =>
                   void runAction(
                     () => onAssign(task, assigneeId || null),
-                    "Da cap nhat nguoi nhan task.",
+                    "Đã cập nhật người nhận task.",
                   )
                 }
                 type="button"
               >
-                Luu assignee
+                Lưu người phụ trách
               </button>
 
               <label className="grid gap-1 text-xs font-semibold text-[#44546f]">
@@ -249,22 +246,22 @@ export function TaskDetailDrawer({
                 onClick={() =>
                   void runAction(
                     () => onMoveSprint(task, sprintId || null),
-                    "Da di chuyen task.",
+                    "Đã di chuyển task.",
                   )
                 }
                 type="button"
               >
-                Luu sprint
+                Lưu sprint
               </button>
             </div>
           </section>
 
           <section className="rounded border border-[#dfe1e6] bg-white p-4">
-            <h3 className="text-sm font-semibold text-[#172b4d]">Thong tin</h3>
+            <h3 className="text-sm font-semibold text-[#172b4d]">Thông tin</h3>
             <dl className="mt-3 grid gap-3 text-xs text-[#44546f]">
               <div>
                 <dt className="font-bold uppercase tracking-wide text-[#6b778c]">
-                  Nguoi tao
+                  Người tạo
                 </dt>
                 <dd className="mt-1 font-semibold">
                   {task.creator?.fullName ?? task.createdBy}
@@ -272,7 +269,7 @@ export function TaskDetailDrawer({
               </div>
               <div>
                 <dt className="font-bold uppercase tracking-wide text-[#6b778c]">
-                  Ngay tao
+                  Ngày tạo
                 </dt>
                 <dd className="mt-1 font-semibold">{formatDateTime(task.createdAt)}</dd>
               </div>
@@ -285,14 +282,14 @@ export function TaskDetailDrawer({
             className="rounded border border-[#dfe1e6] bg-white px-3 py-2 text-sm font-semibold text-[#44546f] hover:bg-[#f1f2f4]"
             href={`/workspaces/${workspaceId}/projects/${projectId}/tasks/${task.id}`}
           >
-            Mo trang chi tiet
+            Mở trang chi tiết
           </Link>
           <button
             className="rounded border border-[#ffbdad] bg-[#fff4f2] px-3 py-2 text-sm font-semibold text-[#ae2a19] hover:bg-[#ffebe6] disabled:cursor-not-allowed disabled:border-[#dfe1e6] disabled:bg-[#f1f2f4] disabled:text-[#6b778c]"
             disabled={!canManage || isBusy || task.status === "CANCELLED"}
             onClick={() => {
-              if (!confirm("Huy task nay?")) return;
-              void runAction(() => onCancel(task), "Da huy task.");
+              if (!confirm("Hủy task này?")) return;
+              void runAction(() => onCancel(task), "Đã hủy task.");
             }}
             type="button"
           >

@@ -41,7 +41,7 @@ export default function TeamAiReportDetailPage() {
       setReport(reportRes.data.report);
     } catch (error) {
       setMessage(
-        error instanceof Error ? error.message : "Tai AI team report that bai.",
+        error instanceof Error ? error.message : "Tải báo cáo nhóm thất bại.",
       );
     } finally {
       setIsLoading(false);
@@ -79,13 +79,13 @@ export default function TeamAiReportDetailPage() {
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-[10px] font-black uppercase tracking-[0.18em] text-indigo-600">
-                AI team report detail
+                Chi tiết báo cáo nhóm
               </p>
               <h1 className="mt-1 text-2xl font-black text-zinc-950">
-                Chi tiet bao cao nhom
+                Chi tiết báo cáo giao ban nhóm
               </h1>
               <p className="mt-2 break-all text-sm font-medium text-zinc-500">
-                Report ID: {params.reportId}
+                Mã báo cáo: {params.reportId}
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -94,19 +94,19 @@ export default function TeamAiReportDetailPage() {
                 type="button"
                 onClick={() => void loadData()}
               >
-                Lam moi
+                Làm mới
               </button>
               <Link
                 className="flex h-10 items-center rounded-xl border border-zinc-200 bg-white px-4 text-xs font-bold text-zinc-700 transition hover:bg-zinc-50"
                 href={`/workspaces/${params.workspaceId}/projects/${params.projectId}/ai-reports/personal`}
               >
-                Personal reports
+                Báo cáo cá nhân
               </Link>
               <Link
                 className="flex h-10 items-center rounded-xl bg-blue-600 px-4 text-xs font-bold text-white shadow-md shadow-blue-500/20 transition hover:bg-blue-700"
                 href={`/workspaces/${params.workspaceId}/projects/${params.projectId}/ai-reports/team`}
               >
-                Team reports
+                Danh sách báo cáo nhóm
               </Link>
             </div>
           </div>
@@ -126,7 +126,7 @@ export default function TeamAiReportDetailPage() {
           <TeamReportDetail report={report} />
         ) : (
           <div className="rounded-2xl border border-zinc-200 bg-white p-6 text-sm font-semibold text-zinc-700 shadow-sm">
-            Khong tim thay AI team report.
+            Không tìm thấy báo cáo nhóm.
           </div>
         )}
       </div>

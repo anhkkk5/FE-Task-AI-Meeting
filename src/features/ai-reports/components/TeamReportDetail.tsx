@@ -6,7 +6,7 @@ type TeamReportDetailProps = {
 
 function RenderList({ items }: { items?: string[] }) {
   if (!items?.length) {
-    return <p className="text-sm font-medium text-zinc-400">Khong co du lieu.</p>;
+    return <p className="text-sm font-medium text-zinc-400">Không có dữ liệu.</p>;
   }
 
   return (
@@ -84,7 +84,7 @@ export function TeamReportDetail({ report }: TeamReportDetailProps) {
 
       <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
         <h2 className="mb-3 text-sm font-black text-zinc-950">
-          Tien do team
+          Tiến độ nhóm
         </h2>
         <p className="text-sm font-medium leading-relaxed text-zinc-700">
           {output.teamProgress}
@@ -94,13 +94,13 @@ export function TeamReportDetail({ report }: TeamReportDetailProps) {
       <section className="grid gap-4 lg:grid-cols-2">
         <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
           <h2 className="mb-4 text-sm font-black text-zinc-950">
-            Viec da hoan thanh
+            Việc đã hoàn thành
           </h2>
           <RenderList items={output.completedWork} />
         </div>
         <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
           <h2 className="mb-4 text-sm font-black text-zinc-950">
-            Trong tam hom nay
+            Trọng tâm hôm nay
           </h2>
           <RenderList items={output.todayFocus} />
         </div>
@@ -109,14 +109,14 @@ export function TeamReportDetail({ report }: TeamReportDetailProps) {
           <RenderList items={output.blockers} />
         </div>
         <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
-          <h2 className="mb-4 text-sm font-black text-zinc-950">Rui ro</h2>
+          <h2 className="mb-4 text-sm font-black text-zinc-950">Rủi ro</h2>
           <RenderList items={output.risks} />
         </div>
       </section>
 
       <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
         <h2 className="mb-4 text-sm font-black text-zinc-950">
-          Member chua gui daily update
+          Thành viên chưa gửi cập nhật hằng ngày
         </h2>
         <RenderList items={output.missingDailyUpdates} />
       </section>
@@ -124,7 +124,7 @@ export function TeamReportDetail({ report }: TeamReportDetailProps) {
       {output.handoverSummary?.trim() ? (
         <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
           <h2 className="mb-4 text-sm font-black text-zinc-950">
-            Ban giao cong viec
+            Bàn giao công việc
           </h2>
           <p className="whitespace-pre-line text-sm font-medium leading-relaxed text-zinc-600">
             {output.handoverSummary}
@@ -134,7 +134,7 @@ export function TeamReportDetail({ report }: TeamReportDetailProps) {
 
       <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
         <h2 className="mb-4 text-sm font-black text-zinc-950">
-          Tom tat theo member
+          Tóm tắt theo thành viên
         </h2>
         {output.memberSummaries?.length ? (
           <div className="grid gap-3">
@@ -158,13 +158,13 @@ export function TeamReportDetail({ report }: TeamReportDetailProps) {
             ))}
           </div>
         ) : (
-          <p className="text-sm font-medium text-zinc-400">Khong co du lieu.</p>
+          <p className="text-sm font-medium text-zinc-400">Không có dữ liệu.</p>
         )}
       </section>
 
       <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
         <h2 className="mb-4 text-sm font-black text-zinc-950">
-          Goi y hanh dong
+          Gợi ý hành động
         </h2>
         <RenderList items={output.recommendations} />
       </section>
