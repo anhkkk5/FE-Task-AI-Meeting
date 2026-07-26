@@ -42,6 +42,37 @@ export function formatDate(value: string | null | undefined) {
 }
 
 /**
+ * Dinh dang gio theo MUI GIO CUA MAY nguoi dung: "08:15".
+ *
+ * Backend tra ve moc thoi gian dang ISO UTC (vi du 2026-07-26T01:15:00.000Z).
+ * Truoc day cac component cat truc tiep chuoi nay bang value.slice(11, 16) nen
+ * hien ra dung phan gio UTC - lech 7 tieng so voi gio Viet Nam. Phai di qua
+ * Date de trinh duyet tu quy doi ve gio dia phuong.
+ */
+export function formatTime(value: string | null | undefined) {
+  if (!value) return "--:--";
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "--:--";
+
+  return date.toLocaleTimeString("vi-VN", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+}
+
+/** Dinh dang ngay kem gio theo mui gio dia phuong: "26/07/2026 08:15". */
+export function formatDateTime(value: string | null | undefined) {
+  if (!value) return "Chưa đặt";
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "Chưa đặt";
+
+  return `${formatDate(value)} ${formatTime(value)}`;
+}
+
+/**
  * Mo ta deadline con lai: "Quá hạn 2 ngày", "Hôm nay", "Còn 5 ngày".
  * So sanh theo moc dau ngay de khong bi lech vi gio.
  */

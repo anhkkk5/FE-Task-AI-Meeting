@@ -218,6 +218,21 @@ export function appendLiveTranscriptSegment(
   });
 }
 
+/**
+ * Whisper suy ra codec mot phan tu phan mo rong tep, nen phai dat ten dung
+ * dinh dang thuc te. Hook thu am gui WAV 16kHz mono.
+ */
+function getAudioExtension(mimeType: string) {
+  const type = mimeType.split(";")[0].trim().toLowerCase();
+
+  if (type === "audio/wav" || type === "audio/x-wav") return "wav";
+  if (type === "audio/mp4" || type === "audio/x-m4a") return "m4a";
+  if (type === "audio/mpeg") return "mp3";
+  if (type === "audio/ogg") return "ogg";
+
+  return "webm";
+}
+
 export function uploadMeetingAudioChunk(
   workspaceId: string,
   projectId: string,
@@ -225,8 +240,11 @@ export function uploadMeetingAudioChunk(
   payload: UploadMeetingAudioChunkPayload,
 ) {
   const formData = new FormData();
-  const extension = payload.audio.type.includes("mp4") ? "m4a" : "webm";
-  formData.append("audio", payload.audio, `meeting-chunk.${extension}`);
+  formData.append(
+    "audio",
+    payload.audio,
+    `meeting-chunk.${getAudioExtension(payload.audio.type)}`,
+  );
   formData.append("chunkId", payload.chunkId);
   formData.append("startedAt", payload.startedAt);
   formData.append("endedAt", payload.endedAt);

@@ -436,7 +436,6 @@ export default function MeetingRoomPage() {
               <div className="mt-5">
                 <MeetingLiveTranscriptPanel
                   disabled={!isConnected || isWaitingApproval}
-                  localStream={localStream}
                   meetingId={params.meetingId}
                   projectId={params.projectId}
                   workspaceId={params.workspaceId}

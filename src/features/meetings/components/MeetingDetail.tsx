@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { formatDateTime } from "@/lib/utils/relative-time";
 import { Meeting } from "../types/meeting.type";
 
 type MeetingDetailProps = {
@@ -37,12 +38,9 @@ const statusTone: Record<Meeting["status"], string> = {
   ARCHIVED: "bg-[#f1f2f4] text-[#44546f]",
 };
 
-function formatDateTime(value: string | null) {
-  if (!value) return "Chưa đặt";
-
-  return `${value.slice(8, 10)}/${value.slice(5, 7)}/${value.slice(0, 4)} ${value.slice(11, 16)}`;
-}
-
+// meetingDate la ngay tran dang "2026-07-26" (khong co gio, khong co mui gio)
+// nen cat chuoi la dung. Rieng startTime/endTime la moc ISO UTC nen phai dung
+// formatDateTime() de quy doi ve gio dia phuong.
 function formatDate(value: string) {
   return `${value.slice(8, 10)}/${value.slice(5, 7)}/${value.slice(0, 4)}`;
 }

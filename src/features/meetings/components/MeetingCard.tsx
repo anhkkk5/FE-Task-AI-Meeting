@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { formatTime } from "@/lib/utils/relative-time";
 import { Meeting } from "../types/meeting.type";
 
 type MeetingCardProps = {
@@ -36,12 +37,8 @@ const statusTones: Record<Meeting["status"], string> = {
   ARCHIVED: "bg-[#f1f2f4] text-[#44546f]",
 };
 
-function formatTime(value: string | null) {
-  if (!value) return "--:--";
-
-  return value.slice(11, 16);
-}
-
+// meetingDate la ngay tran nen cat chuoi la dung. Rieng startTime/endTime la
+// moc ISO UTC nen dung formatTime() de quy doi ve gio dia phuong.
 function formatDate(value: string) {
   const [year, month, day] = value.slice(0, 10).split("-");
   return year && month && day ? `${day}/${month}/${year}` : value;

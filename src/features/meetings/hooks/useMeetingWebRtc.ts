@@ -276,7 +276,16 @@ export function useMeetingWebRtc({
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
-        audio: true,
+        // Khai bao ro thay vi `audio: true`: can khu on/vong tieng va tu chuan
+        // hoa am luong de Whisper nghe ro giong noi. Mono 16kHz la dinh dang
+        // Whisper duoc huan luyen nen tranh duoc buoc resample gay meo tieng.
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+          channelCount: 1,
+          sampleRate: 16_000,
+        },
         video: true,
       });
 

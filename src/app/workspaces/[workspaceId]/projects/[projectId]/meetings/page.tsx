@@ -56,6 +56,14 @@ const typeLabels: Record<MeetingType, string> = {
   GENERAL: "Tổng quan",
 };
 
+/**
+ * Lay message tu loi de hien cho nguoi dung. apiRequest luon nem ApiError hoac
+ * Error nen nhanh fallback chi de an toan voi loi ngoai du kien.
+ */
+function resolveErrorMessage(reason: unknown, fallback: string) {
+  return reason instanceof Error && reason.message ? reason.message : fallback;
+}
+
 export default function MeetingsPage() {
   const params = useParams<{ workspaceId: string; projectId: string }>();
   const { user, isLoading: authLoading } = useAuth(true);
@@ -76,8 +84,11 @@ export default function MeetingsPage() {
     setIsLoading(true);
     setMessage("");
 
-    try {
-      const [projectRes, sprintsRes, roleRes, meetingsRes] = await Promise.all([
+    // Dung allSettled thay vi all: 4 request nay doc lap nhau nen mot cai loi
+    // khong duoc lam mat du lieu cua cac cai con lai. Truoc day danh sach hop
+    // loi keo theo mat role, khien nut "Tao cuoc hop" bi an du du quyen.
+    const [projectRes, sprintsRes, roleRes, meetingsRes] =
+      await Promise.allSettled([
         getProjectDetail(params.workspaceId, params.projectId),
         getSprints(params.workspaceId, params.projectId, {
           page: 1,
@@ -87,19 +98,45 @@ export default function MeetingsPage() {
         getMeetings(params.workspaceId, params.projectId, query),
       ]);
 
-      setProject(projectRes.data.project);
-      setSprints(sprintsRes.data.items);
-      setMyRole(roleRes.data.role);
-      setItems(meetingsRes.data.items);
-    } catch (error) {
-      setMessage(
-        error instanceof Error
-          ? error.message
-          : "Tải danh sách cuộc họp thất bại.",
-      );
-    } finally {
-      setIsLoading(false);
+    if (projectRes.status === "fulfilled") {
+      setProject(projectRes.value.data.project);
     }
+
+    if (sprintsRes.status === "fulfilled") {
+      setSprints(sprintsRes.value.data.items);
+    }
+
+    if (roleRes.status === "fulfilled") {
+      setMyRole(roleRes.value.data.role);
+    }
+
+    if (meetingsRes.status === "fulfilled") {
+      setItems(meetingsRes.value.data.items);
+    } else {
+      // Xoa danh sach cu de khong hien du lieu da lac hau ben canh thong bao loi.
+      setItems([]);
+    }
+
+    const failureMessages = [
+      meetingsRes.status === "rejected"
+        ? resolveErrorMessage(
+            meetingsRes.reason,
+            "Tải danh sách cuộc họp thất bại.",
+          )
+        : null,
+      projectRes.status === "rejected"
+        ? resolveErrorMessage(projectRes.reason, "Tải thông tin dự án thất bại.")
+        : null,
+      roleRes.status === "rejected"
+        ? resolveErrorMessage(roleRes.reason, "Tải quyền của bạn thất bại.")
+        : null,
+      sprintsRes.status === "rejected"
+        ? resolveErrorMessage(sprintsRes.reason, "Tải danh sách sprint thất bại.")
+        : null,
+    ].filter((item): item is string => item !== null);
+
+    setMessage(failureMessages.join(" "));
+    setIsLoading(false);
   }, [params.projectId, params.workspaceId, query]);
 
   useEffect(() => {
