@@ -16,9 +16,9 @@ export function PersonalReportList({
 }: PersonalReportListProps) {
   if (!items.length) {
     return (
-      <div className="rounded-2xl border border-dashed border-zinc-300 bg-white px-6 py-12 text-center shadow-sm">
-        <p className="text-sm font-bold text-zinc-700">{emptyText}</p>
-        <p className="mt-2 text-xs font-medium text-zinc-500">
+      <div className="rounded-2xl border border-dashed border-slate-200 bg-white px-6 py-12 text-center shadow-sm">
+        <p className="text-sm font-bold text-slate-700">{emptyText}</p>
+        <p className="mt-2 text-xs font-medium text-slate-500">
           AI sẽ tự tổng hợp báo cáo cá nhân từ cập nhật hằng ngày và task trong
           dự án.
         </p>

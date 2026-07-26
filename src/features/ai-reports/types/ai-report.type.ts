@@ -5,6 +5,32 @@ export type AiReportType =
 
 export type AiReportStatus = "PENDING" | "COMPLETED" | "FAILED";
 
+/**
+ * Trang thai duyet cua con nguoi, tach khoi `AiReportStatus`.
+ *
+ * `AiReportStatus` noi ve ket qua goi AI, con type nay noi ve quy trinh: AI sinh
+ * ban nhap, nguoi quan ly xem roi moi duyet thanh bao cao chinh thuc.
+ */
+export type AiReportReviewStatus = "DRAFT" | "APPROVED";
+
+/** So lieu dinh luong duoc backend tinh san cho the thong ke. */
+export type TeamReportMetrics = {
+  doneTasks: number;
+  totalTasks: number;
+  inProgressTasks: number;
+  blockerCount: number;
+  progressPercent: number;
+  memberCount: number;
+};
+
+/** Nguon du lieu nguoi dung cho phep AI su dung khi tao bao cao. */
+export type TeamReportDataSources = {
+  tasks: boolean;
+  dailyUpdates: boolean;
+  meetingTranscripts: boolean;
+  previousReport: boolean;
+};
+
 /** Ket qua lan chay gan nhat cua lich tu dong tao bao cao giao ban. */
 export type AutomationLastRun = {
   reportDate: string;
@@ -130,6 +156,14 @@ export type AiTeamReport = {
   summary: string | null;
   model: string | null;
   status: AiReportStatus;
+  reviewStatus: AiReportReviewStatus;
+  metrics: TeamReportMetrics | null;
+  dataSources: TeamReportDataSources | null;
+  extraInstruction: string | null;
+  editedBy: string | null;
+  editedAt: string | null;
+  approvedBy: string | null;
+  approvedAt: string | null;
   createdBy: string;
   inputData?: Record<string, unknown>;
   createdAt?: string;
@@ -167,6 +201,24 @@ export type GeneratePersonalReportPayload = {
 export type GenerateTeamReportPayload = {
   reportDate: string;
   sprintId?: string;
+  dataSources?: Partial<TeamReportDataSources>;
+  extraInstruction?: string;
+};
+
+/**
+ * Cac muc nguoi duyet duoc sua tay.
+ *
+ * Khong co `metrics`: so lieu phai bam theo du lieu that trong he thong, cho
+ * sua tay thi bao cao mat gia tri doi chieu.
+ */
+export type UpdateTeamReportPayload = {
+  summary?: string;
+  teamProgress?: string;
+  completedWork?: string[];
+  todayFocus?: string[];
+  blockers?: string[];
+  risks?: string[];
+  recommendations?: string[];
 };
 
 export type GenerateMeetingSummaryPayload = {

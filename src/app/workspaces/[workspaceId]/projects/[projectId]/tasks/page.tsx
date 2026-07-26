@@ -141,7 +141,7 @@ export default function KanbanBoardPage() {
   if (authLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#f7f8f9]">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#0c66e4] border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#4F8EB0] border-t-transparent" />
       </div>
     );
   }
@@ -153,7 +153,7 @@ export default function KanbanBoardPage() {
           <div className="flex flex-1 flex-wrap items-center gap-2">
             <div className="relative w-full max-w-sm">
               <input
-                className="h-9 w-full rounded border border-[#dfe1e6] bg-white pl-9 pr-3 text-sm text-[#172b4d] outline-none hover:bg-[#f7f8f9] focus:border-[#0c66e4]"
+                className="h-9 w-full rounded border border-[#dfe1e6] bg-white pl-9 pr-3 text-sm text-[#172b4d] outline-none hover:bg-[#f7f8f9] focus:border-[#4F8EB0]"
                 onChange={(event) => setSearchKeyword(event.target.value)}
                 placeholder="Tìm theo tiêu đề hoặc mã task"
                 value={searchKeyword}
@@ -166,7 +166,7 @@ export default function KanbanBoardPage() {
             <button
               className={`h-8 rounded border px-3 text-sm font-medium ${
                 selectedAssigneeId === null
-                  ? "border-[#0c66e4] bg-[#e9f2ff] text-[#0c66e4]"
+                  ? "border-[#4F8EB0] bg-[#e9f2ff] text-[#4F8EB0]"
                   : "border-[#dfe1e6] bg-white text-[#44546f] hover:bg-[#f1f2f4]"
               }`}
               onClick={() => setSelectedAssigneeId(null)}
@@ -184,7 +184,7 @@ export default function KanbanBoardPage() {
                   <button
                     className={`flex h-8 w-8 items-center justify-center rounded-full border-2 text-xs font-semibold ${
                       selected
-                        ? "z-10 border-[#0c66e4] bg-[#deebff] text-[#0c66e4]"
+                        ? "z-10 border-[#4F8EB0] bg-[#deebff] text-[#4F8EB0]"
                         : "border-white bg-[#00875a] text-white hover:bg-[#216e4e]"
                     }`}
                     key={member.userId}
@@ -210,7 +210,7 @@ export default function KanbanBoardPage() {
             </button>
             {canWrite ? (
               <Link
-                className="flex h-9 items-center rounded bg-[#0c66e4] px-3 text-sm font-semibold text-white hover:bg-[#0055cc]"
+                className="flex h-9 items-center rounded bg-[#4F8EB0] px-3 text-sm font-semibold text-white hover:bg-[#317491]"
                 href={`/workspaces/${params.workspaceId}/projects/${params.projectId}/tasks/create`}
               >
                 Tạo task
@@ -227,7 +227,7 @@ export default function KanbanBoardPage() {
 
         {isLoading ? (
           <div className="flex h-80 items-center justify-center rounded border border-[#dfe1e6] bg-white">
-            <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#0c66e4] border-t-transparent" />
+            <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#4F8EB0] border-t-transparent" />
           </div>
         ) : (
           <div className="grid min-w-[1180px] grid-cols-5 gap-3 overflow-x-auto pb-3">
@@ -238,7 +238,7 @@ export default function KanbanBoardPage() {
               return (
                 <section
                   className={`flex min-h-[calc(100vh-260px)] flex-col rounded bg-[#f1f2f4] transition ${
-                    isOver ? "ring-2 ring-[#0c66e4]" : ""
+                    isOver ? "ring-2 ring-[#4F8EB0]" : ""
                   }`}
                   key={column.key}
                   onDragOver={(event) => {
@@ -268,7 +268,7 @@ export default function KanbanBoardPage() {
                         onDragStart={(event) => handleDragStart(event, task.id)}
                       >
                         <Link
-                          className="line-clamp-2 text-sm font-medium leading-5 text-[#172b4d] hover:text-[#0c66e4]"
+                          className="line-clamp-2 text-sm font-medium leading-5 text-[#172b4d] hover:text-[#4F8EB0]"
                           href={`/workspaces/${params.workspaceId}/projects/${params.projectId}/tasks/${task.id}`}
                         >
                           {task.title}

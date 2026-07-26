@@ -38,7 +38,7 @@ export function WorkspaceCard({ workspace, stats }: WorkspaceCardProps) {
     <article className="border border-zinc-200/80 bg-white p-6 rounded-3xl shadow-sm hover:shadow-md transition-all duration-200 flex flex-col h-full">
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-start gap-3 min-w-0">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-700">
             <Boxes className="h-6 w-6" />
           </div>
           <div className="min-w-0 pt-0.5">

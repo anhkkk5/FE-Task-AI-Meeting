@@ -26,7 +26,7 @@ export function DashboardMetricCards({
       hint: "Xem danh sách",
       href: "/workspaces",
       icon: Boxes,
-      tone: "bg-blue-50 text-blue-600 border-blue-100",
+      tone: "bg-brand-50 text-brand-700 border-brand-200",
     },
     {
       id: "dashboard-metric-projects",
@@ -35,7 +35,7 @@ export function DashboardMetricCards({
       hint: "Chọn workspace",
       href: "/workspaces",
       icon: FolderKanban,
-      tone: "bg-indigo-50 text-indigo-600 border-indigo-100",
+      tone: "bg-brand-50 text-brand-700 border-brand-200",
     },
     {
       id: "dashboard-metric-tasks",
@@ -44,7 +44,7 @@ export function DashboardMetricCards({
       hint: "Xem việc của tôi",
       href: "/my-work",
       icon: ClipboardList,
-      tone: "bg-amber-50 text-amber-600 border-amber-100",
+      tone: "bg-brand-50 text-brand-700 border-brand-200",
     },
     {
       id: "dashboard-metric-members",
@@ -53,7 +53,7 @@ export function DashboardMetricCards({
       hint: "Xem theo workspace",
       href: "/workspaces",
       icon: Users,
-      tone: "bg-emerald-50 text-emerald-600 border-emerald-100",
+      tone: "bg-brand-50 text-brand-700 border-brand-200",
     },
   ];
 
@@ -67,7 +67,7 @@ export function DashboardMetricCards({
             key={card.id}
             id={card.id}
             href={card.href}
-            className="group rounded-2xl border border-slate-200/80 bg-white p-5 shadow-2xs transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md"
+            className="group rounded-2xl border border-slate-200/80 bg-white p-5 shadow-2xs transition hover:-translate-y-0.5 hover:border-brand-200 hover:shadow-md"
           >
             <div className="mb-4 flex items-center justify-between">
               <div
@@ -75,7 +75,7 @@ export function DashboardMetricCards({
               >
                 <Icon className="h-5 w-5" />
               </div>
-              <ArrowRight className="h-4 w-4 text-slate-300 transition group-hover:translate-x-0.5 group-hover:text-blue-600" />
+              <ArrowRight className="h-4 w-4 text-slate-300 transition group-hover:translate-x-0.5 group-hover:text-brand-600" />
             </div>
             <p className="text-3xl font-extrabold tracking-tight text-slate-900">
               {isPending || card.value === undefined ? "—" : card.value}
@@ -83,7 +83,7 @@ export function DashboardMetricCards({
             <p className="mt-1 text-xs font-semibold text-slate-400">
               {card.label}
             </p>
-            <p className="mt-2 text-[11px] font-bold text-blue-600 opacity-0 transition group-hover:opacity-100">
+            <p className="mt-2 text-[11px] font-bold text-brand-600 opacity-0 transition group-hover:opacity-100">
               {card.hint}
             </p>
           </Link>

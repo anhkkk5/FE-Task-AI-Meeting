@@ -92,7 +92,7 @@ export default function PersonalAiReportsPage() {
       if (!canReadByRole) {
         setItems([]);
         setMeta({ total: 0, page: 1, limit: 20 });
-        setMessage("VIEWER khong duoc tao hoac xem AI personal report.");
+        setMessage("VIEWER không được tạo hoặc xem AI personal report.");
         return;
       }
 
@@ -141,12 +141,6 @@ export default function PersonalAiReportsPage() {
     }));
   }
 
-  /**
-   * Tao lai bao cao ca nhan cua hom nay.
-   *
-   * Lich tu dong chay mot lan moi ngay, nen day la duong de xem ket qua ngay
-   * sau khi vua cap nhat daily update hoac task.
-   */
   async function handleRegenerateToday() {
     setIsRegenerating(true);
     setMessage("");
@@ -187,29 +181,28 @@ export default function PersonalAiReportsPage() {
       workspaceId={params.workspaceId}
     >
       <div className="mx-auto max-w-6xl space-y-6 pb-12">
-        <section className="rounded-2xl border border-zinc-200/80 bg-white p-6 shadow-sm">
+        <section className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.18em] text-blue-600">
+              <p className="text-[10px] font-black uppercase tracking-[0.18em] text-brand-700">
                 Báo cáo cá nhân AI
               </p>
-              <h1 className="mt-1 text-2xl font-black text-zinc-950">
+              <h1 className="mt-1 text-2xl font-black text-slate-900">
                 Báo cáo cá nhân bằng AI
               </h1>
-              <p className="mt-2 max-w-2xl text-sm font-medium leading-relaxed text-zinc-500">
-                AI tự tổng hợp Daily Update, task và sprint thành báo cáo cá
-                nhân theo ngày. Bạn không cần tạo thủ công.
+              <p className="mt-2 max-w-2xl text-sm font-medium leading-relaxed text-slate-500">
+                AI tự động tổng hợp Cập nhật hằng ngày, công việc và sprint thành báo cáo cá nhân theo ngày.
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
               <Link
-                className="flex h-10 items-center rounded-xl border border-zinc-200 bg-white px-4 text-xs font-bold text-zinc-700 transition hover:bg-zinc-50"
+                className="flex h-10 items-center rounded-xl border border-slate-200 bg-white px-4 text-xs font-bold text-slate-700 transition hover:bg-slate-50"
                 href={`/workspaces/${params.workspaceId}/projects/${params.projectId}/ai-reports/team`}
               >
                 Báo cáo nhóm
               </Link>
               <button
-                className="h-10 rounded-xl border border-zinc-200 bg-white px-4 text-xs font-bold text-zinc-700 transition hover:bg-zinc-50"
+                className="h-10 rounded-xl border border-slate-200 bg-white px-4 text-xs font-bold text-slate-700 transition hover:bg-slate-50"
                 type="button"
                 onClick={() => void loadData()}
               >
@@ -217,7 +210,7 @@ export default function PersonalAiReportsPage() {
               </button>
               {canRead ? (
                 <button
-                  className="flex h-10 items-center rounded-xl bg-blue-600 px-4 text-xs font-bold text-white shadow-md shadow-blue-500/20 transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-zinc-400"
+                  className="flex h-10 items-center rounded-xl bg-brand-600 px-4 text-xs font-bold text-white shadow-md shadow-brand-600/20 transition hover:bg-brand-700 disabled:cursor-not-allowed disabled:bg-slate-300"
                   disabled={isRegenerating}
                   type="button"
                   onClick={() => void handleRegenerateToday()}
@@ -231,11 +224,11 @@ export default function PersonalAiReportsPage() {
 
         <ReportAutomationBanner status={automation} />
 
-        <section className="grid gap-3 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm lg:grid-cols-[180px_180px_220px_1fr_auto]">
-          <label className="grid gap-1 text-[10px] font-black uppercase tracking-wider text-zinc-400">
+        <section className="grid gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm lg:grid-cols-[180px_180px_220px_1fr_auto]">
+          <label className="grid gap-1 text-[10px] font-black uppercase tracking-wider text-slate-400">
             Từ ngày
             <input
-              className="h-11 rounded-xl border border-zinc-300 bg-white px-3 text-sm font-medium normal-case tracking-normal text-zinc-800 outline-none transition focus:border-blue-600"
+              className="h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm font-medium text-slate-800 outline-none transition focus:border-brand-500"
               type="date"
               value={query.fromDate ?? ""}
               onChange={(event) =>
@@ -243,10 +236,10 @@ export default function PersonalAiReportsPage() {
               }
             />
           </label>
-          <label className="grid gap-1 text-[10px] font-black uppercase tracking-wider text-zinc-400">
+          <label className="grid gap-1 text-[10px] font-black uppercase tracking-wider text-slate-400">
             Đến ngày
             <input
-              className="h-11 rounded-xl border border-zinc-300 bg-white px-3 text-sm font-medium normal-case tracking-normal text-zinc-800 outline-none transition focus:border-blue-600"
+              className="h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm font-medium text-slate-800 outline-none transition focus:border-brand-500"
               type="date"
               value={query.toDate ?? ""}
               onChange={(event) =>
@@ -254,10 +247,10 @@ export default function PersonalAiReportsPage() {
               }
             />
           </label>
-          <label className="grid gap-1 text-[10px] font-black uppercase tracking-wider text-zinc-400">
+          <label className="grid gap-1 text-[10px] font-black uppercase tracking-wider text-slate-400">
             Sprint
             <select
-              className="h-11 rounded-xl border border-zinc-300 bg-white px-3 text-sm font-medium normal-case tracking-normal text-zinc-800 outline-none transition focus:border-blue-600"
+              className="h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm font-medium text-slate-800 outline-none transition focus:border-brand-500"
               value={query.sprintId ?? ""}
               onChange={(event) =>
                 patchQuery({ sprintId: event.target.value || undefined })
@@ -272,10 +265,10 @@ export default function PersonalAiReportsPage() {
             </select>
           </label>
           {canManage ? (
-            <label className="grid gap-1 text-[10px] font-black uppercase tracking-wider text-zinc-400">
+            <label className="grid gap-1 text-[10px] font-black uppercase tracking-wider text-slate-400">
               Thành viên
               <select
-                className="h-11 rounded-xl border border-zinc-300 bg-white px-3 text-sm font-medium normal-case tracking-normal text-zinc-800 outline-none transition focus:border-blue-600"
+                className="h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm font-medium text-slate-800 outline-none transition focus:border-brand-500"
                 value={selectedMemberId}
                 onChange={(event) => {
                   setSelectedMemberId(event.target.value);
@@ -294,7 +287,7 @@ export default function PersonalAiReportsPage() {
             <div className="hidden lg:block"></div>
           )}
           <button
-            className="h-11 self-end rounded-xl bg-zinc-950 px-4 text-xs font-bold text-white transition hover:bg-zinc-800"
+            className="h-11 self-end rounded-xl border border-slate-200 bg-slate-100 px-4 text-xs font-bold text-slate-700 transition hover:bg-slate-200 hover:text-slate-900"
             type="button"
             onClick={() => {
               setSelectedMemberId("");
@@ -311,7 +304,7 @@ export default function PersonalAiReportsPage() {
           </div>
         ) : null}
 
-        <div className="flex items-center justify-between text-xs font-bold text-zinc-500">
+        <div className="flex items-center justify-between text-xs font-bold text-slate-500">
           <span>{meta.total} báo cáo</span>
           <span>
             Trang {meta.page} · {meta.limit} báo cáo mỗi trang
@@ -319,8 +312,8 @@ export default function PersonalAiReportsPage() {
         </div>
 
         {isLoading ? (
-          <div className="flex h-48 items-center justify-center rounded-2xl border border-zinc-200 bg-white">
-            <div className="h-6 w-6 animate-spin rounded-full border-2 border-blue-600 border-t-transparent"></div>
+          <div className="flex h-48 items-center justify-center rounded-2xl border border-slate-200 bg-white">
+            <div className="h-6 w-6 animate-spin rounded-full border-2 border-brand-600 border-t-transparent"></div>
           </div>
         ) : canRead ? (
           <PersonalReportList

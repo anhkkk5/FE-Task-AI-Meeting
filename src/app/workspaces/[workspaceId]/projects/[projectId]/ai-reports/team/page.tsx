@@ -190,7 +190,7 @@ export default function TeamAiReportsPage() {
               </button>
               {canManage ? (
                 <button
-                  className="flex h-10 items-center rounded-xl bg-blue-600 px-4 text-xs font-bold text-white shadow-md shadow-blue-500/20 transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-zinc-400"
+                  className="flex h-10 items-center rounded-xl bg-brand-600 px-4 text-xs font-bold text-white shadow-md shadow-brand-600/20 transition hover:bg-brand-700 disabled:cursor-not-allowed disabled:bg-slate-300"
                   disabled={isRegenerating}
                   type="button"
                   onClick={() => void handleRegenerateToday()}
@@ -245,7 +245,7 @@ export default function TeamAiReportsPage() {
             </select>
           </label>
           <button
-            className="h-11 self-end rounded-xl bg-zinc-950 px-4 text-xs font-bold text-white transition hover:bg-zinc-800"
+            className="h-11 self-end rounded-xl border border-slate-200 bg-slate-100 px-4 text-xs font-bold text-slate-700 transition hover:bg-slate-200 hover:text-slate-900"
             type="button"
             onClick={() => setQuery({ page: 1, limit: 20 })}
           >

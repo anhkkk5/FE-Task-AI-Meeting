@@ -111,13 +111,13 @@ export function PersonalReportGenerateForm({
         ) : null}
       </div>
 
-      <div className="rounded-2xl border border-blue-100 bg-blue-50 px-4 py-3 text-sm font-semibold leading-relaxed text-blue-900">
-        Báo cáo cá nhân được tổng hợp từ công việc được giao, sprint và cập nhật
-        hằng ngày của thành viên.
+      <div className="rounded-2xl border border-brand-200 bg-brand-50/60 px-4 py-3 text-sm font-semibold leading-relaxed text-brand-900">
+        Báo cáo được tổng hợp từ tiến độ công việc, sprint, cập nhật hằng ngày
+        và các bàn giao công việc của bạn.
       </div>
 
       <button
-        className="h-11 w-fit rounded-xl bg-blue-600 px-5 text-sm font-bold text-white shadow-md shadow-blue-500/20 transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-zinc-400 disabled:shadow-none"
+        className="h-11 w-fit rounded-xl bg-brand-600 px-5 text-sm font-bold text-white shadow-md shadow-brand-600/20 transition hover:bg-brand-700 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none"
         disabled={isSubmitting}
         type="submit"
       >

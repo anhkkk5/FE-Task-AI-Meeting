@@ -94,7 +94,7 @@ export default function DashboardPage() {
             <Link
               href="/workspaces/create"
               id="dashboard-create-workspace"
-              className="flex h-10 items-center gap-2 rounded-xl bg-blue-600 px-4 text-sm font-bold text-white shadow-md shadow-blue-500/20 transition hover:bg-blue-700"
+              className="flex h-10 items-center gap-2 rounded-xl bg-brand-600 px-4 text-sm font-bold text-white shadow-md shadow-brand-600/20 transition hover:bg-brand-700"
             >
               <Plus className="h-4 w-4" />
               Tạo Workspace
@@ -134,9 +134,9 @@ export default function DashboardPage() {
               <Link
                 href="/my-work"
                 id="dashboard-go-my-work"
-                className="flex items-center gap-3 rounded-2xl border border-slate-100 bg-slate-50 p-3.5 transition hover:border-blue-100 hover:bg-blue-50"
+                className="flex items-center gap-3 rounded-2xl border border-slate-100 bg-slate-50 p-3.5 transition hover:border-brand-200 hover:bg-brand-50"
               >
-                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white text-blue-600 shadow-2xs">
+                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white text-brand-600 shadow-2xs">
                   <ListChecks className="h-4 w-4" />
                 </span>
                 <span className="min-w-0">
@@ -152,9 +152,9 @@ export default function DashboardPage() {
               <Link
                 href="/workspaces"
                 id="dashboard-go-workspaces"
-                className="flex items-center gap-3 rounded-2xl border border-slate-100 bg-slate-50 p-3.5 transition hover:border-blue-100 hover:bg-blue-50"
+                className="flex items-center gap-3 rounded-2xl border border-slate-100 bg-slate-50 p-3.5 transition hover:border-brand-200 hover:bg-brand-50"
               >
-                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white text-indigo-600 shadow-2xs">
+                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white text-brand-600 shadow-2xs">
                   <Plus className="h-4 w-4" />
                 </span>
                 <span className="min-w-0">

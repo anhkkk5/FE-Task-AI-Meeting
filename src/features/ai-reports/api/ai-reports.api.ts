@@ -11,6 +11,7 @@ import {
   MeetingSummariesQuery,
   ReportAutomationStatus,
   ReviewedMeetingActionItem,
+  UpdateTeamReportPayload,
 } from "../types/ai-report.type";
 
 type ApiResponse<T> = {
@@ -200,6 +201,41 @@ export function getTeamDailyReportDetail(
 ) {
   return apiRequest<ApiResponse<{ report: AiTeamReport }>>(
     `${aiBasePath(workspaceId, projectId)}/team-daily-reports/${reportId}`,
+  );
+}
+
+/**
+ * Sua noi dung ban nhap do AI sinh.
+ *
+ * Chi gui nhung muc thuc su thay doi, backend giu nguyen phan con lai cua ban AI.
+ */
+export function updateTeamDailyReport(
+  workspaceId: string,
+  projectId: string,
+  reportId: string,
+  payload: UpdateTeamReportPayload,
+) {
+  return apiRequest<ApiResponse<{ report: AiTeamReport }>>(
+    `${aiBasePath(workspaceId, projectId)}/team-daily-reports/${reportId}`,
+    {
+      method: "PATCH",
+      body: payload,
+    },
+  );
+}
+
+/** Duyet ban nhap thanh bao cao chinh thuc, backend se gui mail cho ca nhom. */
+export function approveTeamDailyReport(
+  workspaceId: string,
+  projectId: string,
+  reportId: string,
+) {
+  return apiRequest<ApiResponse<{ report: AiTeamReport }>>(
+    `${aiBasePath(
+      workspaceId,
+      projectId,
+    )}/team-daily-reports/${reportId}/approve`,
+    { method: "POST" },
   );
 }
 

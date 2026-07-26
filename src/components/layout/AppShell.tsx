@@ -323,7 +323,7 @@ export function AppShell({
           {/* Brand Logo Header */}
           <div className="p-6 border-b border-slate-100">
             <Link href="/" className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white font-bold shadow-md shadow-blue-500/20">
+              <div className="w-8 h-8 rounded-xl bg-brand-600 flex items-center justify-center text-white font-bold shadow-md shadow-brand-600/20">
                 <CheckSquare className="w-4 h-4" />
               </div>
               <div>
@@ -343,7 +343,7 @@ export function AppShell({
               Không gian làm việc
             </label>
             <select
-              className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50/80 px-3 text-xs font-semibold text-slate-800 outline-none hover:bg-slate-100 focus:bg-white focus:border-blue-500 transition cursor-pointer"
+              className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50/80 px-3 text-xs font-semibold text-slate-800 outline-none hover:bg-slate-100 focus:bg-white focus:border-brand-500 transition cursor-pointer"
               value={activeWorkspaceId}
               onChange={(event) => {
                 const value = event.target.value;
@@ -360,7 +360,7 @@ export function AppShell({
                   {workspace.name}
                 </option>
               ))}
-              <option value="create">+ Tạo Workspace mới</option>
+              <option value="+ Tạo Workspace mới">+ Tạo Workspace mới</option>
             </select>
           </div>
 
@@ -374,11 +374,11 @@ export function AppShell({
                   href={item.href}
                   className={`flex items-center gap-3.5 px-4 py-2.5 rounded-xl text-sm font-semibold transition duration-150 ${
                     item.active
-                      ? "bg-blue-50 text-blue-600 shadow-2xs"
+                      ? "bg-brand-50 text-brand-700 font-bold border-r-2 border-brand-600 shadow-2xs"
                       : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                   }`}
                 >
-                  <Icon className={`w-4 h-4 ${item.active ? "text-blue-600" : "text-slate-400"}`} />
+                  <Icon className={`w-4 h-4 ${item.active ? "text-brand-600" : "text-slate-400"}`} />
                   <span>{item.name}</span>
                 </Link>
               );
@@ -401,11 +401,11 @@ export function AppShell({
                     href={item.href}
                     className={`flex items-center gap-3.5 px-4 py-2.5 rounded-xl text-sm font-semibold transition duration-150 ${
                       item.active
-                        ? "bg-blue-50 text-blue-600 shadow-2xs"
+                        ? "bg-brand-50 text-brand-700 font-bold border-r-2 border-brand-600 shadow-2xs"
                         : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                     }`}
                   >
-                    <Icon className={`w-4 h-4 ${item.active ? "text-blue-600" : "text-slate-400"}`} />
+                    <Icon className={`w-4 h-4 ${item.active ? "text-brand-600" : "text-slate-400"}`} />
                     <span>{item.name}</span>
                   </Link>
                 );
@@ -427,7 +427,7 @@ export function AppShell({
                 </p>
                 <Link
                   href="/workspaces"
-                  className="mt-2.5 inline-flex items-center gap-1.5 text-[11px] font-bold text-blue-600 transition hover:text-blue-700"
+                  className="mt-2.5 inline-flex items-center gap-1.5 text-[11px] font-bold text-brand-600 transition hover:text-brand-700"
                 >
                   Chọn workspace
                   <ChevronRight className="h-3 w-3" />
@@ -446,10 +446,10 @@ export function AppShell({
                 <img
                   src={user.avatarUrl}
                   alt={user.fullName}
-                  className="w-8 h-8 rounded-full object-cover ring-2 ring-blue-500/20"
+                  className="w-8 h-8 rounded-full object-cover ring-2 ring-brand-500/20"
                 />
               ) : (
-                <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-bold text-xs flex items-center justify-center shadow-sm shrink-0">
+                <div className="w-8 h-8 rounded-full bg-brand-50 text-brand-700 font-bold border border-brand-200/80 text-xs flex items-center justify-center shrink-0">
                   {userInitial}
                 </div>
               )}
@@ -485,7 +485,7 @@ export function AppShell({
               <input
                 type="text"
                 placeholder="Search tasks, people, or projects..."
-                className="w-full h-9 pl-9 pr-4 rounded-xl bg-slate-100/80 text-xs font-medium text-slate-800 placeholder:text-slate-400 placeholder:font-normal outline-none focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition border border-transparent"
+                className="w-full h-9 pl-9 pr-4 rounded-xl bg-slate-100/80 text-xs font-medium text-slate-800 placeholder:text-slate-400 placeholder:font-normal outline-none focus:bg-white focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition border border-transparent"
               />
             </div>
 
@@ -504,7 +504,7 @@ export function AppShell({
                   ) : (
                     <Link
                       href={crumb.href}
-                      className="truncate hover:text-blue-600 transition"
+                      className="truncate hover:text-brand-600 transition"
                     >
                       {crumb.label}
                     </Link>
@@ -518,7 +518,7 @@ export function AppShell({
           <div className="flex items-center gap-3">
             <button className="relative w-9 h-9 rounded-xl flex items-center justify-center text-slate-500 hover:bg-slate-100 transition">
               <Bell className="w-4 h-4" />
-              <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-blue-600 ring-2 ring-white" />
+              <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-brand-600 ring-2 ring-white" />
             </button>
 
             <button className="w-9 h-9 rounded-xl flex items-center justify-center text-slate-500 hover:bg-slate-100 transition">
@@ -538,10 +538,10 @@ export function AppShell({
                   <img
                     src={user.avatarUrl}
                     alt={user.fullName}
-                    className="w-8 h-8 rounded-full object-cover ring-2 ring-blue-500/20"
+                    className="w-8 h-8 rounded-full object-cover ring-2 ring-brand-500/20"
                   />
                 ) : (
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-bold text-xs flex items-center justify-center shadow-sm">
+                  <div className="w-8 h-8 rounded-full bg-brand-50 text-brand-700 font-bold border border-brand-200/80 text-xs flex items-center justify-center">
                     {userInitial}
                   </div>
                 )}
@@ -588,7 +588,7 @@ export function AppShell({
           <section className="shrink-0 border-b border-slate-200/80 bg-white">
             <div className="px-6 pt-4">
               <div className="flex items-center gap-3">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-sm font-bold text-white shadow-sm shadow-blue-500/20">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-600 text-sm font-bold text-white shadow-sm shadow-brand-600/20">
                   {title ? title.charAt(0).toUpperCase() : "P"}
                 </div>
                 <div className="min-w-0">
@@ -596,7 +596,7 @@ export function AppShell({
                     <h2 className="truncate text-lg font-extrabold text-slate-900">
                       {title || "Dự án"}
                     </h2>
-                    <span className="rounded-full bg-blue-50 px-2.5 py-0.5 text-[10px] font-extrabold uppercase text-blue-600 border border-blue-100">
+                    <span className="rounded-full bg-brand-50 px-2.5 py-0.5 text-[10px] font-extrabold uppercase text-brand-700 border border-brand-200">
                       Active
                     </span>
                   </div>
@@ -604,15 +604,15 @@ export function AppShell({
               </div>
             </div>
 
-            <div className="mt-3 flex gap-1 overflow-x-auto px-6">
+            <div className="mt-2 flex gap-1 overflow-x-auto px-6">
               {projectTabs.map((tab) => (
                 <Link
                   key={tab.href}
                   href={tab.href}
-                  className={`whitespace-nowrap border-b-2 px-3.5 py-2.5 text-xs font-bold transition ${
+                  className={`whitespace-nowrap border-b-2 px-4 py-2.5 text-sm font-semibold tracking-tight transition ${
                     tab.active
-                      ? "border-blue-600 text-blue-600"
-                      : "border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-800"
+                      ? "border-brand-600 text-brand-700 font-bold bg-brand-50/50 rounded-t-xl"
+                      : "border-transparent text-slate-600 hover:border-slate-300 hover:text-slate-900"
                   }`}
                 >
                   {tab.label}

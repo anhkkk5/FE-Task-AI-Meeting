@@ -101,7 +101,7 @@ export default function GenerateTeamAiReportPage() {
       title={project?.name}
       workspaceId={params.workspaceId}
     >
-      <div className="mx-auto max-w-4xl space-y-6 pb-12">
+      <div className="mx-auto max-w-6xl space-y-6 pb-12">
         <section className="rounded-2xl border border-zinc-200/80 bg-white p-6 shadow-sm">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>

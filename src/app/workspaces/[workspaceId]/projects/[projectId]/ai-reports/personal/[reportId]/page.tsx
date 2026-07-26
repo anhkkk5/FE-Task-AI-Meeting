@@ -103,7 +103,7 @@ export default function PersonalAiReportDetailPage() {
                 Báo cáo nhóm
               </Link>
               <Link
-                className="flex h-10 items-center rounded-xl bg-blue-600 px-4 text-xs font-bold text-white shadow-md shadow-blue-500/20 transition hover:bg-blue-700"
+                className="flex h-10 items-center rounded-xl bg-brand-600 px-4 text-xs font-bold text-white shadow-md shadow-brand-600/20 transition hover:bg-brand-700"
                 href={`/workspaces/${params.workspaceId}/projects/${params.projectId}/ai-reports/personal`}
               >
                 Danh sách báo cáo

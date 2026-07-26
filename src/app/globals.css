@@ -5,18 +5,41 @@
   --foreground: #171717;
 }
 
+/*
+ * He mau thuong hieu: teal.
+ *
+ * Dat o day thay vi hardcode tung component de doi mau chi phai sua mot cho.
+ * Chon teal vi tim/indigo gradient truoc day lam giao dien giong demo AI, con
+ * teal cho cam giac sang va gan voi cong cu quan tri du an.
+ */
+:root {
+  --brand-50: #f2f8fc;
+  --brand-100: #e1f0f7;
+  --brand-200: #c4e1ef;
+  --brand-300: #99cde3;
+  --brand-400: #6fb6d7;
+  --brand-500: #4f8eb0;
+  --brand-600: #4f8eb0;
+  --brand-700: #317491;
+  --brand-800: #255b72;
+  --brand-900: #1c4456;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-app-sans);
   --font-mono: var(--font-app-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-brand-50: var(--brand-50);
+  --color-brand-100: var(--brand-100);
+  --color-brand-200: var(--brand-200);
+  --color-brand-300: var(--brand-300);
+  --color-brand-400: var(--brand-400);
+  --color-brand-500: var(--brand-500);
+  --color-brand-600: var(--brand-600);
+  --color-brand-700: var(--brand-700);
+  --color-brand-800: var(--brand-800);
+  --color-brand-900: var(--brand-900);
 }
 
 body {
@@ -24,4 +47,42 @@ body {
   color: var(--foreground);
   /* Dung font co subset tieng Viet thay vi Arial de dau khong bi fallback. */
   font-family: var(--font-app-sans), "Segoe UI", system-ui, sans-serif;
+}
+
+/*
+ * Xuat PDF bang chinh chuc nang in cua trinh duyet.
+ *
+ * Cach nay khong can thu vien PDF nao va luon in ra dung nhung gi nguoi dung
+ * dang thay tren man hinh. Danh dau `data-print-hidden` cho nhung khoi dieu
+ * huong / nut bam de chung khong lot vao ban in.
+ */
+@media print {
+  @page {
+    size: A4;
+    margin: 14mm;
+  }
+
+  body {
+    background: #ffffff;
+  }
+
+  [data-print-hidden="true"] {
+    display: none !important;
+  }
+
+  /* Giu nguyen mau nen cua the va badge, mac dinh trinh duyet se bo chung. */
+  [data-print-area="true"] * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  [data-print-area="true"] {
+    box-shadow: none !important;
+  }
+
+  /* Tranh cat doi mot muc bao cao giua hai trang giay. */
+  [data-print-block="true"] {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
 }

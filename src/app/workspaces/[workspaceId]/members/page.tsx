@@ -244,7 +244,7 @@ export default function WorkspaceMembersPage() {
             </div>
             {isOwner && (
               <button
-                className="flex items-center gap-2 h-10 rounded-xl bg-blue-600 px-4 text-sm font-bold text-white hover:bg-blue-700 transition shadow-sm"
+                className="flex items-center gap-2 h-10 rounded-xl bg-brand-600 px-4 text-sm font-bold text-white hover:bg-brand-700 transition shadow-sm"
                 type="button"
               >
                 <Plus className="h-4 w-4" />
@@ -257,7 +257,7 @@ export default function WorkspaceMembersPage() {
         {/* Top Stats Cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center gap-4">
-            <div className="h-12 w-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+            <div className="h-12 w-12 rounded-full bg-brand-50 text-brand-700 flex items-center justify-center shrink-0">
               <Users className="h-6 w-6" />
             </div>
             <div>
@@ -331,7 +331,7 @@ export default function WorkspaceMembersPage() {
                 ))}
               </select>
               <button
-                className="h-10 rounded-xl bg-slate-900 px-5 text-xs font-bold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500"
+                className="h-10 rounded-xl bg-brand-600 px-5 text-xs font-bold text-white transition hover:bg-brand-700 shadow-md shadow-brand-600/20 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500"
                 disabled={!canAddLookedUpUser}
                 type="submit"
               >
@@ -339,7 +339,7 @@ export default function WorkspaceMembersPage() {
               </button>
               <div className="sm:col-span-3">
                 {isLookingUp ? (
-                  <div className="rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-xs font-semibold text-blue-700">
+                  <div className="rounded-xl border border-brand-200 bg-brand-50 px-4 py-3 text-xs font-semibold text-brand-700">
                     Đang tìm tài khoản...
                   </div>
                 ) : lookupResult?.user ? (

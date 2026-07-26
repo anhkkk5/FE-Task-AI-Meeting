@@ -1,174 +1,301 @@
 import { AiTeamReport } from "../types/ai-report.type";
+import { TeamReportDraft, TeamReportEditor } from "./TeamReportEditor";
+import { TeamReportMemberResults } from "./TeamReportMemberResults";
+import { TeamReportMetricCards } from "./TeamReportMetricCards";
+import { TeamReportSprintProgress } from "./TeamReportSprintProgress";
 
 type TeamReportDetailProps = {
   report: AiTeamReport;
+  isEditing: boolean;
+  draft: TeamReportDraft;
+  onDraftChange: (draft: TeamReportDraft) => void;
+  sprintName?: string | null;
 };
 
-function RenderList({ items }: { items?: string[] }) {
-  if (!items?.length) {
-    return <p className="text-sm font-medium text-zinc-400">Không có dữ liệu.</p>;
-  }
+type ListSectionProps = {
+  id: string;
+  title: string;
+  items?: string[];
+  tone?: "neutral" | "warning";
+};
+
+function formatDate(value: string) {
+  const parsed = new Date(value);
+
+  if (Number.isNaN(parsed.getTime())) return value;
+
+  return new Intl.DateTimeFormat("vi-VN", { dateStyle: "full" }).format(parsed);
+}
+
+function ListSection({ id, title, items, tone = "neutral" }: ListSectionProps) {
+  const isWarning = tone === "warning";
 
   return (
-    <ul className="space-y-2">
-      {items.map((item, index) => (
-        <li
-          key={`${item}-${index}`}
-          className="rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm font-medium text-zinc-700"
-        >
-          {item}
-        </li>
-      ))}
-    </ul>
+    <section
+      className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+      data-print-block="true"
+      id={id}
+    >
+      <h2 className="text-sm font-black text-slate-900">{title}</h2>
+      {items?.length ? (
+        <ul className="mt-3 space-y-2">
+          {items.map((item, index) => (
+            <li
+              className={`flex gap-2.5 rounded-xl border px-3 py-2 text-sm font-medium leading-relaxed ${
+                isWarning
+                  ? "border-amber-200 bg-amber-50 text-amber-900"
+                  : "border-slate-200 bg-slate-50 text-slate-700"
+              }`}
+              key={`${item}-${index}`}
+            >
+              <span
+                aria-hidden="true"
+                className={`mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full ${
+                  isWarning ? "bg-amber-500" : "bg-brand-500"
+                }`}
+              />
+              {item}
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="mt-3 text-sm font-medium text-slate-400">
+          Không có dữ liệu.
+        </p>
+      )}
+    </section>
   );
 }
 
-export function TeamReportDetail({ report }: TeamReportDetailProps) {
+/**
+ * Trang chi tiết báo cáo giao ban.
+ *
+ * Bố cục hai cột: cột chính là nội dung báo cáo, cột phải là thông tin phụ trợ
+ * (ngày, sprint, nguồn dữ liệu). Cách này giúp phần đọc chính không bị các ô
+ * metadata chen ngang như bản trước.
+ */
+export function TeamReportDetail({
+  report,
+  isEditing,
+  draft,
+  onDraftChange,
+  sprintName,
+}: TeamReportDetailProps) {
   const output = report.aiOutput;
+  const sprintLabel = sprintName ?? (report.sprintId ? "Sprint" : "Toàn dự án");
+  const dataSources = report.dataSources;
 
   return (
-    <div className="grid gap-5">
-      <section className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-          <div className="min-w-0">
-            <div className="mb-4 flex flex-wrap gap-2">
-              <span className="rounded-lg bg-indigo-50 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-indigo-700">
-                {report.reportType}
-              </span>
-              <span className="rounded-lg bg-emerald-50 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-emerald-700">
-                {report.status}
-              </span>
-            </div>
-            <h1 className="text-2xl font-black text-zinc-950">
-              {output.title}
-            </h1>
-            <p className="mt-3 max-w-3xl text-sm font-medium leading-relaxed text-zinc-600">
+    <div className="grid gap-5" data-print-area="true">
+      <section
+        className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
+        data-print-block="true"
+        id="team-report-header"
+      >
+        <div className="border-b border-brand-100 bg-brand-50/60 px-6 py-5">
+          <p className="text-[10px] font-black uppercase tracking-[0.18em] text-brand-700">
+            Báo cáo giao ban
+          </p>
+          <h1 className="mt-1.5 text-2xl font-black leading-tight text-slate-900">
+            {output.title}
+          </h1>
+          <p className="mt-2 text-xs font-bold text-slate-500">
+            {formatDate(report.reportDate)} · {sprintLabel}
+          </p>
+        </div>
+
+        <div className="grid gap-5 px-6 py-5">
+          <TeamReportMetricCards metrics={report.metrics} />
+          <div>
+            <h2 className="text-sm font-black text-slate-900">Tổng quan</h2>
+            <p className="mt-2 text-sm font-medium leading-relaxed text-slate-600">
               {output.summary}
             </p>
           </div>
-          <div className="grid min-w-[220px] gap-2 rounded-2xl border border-zinc-200 bg-zinc-50 p-4 text-sm">
-            <div>
-              <p className="text-[10px] font-black uppercase tracking-wider text-zinc-400">
-                Ngày báo cáo
-              </p>
-              <p className="font-bold text-zinc-900">{report.reportDate}</p>
-            </div>
-            <div>
-              <p className="text-[10px] font-black uppercase tracking-wider text-zinc-400">
-                Sprint
-              </p>
-              <p className="break-all font-bold text-zinc-900">
-                {report.sprintId ?? "Toàn dự án"}
-              </p>
-            </div>
-            <div>
-              <p className="text-[10px] font-black uppercase tracking-wider text-zinc-400">
-                Người tạo
-              </p>
-              <p className="break-all font-bold text-zinc-900">
-                {report.createdBy}
-              </p>
-            </div>
-          </div>
         </div>
       </section>
 
-      <section className="rounded-2xl border border-indigo-100 bg-indigo-50 p-6 shadow-sm">
-        <h2 className="text-[10px] font-black uppercase tracking-[0.18em] text-indigo-700">
-          Nội dung báo cáo
-        </h2>
-        <p className="mt-3 whitespace-pre-line text-sm font-medium leading-7 text-indigo-950">
-          {output.generatedText}
-        </p>
-      </section>
-
-      <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
-        <h2 className="mb-3 text-sm font-black text-zinc-950">
-          Tiến độ nhóm
-        </h2>
-        <p className="text-sm font-medium leading-relaxed text-zinc-700">
-          {output.teamProgress}
-        </p>
-      </section>
-
-      <section className="grid gap-4 lg:grid-cols-2">
-        <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
-          <h2 className="mb-4 text-sm font-black text-zinc-950">
-            Việc đã hoàn thành
-          </h2>
-          <RenderList items={output.completedWork} />
-        </div>
-        <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
-          <h2 className="mb-4 text-sm font-black text-zinc-950">
-            Trọng tâm hôm nay
-          </h2>
-          <RenderList items={output.todayFocus} />
-        </div>
-        <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
-          <h2 className="mb-4 text-sm font-black text-zinc-950">Blockers</h2>
-          <RenderList items={output.blockers} />
-        </div>
-        <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
-          <h2 className="mb-4 text-sm font-black text-zinc-950">Rủi ro</h2>
-          <RenderList items={output.risks} />
-        </div>
-      </section>
-
-      <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
-        <h2 className="mb-4 text-sm font-black text-zinc-950">
-          Thành viên chưa gửi cập nhật hằng ngày
-        </h2>
-        <RenderList items={output.missingDailyUpdates} />
-      </section>
-
-      {output.handoverSummary?.trim() ? (
-        <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
-          <h2 className="mb-4 text-sm font-black text-zinc-950">
-            Bàn giao công việc
-          </h2>
-          <p className="whitespace-pre-line text-sm font-medium leading-relaxed text-zinc-600">
-            {output.handoverSummary}
-          </p>
-        </section>
+      {isEditing ? (
+        <TeamReportEditor draft={draft} onChange={onDraftChange} />
       ) : null}
 
-      <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
-        <h2 className="mb-4 text-sm font-black text-zinc-950">
-          Tóm tắt theo thành viên
-        </h2>
-        {output.memberSummaries?.length ? (
-          <div className="grid gap-3">
-            {output.memberSummaries.map((member) => (
-              <article
-                key={member.userId}
-                className="rounded-xl border border-zinc-200 bg-zinc-50 p-4"
-              >
-                <h3 className="text-sm font-black text-zinc-950">
-                  {member.fullName}
-                </h3>
-                <p className="mt-2 text-sm font-medium leading-relaxed text-zinc-600">
-                  {member.summary}
-                </p>
-                {member.blockers.length ? (
-                  <p className="mt-2 text-xs font-bold text-amber-700">
-                    Blocker: {member.blockers.join("; ")}
-                  </p>
-                ) : null}
-              </article>
-            ))}
+      <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
+        <div className="grid gap-5">
+          <TeamReportSprintProgress
+            metrics={report.metrics}
+            sprintLabel={sprintLabel}
+            teamProgress={output.teamProgress}
+          />
+
+          <div className="grid gap-5 xl:grid-cols-2">
+            <ListSection
+              id="team-report-completed"
+              items={output.completedWork}
+              title="Việc đã hoàn thành"
+            />
+            <ListSection
+              id="team-report-today-focus"
+              items={output.todayFocus}
+              title="Trọng tâm hôm nay"
+            />
+            <ListSection
+              id="team-report-blockers"
+              items={output.blockers}
+              title="Vướng mắc"
+              tone="warning"
+            />
+            <ListSection
+              id="team-report-risks"
+              items={output.risks}
+              title="Rủi ro"
+              tone="warning"
+            />
           </div>
-        ) : (
-          <p className="text-sm font-medium text-zinc-400">Không có dữ liệu.</p>
-        )}
-      </section>
 
-      <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
-        <h2 className="mb-4 text-sm font-black text-zinc-950">
-          Gợi ý hành động
-        </h2>
-        <RenderList items={output.recommendations} />
-      </section>
+          <TeamReportMemberResults
+            members={output.memberSummaries ?? []}
+            missingDailyUpdates={output.missingDailyUpdates ?? []}
+          />
 
+          <ListSection
+            id="team-report-recommendations"
+            items={output.recommendations}
+            title="Đề xuất hành động"
+          />
+
+          {output.handoverSummary?.trim() ? (
+            <section
+              className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+              data-print-block="true"
+              id="team-report-handover"
+            >
+              <h2 className="text-sm font-black text-slate-900">
+                Bàn giao công việc
+              </h2>
+              <p className="mt-3 whitespace-pre-line text-sm font-medium leading-relaxed text-slate-600">
+                {output.handoverSummary}
+              </p>
+            </section>
+          ) : null}
+        </div>
+
+        <aside className="grid content-start gap-5">
+          <section
+            className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+            data-print-block="true"
+            id="team-report-meta"
+          >
+            <h2 className="text-sm font-black text-slate-900">
+              Thông tin báo cáo
+            </h2>
+            <dl className="mt-3 grid gap-3 text-sm">
+              <div>
+                <dt className="text-[10px] font-black uppercase tracking-wider text-slate-400">
+                  Ngày báo cáo
+                </dt>
+                <dd className="font-bold text-slate-800">
+                  {report.reportDate}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-[10px] font-black uppercase tracking-wider text-slate-400">
+                  Phạm vi
+                </dt>
+                <dd className="font-bold text-slate-800">{sprintLabel}</dd>
+              </div>
+              <div>
+                <dt className="text-[10px] font-black uppercase tracking-wider text-slate-400">
+                  Mô hình AI
+                </dt>
+                <dd className="break-all font-bold text-slate-800">
+                  {report.model ?? "Không rõ"}
+                </dd>
+              </div>
+              {report.approvedAt ? (
+                <div>
+                  <dt className="text-[10px] font-black uppercase tracking-wider text-slate-400">
+                    Duyệt lúc
+                  </dt>
+                  <dd className="font-bold text-slate-800">
+                    {formatDate(report.approvedAt)}
+                  </dd>
+                </div>
+              ) : null}
+              {report.editedAt ? (
+                <div>
+                  <dt className="text-[10px] font-black uppercase tracking-wider text-slate-400">
+                    Sửa lần cuối
+                  </dt>
+                  <dd className="font-bold text-slate-800">
+                    {formatDate(report.editedAt)}
+                  </dd>
+                </div>
+              ) : null}
+            </dl>
+          </section>
+
+          {dataSources ? (
+            <section
+              className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+              data-print-block="true"
+              id="team-report-data-sources"
+            >
+              <h2 className="text-sm font-black text-slate-900">
+                Nguồn dữ liệu đã dùng
+              </h2>
+              <ul className="mt-3 grid gap-2">
+                {[
+                  { label: "Công việc & sprint", used: dataSources.tasks },
+                  {
+                    label: "Cập nhật hằng ngày",
+                    used: dataSources.dailyUpdates,
+                  },
+                  {
+                    label: "Biên bản họp",
+                    used: dataSources.meetingTranscripts,
+                  },
+                  {
+                    label: "Báo cáo ngày trước",
+                    used: dataSources.previousReport,
+                  },
+                ].map((source) => (
+                  <li
+                    className="flex items-center gap-2 text-sm font-semibold text-slate-700"
+                    key={source.label}
+                  >
+                    <span
+                      aria-hidden="true"
+                      className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[10px] font-black text-white ${
+                        source.used ? "bg-brand-600" : "bg-slate-300"
+                      }`}
+                    >
+                      {source.used ? "✓" : "–"}
+                    </span>
+                    <span className={source.used ? "" : "text-slate-400"}>
+                      {source.label}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
+
+          {report.extraInstruction?.trim() ? (
+            <section
+              className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+              data-print-block="true"
+              id="team-report-extra-instruction"
+            >
+              <h2 className="text-sm font-black text-slate-900">
+                Yêu cầu thêm khi tạo
+              </h2>
+              <p className="mt-2 whitespace-pre-line text-sm font-medium leading-relaxed text-slate-600">
+                {report.extraInstruction}
+              </p>
+            </section>
+          ) : null}
+        </aside>
+      </div>
     </div>
   );
 }

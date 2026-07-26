@@ -13,35 +13,40 @@ export function TeamReportCard({
   projectId,
 }: TeamReportCardProps) {
   return (
-    <article className="rounded-2xl border border-zinc-200/80 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+    <article className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
       <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
         <div className="min-w-0">
-          <div className="mb-3 flex flex-wrap items-center gap-2">
-            <span className="rounded-lg bg-indigo-50 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-indigo-700">
-              {report.reportType}
-            </span>
-            <span className="rounded-lg bg-emerald-50 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-emerald-700">
-              {report.status}
-            </span>
-          </div>
+          {report.reviewStatus ? (
+            <div className="mb-3 flex flex-wrap items-center gap-2">
+              <span
+                className={`rounded-lg px-2.5 py-1 text-[11px] font-bold ${
+                  report.reviewStatus === "APPROVED"
+                    ? "bg-brand-50 text-brand-700 ring-1 ring-brand-200"
+                    : "bg-amber-50 text-amber-700 ring-1 ring-amber-200"
+                }`}
+              >
+                {report.reviewStatus === "APPROVED" ? "Đã duyệt" : "Bản nháp"}
+              </span>
+            </div>
+          ) : null}
           <Link
-            className="text-lg font-black text-zinc-950 transition hover:text-blue-600"
+            className="text-lg font-black text-slate-900 transition hover:text-brand-600"
             href={`/workspaces/${workspaceId}/projects/${projectId}/ai-reports/team/${report.id}`}
           >
             {report.aiOutput?.title ?? "Báo cáo đội nhóm"}
           </Link>
-          <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-zinc-500">
+          <p className="mt-2 line-clamp-3 text-sm font-medium leading-relaxed text-slate-600">
             {report.summary ?? report.aiOutput?.summary ?? "Chưa có tóm tắt."}
           </p>
         </div>
-        <div className="rounded-xl bg-zinc-50 px-4 py-3 text-right">
-          <p className="text-[10px] font-black uppercase tracking-wider text-zinc-400">
+        <div className="shrink-0 rounded-xl bg-slate-50 px-4 py-3 text-right">
+          <p className="text-[10px] font-black uppercase tracking-wider text-slate-400">
             Ngày báo cáo
           </p>
-          <p className="mt-1 text-sm font-bold text-zinc-800">
+          <p className="mt-1 text-sm font-bold text-slate-800">
             {report.reportDate}
           </p>
-          <p className="mt-2 text-[10px] font-semibold text-zinc-400">
+          <p className="mt-2 text-[10px] font-semibold text-slate-400">
             Sprint: {report.sprintId ?? "Toàn dự án"}
           </p>
         </div>

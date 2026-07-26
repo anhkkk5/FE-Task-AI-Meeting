@@ -111,7 +111,7 @@ export default function WorkspacesPage() {
               Làm mới
             </button>
             <Link
-              className="flex items-center gap-2 h-10 rounded-xl bg-blue-600 px-4 text-sm font-bold text-white hover:bg-blue-700 shadow-sm transition"
+              className="flex items-center gap-2 h-10 rounded-xl bg-brand-600 px-4 text-sm font-bold text-white hover:bg-brand-700 shadow-sm transition"
               href="/workspaces/create"
             >
               <Plus className="h-4 w-4" />
@@ -123,7 +123,7 @@ export default function WorkspacesPage() {
         {/* Top Stats Cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center gap-4">
-            <div className="h-12 w-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+            <div className="h-12 w-12 rounded-xl bg-brand-50 text-brand-700 flex items-center justify-center shrink-0">
               <Folder className="h-6 w-6" />
             </div>
             <div>

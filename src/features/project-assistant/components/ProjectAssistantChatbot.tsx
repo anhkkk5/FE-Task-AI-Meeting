@@ -410,7 +410,7 @@ export function ProjectAssistantChatbot({
       <button
         aria-expanded={isOpen}
         aria-label={isOpen ? "Đóng trợ lý dự án" : "Mở trợ lý dự án"}
-        className="fixed bottom-5 right-5 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-[#0c66e4] text-white shadow-lg transition hover:bg-[#0055cc] focus:outline-none focus:ring-2 focus:ring-[#0c66e4] focus:ring-offset-2"
+        className="fixed bottom-6 right-6 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-brand-600 text-white shadow-lg shadow-brand-600/25 ring-4 ring-brand-500/15 transition-all duration-200 hover:bg-brand-700 hover:scale-105 focus:outline-none"
         onClick={() => setIsOpen((current) => !current)}
         title="Trợ lý dự án"
         type="button"

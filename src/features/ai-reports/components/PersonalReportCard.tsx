@@ -12,38 +12,38 @@ export function PersonalReportCard({
   workspaceId,
   projectId,
 }: PersonalReportCardProps) {
+  const memberName =
+    (report.inputData as { user?: { fullName?: string; email?: string } })?.user
+      ?.fullName ||
+    (report.inputData as { user?: { fullName?: string; email?: string } })?.user
+      ?.email;
+
   return (
-    <article className="rounded-2xl border border-zinc-200/80 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+    <article className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
       <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
         <div className="min-w-0">
-          <div className="mb-3 flex flex-wrap items-center gap-2">
-            <span className="rounded-lg bg-blue-50 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-blue-700">
-              {report.reportType}
-            </span>
-            <span className="rounded-lg bg-emerald-50 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-emerald-700">
-              {report.status}
-            </span>
-          </div>
           <Link
-            className="text-lg font-black text-zinc-950 transition hover:text-blue-600"
+            className="text-base font-bold text-slate-900 transition hover:text-brand-600"
             href={`/workspaces/${workspaceId}/projects/${projectId}/ai-reports/personal/${report.id}`}
           >
             {report.aiOutput?.title ?? "Báo cáo cá nhân"}
           </Link>
-          <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-zinc-500">
+          <p className="mt-1.5 line-clamp-2 text-xs font-normal leading-relaxed text-slate-500">
             {report.summary ?? report.aiOutput?.summary ?? "Chưa có tóm tắt."}
           </p>
         </div>
-        <div className="rounded-xl bg-zinc-50 px-4 py-3 text-right">
-          <p className="text-[10px] font-black uppercase tracking-wider text-zinc-400">
+        <div className="shrink-0 rounded-xl bg-slate-50/80 px-3.5 py-2.5 text-right">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
             Ngày báo cáo
           </p>
-          <p className="mt-1 text-sm font-bold text-zinc-800">
+          <p className="mt-1 text-sm font-bold text-slate-800">
             {report.reportDate}
           </p>
-          <p className="mt-2 text-[10px] font-semibold text-zinc-400">
-            Thành viên: {report.userId}
-          </p>
+          {memberName ? (
+            <p className="mt-2 text-[11px] font-bold text-brand-700">
+              Thành viên: {memberName}
+            </p>
+          ) : null}
         </div>
       </div>
     </article>

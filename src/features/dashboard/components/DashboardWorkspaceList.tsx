@@ -62,7 +62,7 @@ export function DashboardWorkspaceList({
         <h2 className="text-sm font-bold text-slate-800">Workspace của bạn</h2>
         <Link
           href="/workspaces"
-          className="text-xs font-bold text-blue-600 transition hover:underline"
+          className="text-xs font-bold text-brand-600 transition hover:underline"
         >
           Xem tất cả
         </Link>
@@ -78,7 +78,7 @@ export function DashboardWorkspaceList({
                 href={`/workspaces/${workspace.id}`}
                 className="group flex items-center gap-4 px-5 py-4 transition hover:bg-slate-50/80"
               >
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-sm font-bold text-white shadow-sm shadow-blue-500/20">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-700 font-bold border border-brand-200/80 text-sm">
                   {workspace.name.charAt(0).toUpperCase()}
                 </div>
 
@@ -102,7 +102,7 @@ export function DashboardWorkspaceList({
                   </span>
                 </div>
 
-                <ArrowRight className="h-4 w-4 shrink-0 text-slate-300 transition group-hover:translate-x-0.5 group-hover:text-blue-600" />
+                <ArrowRight className="h-4 w-4 shrink-0 text-slate-300 transition group-hover:translate-x-0.5 group-hover:text-brand-600" />
               </Link>
             </li>
           );

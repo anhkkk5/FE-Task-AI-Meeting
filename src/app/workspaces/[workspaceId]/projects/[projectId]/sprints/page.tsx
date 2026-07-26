@@ -56,7 +56,7 @@ function statusClass(status: TaskStatus) {
     case "DONE":
       return "bg-[#dcfff1] text-[#216e4e]";
     case "IN_PROGRESS":
-      return "bg-[#e9f2ff] text-[#0c66e4]";
+      return "bg-[#e9f2ff] text-[#4F8EB0]";
     case "REVIEW":
       return "bg-[#f3f0ff] text-[#5e4db2]";
     case "CANCELLED":
@@ -95,7 +95,7 @@ function sprintStatusClass(status: Sprint["status"]) {
       return "bg-[#fff4f2] text-[#ae2a19]";
     case "PLANNED":
     default:
-      return "bg-[#e9f2ff] text-[#0c66e4]";
+      return "bg-[#e9f2ff] text-[#4F8EB0]";
   }
 }
 
@@ -411,7 +411,7 @@ export default function BacklogPage() {
     >
       <input
         checked={task.status === "DONE"}
-        className="h-4 w-4 rounded border-[#b3b9c4] text-[#0c66e4]"
+        className="h-4 w-4 rounded border-[#b3b9c4] text-[#4F8EB0]"
         disabled={!canWrite}
         onChange={() => void handleToggleTaskStatus(task)}
         type="checkbox"
@@ -426,7 +426,7 @@ export default function BacklogPage() {
           {task.taskCode}
         </span>
         <button
-          className={`truncate text-left font-medium text-[#172b4d] hover:text-[#0c66e4] ${
+          className={`truncate text-left font-medium text-[#172b4d] hover:text-[#4F8EB0] ${
             task.status === "DONE" ? "line-through text-[#6b778c]" : ""
           }`}
           onClick={() => setSelectedTask(task)}
@@ -438,7 +438,7 @@ export default function BacklogPage() {
 
       {canChangeStatus ? (
         <select
-          className={`h-7 w-full cursor-pointer rounded border-none px-1.5 text-xs font-semibold outline-none focus:ring-2 focus:ring-[#0c66e4] ${statusClass(task.status)}`}
+          className={`h-7 w-full cursor-pointer rounded border-none px-1.5 text-xs font-semibold outline-none focus:ring-2 focus:ring-[#4F8EB0] ${statusClass(task.status)}`}
           onChange={(event) =>
             void handleRowStatusChange(task, event.target.value as TaskStatus)
           }
@@ -489,7 +489,7 @@ export default function BacklogPage() {
         </span>
         {canWrite ? (
           <select
-            className="h-7 min-w-0 flex-1 cursor-pointer rounded border border-[#dfe1e6] bg-white px-1.5 text-xs text-[#44546f] outline-none focus:border-[#0c66e4]"
+            className="h-7 min-w-0 flex-1 cursor-pointer rounded border border-[#dfe1e6] bg-white px-1.5 text-xs text-[#44546f] outline-none focus:border-[#4F8EB0]"
             onChange={(event) => void handleRowAssign(task, event.target.value || null)}
             onClick={(event) => event.stopPropagation()}
             value={task.assigneeId ?? ""}
@@ -523,7 +523,7 @@ export default function BacklogPage() {
     return (
       <section
         className={`overflow-hidden rounded border bg-white transition ${
-          isDragOver ? "border-[#0c66e4] shadow-[0_0_0_2px_#e9f2ff]" : "border-[#dfe1e6]"
+          isDragOver ? "border-[#4F8EB0] shadow-[0_0_0_2px_#e9f2ff]" : "border-[#dfe1e6]"
         } ${isDropDisabled ? "opacity-80" : ""}`}
         key={sprint.id}
         onDragLeave={(event) => handleDropZoneDragLeave(event, sprint.id)}
@@ -563,7 +563,7 @@ export default function BacklogPage() {
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-1 text-xs font-semibold">
               <span className="rounded bg-[#dfe1e6] px-1.5 py-0.5 text-[#44546f]">{counts.todo}</span>
-              <span className="rounded bg-[#e9f2ff] px-1.5 py-0.5 text-[#0c66e4]">{counts.inProgress}</span>
+              <span className="rounded bg-[#e9f2ff] px-1.5 py-0.5 text-[#4F8EB0]">{counts.inProgress}</span>
               <span className="rounded bg-[#dcfff1] px-1.5 py-0.5 text-[#216e4e]">{counts.done}</span>
             </div>
 
@@ -586,7 +586,7 @@ export default function BacklogPage() {
 
             {canWrite && sprint.status === "ACTIVE" ? (
               <button
-                className="h-8 rounded bg-[#0c66e4] px-3 text-sm font-semibold text-white hover:bg-[#0055cc]"
+                className="h-8 rounded bg-[#4F8EB0] px-3 text-sm font-semibold text-white hover:bg-[#317491]"
                 onClick={() => void handleCompleteSprint(sprint.id)}
                 type="button"
               >
@@ -611,7 +611,7 @@ export default function BacklogPage() {
           <>
             {sprintTasks.map((task) => renderTaskRow(task, sprint.id))}
             {sprintTasks.length === 0 ? (
-              <div className={`border-t border-[#dfe1e6] px-3 py-8 text-center text-sm ${isDragOver ? "bg-[#e9f2ff] text-[#0c66e4]" : "bg-white text-[#6b778c]"}`}>
+              <div className={`border-t border-[#dfe1e6] px-3 py-8 text-center text-sm ${isDragOver ? "bg-[#e9f2ff] text-[#4F8EB0]" : "bg-white text-[#6b778c]"}`}>
                 Chưa có task trong sprint này.
               </div>
             ) : null}
@@ -624,7 +624,7 @@ export default function BacklogPage() {
   if (authLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#f7f8f9]">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#0c66e4] border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#4F8EB0] border-t-transparent" />
       </div>
     );
   }
@@ -663,7 +663,7 @@ export default function BacklogPage() {
                 Tìm task
                 <div className="relative">
                   <input
-                    className="h-10 w-full rounded border border-[#dfe1e6] bg-white pl-9 pr-3 text-sm text-[#172b4d] outline-none hover:bg-[#f7f8f9] focus:border-[#0c66e4]"
+                    className="h-10 w-full rounded border border-[#dfe1e6] bg-white pl-9 pr-3 text-sm text-[#172b4d] outline-none hover:bg-[#f7f8f9] focus:border-[#4F8EB0]"
                     onChange={(event) => setSearchKeyword(event.target.value)}
                     placeholder="Nhập tên task hoặc mã task"
                     value={searchKeyword}
@@ -687,7 +687,7 @@ export default function BacklogPage() {
               <label className="grid gap-1 text-xs font-semibold text-[#44546f]">
                 Trạng thái
                 <select
-                  className="h-10 rounded border border-[#dfe1e6] bg-white px-3 text-sm text-[#172b4d] outline-none hover:bg-[#f7f8f9] focus:border-[#0c66e4]"
+                  className="h-10 rounded border border-[#dfe1e6] bg-white px-3 text-sm text-[#172b4d] outline-none hover:bg-[#f7f8f9] focus:border-[#4F8EB0]"
                   onChange={(event) =>
                     setSelectedStatus(event.target.value as "ALL" | TaskStatus)
                   }
@@ -704,7 +704,7 @@ export default function BacklogPage() {
               <label className="grid gap-1 text-xs font-semibold text-[#44546f]">
                 Người nhận
                 <select
-                  className="h-10 rounded border border-[#dfe1e6] bg-white px-3 text-sm text-[#172b4d] outline-none hover:bg-[#f7f8f9] focus:border-[#0c66e4]"
+                  className="h-10 rounded border border-[#dfe1e6] bg-white px-3 text-sm text-[#172b4d] outline-none hover:bg-[#f7f8f9] focus:border-[#4F8EB0]"
                   onChange={(event) => setSelectedAssigneeId(event.target.value || null)}
                   value={selectedAssigneeId ?? ""}
                 >
@@ -747,7 +747,7 @@ export default function BacklogPage() {
                   <button
                     className={`h-10 rounded border px-3 text-sm font-semibold ${
                       showImportPanel
-                        ? "border-[#0c66e4] bg-[#e9f2ff] text-[#0c66e4]"
+                        ? "border-[#4F8EB0] bg-[#e9f2ff] text-[#4F8EB0]"
                         : "border-[#dfe1e6] bg-white text-[#44546f] hover:bg-[#f1f2f4]"
                     }`}
                     onClick={() => setShowImportPanel((prev) => !prev)}
@@ -756,7 +756,7 @@ export default function BacklogPage() {
                     Nhập Excel
                   </button>
                   <Link
-                    className="flex h-10 items-center rounded bg-[#0c66e4] px-4 text-sm font-semibold text-white hover:bg-[#0055cc]"
+                    className="flex h-10 items-center rounded bg-[#4F8EB0] px-4 text-sm font-semibold text-white hover:bg-[#317491]"
                     href={`/workspaces/${params.workspaceId}/projects/${params.projectId}/tasks/create`}
                   >
                     Tạo task
@@ -781,7 +781,7 @@ export default function BacklogPage() {
             </div>
             <div className="border-b border-[#dfe1e6] px-4 py-3 md:border-b-0 md:border-r">
               <p className="text-[11px] font-bold uppercase tracking-wide text-[#6b778c]">Đang xử lý</p>
-              <p className="mt-1 text-xl font-semibold text-[#0c66e4]">{taskSummary.inProgress}</p>
+              <p className="mt-1 text-xl font-semibold text-[#4F8EB0]">{taskSummary.inProgress}</p>
             </div>
             <div className="px-4 py-3">
               <p className="text-[11px] font-bold uppercase tracking-wide text-[#6b778c]">Hoàn thành</p>
@@ -803,7 +803,7 @@ export default function BacklogPage() {
           <div className="flex flex-1 flex-wrap items-center gap-2">
             <div className="relative w-full max-w-xs">
               <input
-                className="h-9 w-full rounded border border-[#dfe1e6] bg-white pl-9 pr-3 text-sm text-[#172b4d] outline-none hover:bg-[#f7f8f9] focus:border-[#0c66e4]"
+                className="h-9 w-full rounded border border-[#dfe1e6] bg-white pl-9 pr-3 text-sm text-[#172b4d] outline-none hover:bg-[#f7f8f9] focus:border-[#4F8EB0]"
                 onChange={(event) => setSearchKeyword(event.target.value)}
                 placeholder="Tìm backlog"
                 value={searchKeyword}
@@ -816,7 +816,7 @@ export default function BacklogPage() {
             <button
               className={`h-8 rounded border px-3 text-sm font-medium ${
                 selectedAssigneeId === null
-                  ? "border-[#0c66e4] bg-[#e9f2ff] text-[#0c66e4]"
+                  ? "border-[#4F8EB0] bg-[#e9f2ff] text-[#4F8EB0]"
                   : "border-[#dfe1e6] bg-white text-[#44546f] hover:bg-[#f1f2f4]"
               }`}
               onClick={() => setSelectedAssigneeId(null)}
@@ -834,7 +834,7 @@ export default function BacklogPage() {
                   <button
                     className={`flex h-8 w-8 items-center justify-center rounded-full border-2 text-xs font-semibold ${
                       selected
-                        ? "z-10 border-[#0c66e4] bg-[#deebff] text-[#0c66e4]"
+                        ? "z-10 border-[#4F8EB0] bg-[#deebff] text-[#4F8EB0]"
                         : "border-white bg-[#00875a] text-white hover:bg-[#216e4e]"
                     }`}
                     key={member.userId}
@@ -874,7 +874,7 @@ export default function BacklogPage() {
                   Nhập Excel
                 </button>
                 <Link
-                  className="flex h-9 items-center rounded bg-[#0c66e4] px-3 text-sm font-semibold text-white hover:bg-[#0055cc]"
+                  className="flex h-9 items-center rounded bg-[#4F8EB0] px-3 text-sm font-semibold text-white hover:bg-[#317491]"
                   href={`/workspaces/${params.workspaceId}/projects/${params.projectId}/tasks/create`}
                 >
                   Tạo task
@@ -904,7 +904,7 @@ export default function BacklogPage() {
 
         {isLoading ? (
           <div className="flex h-72 items-center justify-center rounded border border-[#dfe1e6] bg-white">
-            <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#0c66e4] border-t-transparent" />
+            <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#4F8EB0] border-t-transparent" />
           </div>
         ) : (
           <div className="space-y-3 overflow-x-auto pb-3">
@@ -913,7 +913,7 @@ export default function BacklogPage() {
 
               <section
                 className={`overflow-hidden rounded border bg-white transition ${
-                  isBacklogDragOver ? "border-[#0c66e4] shadow-[0_0_0_2px_#e9f2ff]" : "border-[#dfe1e6]"
+                  isBacklogDragOver ? "border-[#4F8EB0] shadow-[0_0_0_2px_#e9f2ff]" : "border-[#dfe1e6]"
                 }`}
                 onDragLeave={(event) => handleDropZoneDragLeave(event, backlogDropTarget)}
                 onDragOver={(event) => handleDropZoneDragOver(event, backlogDropTarget)}
@@ -946,7 +946,7 @@ export default function BacklogPage() {
                   <div className="flex items-center gap-2">
                     <div className="flex items-center gap-1 text-xs font-semibold">
                       <span className="rounded bg-[#dfe1e6] px-1.5 py-0.5 text-[#44546f]">{backlogCounts.todo}</span>
-                      <span className="rounded bg-[#e9f2ff] px-1.5 py-0.5 text-[#0c66e4]">
+                      <span className="rounded bg-[#e9f2ff] px-1.5 py-0.5 text-[#4F8EB0]">
                         {backlogCounts.inProgress}
                       </span>
                       <span className="rounded bg-[#dcfff1] px-1.5 py-0.5 text-[#216e4e]">{backlogCounts.done}</span>
@@ -966,7 +966,7 @@ export default function BacklogPage() {
                   <>
                     {backlogTasks.map((task) => renderTaskRow(task, null))}
                     {backlogTasks.length === 0 ? (
-                      <div className={`border-t border-[#dfe1e6] px-3 py-8 text-center text-sm ${isBacklogDragOver ? "bg-[#e9f2ff] text-[#0c66e4]" : "bg-white text-[#6b778c]"}`}>
+                      <div className={`border-t border-[#dfe1e6] px-3 py-8 text-center text-sm ${isBacklogDragOver ? "bg-[#e9f2ff] text-[#4F8EB0]" : "bg-white text-[#6b778c]"}`}>
                         Backlog đang trống.
                       </div>
                     ) : null}

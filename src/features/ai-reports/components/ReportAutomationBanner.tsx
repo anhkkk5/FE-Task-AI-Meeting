@@ -80,7 +80,7 @@ export function ReportAutomationBanner({
         className="flex h-16 items-center gap-3 rounded-2xl border border-zinc-200 bg-white px-5 shadow-sm"
         id="report-automation-loading"
       >
-        <div className="h-4 w-4 animate-spin rounded-full border-2 border-indigo-500 border-t-transparent" />
+        <div className="h-4 w-4 animate-spin rounded-full border-2 border-brand-500 border-t-transparent" />
         <span className="text-xs font-semibold text-zinc-500">
           Đang kiểm tra lịch tự động...
         </span>
@@ -115,23 +115,23 @@ export function ReportAutomationBanner({
 
   return (
     <div
-      className="overflow-hidden rounded-2xl border border-indigo-200 bg-gradient-to-r from-indigo-50 via-white to-white shadow-sm"
+      className="overflow-hidden rounded-2xl border border-brand-200 bg-brand-50/50 shadow-sm"
       id="report-automation-status"
     >
       <div className="flex flex-col gap-4 px-5 py-4 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex items-start gap-3">
-          <span className="relative mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-indigo-600/10">
-            <span className="absolute h-2.5 w-2.5 animate-ping rounded-full bg-indigo-500/70" />
-            <span className="h-2.5 w-2.5 rounded-full bg-indigo-600" />
+          <span className="relative mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-600/10">
+            <span className="absolute h-2.5 w-2.5 animate-ping rounded-full bg-brand-500/70" />
+            <span className="h-2.5 w-2.5 rounded-full bg-brand-600" />
           </span>
           <div>
-            <p className="text-[10px] font-black uppercase tracking-[0.18em] text-indigo-600">
+            <p className="text-[10px] font-black uppercase tracking-[0.18em] text-brand-700">
               AI tự động
             </p>
-            <p className="mt-0.5 text-sm font-bold text-zinc-900">
+            <p className="mt-0.5 text-sm font-bold text-slate-900">
               Báo cáo giao ban được tạo tự động {describeCron(status.cron)}
             </p>
-            <p className="mt-1 text-xs font-medium text-zinc-500">
+            <p className="mt-1 text-xs font-medium text-slate-500">
               Múi giờ {status.timeZone}. Bạn không cần bấm tạo, AI tự tổng hợp
               daily update, task và blocker của cả nhóm.
             </p>
@@ -139,23 +139,23 @@ export function ReportAutomationBanner({
         </div>
 
         <dl className="grid shrink-0 gap-3 sm:grid-cols-2">
-          <div className="rounded-xl border border-indigo-100 bg-white px-3 py-2">
-            <dt className="text-[10px] font-black uppercase tracking-wider text-zinc-400">
+          <div className="rounded-xl border border-brand-100 bg-white px-3 py-2">
+            <dt className="text-[10px] font-black uppercase tracking-wider text-slate-400">
               Lần chạy tới
             </dt>
-            <dd className="mt-0.5 text-xs font-bold text-zinc-800">
+            <dd className="mt-0.5 text-xs font-bold text-slate-800">
               {nextRun ?? "Chưa xác định"}
             </dd>
           </div>
-          <div className="rounded-xl border border-indigo-100 bg-white px-3 py-2">
-            <dt className="text-[10px] font-black uppercase tracking-wider text-zinc-400">
+          <div className="rounded-xl border border-brand-100 bg-white px-3 py-2">
+            <dt className="text-[10px] font-black uppercase tracking-wider text-slate-400">
               Lần chạy gần nhất
             </dt>
-            <dd className="mt-0.5 text-xs font-bold text-zinc-800">
+            <dd className="mt-0.5 text-xs font-bold text-slate-800">
               {lastRunAt ?? "Chưa chạy lần nào"}
             </dd>
             {status.lastRun ? (
-              <dd className="mt-0.5 text-[11px] font-medium text-zinc-500">
+              <dd className="mt-0.5 text-[11px] font-medium text-slate-500">
                 Tạo {status.lastRun.generated} · Bỏ qua{" "}
                 {status.lastRun.skipped} · Lỗi {status.lastRun.failed}
               </dd>
