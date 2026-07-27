@@ -149,7 +149,9 @@ export default function ProjectDetailPage() {
                     Key Code: {project.keyCode}
                   </span>
                   <h1 className="text-xl font-bold text-zinc-900 leading-tight">{project.name}</h1>
-                  <p className="mt-1 text-xs text-zinc-400 font-mono">Project ID: {project.id}</p>
+                  {project.description ? null : (
+                    <p className="mt-1 text-xs text-zinc-400">Chưa có mô tả cho dự án này.</p>
+                  )}
                 </div>
                 <span className={`border px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wider ${statusBadgeColor}`}>
                   {status}
@@ -163,9 +165,16 @@ export default function ProjectDetailPage() {
                     <dt className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
                       Người quản trị
                     </dt>
-                    <dd className="mt-1 text-xs font-semibold text-zinc-800 break-all">
-                      {project.createdBy}
+                    <dd className="mt-1 text-xs font-semibold text-zinc-800">
+                      {project.createdByUser?.fullName ??
+                        project.createdByUser?.email ??
+                        "-"}
                     </dd>
+                    {project.createdByUser?.fullName && project.createdByUser.email ? (
+                      <p className="mt-0.5 text-[10px] font-medium text-zinc-500 break-all">
+                        {project.createdByUser.email}
+                      </p>
+                    ) : null}
                   </div>
                   <div className="bg-zinc-50 p-4 rounded-xl border border-zinc-100">
                     <dt className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">

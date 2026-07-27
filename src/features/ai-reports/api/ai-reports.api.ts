@@ -5,12 +5,18 @@ import {
   AiTeamReport,
   AiReportsQuery,
   ApproveMeetingActionItemPayload,
+  CreateTeamReportTaskPayload,
+  DailyUpdateDraft,
   GenerateMeetingSummaryPayload,
   GeneratePersonalReportPayload,
   GenerateTeamReportPayload,
+  HandoverDraft,
   MeetingSummariesQuery,
   ReportAutomationStatus,
+  RequestTeamReportHandoverPayload,
   ReviewedMeetingActionItem,
+  TeamReportActionItem,
+  TeamReportActionItemSource,
   UpdateTeamReportPayload,
 } from "../types/ai-report.type";
 
@@ -236,6 +242,134 @@ export function approveTeamDailyReport(
       projectId,
     )}/team-daily-reports/${reportId}/approve`,
     { method: "POST" },
+  );
+}
+
+/**
+ * Huy mot phien giao ban.
+ *
+ * Dung khi ca doi nghi hoac phien bi tao nham: phien van con trong lich su
+ * nhung khong bi tinh la giao ban chinh thuc.
+ */
+export function cancelTeamDailyReport(
+  workspaceId: string,
+  projectId: string,
+  reportId: string,
+) {
+  return apiRequest<ApiResponse<{ report: AiTeamReport }>>(
+    `${aiBasePath(
+      workspaceId,
+      projectId,
+    )}/team-daily-reports/${reportId}/cancel`,
+    { method: "POST" },
+  );
+}
+
+function teamReportActionItemsPath(
+  workspaceId: string,
+  projectId: string,
+  reportId: string,
+) {
+  return `${aiBasePath(
+    workspaceId,
+    projectId,
+  )}/team-daily-reports/${reportId}/action-items`;
+}
+
+/** Danh sach vuong mac va de xuat cua phien giao ban kem trang thai xu ly. */
+export function getTeamReportActionItems(
+  workspaceId: string,
+  projectId: string,
+  reportId: string,
+) {
+  return apiRequest<ApiResponse<{ items: TeamReportActionItem[] }>>(
+    teamReportActionItemsPath(workspaceId, projectId, reportId),
+  );
+}
+
+export function createTaskFromTeamReportItem(
+  workspaceId: string,
+  projectId: string,
+  reportId: string,
+  payload: CreateTeamReportTaskPayload,
+) {
+  return apiRequest<
+    ApiResponse<{
+      item: TeamReportActionItem;
+      task: { id: string; taskCode: string; title: string };
+    }>
+  >(`${teamReportActionItemsPath(workspaceId, projectId, reportId)}/tasks`, {
+    method: "POST",
+    body: payload,
+  });
+}
+
+/**
+ * Gui de nghi ban giao cho nguoi dang giu task.
+ *
+ * Khong tao ban ghi ban giao ngay: quyen tao thuoc nguoi dang giu task, nen day
+ * chi la loi nhac de ho tu mo form ban giao.
+ */
+export function requestHandoverFromTeamReportItem(
+  workspaceId: string,
+  projectId: string,
+  reportId: string,
+  payload: RequestTeamReportHandoverPayload,
+) {
+  return apiRequest<ApiResponse<{ item: TeamReportActionItem }>>(
+    `${teamReportActionItemsPath(
+      workspaceId,
+      projectId,
+      reportId,
+    )}/handover-requests`,
+    { method: "POST", body: payload },
+  );
+}
+
+export function dismissTeamReportActionItem(
+  workspaceId: string,
+  projectId: string,
+  reportId: string,
+  source: TeamReportActionItemSource,
+  itemIndex: number,
+  reason?: string,
+) {
+  return apiRequest<ApiResponse<{ item: TeamReportActionItem }>>(
+    `${teamReportActionItemsPath(
+      workspaceId,
+      projectId,
+      reportId,
+    )}/${source}/${itemIndex}`,
+    { method: "DELETE", body: reason ? { reason } : {} },
+  );
+}
+
+/**
+ * Nho AI soan nhap bao cao ca nhan.
+ *
+ * Ket qua khong duoc luu; nguoi dung tu sua roi bam gui, de bao cao van la loi
+ * cua ho chu khong phai cua may.
+ */
+export function draftMyDailyUpdate(
+  workspaceId: string,
+  projectId: string,
+  payload: { updateDate: string; sprintId?: string | null },
+) {
+  return apiRequest<ApiResponse<{ draft: DailyUpdateDraft }>>(
+    `${aiBasePath(workspaceId, projectId)}/daily-update-draft`,
+    { method: "POST", body: payload },
+  );
+}
+
+/** Nho AI soan nhap noi dung ban giao cho mot task dang duoc gan cho minh. */
+export function draftHandoverContent(
+  workspaceId: string,
+  projectId: string,
+  payload: { taskId: string; receiverId?: string },
+) {
+  return apiRequest<ApiResponse<{ draft: HandoverDraft }>>(
+    `${aiBasePath(workspaceId, projectId)}/handover-draft`,
+    { method: "POST", body: payload },
   );
 }
 

@@ -1,113 +1,162 @@
 import Link from "next/link";
+import {
+  ClockCircleOutlined,
+  EyeOutlined,
+  FolderOutlined,
+  ProductOutlined,
+  ProjectOutlined,
+  SettingOutlined,
+  UserOutlined,
+} from "@ant-design/icons";
 import { Workspace } from "../types/workspace.type";
 import { WorkspaceStatItem } from "@/features/stats/types/stats.type";
 import { formatRelativeTime } from "@/lib/utils/relative-time";
-import { Folder, Users, Clock, Eye, Settings, Boxes } from "lucide-react";
 
 type WorkspaceCardProps = {
   workspace: Workspace;
-  /** Số liệu thật từ API. Bỏ trống khi vẫn đang tải. */
   stats?: WorkspaceStatItem;
 };
 
 export function WorkspaceCard({ workspace, stats }: WorkspaceCardProps) {
-  const role = workspace.role ?? workspace.myRole ?? "MEMBER";
-  // Chưa có stats thì hiện gạch ngang, tránh để người dùng hiểu nhầm là số thật.
   const memberCount = stats ? String(stats.memberCount) : "—";
   const projectCount = stats ? String(stats.projectCount) : "—";
   const updatedLabel = formatRelativeTime(
     stats?.updatedAt ?? workspace.updatedAt,
   );
-  
-  // Xác định màu sắc badge dựa trên trạng thái
+
   const statusBadgeColor =
     workspace.status === "ACTIVE"
-      ? "bg-emerald-50 text-emerald-600 border-emerald-100"
+      ? "bg-emerald-50 text-emerald-700 border-emerald-200/80"
       : workspace.status === "ARCHIVED"
-      ? "bg-red-50 text-red-600 border-red-100"
-      : "bg-orange-50 text-orange-600 border-orange-100"; // Assuming Pending or other
+      ? "bg-rose-50 text-rose-700 border-rose-200/80"
+      : "bg-amber-50 text-amber-700 border-amber-200/80";
 
   const statusLabel =
     workspace.status === "ACTIVE"
-      ? "Active"
+      ? "Đang hoạt động"
       : workspace.status === "ARCHIVED"
-      ? "Archived"
-      : "Pending";
+      ? "Lưu trữ"
+      : "Chờ duyệt";
 
   return (
-    <article className="border border-zinc-200/80 bg-white p-6 rounded-3xl shadow-sm hover:shadow-md transition-all duration-200 flex flex-col h-full">
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex items-start gap-3 min-w-0">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-700">
-            <Boxes className="h-6 w-6" />
+    <article className="group relative flex flex-col justify-between h-full rounded-3xl border border-[#c9dfea]/80 bg-white p-6 shadow-xs transition-all duration-300 hover:-translate-y-1 hover:border-[#367ea2] hover:shadow-md">
+      <div>
+        {/* Header Info */}
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex items-center gap-3.5 min-w-0">
+            {/* Ant Design ProductOutlined Icon Badge */}
+            <div className="flex h-13 w-13 shrink-0 items-center justify-center rounded-2xl bg-[#367ea2]/10 text-[#367ea2] border border-[#367ea2]/20 shadow-2xs group-hover:bg-[#367ea2] group-hover:text-white transition-all">
+              <ProductOutlined className="text-2xl" />
+            </div>
+
+            <div className="min-w-0">
+              <h2 className="truncate text-base font-bold tracking-tight text-[#164654] group-hover:text-[#367ea2] transition-colors">
+                {workspace.name}
+              </h2>
+              <p className="truncate text-xs font-semibold text-slate-400 mt-0.5">
+                @{workspace.slug}
+              </p>
+            </div>
           </div>
-          <div className="min-w-0 pt-0.5">
-            <h2 className="truncate text-[15px] font-bold text-zinc-900">
-              {workspace.name}
-            </h2>
-            <p className="mt-0.5 text-xs text-zinc-500 font-medium">@{workspace.slug}</p>
+
+          <div className="flex shrink-0">
+            <span
+              className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold border ${statusBadgeColor}`}
+            >
+              <span
+                className={`h-1.5 w-1.5 rounded-full ${
+                  workspace.status === "ACTIVE"
+                    ? "bg-emerald-500"
+                    : workspace.status === "ARCHIVED"
+                    ? "bg-rose-500"
+                    : "bg-amber-500"
+                }`}
+              />
+              {statusLabel}
+            </span>
           </div>
         </div>
-        <div className="flex shrink-0">
-          <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold tracking-wide border ${statusBadgeColor}`}>
-            <span className={`h-1.5 w-1.5 rounded-full ${
-              workspace.status === "ACTIVE" ? "bg-emerald-500" : workspace.status === "ARCHIVED" ? "bg-red-500" : "bg-orange-500"
-            }`}></span>
-            {statusLabel}
-          </span>
+
+        {/* Description */}
+        <div className="mt-4">
+          {workspace.description ? (
+            <p className="line-clamp-2 text-xs font-medium leading-relaxed text-slate-600">
+              {workspace.description}
+            </p>
+          ) : (
+            <p className="text-xs font-medium text-slate-400 italic">
+              Chưa có mô tả cho không gian làm việc này.
+            </p>
+          )}
         </div>
-      </div>
-      
-      <div className="mt-4 flex-1">
-        {workspace.description ? (
-          <p className="line-clamp-2 text-sm text-zinc-600 leading-relaxed">
-            {workspace.description}
-          </p>
-        ) : (
-          <p className="text-sm text-zinc-400 italic">Không có mô tả cho không gian làm việc này.</p>
-        )}
       </div>
 
-      <div className="mt-6 grid grid-cols-3 gap-2 py-4 border-t border-b border-zinc-100/80">
-        <div className="flex flex-col items-center justify-center bg-zinc-50/50 rounded-xl py-2">
-          <Users className="h-4 w-4 text-zinc-400 mb-1" />
-          <span className="text-sm font-bold text-zinc-900">{memberCount}</span>
-          <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest mt-0.5">Thành viên</span>
-        </div>
-        <div className="flex flex-col items-center justify-center bg-zinc-50/50 rounded-xl py-2">
-          <Folder className="h-4 w-4 text-zinc-400 mb-1" />
-          <span className="text-sm font-bold text-zinc-900">{projectCount}</span>
-          <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest mt-0.5">Dự án</span>
-        </div>
-        <div className="flex flex-col items-center justify-center bg-zinc-50/50 rounded-xl py-2">
-          <Clock className="h-4 w-4 text-zinc-400 mb-1" />
-          <span className="text-sm font-bold text-zinc-900">{updatedLabel}</span>
-          <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest mt-0.5">Cập nhật</span>
-        </div>
-      </div>
+      <div>
+        {/* Metrics Row - Thiết kế thoáng và rõ nét */}
+        <div className="mt-5 grid grid-cols-3 gap-2.5 border-t border-slate-100 pt-4 pb-2">
+          <div className="flex flex-col items-center justify-center rounded-2xl bg-slate-50/90 py-2.5 px-2 border border-slate-100">
+            <div className="flex items-center gap-1.5 text-[#367ea2] mb-0.5">
+              <UserOutlined className="text-xs" />
+              <span className="text-sm font-extrabold text-[#164654]">
+                {memberCount}
+              </span>
+            </div>
+            <span className="text-xs font-medium text-slate-500">
+              Thành viên
+            </span>
+          </div>
 
-      <div className="mt-4 grid grid-cols-3 gap-2">
-        <Link
-          className="flex flex-col sm:flex-row items-center justify-center gap-1.5 rounded-xl border border-zinc-200 px-2 py-2 text-[11px] font-semibold text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900 transition"
-          href={`/workspaces/${workspace.id}`}
-        >
-          <Eye className="h-3.5 w-3.5" />
-          <span>Chi tiết</span>
-        </Link>
-        <Link
-          className="flex flex-col sm:flex-row items-center justify-center gap-1.5 rounded-xl border border-zinc-200 px-2 py-2 text-[11px] font-semibold text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900 transition"
-          href={`/workspaces/${workspace.id}/projects`}
-        >
-          <Folder className="h-3.5 w-3.5" />
-          <span>Dự án</span>
-        </Link>
-        <Link
-          className="flex flex-col sm:flex-row items-center justify-center gap-1.5 rounded-xl border border-zinc-200 px-2 py-2 text-[11px] font-semibold text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900 transition"
-          href={`/workspaces/${workspace.id}/settings`}
-        >
-          <Settings className="h-3.5 w-3.5" />
-          <span>Cài đặt</span>
-        </Link>
+          <div className="flex flex-col items-center justify-center rounded-2xl bg-slate-50/90 py-2.5 px-2 border border-slate-100">
+            <div className="flex items-center gap-1.5 text-emerald-600 mb-0.5">
+              <ProjectOutlined className="text-xs" />
+              <span className="text-sm font-extrabold text-[#164654]">
+                {projectCount}
+              </span>
+            </div>
+            <span className="text-xs font-medium text-slate-500">
+              Dự án
+            </span>
+          </div>
+
+          <div className="flex flex-col items-center justify-center rounded-2xl bg-slate-50/90 py-2.5 px-2 border border-slate-100">
+            <div className="flex items-center gap-1.5 text-amber-600 mb-0.5">
+              <ClockCircleOutlined className="text-xs" />
+              <span className="text-xs font-extrabold text-[#164654] truncate">
+                {updatedLabel}
+              </span>
+            </div>
+            <span className="text-xs font-medium text-slate-500">
+              Cập nhật
+            </span>
+          </div>
+        </div>
+
+        {/* Action Buttons - Nút chính "Vào dự án" nổi bật màu xanh #367ea2 */}
+        <div className="mt-3 flex items-center gap-2">
+          <Link
+            className="flex-1 inline-flex items-center justify-center gap-2 rounded-2xl bg-[#367ea2] px-4 py-2.5 text-xs font-bold text-white shadow-xs transition-all hover:bg-[#2b6887] active:scale-95"
+            href={`/workspaces/${workspace.id}/projects`}
+          >
+            <FolderOutlined className="text-sm" />
+            <span>Vào Dự án</span>
+          </Link>
+
+          <Link
+            className="inline-flex items-center justify-center rounded-2xl border border-slate-200/80 bg-slate-50 px-3 py-2.5 text-xs font-bold text-slate-700 transition-all hover:bg-slate-100 hover:text-slate-900 active:scale-95"
+            href={`/workspaces/${workspace.id}`}
+            title="Chi tiết workspace"
+          >
+            <EyeOutlined className="text-sm" />
+          </Link>
+
+          <Link
+            className="inline-flex items-center justify-center rounded-2xl border border-slate-200/80 bg-slate-50 px-3 py-2.5 text-xs font-bold text-slate-700 transition-all hover:bg-slate-100 hover:text-slate-900 active:scale-95"
+            href={`/workspaces/${workspace.id}/settings`}
+            title="Cài đặt workspace"
+          >
+            <SettingOutlined className="text-sm" />
+          </Link>
+        </div>
       </div>
     </article>
   );

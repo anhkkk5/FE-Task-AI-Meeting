@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Boxes, ClipboardList, FolderKanban, Users } from "lucide-react";
+import { ArrowUpRight, Boxes, ClipboardList, FolderKanban, Users } from "lucide-react";
 import { WorkspacesOverviewSummary } from "@/features/stats/types/stats.type";
 
 type DashboardMetricCardsProps = {
@@ -9,11 +9,6 @@ type DashboardMetricCardsProps = {
   isPending: boolean;
 };
 
-/**
- * The so lieu tong quan.
- * Moi the deu la link den mot route co that: truoc day cac the nay chi la so
- * hardcode va bam vao khong di dau ca.
- */
 export function DashboardMetricCards({
   summary,
   isPending,
@@ -23,37 +18,45 @@ export function DashboardMetricCards({
       id: "dashboard-metric-workspaces",
       label: "Workspace",
       value: summary?.workspaces,
-      hint: "Xem danh sách",
+      trend: "+12% MoM",
+      hint: "Xem tất cả",
       href: "/workspaces",
       icon: Boxes,
-      tone: "bg-brand-50 text-brand-700 border-brand-200",
+      badgeColor: "bg-[#b1dff6]/50 text-[#164654]",
+      iconBg: "bg-[#367ea2]/10 text-[#367ea2]",
     },
     {
       id: "dashboard-metric-projects",
-      label: "Dự án",
+      label: "Dự án đang chạy",
       value: summary?.projects,
-      hint: "Chọn workspace",
+      trend: "Ổn định",
+      hint: "Danh sách dự án",
       href: "/workspaces",
       icon: FolderKanban,
-      tone: "bg-brand-50 text-brand-700 border-brand-200",
+      badgeColor: "bg-emerald-100/70 text-emerald-800",
+      iconBg: "bg-[#367ea2]/10 text-[#367ea2]",
     },
     {
       id: "dashboard-metric-tasks",
-      label: "Tổng task",
+      label: "Tổng công việc",
       value: summary?.tasks,
-      hint: "Xem việc của tôi",
+      trend: "Tiến độ tốt",
+      hint: "Việc của tôi",
       href: "/my-work",
       icon: ClipboardList,
-      tone: "bg-brand-50 text-brand-700 border-brand-200",
+      badgeColor: "bg-sky-100 text-sky-800",
+      iconBg: "bg-[#367ea2]/10 text-[#367ea2]",
     },
     {
       id: "dashboard-metric-members",
-      label: "Thành viên",
+      label: "Thành viên nhóm",
       value: summary?.members,
-      hint: "Xem theo workspace",
+      trend: "Đội ngũ",
+      hint: "Quản lý thành viên",
       href: "/workspaces",
       icon: Users,
-      tone: "bg-brand-50 text-brand-700 border-brand-200",
+      badgeColor: "bg-indigo-100/70 text-indigo-800",
+      iconBg: "bg-[#367ea2]/10 text-[#367ea2]",
     },
   ];
 
@@ -67,25 +70,32 @@ export function DashboardMetricCards({
             key={card.id}
             id={card.id}
             href={card.href}
-            className="group rounded-2xl border border-slate-200/80 bg-white p-5 shadow-2xs transition hover:-translate-y-0.5 hover:border-brand-200 hover:shadow-md"
+            className="group rounded-2xl border border-[#c9dfea]/80 bg-white p-5 shadow-xs transition-all hover:-translate-y-1 hover:border-[#367ea2] hover:shadow-md"
           >
-            <div className="mb-4 flex items-center justify-between">
-              <div
-                className={`flex h-10 w-10 items-center justify-center rounded-xl border ${card.tone}`}
-              >
+            <div className="flex items-center justify-between">
+              <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${card.iconBg}`}>
                 <Icon className="h-5 w-5" />
               </div>
-              <ArrowRight className="h-4 w-4 text-slate-300 transition group-hover:translate-x-0.5 group-hover:text-brand-600" />
+              <span className={`rounded-full px-2.5 py-0.5 text-[11px] font-bold ${card.badgeColor}`}>
+                {card.trend}
+              </span>
             </div>
-            <p className="text-3xl font-extrabold tracking-tight text-slate-900">
-              {isPending || card.value === undefined ? "—" : card.value}
-            </p>
-            <p className="mt-1 text-xs font-semibold text-slate-400">
-              {card.label}
-            </p>
-            <p className="mt-2 text-[11px] font-bold text-brand-600 opacity-0 transition group-hover:opacity-100">
-              {card.hint}
-            </p>
+
+            <div className="mt-4">
+              <p className="text-3xl font-extrabold text-[#164654]">
+                {isPending || card.value === undefined ? "—" : card.value}
+              </p>
+              <p className="mt-1 text-xs font-bold text-slate-500">
+                {card.label}
+              </p>
+            </div>
+
+            <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3">
+              <span className="text-[11px] font-bold text-[#367ea2]">
+                {card.hint}
+              </span>
+              <ArrowUpRight className="h-4 w-4 text-slate-400 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-[#367ea2]" />
+            </div>
           </Link>
         );
       })}

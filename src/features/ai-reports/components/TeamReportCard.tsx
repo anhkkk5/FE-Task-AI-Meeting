@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getReviewStatusBadge } from "../constants/review-status";
 import { AiTeamReport } from "../types/ai-report.type";
 
 type TeamReportCardProps = {
@@ -12,20 +13,21 @@ export function TeamReportCard({
   workspaceId,
   projectId,
 }: TeamReportCardProps) {
+  const badge = report.reviewStatus
+    ? getReviewStatusBadge(report.reviewStatus)
+    : null;
+
   return (
     <article className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
       <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
         <div className="min-w-0">
-          {report.reviewStatus ? (
+          {badge ? (
             <div className="mb-3 flex flex-wrap items-center gap-2">
               <span
-                className={`rounded-lg px-2.5 py-1 text-[11px] font-bold ${
-                  report.reviewStatus === "APPROVED"
-                    ? "bg-brand-50 text-brand-700 ring-1 ring-brand-200"
-                    : "bg-amber-50 text-amber-700 ring-1 ring-amber-200"
-                }`}
+                className={`rounded-lg px-2.5 py-1 text-[11px] font-bold ${badge.className}`}
+                title={badge.hint}
               >
-                {report.reviewStatus === "APPROVED" ? "Đã duyệt" : "Bản nháp"}
+                {badge.label}
               </span>
             </div>
           ) : null}

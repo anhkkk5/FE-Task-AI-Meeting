@@ -656,20 +656,21 @@ export default function BacklogPage() {
   return (
     <AppShell projectId={params.projectId} title={project?.name} workspaceId={params.workspaceId}>
       <div className="space-y-4">
-        <section className="rounded border border-[#dfe1e6] bg-white shadow-sm">
-          <div className="flex flex-col gap-4 border-b border-[#dfe1e6] px-4 py-4 xl:flex-row xl:items-end xl:justify-between">
-            <div className="grid flex-1 gap-3 md:grid-cols-[minmax(240px,1fr)_180px_220px_auto] md:items-end">
-              <label className="grid gap-1 text-xs font-semibold text-[#44546f]">
+        <section className="rounded-3xl border border-slate-200/90 bg-white p-5 sm:p-6 shadow-sm shadow-slate-100/70 space-y-5">
+          {/* Top Filter and Action Row */}
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+            <div className="grid flex-1 gap-3 sm:grid-cols-2 md:grid-cols-[minmax(220px,1fr)_160px_200px_auto] md:items-end">
+              <label className="grid gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-600">
                 Tìm task
                 <div className="relative">
                   <input
-                    className="h-10 w-full rounded border border-[#dfe1e6] bg-white pl-9 pr-3 text-sm text-[#172b4d] outline-none hover:bg-[#f7f8f9] focus:border-[#4F8EB0]"
+                    className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50/70 pl-9 pr-3 text-sm font-medium text-slate-800 outline-none transition-all placeholder:text-slate-400 hover:bg-slate-50 focus:border-[#4F8EB0] focus:bg-white focus:ring-4 focus:ring-[#4F8EB0]/15"
                     onChange={(event) => setSearchKeyword(event.target.value)}
-                    placeholder="Nhập tên task hoặc mã task"
+                    placeholder="Nhập tên hoặc mã task..."
                     value={searchKeyword}
                   />
                   <svg
-                    className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6b778c]"
+                    className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -684,10 +685,10 @@ export default function BacklogPage() {
                 </div>
               </label>
 
-              <label className="grid gap-1 text-xs font-semibold text-[#44546f]">
+              <label className="grid gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-600">
                 Trạng thái
                 <select
-                  className="h-10 rounded border border-[#dfe1e6] bg-white px-3 text-sm text-[#172b4d] outline-none hover:bg-[#f7f8f9] focus:border-[#4F8EB0]"
+                  className="h-10 rounded-xl border border-slate-200 bg-slate-50/70 px-3 text-sm font-medium text-slate-800 outline-none transition-all hover:bg-slate-50 focus:border-[#4F8EB0] focus:bg-white focus:ring-4 focus:ring-[#4F8EB0]/15"
                   onChange={(event) =>
                     setSelectedStatus(event.target.value as "ALL" | TaskStatus)
                   }
@@ -701,10 +702,10 @@ export default function BacklogPage() {
                 </select>
               </label>
 
-              <label className="grid gap-1 text-xs font-semibold text-[#44546f]">
+              <label className="grid gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-600">
                 Người nhận
                 <select
-                  className="h-10 rounded border border-[#dfe1e6] bg-white px-3 text-sm text-[#172b4d] outline-none hover:bg-[#f7f8f9] focus:border-[#4F8EB0]"
+                  className="h-10 rounded-xl border border-slate-200 bg-slate-50/70 px-3 text-sm font-medium text-slate-800 outline-none transition-all hover:bg-slate-50 focus:border-[#4F8EB0] focus:bg-white focus:ring-4 focus:ring-[#4F8EB0]/15"
                   onChange={(event) => setSelectedAssigneeId(event.target.value || null)}
                   value={selectedAssigneeId ?? ""}
                 >
@@ -718,7 +719,7 @@ export default function BacklogPage() {
               </label>
 
               <button
-                className="h-10 rounded border border-[#dfe1e6] bg-white px-3 text-sm font-semibold text-[#44546f] hover:bg-[#f1f2f4] disabled:opacity-50"
+                className="h-10 rounded-xl border border-slate-200 bg-white px-3.5 text-xs font-semibold text-slate-600 transition-all hover:bg-slate-50 active:scale-95 disabled:opacity-40"
                 disabled={!hasActiveFilters}
                 onClick={clearFilters}
                 type="button"
@@ -727,38 +728,51 @@ export default function BacklogPage() {
               </button>
             </div>
 
+            {/* Action Buttons */}
             <div className="flex flex-wrap items-center gap-2">
               <button
-                className="h-10 rounded border border-[#dfe1e6] bg-white px-3 text-sm font-semibold text-[#44546f] hover:bg-[#f1f2f4] disabled:opacity-60"
+                className="inline-flex h-10 items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 text-xs font-semibold text-slate-700 shadow-sm transition-all hover:bg-slate-50 active:scale-95 disabled:opacity-60"
                 disabled={isLoading}
                 onClick={() => void loadData()}
                 type="button"
               >
+                <svg className="h-3.5 w-3.5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
                 Làm mới
               </button>
               {canWrite ? (
                 <>
                   <Link
-                    className="flex h-10 items-center rounded border border-[#dfe1e6] bg-white px-3 text-sm font-semibold text-[#44546f] hover:bg-[#f1f2f4]"
+                    className="inline-flex h-10 items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 text-xs font-semibold text-slate-700 shadow-sm transition-all hover:bg-slate-50 active:scale-95"
                     href={`/workspaces/${params.workspaceId}/projects/${params.projectId}/sprints/create`}
                   >
+                    <svg className="h-3.5 w-3.5 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
                     Tạo sprint
                   </Link>
                   <button
-                    className={`h-10 rounded border px-3 text-sm font-semibold ${
+                    className={`inline-flex h-10 items-center justify-center gap-1.5 rounded-xl border px-3.5 text-xs font-semibold shadow-sm transition-all active:scale-95 ${
                       showImportPanel
                         ? "border-[#4F8EB0] bg-[#e9f2ff] text-[#4F8EB0]"
-                        : "border-[#dfe1e6] bg-white text-[#44546f] hover:bg-[#f1f2f4]"
+                        : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
                     }`}
                     onClick={() => setShowImportPanel((prev) => !prev)}
                     type="button"
                   >
+                    <svg className="h-3.5 w-3.5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
                     Nhập Excel
                   </button>
                   <Link
-                    className="flex h-10 items-center rounded bg-[#4F8EB0] px-4 text-sm font-semibold text-white hover:bg-[#317491]"
+                    className="inline-flex h-10 items-center justify-center gap-1.5 rounded-xl bg-[#4F8EB0] px-4 text-xs font-bold text-white shadow-md shadow-[#4F8EB0]/20 transition-all hover:bg-[#3d7290] active:scale-95"
                     href={`/workspaces/${params.workspaceId}/projects/${params.projectId}/tasks/create`}
                   >
+                    <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
+                    </svg>
                     Tạo task
                   </Link>
                 </>
@@ -766,36 +780,72 @@ export default function BacklogPage() {
             </div>
           </div>
 
-          <div className="grid gap-0 border-b border-[#dfe1e6] md:grid-cols-5">
-            <div className="border-b border-[#dfe1e6] px-4 py-3 md:border-b-0 md:border-r">
-              <p className="text-[11px] font-bold uppercase tracking-wide text-[#6b778c]">Tổng task</p>
-              <p className="mt-1 text-xl font-semibold text-[#172b4d]">{taskSummary.total}</p>
+          {/* Stat KPI Cards Grid */}
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+            {/* Tổng Task */}
+            <div className="rounded-2xl border border-slate-200/80 bg-slate-50/70 p-3.5 transition-all hover:bg-slate-100/60">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Tổng task</span>
+                <span className="rounded-lg bg-slate-200/60 px-2 py-0.5 text-[10px] font-bold text-slate-600">All</span>
+              </div>
+              <p className="mt-2 text-2xl font-extrabold text-slate-900">{taskSummary.total}</p>
             </div>
-            <div className="border-b border-[#dfe1e6] px-4 py-3 md:border-b-0 md:border-r">
-              <p className="text-[11px] font-bold uppercase tracking-wide text-[#6b778c]">Backlog</p>
-              <p className="mt-1 text-xl font-semibold text-[#172b4d]">{taskSummary.backlog}</p>
+
+            {/* Backlog */}
+            <div className="rounded-2xl border border-amber-200/70 bg-amber-50/50 p-3.5 transition-all hover:bg-amber-50">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-amber-800">Backlog</span>
+                <span className="rounded-lg bg-amber-200/60 px-2 py-0.5 text-[10px] font-bold text-amber-900">Unassigned</span>
+              </div>
+              <p className="mt-2 text-2xl font-extrabold text-amber-900">{taskSummary.backlog}</p>
             </div>
-            <div className="border-b border-[#dfe1e6] px-4 py-3 md:border-b-0 md:border-r">
-              <p className="text-[11px] font-bold uppercase tracking-wide text-[#6b778c]">Cần làm</p>
-              <p className="mt-1 text-xl font-semibold text-[#44546f]">{taskSummary.todo}</p>
+
+            {/* Cần làm */}
+            <div className="rounded-2xl border border-blue-200/70 bg-blue-50/50 p-3.5 transition-all hover:bg-blue-50">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-blue-800">Cần làm</span>
+                <span className="rounded-lg bg-blue-200/60 px-2 py-0.5 text-[10px] font-bold text-blue-900">Todo</span>
+              </div>
+              <p className="mt-2 text-2xl font-extrabold text-blue-900">{taskSummary.todo}</p>
             </div>
-            <div className="border-b border-[#dfe1e6] px-4 py-3 md:border-b-0 md:border-r">
-              <p className="text-[11px] font-bold uppercase tracking-wide text-[#6b778c]">Đang xử lý</p>
-              <p className="mt-1 text-xl font-semibold text-[#4F8EB0]">{taskSummary.inProgress}</p>
+
+            {/* Đang xử lý */}
+            <div className="rounded-2xl border border-sky-200/70 bg-sky-50/50 p-3.5 transition-all hover:bg-sky-50">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-sky-800">Đang xử lý</span>
+                <span className="rounded-lg bg-sky-200/60 px-2 py-0.5 text-[10px] font-bold text-sky-900">In Progress</span>
+              </div>
+              <p className="mt-2 text-2xl font-extrabold text-[#4F8EB0]">{taskSummary.inProgress}</p>
             </div>
-            <div className="px-4 py-3">
-              <p className="text-[11px] font-bold uppercase tracking-wide text-[#6b778c]">Hoàn thành</p>
-              <p className="mt-1 text-xl font-semibold text-[#216e4e]">{taskSummary.done}</p>
+
+            {/* Hoàn thành */}
+            <div className="col-span-2 rounded-2xl border border-emerald-200/70 bg-emerald-50/50 p-3.5 transition-all hover:bg-emerald-50 sm:col-span-1">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-800">Hoàn thành</span>
+                <span className="rounded-lg bg-emerald-200/60 px-2 py-0.5 text-[10px] font-bold text-emerald-900">Done</span>
+              </div>
+              <p className="mt-2 text-2xl font-extrabold text-emerald-700">{taskSummary.done}</p>
             </div>
           </div>
 
-          <div className="flex flex-col gap-2 px-4 py-3 text-xs text-[#6b778c] lg:flex-row lg:items-center lg:justify-between">
-            <p>
-              Kéo task giữa Backlog và Sprint để sắp xếp công việc. Bấm tên task để mở bảng chi tiết bên phải.
-            </p>
-            <p className="font-semibold text-[#44546f]">
-              Sprint đang chạy: {activeSprintCount} · Sprint sắp tới: {plannedSprintCount}
-            </p>
+          {/* Bottom Info Bar */}
+          <div className="flex flex-col gap-2 rounded-2xl border border-slate-100 bg-slate-50/70 px-4 py-3 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between font-medium">
+            <div className="flex items-center gap-2">
+              <svg className="h-4 w-4 text-[#4F8EB0] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span>Kéo thả task giữa Backlog và Sprint để phân công. Bấm tên task để xem chi tiết.</span>
+            </div>
+            <div className="flex items-center gap-3 text-xs font-semibold text-slate-700 shrink-0">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100/80 px-2.5 py-0.5 text-emerald-800">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                Đang chạy: {activeSprintCount}
+              </span>
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-sky-100/80 px-2.5 py-0.5 text-sky-800">
+                <span className="h-1.5 w-1.5 rounded-full bg-sky-500"></span>
+                Sắp tới: {plannedSprintCount}
+              </span>
+            </div>
           </div>
         </section>
 

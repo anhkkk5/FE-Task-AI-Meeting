@@ -27,6 +27,9 @@ export type DailyUpdate = {
   blockers: string | null;
   notes: string | null;
   mood: DailyMood | null;
+  /** Nguoi duoc nho ho tro trong ngay, null neu khong can ai. */
+  needHelpFromId: string | null;
+  needHelpFrom: DailyUpdateUserSummary | null;
   createdAt: string;
   updatedAt?: string;
 };
@@ -49,6 +52,7 @@ export type CreateDailyUpdatePayload = {
   blockers?: string;
   notes?: string;
   mood?: DailyMood;
+  needHelpFromId?: string | null;
 };
 
 export type UpdateDailyUpdatePayload = {
@@ -58,4 +62,5 @@ export type UpdateDailyUpdatePayload = {
   blockers?: string | null;
   notes?: string | null;
   mood?: DailyMood | null;
+  needHelpFromId?: string | null;
 };

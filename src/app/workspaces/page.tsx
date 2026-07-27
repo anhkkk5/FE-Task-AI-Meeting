@@ -2,14 +2,22 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  Calendar,
+  FolderKanban,
+  Plus,
+  RefreshCw,
+  Search,
+  Users,
+} from "lucide-react";
+import { ProductOutlined } from "@ant-design/icons";
 import { AppShell } from "@/components/layout/AppShell";
-import { WorkspaceCard } from "@/features/workspaces/components/WorkspaceCard";
-import { getMyWorkspaces } from "@/features/workspaces/api/workspaces.api";
 import { getWorkspacesOverview } from "@/features/stats/api/stats.api";
 import { WorkspacesOverview } from "@/features/stats/types/stats.type";
+import { getMyWorkspaces } from "@/features/workspaces/api/workspaces.api";
+import { WorkspaceCard } from "@/features/workspaces/components/WorkspaceCard";
 import { Workspace, WorkspaceStatus } from "@/features/workspaces/types/workspace.type";
 import { useAuth } from "@/hooks/useAuth";
-import { RefreshCw, Plus, Folder, Network, Users, Calendar } from "lucide-react";
 
 export default function WorkspacesPage() {
   const { user, isLoading: authLoading } = useAuth(true);
@@ -26,8 +34,6 @@ export default function WorkspacesPage() {
       setMessage("");
 
       try {
-        // Gọi song song để không cộng dồn thời gian chờ, nhưng dùng allSettled:
-        // danh sách workspace là dữ liệu chính, không được mất chỉ vì stats lỗi.
         const [workspacesResult, overviewResult] = await Promise.allSettled([
           getMyWorkspaces(status === "" ? undefined : status),
           getWorkspacesOverview(),
@@ -47,7 +53,6 @@ export default function WorkspacesPage() {
         if (overviewResult.status === "fulfilled") {
           setOverview(overviewResult.value.data);
         } else {
-          // Stats lỗi thì các card tổng hợp hiện dấu "—" thay vì số sai.
           setOverview(null);
         }
       } catch (error) {
@@ -65,14 +70,12 @@ export default function WorkspacesPage() {
     }
   }, [user, loadWorkspaces]);
 
-  // Map theo workspaceId để mỗi card tra cứu số liệu của chính nó, thay vì lặp mảng.
   const statsByWorkspace = useMemo(() => {
     return new Map(
       (overview?.workspaces ?? []).map((item) => [item.workspaceId, item]),
     );
   }, [overview]);
 
-  // Chưa có số liệu thì hiện gạch ngang thay vì số 0 gây hiểu nhầm.
   const summaryValue = (value: number | undefined) =>
     value === undefined ? "—" : String(value);
 
@@ -83,8 +86,8 @@ export default function WorkspacesPage() {
 
   if (authLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#f8fafc]">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-900 border-t-transparent"></div>
+      <div className="flex min-h-screen items-center justify-center bg-slate-50">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#367ea2] border-t-transparent" />
       </div>
     );
   }
@@ -92,85 +95,118 @@ export default function WorkspacesPage() {
   return (
     <AppShell>
       <div className="space-y-6 max-w-7xl mx-auto">
-        {/* Header Toolbar */}
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h1 className="text-xl font-extrabold text-slate-900">Workspace</h1>
-            <p className="mt-0.5 text-sm font-medium text-slate-500">
-              Manage all your workspaces
-            </p>
+        {/* Header Toolbar Card */}
+        <div className="rounded-3xl border border-[#c9dfea]/80 bg-white p-6 shadow-xs sm:p-8">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <div className="inline-flex items-center gap-1.5 rounded-full bg-[#b1dff6]/40 px-3 py-1 text-xs font-bold text-[#164654]">
+                <ProductOutlined className="text-sm text-[#367ea2]" />
+                Workspace Management
+              </div>
+              <h1 className="mt-2.5 text-2xl font-extrabold text-[#164654] sm:text-3xl">
+                Không gian làm việc (Workspace)
+              </h1>
+              <p className="mt-1 text-xs font-medium text-slate-500 sm:text-sm">
+                Quản lý toàn bộ Workspace, dự án và thành viên thuộc quyền của bạn
+              </p>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <button
+                className="inline-flex h-11 items-center gap-2 rounded-xl border border-[#c9dfea] bg-white px-4 text-xs font-bold text-[#164654] shadow-xs transition hover:bg-slate-50 active:scale-95 disabled:opacity-60"
+                type="button"
+                onClick={() => void loadWorkspaces()}
+                disabled={isLoading}
+              >
+                <RefreshCw className={`h-4 w-4 text-[#367ea2] ${isLoading ? "animate-spin" : ""}`} />
+                Làm mới
+              </button>
+              <Link
+                className="inline-flex h-11 items-center gap-2 rounded-xl bg-[#367ea2] px-5 text-xs font-bold text-white shadow-md shadow-[#367ea2]/25 transition hover:bg-[#2b6887] active:scale-95"
+                href="/workspaces/create"
+              >
+                <Plus className="h-4 w-4" />
+                Tạo Workspace mới
+              </Link>
+            </div>
           </div>
-          <div className="flex items-center gap-3">
-            <button
-              className="flex items-center gap-2 h-10 rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition"
-              type="button"
-              onClick={() => void loadWorkspaces()}
-              disabled={isLoading}
-            >
-              <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
-              Làm mới
-            </button>
-            <Link
-              className="flex items-center gap-2 h-10 rounded-xl bg-brand-600 px-4 text-sm font-bold text-white hover:bg-brand-700 shadow-sm transition"
-              href="/workspaces/create"
-            >
-              <Plus className="h-4 w-4" />
-              Tạo Workspace
-            </Link>
+
+          {/* Search bar inside header */}
+          <div className="mt-6 pt-5 border-t border-slate-100 flex items-center justify-between gap-4">
+            <div className="relative flex-1 max-w-md">
+              <input
+                className="h-10 w-full rounded-xl border border-[#c9dfea] bg-slate-50/60 pl-10 pr-4 text-xs font-semibold text-[#164654] outline-none transition placeholder:text-slate-400 focus:border-[#367ea2] focus:bg-white focus:ring-4 focus:ring-[#367ea2]/15"
+                placeholder="Tìm kiếm workspace theo tên hoặc slug..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            </div>
+
+            <div className="text-xs font-bold text-slate-500">
+              Đang hiển thị <span className="text-[#367ea2] font-extrabold">{filteredItems.length}</span> / {items.length} Workspace
+            </div>
           </div>
         </div>
 
-        {/* Top Stats Cards */}
+        {/* Top Stats KPI Cards với Font chữ rõ nét & Nhãn dễ đọc */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center gap-4">
-            <div className="h-12 w-12 rounded-xl bg-brand-50 text-brand-700 flex items-center justify-center shrink-0">
-              <Folder className="h-6 w-6" />
+          {/* Workspaces */}
+          <div className="bg-white p-5 rounded-3xl border border-[#c9dfea]/80 shadow-xs flex items-center gap-4 transition-transform hover:-translate-y-0.5">
+            <div className="h-12 w-12 rounded-2xl bg-[#367ea2]/10 text-[#367ea2] flex items-center justify-center shrink-0 border border-[#367ea2]/20">
+              <ProductOutlined className="text-2xl" />
             </div>
             <div>
-              <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Workspaces</p>
-              <p className="text-xl font-black text-slate-900 mt-0.5">{items.length}</p>
+              <p className="text-xs font-bold text-slate-500">Không gian làm việc</p>
+              <p className="text-2xl font-black text-[#164654] mt-0.5">{items.length}</p>
             </div>
           </div>
-          <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center gap-4">
-            <div className="h-12 w-12 rounded-xl bg-slate-50 text-slate-600 flex items-center justify-center shrink-0">
-              <Network className="h-6 w-6" />
+
+          {/* Projects */}
+          <div className="bg-white p-5 rounded-3xl border border-[#c9dfea]/80 shadow-xs flex items-center gap-4 transition-transform hover:-translate-y-0.5">
+            <div className="h-12 w-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 border border-emerald-200/80">
+              <FolderKanban className="h-6 w-6" />
             </div>
             <div>
-              <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Projects</p>
-              <p className="text-xl font-black text-slate-900 mt-0.5">{summaryValue(overview?.summary.projects)}</p>
+              <p className="text-xs font-bold text-slate-500">Dự án đang chạy</p>
+              <p className="text-2xl font-black text-[#164654] mt-0.5">{summaryValue(overview?.summary.projects)}</p>
             </div>
           </div>
-          <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center gap-4">
-            <div className="h-12 w-12 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center shrink-0">
+
+          {/* Members */}
+          <div className="bg-white p-5 rounded-3xl border border-[#c9dfea]/80 shadow-xs flex items-center gap-4 transition-transform hover:-translate-y-0.5">
+            <div className="h-12 w-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 border border-indigo-200/80">
               <Users className="h-6 w-6" />
             </div>
             <div>
-              <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Members</p>
-              <p className="text-xl font-black text-slate-900 mt-0.5">{summaryValue(overview?.summary.members)}</p>
+              <p className="text-xs font-bold text-slate-500">Tổng thành viên</p>
+              <p className="text-2xl font-black text-[#164654] mt-0.5">{summaryValue(overview?.summary.members)}</p>
             </div>
           </div>
-          <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center gap-4">
-            <div className="h-12 w-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+
+          {/* Meetings */}
+          <div className="bg-white p-5 rounded-3xl border border-[#c9dfea]/80 shadow-xs flex items-center gap-4 transition-transform hover:-translate-y-0.5">
+            <div className="h-12 w-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0 border border-amber-200/80">
               <Calendar className="h-6 w-6" />
             </div>
             <div>
-              <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Meetings</p>
-              <p className="text-xl font-black text-slate-900 mt-0.5">{summaryValue(overview?.summary.meetings)}</p>
+              <p className="text-xs font-bold text-slate-500">Cuộc họp hàng ngày</p>
+              <p className="text-2xl font-black text-[#164654] mt-0.5">{summaryValue(overview?.summary.meetings)}</p>
             </div>
           </div>
         </div>
 
         {/* Message Banner */}
         {message ? (
-          <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs font-semibold text-amber-900">
+          <div className="rounded-2xl border border-rose-200 bg-rose-50 px-5 py-4 text-xs font-bold text-rose-800 shadow-xs">
             {message}
           </div>
         ) : null}
 
         {/* Workspaces Grid */}
         {isLoading ? (
-          <div className="flex h-48 items-center justify-center">
-            <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
+          <div className="flex h-48 items-center justify-center rounded-3xl border border-[#c9dfea]/80 bg-white shadow-xs">
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#367ea2] border-t-transparent" />
           </div>
         ) : (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -185,13 +221,17 @@ export default function WorkspacesPage() {
             {/* Add Workspace Card */}
             <Link 
               href="/workspaces/create"
-              className="group flex flex-col items-center justify-center p-8 rounded-3xl border-2 border-dashed border-slate-200 bg-slate-50/50 hover:bg-slate-50 hover:border-blue-400 transition-all duration-200 min-h-[220px]"
+              className="group flex flex-col items-center justify-center p-8 rounded-3xl border-2 border-dashed border-[#c9dfea] bg-slate-50/50 hover:bg-[#b1dff6]/15 hover:border-[#367ea2] transition-all duration-200 min-h-[260px] shadow-2xs"
             >
-              <div className="h-12 w-12 rounded-full bg-slate-200/50 flex items-center justify-center text-slate-500 mb-4 group-hover:bg-blue-100 group-hover:text-blue-600 transition-colors">
-                <Plus className="h-6 w-6" />
+              <div className="h-14 w-14 rounded-2xl bg-white text-[#367ea2] flex items-center justify-center mb-4 border border-[#c9dfea] shadow-xs group-hover:scale-110 group-hover:bg-[#367ea2] group-hover:text-white transition-all">
+                <ProductOutlined className="text-2xl" />
               </div>
-              <p className="text-sm font-bold text-slate-700 group-hover:text-blue-600 transition-colors">Thêm Workspace mới</p>
-              <p className="text-xs font-medium text-slate-400 mt-1">Tạo một không gian cộng tác mới cho đội ngũ của bạn</p>
+              <p className="text-base font-extrabold text-[#164654] group-hover:text-[#367ea2] transition-colors">
+                Thêm Workspace mới
+              </p>
+              <p className="text-xs font-semibold text-slate-400 mt-1 text-center max-w-xs">
+                Tạo một không gian cộng tác mới cho đội ngũ của bạn
+              </p>
             </Link>
           </div>
         )}
@@ -199,4 +239,3 @@ export default function WorkspacesPage() {
     </AppShell>
   );
 }
-

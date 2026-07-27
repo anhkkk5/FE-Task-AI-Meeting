@@ -4,6 +4,7 @@ import Link from "next/link";
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import { AppShell } from "@/components/layout/AppShell";
+import { draftHandoverContent } from "@/features/ai-reports/api/ai-reports.api";
 import {
   getMyWorkspaceRole,
   getWorkspaceMembers,
@@ -21,9 +22,10 @@ import {
   submitHandover,
   updateHandover,
 } from "@/features/shift-handovers/api/shift-handovers.api";
+import { HandoverReasonModal } from "@/features/shift-handovers/components/HandoverReasonModal";
+import { HandoverStatusBadge } from "@/features/shift-handovers/components/HandoverStatusBadge";
 import {
   CreateHandoverPayload,
-  HandoverStatus,
   ShiftHandover,
 } from "@/features/shift-handovers/types/shift-handover.type";
 import { getTasks } from "@/features/tasks/api/tasks.api";
@@ -32,25 +34,18 @@ import { useAuth } from "@/hooks/useAuth";
 
 const managerRoles = ["OWNER", "SCRUM_MASTER", "PROJECT_MANAGER"];
 
-const statusLabels: Record<HandoverStatus, string> = {
-  DRAFT: "Bản nháp",
-  PENDING: "Chờ người nhận",
-  CHANGES_REQUESTED: "Cần bổ sung",
-  ACKNOWLEDGED: "Đã tiếp nhận",
-  REJECTED: "Đã từ chối",
-  CANCELLED: "Đã hủy",
-};
-
-const statusStyles: Record<HandoverStatus, string> = {
-  DRAFT: "bg-[#f1f2f4] text-[#44546f]",
-  PENDING: "bg-[#fff7d6] text-[#7f5f01]",
-  CHANGES_REQUESTED: "bg-[#ffedeb] text-[#ae2a19]",
-  ACKNOWLEDGED: "bg-[#dcfff1] text-[#216e4e]",
-  REJECTED: "bg-[#ffedeb] text-[#ae2a19]",
-  CANCELLED: "bg-[#f1f2f4] text-[#626f86]",
-};
-
 type ListView = "all" | "sent" | "received";
+
+/**
+ * Hanh dong dang cho nguoi dung xac nhan trong modal.
+ *
+ * Giu ca ban giao va loai hanh dong trong mot state de modal biet phai hien tieu
+ * de nao va goi API nao, tranh phai them ba cap state rieng.
+ */
+type PendingAction = {
+  handover: ShiftHandover;
+  type: "request-changes" | "reject";
+};
 
 function localDateTime(date = new Date()) {
   const offset = date.getTimezoneOffset() * 60_000;
@@ -105,8 +100,11 @@ export default function TaskHandoversPage() {
     emptyForm(requestedTaskId),
   );
   const [message, setMessage] = useState("");
+  const [isError, setIsError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isDrafting, setIsDrafting] = useState(false);
+  const [pendingAction, setPendingAction] = useState<PendingAction | null>(null);
 
   const canManage = managerRoles.includes(myRole);
   const activeMembers = useMemo(
@@ -142,10 +140,25 @@ export default function TaskHandoversPage() {
       ).length,
     [handovers, user?.id],
   );
+  const sentByMe = useMemo(
+    () => handovers.filter((handover) => handover.senderId === user?.id).length,
+    [handovers, user?.id],
+  );
+  const acknowledgedCount = useMemo(
+    () =>
+      handovers.filter((handover) => handover.status === "ACKNOWLEDGED").length,
+    [handovers],
+  );
+
+  function report(text: string, failed = false) {
+    setMessage(text);
+    setIsError(failed);
+  }
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
     setMessage("");
+    setIsError(false);
     try {
       const [projectRes, memberRes, roleRes, taskRes, handoverRes] =
         await Promise.all([
@@ -172,6 +185,7 @@ export default function TaskHandoversPage() {
           ? error.message
           : "Không thể tải danh sách bàn giao.",
       );
+      setIsError(true);
     } finally {
       setIsLoading(false);
     }
@@ -187,35 +201,82 @@ export default function TaskHandoversPage() {
     setShowForm(false);
   }
 
+  /**
+   * Nho AI soan noi dung ban giao tu task dang chon.
+   *
+   * Chi dien vao o dang trong de khong ghi de nhung gi nguoi dung da viet.
+   */
+  async function handleDraftWithAi() {
+    if (!form.taskId) {
+      report("Chọn task cần bàn giao trước khi nhờ AI soạn nội dung.", true);
+      return;
+    }
+
+    setIsDrafting(true);
+    setMessage("");
+    setIsError(false);
+
+    try {
+      const response = await draftHandoverContent(
+        params.workspaceId,
+        params.projectId,
+        {
+          taskId: form.taskId,
+          receiverId: form.receiverId || undefined,
+        },
+      );
+      const draft = response.data.draft;
+
+      setForm((current) => ({
+        ...current,
+        completedWork: current.completedWork.trim()
+          ? current.completedWork
+          : draft.completedWork,
+        remainingWork: current.remainingWork.trim()
+          ? current.remainingWork
+          : draft.remainingWork,
+        blockers: current.blockers?.trim() ? current.blockers : draft.blockers,
+        nextSteps: current.nextSteps?.trim()
+          ? current.nextSteps
+          : draft.nextSteps,
+        referenceLinks: current.referenceLinks?.trim()
+          ? current.referenceLinks
+          : draft.referenceLinks,
+      }));
+      report("AI đã soạn bản nháp, bạn kiểm tra lại trước khi gửi.");
+    } catch (error) {
+      report(
+        error instanceof Error
+          ? error.message
+          : "Không soạn được bản nháp, bạn thử lại sau nhé.",
+        true,
+      );
+    } finally {
+      setIsDrafting(false);
+    }
+  }
+
   async function handleSave(event: FormEvent) {
     event.preventDefault();
     setIsSaving(true);
     setMessage("");
+    setIsError(false);
     try {
       const payload = {
         ...form,
         dueAt: form.dueAt ? new Date(form.dueAt).toISOString() : null,
       };
       const saved = editingId
-        ? await updateHandover(
-            params.workspaceId,
-            params.projectId,
-            editingId,
-            {
-              receiverId: payload.receiverId,
-              completedWork: payload.completedWork,
-              remainingWork: payload.remainingWork,
-              blockers: payload.blockers,
-              nextSteps: payload.nextSteps,
-              referenceLinks: payload.referenceLinks,
-              dueAt: payload.dueAt,
-            },
-          )
-        : await createHandover(
-            params.workspaceId,
-            params.projectId,
-            payload,
-          );
+        ? await updateHandover(params.workspaceId, params.projectId, editingId, {
+            receiverId: payload.receiverId,
+            completedWork: payload.completedWork,
+            remainingWork: payload.remainingWork,
+            blockers: payload.blockers,
+            nextSteps: payload.nextSteps,
+            referenceLinks: payload.referenceLinks,
+            dueAt: payload.dueAt,
+          })
+        : await createHandover(params.workspaceId, params.projectId, payload);
 
       await submitHandover(
         params.workspaceId,
@@ -224,11 +285,12 @@ export default function TaskHandoversPage() {
       );
       resetForm();
       setView("sent");
-      setMessage("Đã gửi bàn giao cho người nhận.");
+      report("Đã gửi bàn giao cho người nhận.");
       await loadData();
     } catch (error) {
-      setMessage(
+      report(
         error instanceof Error ? error.message : "Gửi bàn giao thất bại.",
+        true,
       );
     } finally {
       setIsSaving(false);
@@ -259,12 +321,16 @@ export default function TaskHandoversPage() {
   ) {
     setIsSaving(true);
     setMessage("");
+    setIsError(false);
     try {
       await action();
-      setMessage(successMessage);
+      report(successMessage);
       await loadData();
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : "Thao tác thất bại.");
+      report(
+        error instanceof Error ? error.message : "Thao tác thất bại.",
+        true,
+      );
     } finally {
       setIsSaving(false);
     }
@@ -279,34 +345,31 @@ export default function TaskHandoversPage() {
       return;
     }
     void runAction(
-      () =>
-        acceptHandover(
-          params.workspaceId,
-          params.projectId,
-          handover.id,
-        ),
+      () => acceptHandover(params.workspaceId, params.projectId, handover.id),
       "Đã tiếp nhận công việc và cập nhật người phụ trách.",
     );
   }
 
-  function handleRequestChanges(handover: ShiftHandover) {
-    const reason = window.prompt("Nội dung người giao cần bổ sung:")?.trim();
-    if (!reason) return;
-    void runAction(
-      () =>
-        requestHandoverChanges(
-          params.workspaceId,
-          params.projectId,
-          handover.id,
-          reason,
-        ),
-      "Đã gửi yêu cầu bổ sung.",
-    );
-  }
+  /** Xu ly ket qua modal cho ca hai hanh dong can ly do. */
+  function handleReasonConfirm(reason: string) {
+    if (!pendingAction) return;
+    const { handover, type } = pendingAction;
+    setPendingAction(null);
 
-  function handleReject(handover: ShiftHandover) {
-    const reason = window.prompt("Lý do từ chối nhận bàn giao:")?.trim();
-    if (!reason) return;
+    if (type === "request-changes") {
+      void runAction(
+        () =>
+          requestHandoverChanges(
+            params.workspaceId,
+            params.projectId,
+            handover.id,
+            reason,
+          ),
+        "Đã gửi yêu cầu bổ sung.",
+      );
+      return;
+    }
+
     void runAction(
       () =>
         rejectHandover(
@@ -322,23 +385,39 @@ export default function TaskHandoversPage() {
   function handleDelete(handover: ShiftHandover) {
     if (!window.confirm(`Xóa bàn giao “${handover.title}”?`)) return;
     void runAction(
-      () =>
-        deleteHandover(
-          params.workspaceId,
-          params.projectId,
-          handover.id,
-        ),
+      () => deleteHandover(params.workspaceId, params.projectId, handover.id),
       "Đã xóa bàn giao.",
     );
   }
 
   if (authLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center text-sm font-semibold text-slate-500">
         Đang tải...
       </div>
     );
   }
+
+  const summaryCards = [
+    {
+      label: "Chờ tôi xử lý",
+      value: pendingForMe,
+      hint: "Bàn giao đang chờ bạn phản hồi",
+      tone: "border-amber-200 bg-amber-50 text-amber-800",
+    },
+    {
+      label: "Tôi đã giao",
+      value: sentByMe,
+      hint: "Bàn giao do bạn tạo",
+      tone: "border-brand-200 bg-brand-50 text-brand-700",
+    },
+    {
+      label: "Đã tiếp nhận",
+      value: acknowledgedCount,
+      hint: "Đã chuyển người phụ trách",
+      tone: "border-emerald-200 bg-emerald-50 text-emerald-700",
+    },
+  ];
 
   return (
     <AppShell
@@ -346,32 +425,34 @@ export default function TaskHandoversPage() {
       title={project?.name}
       workspaceId={params.workspaceId}
     >
-      <div className="mx-auto max-w-7xl space-y-4 pb-12">
-        <header className="border border-[#dfe1e6] bg-white px-5 py-4">
-          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+      <div className="mx-auto max-w-7xl space-y-5 pb-12">
+        <header className="rounded-2xl border border-slate-200/80 bg-white px-6 py-5 shadow-sm">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
-              <p className="text-xs font-semibold uppercase text-[#0c66e4]">
+              <p className="text-xs font-bold uppercase tracking-wide text-brand-600">
                 Công việc
               </p>
-              <h1 className="mt-1 text-2xl font-semibold text-[#172b4d]">
+              <h1 className="mt-1 text-2xl font-bold text-slate-900">
                 Bàn giao công việc
               </h1>
-              <p className="mt-1 text-sm text-[#6b778c]">
+              <p className="mt-1.5 text-sm text-slate-500">
                 Chuyển giao đầy đủ bối cảnh và chỉ đổi người phụ trách sau khi
                 người nhận đồng ý.
               </p>
             </div>
             <div className="flex gap-2">
               <button
-                className="h-9 border border-[#dfe1e6] px-3 text-sm font-medium hover:bg-[#f1f2f4]"
+                className="h-10 rounded-xl border border-slate-300 px-4 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 disabled:opacity-60"
                 disabled={isLoading}
+                id="handover-refresh-button"
                 onClick={() => void loadData()}
                 type="button"
               >
                 Làm mới
               </button>
               <button
-                className="h-9 bg-[#0c66e4] px-3 text-sm font-semibold text-white hover:bg-[#0055cc]"
+                className="h-10 rounded-xl bg-brand-600 px-4 text-sm font-bold text-white shadow-md shadow-brand-600/20 transition hover:bg-brand-700"
+                id="handover-toggle-form-button"
                 onClick={() => {
                   if (showForm) resetForm();
                   else setShowForm(true);
@@ -382,33 +463,69 @@ export default function TaskHandoversPage() {
               </button>
             </div>
           </div>
+
+          <div className="mt-5 grid gap-3 sm:grid-cols-3">
+            {summaryCards.map((card) => (
+              <div
+                className={`rounded-xl border px-4 py-3 ${card.tone}`}
+                key={card.label}
+              >
+                <p className="text-xs font-bold uppercase tracking-wide">
+                  {card.label}
+                </p>
+                <p className="mt-1 text-2xl font-bold">{card.value}</p>
+                <p className="mt-0.5 text-[11px] font-medium opacity-80">
+                  {card.hint}
+                </p>
+              </div>
+            ))}
+          </div>
         </header>
 
         {message ? (
-          <div className="border border-[#f5cd47] bg-[#fff7d6] px-4 py-3 text-sm text-[#7f5f01]">
+          <div
+            className={`rounded-xl border px-4 py-3 text-sm font-semibold ${
+              isError
+                ? "border-rose-200 bg-rose-50 text-rose-700"
+                : "border-emerald-200 bg-emerald-50 text-emerald-700"
+            }`}
+            role="status"
+          >
             {message}
           </div>
         ) : null}
 
         {showForm ? (
           <form
-            className="border border-[#dfe1e6] bg-white p-5"
+            className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm"
             onSubmit={handleSave}
           >
-            <div className="mb-5">
-              <h2 className="text-lg font-semibold text-[#172b4d]">
-                {editingId ? "Bổ sung bàn giao" : "Tạo bàn giao mới"}
-              </h2>
-              <p className="mt-1 text-sm text-[#6b778c]">
-                Chỉ các task bạn đang phụ trách và đang thực hiện mới có thể
-                bàn giao.
-              </p>
+            <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+              <div>
+                <h2 className="text-lg font-bold text-slate-900">
+                  {editingId ? "Bổ sung bàn giao" : "Tạo bàn giao mới"}
+                </h2>
+                <p className="mt-1 text-sm text-slate-500">
+                  Chỉ các task bạn đang phụ trách và đang thực hiện mới có thể
+                  bàn giao.
+                </p>
+              </div>
+              <button
+                className="h-10 shrink-0 rounded-xl border border-brand-600 bg-white px-4 text-xs font-bold text-brand-700 transition hover:bg-brand-600 hover:text-white disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-400"
+                disabled={isDrafting || !form.taskId}
+                id="handover-ai-draft-button"
+                onClick={handleDraftWithAi}
+                type="button"
+              >
+                {isDrafting ? "Đang soạn..." : "AI soạn nội dung bàn giao"}
+              </button>
             </div>
-            <div className="grid gap-4 md:grid-cols-2">
-              <label className="text-sm font-medium text-[#172b4d]">
+
+            <div className="mt-5 grid gap-4 md:grid-cols-2">
+              <label className="grid gap-2 text-sm font-semibold text-slate-700">
                 Công việc
                 <select
-                  className="mt-1 h-10 w-full border border-[#dfe1e6] bg-white px-3 font-normal outline-none focus:border-[#0c66e4] disabled:bg-[#f1f2f4]"
+                  className="h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm font-normal text-slate-800 outline-none transition focus:border-brand-600 disabled:bg-slate-100"
                   disabled={Boolean(editingId)}
                   onChange={(event) =>
                     setForm({ ...form, taskId: event.target.value })
@@ -424,10 +541,10 @@ export default function TaskHandoversPage() {
                   ))}
                 </select>
               </label>
-              <label className="text-sm font-medium text-[#172b4d]">
+              <label className="grid gap-2 text-sm font-semibold text-slate-700">
                 Người nhận
                 <select
-                  className="mt-1 h-10 w-full border border-[#dfe1e6] bg-white px-3 font-normal outline-none focus:border-[#0c66e4]"
+                  className="h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm font-normal text-slate-800 outline-none transition focus:border-brand-600"
                   onChange={(event) =>
                     setForm({ ...form, receiverId: event.target.value })
                   }
@@ -442,10 +559,10 @@ export default function TaskHandoversPage() {
                   ))}
                 </select>
               </label>
-              <label className="text-sm font-medium text-[#172b4d]">
+              <label className="grid gap-2 text-sm font-semibold text-slate-700">
                 Phần đã hoàn thành
                 <textarea
-                  className="mt-1 min-h-28 w-full resize-y border border-[#dfe1e6] p-3 font-normal outline-none focus:border-[#0c66e4]"
+                  className="min-h-28 resize-y rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm font-normal leading-relaxed text-slate-800 outline-none transition focus:border-brand-600"
                   maxLength={5000}
                   onChange={(event) =>
                     setForm({ ...form, completedWork: event.target.value })
@@ -455,10 +572,10 @@ export default function TaskHandoversPage() {
                   value={form.completedWork}
                 />
               </label>
-              <label className="text-sm font-medium text-[#172b4d]">
+              <label className="grid gap-2 text-sm font-semibold text-slate-700">
                 Phần còn lại
                 <textarea
-                  className="mt-1 min-h-28 w-full resize-y border border-[#dfe1e6] p-3 font-normal outline-none focus:border-[#0c66e4]"
+                  className="min-h-28 resize-y rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm font-normal leading-relaxed text-slate-800 outline-none transition focus:border-brand-600"
                   maxLength={5000}
                   onChange={(event) =>
                     setForm({ ...form, remainingWork: event.target.value })
@@ -468,10 +585,10 @@ export default function TaskHandoversPage() {
                   value={form.remainingWork}
                 />
               </label>
-              <label className="text-sm font-medium text-[#172b4d]">
+              <label className="grid gap-2 text-sm font-semibold text-slate-700">
                 Vướng mắc
                 <textarea
-                  className="mt-1 min-h-20 w-full resize-y border border-[#dfe1e6] p-3 font-normal outline-none focus:border-[#0c66e4]"
+                  className="min-h-24 resize-y rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm font-normal leading-relaxed text-slate-800 outline-none transition focus:border-brand-600"
                   onChange={(event) =>
                     setForm({ ...form, blockers: event.target.value })
                   }
@@ -479,10 +596,10 @@ export default function TaskHandoversPage() {
                   value={form.blockers}
                 />
               </label>
-              <label className="text-sm font-medium text-[#172b4d]">
+              <label className="grid gap-2 text-sm font-semibold text-slate-700">
                 Bước tiếp theo
                 <textarea
-                  className="mt-1 min-h-20 w-full resize-y border border-[#dfe1e6] p-3 font-normal outline-none focus:border-[#0c66e4]"
+                  className="min-h-24 resize-y rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm font-normal leading-relaxed text-slate-800 outline-none transition focus:border-brand-600"
                   onChange={(event) =>
                     setForm({ ...form, nextSteps: event.target.value })
                   }
@@ -490,10 +607,10 @@ export default function TaskHandoversPage() {
                   value={form.nextSteps}
                 />
               </label>
-              <label className="text-sm font-medium text-[#172b4d]">
+              <label className="grid gap-2 text-sm font-semibold text-slate-700">
                 Liên kết tài liệu
                 <textarea
-                  className="mt-1 min-h-20 w-full resize-y border border-[#dfe1e6] p-3 font-normal outline-none focus:border-[#0c66e4]"
+                  className="min-h-24 resize-y rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm font-normal leading-relaxed text-slate-800 outline-none transition focus:border-brand-600"
                   onChange={(event) =>
                     setForm({ ...form, referenceLinks: event.target.value })
                   }
@@ -501,10 +618,10 @@ export default function TaskHandoversPage() {
                   value={form.referenceLinks}
                 />
               </label>
-              <label className="text-sm font-medium text-[#172b4d]">
+              <label className="grid gap-2 text-sm font-semibold text-slate-700">
                 Hạn xử lý dự kiến
                 <input
-                  className="mt-1 h-10 w-full border border-[#dfe1e6] px-3 font-normal outline-none focus:border-[#0c66e4]"
+                  className="h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm font-normal text-slate-800 outline-none transition focus:border-brand-600"
                   onChange={(event) =>
                     setForm({ ...form, dueAt: event.target.value })
                   }
@@ -513,22 +630,24 @@ export default function TaskHandoversPage() {
                 />
               </label>
             </div>
+
             {eligibleTasks.length === 0 && !editingId ? (
-              <p className="mt-4 text-sm text-[#ae2a19]">
+              <p className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-800">
                 Bạn chưa có task nào ở trạng thái “Đang thực hiện” hoặc “Đang
                 duyệt”.
               </p>
             ) : null}
-            <div className="mt-5 flex justify-end gap-2">
+
+            <div className="mt-6 flex justify-end gap-2">
               <button
-                className="h-9 border border-[#dfe1e6] px-4 text-sm font-medium hover:bg-[#f1f2f4]"
+                className="h-10 rounded-xl border border-slate-300 px-4 text-sm font-semibold text-slate-600 transition hover:bg-slate-50"
                 onClick={resetForm}
                 type="button"
               >
                 Hủy
               </button>
               <button
-                className="h-9 bg-[#0c66e4] px-4 text-sm font-semibold text-white hover:bg-[#0055cc] disabled:bg-[#b3b9c4]"
+                className="h-10 rounded-xl bg-brand-600 px-5 text-sm font-bold text-white shadow-md shadow-brand-600/20 transition hover:bg-brand-700 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none"
                 disabled={isSaving || (!editingId && eligibleTasks.length === 0)}
                 type="submit"
               >
@@ -540,7 +659,7 @@ export default function TaskHandoversPage() {
 
         <nav
           aria-label="Lọc danh sách bàn giao"
-          className="flex overflow-x-auto border-b border-[#dfe1e6] bg-white px-3"
+          className="flex gap-1 overflow-x-auto rounded-2xl border border-slate-200/80 bg-white p-1.5 shadow-sm"
         >
           {(
             [
@@ -549,14 +668,14 @@ export default function TaskHandoversPage() {
                 "received",
                 `Tôi nhận${pendingForMe ? ` (${pendingForMe} chờ)` : ""}`,
               ],
-              ["sent", "Tôi đã giao"],
+              ["sent", `Tôi đã giao (${sentByMe})`],
             ] as [ListView, string][]
           ).map(([value, label]) => (
             <button
-              className={`h-11 whitespace-nowrap border-b-2 px-4 text-sm font-medium ${
+              className={`h-10 whitespace-nowrap rounded-xl px-4 text-sm font-bold transition ${
                 view === value
-                  ? "border-[#0c66e4] text-[#0c66e4]"
-                  : "border-transparent text-[#44546f]"
+                  ? "bg-brand-600 text-white shadow-sm shadow-brand-600/20"
+                  : "text-slate-500 hover:bg-slate-50"
               }`}
               key={value}
               onClick={() => setView(value)}
@@ -568,18 +687,20 @@ export default function TaskHandoversPage() {
         </nav>
 
         {isLoading ? (
-          <div className="border border-[#dfe1e6] bg-white p-8 text-center text-sm text-[#6b778c]">
-            Đang tải danh sách...
+          <div className="flex h-40 items-center justify-center rounded-2xl border border-slate-200/80 bg-white shadow-sm">
+            <div className="h-6 w-6 animate-spin rounded-full border-2 border-brand-600 border-t-transparent"></div>
           </div>
         ) : filteredHandovers.length === 0 ? (
-          <div className="border border-dashed border-[#b3b9c4] bg-white p-10 text-center">
-            <p className="font-semibold text-[#172b4d]">Chưa có bàn giao nào</p>
-            <p className="mt-1 text-sm text-[#6b778c]">
+          <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-12 text-center shadow-sm">
+            <p className="text-base font-bold text-slate-900">
+              Chưa có bàn giao nào
+            </p>
+            <p className="mt-1.5 text-sm text-slate-500">
               Bàn giao được tạo từ một task đang thực hiện hoặc đang duyệt.
             </p>
           </div>
         ) : (
-          <section className="space-y-3" aria-label="Danh sách bàn giao">
+          <section aria-label="Danh sách bàn giao" className="space-y-4">
             {filteredHandovers.map((handover) => {
               const isSender = handover.senderId === user?.id;
               const isReceiver = handover.receiverId === user?.id;
@@ -594,38 +715,36 @@ export default function TaskHandoversPage() {
 
               return (
                 <article
-                  className="border border-[#dfe1e6] bg-white"
+                  className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm transition hover:shadow-md"
                   key={handover.id}
                 >
-                  <div className="flex flex-col gap-4 border-b border-[#dfe1e6] px-4 py-3 lg:flex-row lg:items-center lg:justify-between">
+                  <div className="flex flex-col gap-4 border-b border-slate-100 px-5 py-4 lg:flex-row lg:items-center lg:justify-between">
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
                         <Link
-                          className="font-mono text-xs font-semibold text-[#0c66e4] hover:underline"
+                          className="font-mono text-xs font-bold text-brand-700 transition hover:text-brand-600 hover:underline"
                           href={`/workspaces/${params.workspaceId}/projects/${params.projectId}/tasks/${handover.taskId}`}
                         >
                           {handover.task?.taskCode ?? "TASK"}
                         </Link>
-                        <span
-                          className={`px-2 py-0.5 text-xs font-semibold ${statusStyles[handover.status]}`}
-                        >
-                          {statusLabels[handover.status]}
-                        </span>
+                        <HandoverStatusBadge status={handover.status} />
                       </div>
-                      <h2 className="mt-1 truncate font-semibold text-[#172b4d]">
+                      <h2 className="mt-1.5 truncate text-base font-bold text-slate-900">
                         {handover.task?.title ?? handover.title}
                       </h2>
                     </div>
-                    <div className="flex flex-wrap items-center gap-2 text-sm text-[#44546f]">
+                    <div className="flex flex-wrap items-center gap-2.5 text-sm font-semibold text-slate-600">
                       <span className="flex items-center gap-2">
-                        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#deebff] text-xs font-bold text-[#0747a6]">
+                        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-100 text-[11px] font-bold text-brand-700">
                           {initials(handover.sender?.fullName)}
                         </span>
                         {handover.sender?.fullName ?? "Người giao"}
                       </span>
-                      <span aria-hidden="true">→</span>
+                      <span aria-hidden="true" className="text-slate-400">
+                        →
+                      </span>
                       <span className="flex items-center gap-2">
-                        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#dcfff1] text-xs font-bold text-[#216e4e]">
+                        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100 text-[11px] font-bold text-emerald-700">
                           {initials(handover.receiver?.fullName)}
                         </span>
                         {handover.receiver?.fullName ?? "Người nhận"}
@@ -633,39 +752,39 @@ export default function TaskHandoversPage() {
                     </div>
                   </div>
 
-                  <div className="grid gap-px bg-[#dfe1e6] md:grid-cols-2">
-                    <div className="bg-white p-4">
-                      <h3 className="text-xs font-semibold uppercase text-[#6b778c]">
+                  <div className="grid gap-4 px-5 py-4 md:grid-cols-2">
+                    <div className="rounded-xl bg-slate-50/80 p-4">
+                      <h3 className="text-[11px] font-bold uppercase tracking-wide text-slate-500">
                         Đã hoàn thành
                       </h3>
-                      <p className="mt-2 whitespace-pre-wrap text-sm text-[#172b4d]">
+                      <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-slate-800">
                         {handover.completedWork}
                       </p>
                     </div>
-                    <div className="bg-white p-4">
-                      <h3 className="text-xs font-semibold uppercase text-[#6b778c]">
+                    <div className="rounded-xl bg-slate-50/80 p-4">
+                      <h3 className="text-[11px] font-bold uppercase tracking-wide text-slate-500">
                         Còn lại
                       </h3>
-                      <p className="mt-2 whitespace-pre-wrap text-sm text-[#172b4d]">
+                      <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-slate-800">
                         {handover.remainingWork}
                       </p>
                     </div>
                     {handover.blockers ? (
-                      <div className="bg-white p-4">
-                        <h3 className="text-xs font-semibold uppercase text-[#6b778c]">
+                      <div className="rounded-xl bg-amber-50/70 p-4">
+                        <h3 className="text-[11px] font-bold uppercase tracking-wide text-amber-700">
                           Vướng mắc
                         </h3>
-                        <p className="mt-2 whitespace-pre-wrap text-sm text-[#172b4d]">
+                        <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-slate-800">
                           {handover.blockers}
                         </p>
                       </div>
                     ) : null}
                     {handover.nextSteps ? (
-                      <div className="bg-white p-4">
-                        <h3 className="text-xs font-semibold uppercase text-[#6b778c]">
+                      <div className="rounded-xl bg-brand-50/70 p-4">
+                        <h3 className="text-[11px] font-bold uppercase tracking-wide text-brand-700">
                           Bước tiếp theo
                         </h3>
-                        <p className="mt-2 whitespace-pre-wrap text-sm text-[#172b4d]">
+                        <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-slate-800">
                           {handover.nextSteps}
                         </p>
                       </div>
@@ -673,21 +792,21 @@ export default function TaskHandoversPage() {
                   </div>
 
                   {handover.changeRequest || handover.rejectionReason ? (
-                    <div className="border-t border-[#f5cd47] bg-[#fff7d6] px-4 py-3 text-sm text-[#7f5f01]">
-                      <strong>Phản hồi:</strong>{" "}
+                    <div className="mx-5 mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-800">
+                      Phản hồi:{" "}
                       {handover.changeRequest ?? handover.rejectionReason}
                     </div>
                   ) : null}
 
                   {links.length ? (
-                    <div className="border-t border-[#dfe1e6] bg-white px-4 py-3">
-                      <h3 className="text-xs font-semibold uppercase text-[#6b778c]">
+                    <div className="mx-5 mb-4 rounded-xl border border-slate-200 px-4 py-3">
+                      <h3 className="text-[11px] font-bold uppercase tracking-wide text-slate-500">
                         Tài liệu liên quan
                       </h3>
                       <div className="mt-2 flex flex-col gap-1.5">
                         {links.map((url) => (
                           <a
-                            className="break-all text-sm text-[#0c66e4] hover:underline"
+                            className="break-all text-sm font-semibold text-brand-700 transition hover:text-brand-600 hover:underline"
                             href={url}
                             key={url}
                             rel="noreferrer"
@@ -700,8 +819,8 @@ export default function TaskHandoversPage() {
                     </div>
                   ) : null}
 
-                  <div className="flex flex-col gap-3 px-4 py-3 lg:flex-row lg:items-center lg:justify-between">
-                    <div className="text-xs text-[#6b778c]">
+                  <div className="flex flex-col gap-3 border-t border-slate-100 bg-slate-50/50 px-5 py-3.5 lg:flex-row lg:items-center lg:justify-between">
+                    <div className="text-xs font-medium text-slate-500">
                       <span>Hạn dự kiến: {formatDateTime(handover.dueAt)}</span>
                       <span className="mx-2">·</span>
                       <span>Tạo lúc {formatDateTime(handover.createdAt)}</span>
@@ -714,7 +833,7 @@ export default function TaskHandoversPage() {
                     <div className="flex flex-wrap gap-2">
                       {canEdit ? (
                         <button
-                          className="h-8 border border-[#dfe1e6] px-3 text-xs font-semibold hover:bg-[#f1f2f4]"
+                          className="h-9 rounded-lg border border-slate-300 px-3.5 text-xs font-bold text-slate-700 transition hover:bg-white"
                           onClick={() => startEditing(handover)}
                           type="button"
                         >
@@ -726,23 +845,30 @@ export default function TaskHandoversPage() {
                       {isReceiver && handover.status === "PENDING" ? (
                         <>
                           <button
-                            className="h-8 border border-[#dfe1e6] px-3 text-xs font-semibold hover:bg-[#f1f2f4]"
+                            className="h-9 rounded-lg border border-slate-300 px-3.5 text-xs font-bold text-slate-700 transition hover:bg-white disabled:opacity-50"
                             disabled={isSaving}
-                            onClick={() => handleRequestChanges(handover)}
+                            onClick={() =>
+                              setPendingAction({
+                                handover,
+                                type: "request-changes",
+                              })
+                            }
                             type="button"
                           >
                             Yêu cầu bổ sung
                           </button>
                           <button
-                            className="h-8 border border-[#ae2a19] px-3 text-xs font-semibold text-[#ae2a19] hover:bg-[#fff4f2]"
+                            className="h-9 rounded-lg border border-rose-300 px-3.5 text-xs font-bold text-rose-700 transition hover:bg-rose-50 disabled:opacity-50"
                             disabled={isSaving}
-                            onClick={() => handleReject(handover)}
+                            onClick={() =>
+                              setPendingAction({ handover, type: "reject" })
+                            }
                             type="button"
                           >
                             Từ chối
                           </button>
                           <button
-                            className="h-8 bg-[#216e4e] px-3 text-xs font-semibold text-white hover:bg-[#1f845a]"
+                            className="h-9 rounded-lg bg-emerald-600 px-3.5 text-xs font-bold text-white shadow-sm shadow-emerald-600/20 transition hover:bg-emerald-700 disabled:opacity-50"
                             disabled={isSaving}
                             onClick={() => handleAccept(handover)}
                             type="button"
@@ -751,10 +877,10 @@ export default function TaskHandoversPage() {
                           </button>
                         </>
                       ) : null}
-                      {(isSender || canManage) ? (
+                      {isSender || canManage ? (
                         <button
                           aria-label={`Xóa bàn giao ${handover.title}`}
-                          className="h-8 border border-[#dfe1e6] px-3 text-xs font-semibold text-[#ae2a19] hover:bg-[#fff4f2]"
+                          className="h-9 rounded-lg border border-slate-300 px-3.5 text-xs font-bold text-rose-700 transition hover:bg-rose-50 disabled:opacity-50"
                           disabled={isSaving}
                           onClick={() => handleDelete(handover)}
                           type="button"
@@ -770,6 +896,40 @@ export default function TaskHandoversPage() {
           </section>
         )}
       </div>
+
+      {pendingAction ? (
+        <HandoverReasonModal
+          confirmLabel={
+            pendingAction.type === "request-changes"
+              ? "Gửi yêu cầu"
+              : "Từ chối bàn giao"
+          }
+          description={
+            pendingAction.type === "request-changes"
+              ? `Người giao sẽ nhận được yêu cầu này và bổ sung lại ${pendingAction.handover.task?.taskCode ?? "task"}.`
+              : `Bàn giao ${pendingAction.handover.task?.taskCode ?? "task"} sẽ bị từ chối và người phụ trách không thay đổi.`
+          }
+          isSubmitting={isSaving}
+          label={
+            pendingAction.type === "request-changes"
+              ? "Nội dung cần bổ sung"
+              : "Lý do từ chối"
+          }
+          onCancel={() => setPendingAction(null)}
+          onConfirm={handleReasonConfirm}
+          placeholder={
+            pendingAction.type === "request-changes"
+              ? "Ví dụ: thiếu thông tin về cấu hình môi trường staging..."
+              : "Ví dụ: tôi đang quá tải, đề nghị giao cho người khác..."
+          }
+          title={
+            pendingAction.type === "request-changes"
+              ? "Yêu cầu bổ sung thông tin"
+              : "Từ chối nhận bàn giao"
+          }
+          tone={pendingAction.type === "reject" ? "danger" : "brand"}
+        />
+      ) : null}
     </AppShell>
   );
 }

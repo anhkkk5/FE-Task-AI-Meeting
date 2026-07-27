@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@ant-design/icons": "^6.3.2",
     "lucide-react": "^1.26.0",
     "next": "latest",
     "react": "latest",

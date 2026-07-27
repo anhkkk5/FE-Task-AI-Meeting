@@ -6,12 +6,23 @@ export type AiReportType =
 export type AiReportStatus = "PENDING" | "COMPLETED" | "FAILED";
 
 /**
- * Trang thai duyet cua con nguoi, tach khoi `AiReportStatus`.
+ * Trang thai cua phien giao ban, tach khoi `AiReportStatus`.
  *
- * `AiReportStatus` noi ve ket qua goi AI, con type nay noi ve quy trinh: AI sinh
- * ban nhap, nguoi quan ly xem roi moi duyet thanh bao cao chinh thuc.
+ * `AiReportStatus` noi ve ket qua goi AI, con type nay noi ve quy trinh:
+ * DRAFT -> COLLECTING -> AI_GENERATING -> PENDING_REVIEW -> PUBLISHED, va
+ * CANCELLED la nhanh ket thuc som.
+ *
+ * `APPROVED` duoc giu lai vi du lieu cu con gia tri nay; backend anh xa sang
+ * PUBLISHED khi doc, nhung type van chap nhan de khong vo khi doc ban cu.
  */
-export type AiReportReviewStatus = "DRAFT" | "APPROVED";
+export type AiReportReviewStatus =
+  | "DRAFT"
+  | "COLLECTING"
+  | "AI_GENERATING"
+  | "PENDING_REVIEW"
+  | "PUBLISHED"
+  | "CANCELLED"
+  | "APPROVED";
 
 /** So lieu dinh luong duoc backend tinh san cho the thong ke. */
 export type TeamReportMetrics = {
@@ -223,6 +234,71 @@ export type UpdateTeamReportPayload = {
 
 export type GenerateMeetingSummaryPayload = {
   forceRegenerate?: boolean;
+};
+
+/** Muc de xuat den tu danh sach vuong mac hay danh sach de xuat cua AI. */
+export type TeamReportActionItemSource = "BLOCKER" | "RECOMMENDATION";
+
+export type TeamReportActionItemStatus =
+  | "PENDING"
+  | "TASK_CREATED"
+  | "HANDOVER_REQUESTED"
+  | "DISMISSED";
+
+/**
+ * Mot muc trong bao cao giao ban kem ket qua xu ly.
+ *
+ * `source` + `itemIndex` la khoa xac dinh muc; frontend gui lai dung cap nay khi
+ * tao task hoac de nghi ban giao.
+ */
+export type TeamReportActionItem = {
+  itemIndex: number;
+  source: TeamReportActionItemSource;
+  text: string;
+  status: TeamReportActionItemStatus;
+  createdTaskId: string | null;
+  targetTaskId: string | null;
+  suggestedReceiverId: string | null;
+  handoverId: string | null;
+  note: string | null;
+  handledAt: string | null;
+};
+
+export type CreateTeamReportTaskPayload = {
+  source: TeamReportActionItemSource;
+  itemIndex: number;
+  title?: string;
+  assigneeId?: string;
+  sprintId?: string;
+  dueDate?: string;
+};
+
+export type RequestTeamReportHandoverPayload = {
+  source: TeamReportActionItemSource;
+  itemIndex: number;
+  taskId: string;
+  suggestedReceiverId: string;
+  note?: string;
+};
+
+/**
+ * Ban nhap cho form bao cao ca nhan.
+ *
+ * Ten truong khop dung o trong form de nap thang, khong phai anh xa lai.
+ */
+export type DailyUpdateDraft = {
+  yesterdayWork: string;
+  todayPlan: string;
+  blockers: string;
+  notes: string;
+};
+
+export type HandoverDraft = {
+  completedWork: string;
+  remainingWork: string;
+  blockers: string;
+  nextSteps: string;
+  referenceLinks: string;
 };
 
 export type AiReportsQuery = {

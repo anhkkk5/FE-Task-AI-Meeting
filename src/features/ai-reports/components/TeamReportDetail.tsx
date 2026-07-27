@@ -1,4 +1,5 @@
 import { AiTeamReport } from "../types/ai-report.type";
+import { TeamReportActionItems } from "./TeamReportActionItems";
 import { TeamReportDraft, TeamReportEditor } from "./TeamReportEditor";
 import { TeamReportMemberResults } from "./TeamReportMemberResults";
 import { TeamReportMetricCards } from "./TeamReportMetricCards";
@@ -10,6 +11,8 @@ type TeamReportDetailProps = {
   draft: TeamReportDraft;
   onDraftChange: (draft: TeamReportDraft) => void;
   sprintName?: string | null;
+  /** Cho phép xử lý vướng mắc; ẩn bảng thao tác với phiên đã chốt. */
+  canHandleActionItems?: boolean;
 };
 
 type ListSectionProps = {
@@ -80,10 +83,14 @@ export function TeamReportDetail({
   draft,
   onDraftChange,
   sprintName,
+  canHandleActionItems = false,
 }: TeamReportDetailProps) {
   const output = report.aiOutput;
   const sprintLabel = sprintName ?? (report.sprintId ? "Sprint" : "Toàn dự án");
   const dataSources = report.dataSources;
+  const hasActionItems = Boolean(
+    output.blockers?.length || output.recommendations?.length,
+  );
 
   return (
     <div className="grid gap-5" data-print-area="true">
@@ -162,6 +169,33 @@ export function TeamReportDetail({
             items={output.recommendations}
             title="Đề xuất hành động"
           />
+
+          {hasActionItems ? (
+            <section
+              className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+              data-print-hidden="true"
+              id="team-report-action-items-section"
+            >
+              <div className="grid gap-1">
+                <h2 className="text-sm font-black text-slate-900">
+                  Xử lý vướng mắc và đề xuất
+                </h2>
+                <p className="text-xs font-medium text-slate-500">
+                  Tạo task hoặc đề nghị bàn giao ngay tại đây, mỗi mục chỉ xử lý
+                  một lần để tránh trùng việc.
+                </p>
+              </div>
+              <div className="mt-4">
+                <TeamReportActionItems
+                  canManage={canHandleActionItems}
+                  projectId={report.projectId}
+                  reportId={report.id}
+                  sprintId={report.sprintId}
+                  workspaceId={report.workspaceId}
+                />
+              </div>
+            </section>
+          ) : null}
 
           {output.handoverSummary?.trim() ? (
             <section

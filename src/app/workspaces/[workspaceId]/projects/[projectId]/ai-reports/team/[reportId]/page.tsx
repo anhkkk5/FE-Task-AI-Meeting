@@ -6,6 +6,7 @@ import { useCallback, useEffect, useState } from "react";
 import { AppShell } from "@/components/layout/AppShell";
 import {
   approveTeamDailyReport,
+  cancelTeamDailyReport,
   getTeamDailyReportDetail,
   updateTeamDailyReport,
 } from "@/features/ai-reports/api/ai-reports.api";
@@ -40,6 +41,7 @@ export default function TeamAiReportDetailPage() {
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isApproving, setIsApproving] = useState(false);
+  const [isCancelling, setIsCancelling] = useState(false);
 
   const [draft, setDraft] = useState<TeamReportDraft>({
     summary: "",
@@ -165,6 +167,39 @@ export default function TeamAiReportDetailPage() {
     }
   };
 
+  /**
+   * Huy phien giao ban.
+   *
+   * Hoi lai truoc khi goi vi phien da huy khong mo lai duoc, phai tao phien moi.
+   */
+  const handleCancel = async () => {
+    if (!report) return;
+
+    const confirmed = window.confirm(
+      "Hủy phiên giao ban này? Phiên đã hủy không mở lại được, bạn sẽ phải tạo phiên mới.",
+    );
+    if (!confirmed) return;
+
+    setIsCancelling(true);
+    setMessage("");
+
+    try {
+      const res = await cancelTeamDailyReport(
+        params.workspaceId,
+        params.projectId,
+        params.reportId,
+      );
+      setReport(res.data.report);
+      setIsEditing(false);
+    } catch (error) {
+      setMessage(
+        error instanceof Error ? error.message : "Hủy phiên giao ban thất bại.",
+      );
+    } finally {
+      setIsCancelling(false);
+    }
+  };
+
   const handlePrint = () => {
     window.print();
   };
@@ -245,16 +280,21 @@ export default function TeamAiReportDetailPage() {
             <TeamReportActionBar
               canReview={canReview}
               isApproving={isApproving}
+              isCancelling={isCancelling}
               isEditing={isEditing}
               isSaving={isSaving}
               reviewStatus={report.reviewStatus || "DRAFT"}
               onApprove={handleApprove}
+              onCancel={handleCancel}
               onPrint={handlePrint}
               onSave={handleSave}
               onToggleEdit={handleToggleEdit}
             />
 
             <TeamReportDetail
+              canHandleActionItems={
+                canReview && report.reviewStatus !== "CANCELLED"
+              }
               draft={draft}
               isEditing={isEditing}
               report={report}

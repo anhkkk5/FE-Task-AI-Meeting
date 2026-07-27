@@ -232,8 +232,10 @@ export default function DailyUpdateDetailPage() {
                 </h2>
                 <DailyUpdateForm
                   initialDailyUpdate={dailyUpdate}
+                  projectId={params.projectId}
                   sprints={sprints}
                   submitLabel="Cập nhật"
+                  workspaceId={params.workspaceId}
                   onSubmit={handleUpdate}
                 />
               </section>

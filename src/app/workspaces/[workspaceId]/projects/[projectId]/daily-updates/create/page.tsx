@@ -139,8 +139,10 @@ export default function CreateDailyUpdatePage() {
         ) : canWrite ? (
           <section className="rounded-2xl border border-zinc-200/80 bg-white p-6 shadow-sm">
             <DailyUpdateForm
+              projectId={params.projectId}
               sprints={sprints}
               submitLabel="Lưu daily update"
+              workspaceId={params.workspaceId}
               onSubmit={handleSubmit}
             />
           </section>

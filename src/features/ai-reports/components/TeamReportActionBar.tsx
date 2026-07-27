@@ -1,5 +1,9 @@
 "use client";
 
+import {
+  getReviewStatusBadge,
+  isFinalReviewStatus,
+} from "../constants/review-status";
 import { AiReportReviewStatus } from "../types/ai-report.type";
 
 type TeamReportActionBarProps = {
@@ -7,26 +11,15 @@ type TeamReportActionBarProps = {
   isEditing: boolean;
   isSaving: boolean;
   isApproving: boolean;
+  isCancelling: boolean;
   canReview: boolean;
   onToggleEdit: () => void;
   onSave: () => void;
   onApprove: () => void;
+  onCancel: () => void;
   onPrint: () => void;
 };
 
-const reviewBadge: Record<
-  AiReportReviewStatus,
-  { label: string; className: string }
-> = {
-  DRAFT: {
-    label: "Bản nháp chờ duyệt",
-    className: "bg-amber-50 text-amber-700 ring-1 ring-amber-200",
-  },
-  APPROVED: {
-    label: "Đã duyệt",
-    className: "bg-brand-50 text-brand-700 ring-1 ring-brand-200",
-  },
-};
 
 /**
  * Thanh hành động của báo cáo giao ban.
@@ -39,14 +32,16 @@ export function TeamReportActionBar({
   isEditing,
   isSaving,
   isApproving,
+  isCancelling,
   canReview,
   onToggleEdit,
   onSave,
   onApprove,
+  onCancel,
   onPrint,
 }: TeamReportActionBarProps) {
-  const badge = reviewBadge[reviewStatus];
-  const isApproved = reviewStatus === "APPROVED";
+  const badge = getReviewStatusBadge(reviewStatus);
+  const isFinal = isFinalReviewStatus(reviewStatus);
 
   return (
     <div
@@ -61,11 +56,7 @@ export function TeamReportActionBar({
         >
           {badge.label}
         </span>
-        <p className="text-xs font-medium text-slate-500">
-          {isApproved
-            ? "Báo cáo đã chốt, cả nhóm đã nhận email thông báo."
-            : "Xem lại nội dung AI tổng hợp rồi duyệt để gửi cho cả nhóm."}
-        </p>
+        <p className="text-xs font-medium text-slate-500">{badge.hint}</p>
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
@@ -78,7 +69,7 @@ export function TeamReportActionBar({
           Xuất PDF
         </button>
 
-        {canReview && !isApproved ? (
+        {canReview && !isFinal ? (
           <>
             {isEditing ? (
               <button
@@ -99,6 +90,17 @@ export function TeamReportActionBar({
               onClick={onToggleEdit}
             >
               {isEditing ? "Hủy sửa" : "Sửa nội dung"}
+            </button>
+
+            <button
+              className="h-10 rounded-xl border border-rose-200 bg-white px-4 text-xs font-bold text-rose-700 transition hover:bg-rose-50 disabled:cursor-not-allowed disabled:border-slate-200 disabled:text-slate-400"
+              disabled={isCancelling || isEditing}
+              id="team-report-cancel-button"
+              title="Hủy phiên giao ban này, ví dụ khi cả đội nghỉ"
+              type="button"
+              onClick={onCancel}
+            >
+              {isCancelling ? "Đang hủy..." : "Hủy phiên"}
             </button>
 
             <button
