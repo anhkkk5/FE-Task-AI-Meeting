@@ -1,4 +1,5 @@
 import { apiRequest } from "@/lib/api/client";
+import { cachedRequest, invalidateCache } from "@/lib/api/request-cache";
 import {
   AddMemberPayload,
   ChangeMemberRolePayload,
@@ -6,6 +7,8 @@ import {
   WorkspaceMember,
   WorkspaceMemberLookup,
 } from "../types/member.type";
+
+const MEMBERS_CACHE_PREFIX = "members";
 
 type ApiResponse<T> = {
   success: boolean;
@@ -19,9 +22,16 @@ export function getWorkspaceMembers(workspaceId: string) {
   );
 }
 
+/**
+ * Role cua chinh nguoi dung trong workspace, duoc goi lai o rat nhieu trang chi
+ * de quyet dinh an/hien vai nut. Cache ngan han de khoi ton mot vong mang moi
+ * lan chuyen trang; cac ham doi thanh vien ben duoi se xoa cache ngay.
+ */
 export function getMyWorkspaceRole(workspaceId: string) {
-  return apiRequest<ApiResponse<MyWorkspaceRole>>(
-    `/workspaces/${workspaceId}/members/me`,
+  return cachedRequest(`${MEMBERS_CACHE_PREFIX}:me:${workspaceId}`, () =>
+    apiRequest<ApiResponse<MyWorkspaceRole>>(
+      `/workspaces/${workspaceId}/members/me`,
+    ),
   );
 }
 
@@ -38,41 +48,53 @@ export function lookupWorkspaceMemberByEmail(
   );
 }
 
-export function addWorkspaceMember(
+export async function addWorkspaceMember(
   workspaceId: string,
   payload: AddMemberPayload,
 ) {
-  return apiRequest<ApiResponse<{ member: WorkspaceMember }>>(
+  const response = await apiRequest<ApiResponse<{ member: WorkspaceMember }>>(
     `/workspaces/${workspaceId}/members`,
     {
       method: "POST",
       body: payload,
     },
   );
+
+  invalidateCache(`${MEMBERS_CACHE_PREFIX}:me:${workspaceId}`);
+
+  return response;
 }
 
-export function changeWorkspaceMemberRole(
+export async function changeWorkspaceMemberRole(
   workspaceId: string,
   memberId: string,
   payload: ChangeMemberRolePayload,
 ) {
-  return apiRequest<ApiResponse<{ member: WorkspaceMember }>>(
+  const response = await apiRequest<ApiResponse<{ member: WorkspaceMember }>>(
     `/workspaces/${workspaceId}/members/${memberId}/role`,
     {
       method: "PATCH",
       body: payload,
     },
   );
+
+  invalidateCache(`${MEMBERS_CACHE_PREFIX}:me:${workspaceId}`);
+
+  return response;
 }
 
-export function removeWorkspaceMember(
+export async function removeWorkspaceMember(
   workspaceId: string,
   memberId: string,
 ) {
-  return apiRequest<ApiResponse<null>>(
+  const response = await apiRequest<ApiResponse<null>>(
     `/workspaces/${workspaceId}/members/${memberId}/remove`,
     {
       method: "PATCH",
     },
   );
+
+  invalidateCache(`${MEMBERS_CACHE_PREFIX}:me:${workspaceId}`);
+
+  return response;
 }

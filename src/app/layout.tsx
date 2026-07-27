@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
+import { AuthProvider } from "@/features/auth/components/AuthProvider";
 import "./globals.css";
 
 // Plus Jakarta Sans mang nét chữ tròn trịa, hiện đại, nét sắc và cực kỳ sáng sủa cho dashboard.
@@ -33,7 +34,16 @@ export default function RootLayout({
       className={`${appSans.variable} ${appMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col font-sans" suppressHydrationWarning>{children}</body>
+      <body
+        className="min-h-full flex flex-col font-sans"
+        suppressHydrationWarning
+      >
+        {/*
+         * AuthProvider dat o day de khong bi unmount khi doi route: phien dang
+         * nhap chi duoc kiem tra mot lan cho ca session thay vi moi trang mot lan.
+         */}
+        <AuthProvider>{children}</AuthProvider>
+      </body>
     </html>
   );
 }

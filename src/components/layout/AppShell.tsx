@@ -115,7 +115,14 @@ export function AppShell({
     };
   }, [activeWorkspaceId, projectId, user]);
 
-  if (isLoading) {
+  /*
+   * Chi chan man hinh khi CHUA co thong tin nguoi dung.
+   * Truoc day chi can isLoading la ca sidebar lan header deu bien mat, nen moi
+   * lan chuyen trang nguoi dung thay mot man hinh trang. Nay user duoc giu trong
+   * AuthProvider nen dieu kien nay chi dung o lan mo app dau tien; cac lan lam
+   * moi phien sau do dien ra am tham, layout giu nguyen.
+   */
+  if (isLoading && !user) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#f8fafc]">
         <div className="flex flex-col items-center gap-3">

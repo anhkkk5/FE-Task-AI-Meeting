@@ -1,105 +1,42 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
-import { useRouter, usePathname } from "next/navigation";
-import { getMe, logout } from "@/features/auth/api/auth.api";
-import { ApiError } from "@/lib/api/client";
-import {
-  clearAccessToken,
-  getStoredAccessToken,
-  saveAccessToken,
-} from "@/features/auth/utils/token-storage";
+import { useEffect } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useAuthContext } from "@/features/auth/components/AuthProvider";
 
-type UserProfile = {
-  id: string;
-  email: string;
-  fullName: string;
-  avatarUrl?: string | null;
-  phoneNumber?: string | null;
-  jobTitle?: string | null;
-};
+const publicPaths = new Set(["/login", "/register"]);
 
+/**
+ * Doc phien dang nhap dung chung tu AuthProvider.
+ *
+ * Chu ky ham giu nguyen nhu ban tu fetch truoc day de cac trang dang dung khong
+ * phai sua, nhung ben trong khong con goi `/auth/me` nua: provider o root layout
+ * da goi mot lan cho ca session. Nho vay chuyen trang khong con phai cho vong
+ * xac thuc truoc khi bat dau tai du lieu.
+ */
 export function useAuth(requireAuth = true) {
   const router = useRouter();
   const pathname = usePathname();
-  const [user, setUser] = useState<UserProfile | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const { user, isLoading, isResolved, loginUser, logoutUser, refreshUser } =
+    useAuthContext();
 
-  const fetchUser = useCallback(async () => {
-    const token = getStoredAccessToken();
-    if (!token) {
-      setUser(null);
-      setIsLoading(false);
-      if (requireAuth && pathname !== "/login" && pathname !== "/register") {
-        router.push("/login");
-      }
+  useEffect(() => {
+    // Chi dieu huong khi da biet chac ket qua kiem tra phien, tranh day nguoi
+    // dung ra trang login trong luc request `/auth/me` con dang bay.
+    if (!requireAuth || !isResolved || user) {
       return;
     }
 
-    try {
-      setIsLoading(true);
-      const res = await getMe();
-      if (res.success && res.data) {
-        setUser(res.data);
-      } else {
-        throw new Error("Failed to fetch user profile");
-      }
-    } catch (error) {
-      const isSessionInvalid =
-        error instanceof ApiError &&
-        (error.status === 401 || error.status === 403);
-
-      if (isSessionInvalid) {
-        clearAccessToken();
-        setUser(null);
-        if (requireAuth) {
-          router.replace("/login");
-        }
-        return;
-      }
-
-      console.warn("Không thể khôi phục phiên đăng nhập:", error);
-    } finally {
-      setIsLoading(false);
+    if (!publicPaths.has(pathname)) {
+      router.replace("/login");
     }
-  }, [requireAuth, router, pathname]);
-
-  useEffect(() => {
-    // Lắng nghe sự kiện thay đổi auth
-    const handleAuthChange = () => {
-      void fetchUser();
-    };
-
-    void fetchUser();
-
-    window.addEventListener("agile_ai_auth_changed", handleAuthChange);
-    return () => {
-      window.removeEventListener("agile_ai_auth_changed", handleAuthChange);
-    };
-  }, [fetchUser]);
-
-  const loginUser = useCallback((token: string, userProfile: UserProfile) => {
-    saveAccessToken(token);
-    setUser(userProfile);
-  }, []);
-
-  const logoutUser = useCallback(async () => {
-    try {
-      await logout();
-    } catch (error) {
-      console.error("Logout API error:", error);
-    } finally {
-      clearAccessToken();
-      setUser(null);
-      router.push("/login");
-    }
-  }, [router]);
+  }, [requireAuth, isResolved, user, pathname, router]);
 
   return {
     user,
     isLoading,
     loginUser,
     logoutUser,
-    refreshUser: fetchUser,
+    refreshUser,
   };
 }
