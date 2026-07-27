@@ -35,6 +35,7 @@ export default function TeamAiReportDetailPage() {
   const [project, setProject] = useState<Project | null>(null);
   const [report, setReport] = useState<AiTeamReport | null>(null);
   const [myRole, setMyRole] = useState("");
+  const [canManage, setCanManage] = useState(false);
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -54,7 +55,12 @@ export default function TeamAiReportDetailPage() {
   });
   const [originalDraft, setOriginalDraft] = useState<TeamReportDraft>(draft);
 
-  const canReview = managerRoles.includes(myRole);
+  // Thanh vien thuong mo trang nay tu link trong mail bao cao da duyet, nen chi
+  // duoc doc. Uu tien co `canManage` cua backend de frontend khong tu suy ra
+  // quyen roi lech voi phia server; `myRole` chi la phuong an du phong khi API
+  // cu chua tra co nay.
+  const canReview = canManage || managerRoles.includes(myRole);
+  const isReadOnly = Boolean(report) && !canReview;
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
@@ -74,12 +80,14 @@ export default function TeamAiReportDetailPage() {
       const loadedReport = reportRes.data.report;
       setProject(projectRes.data.project);
       setReport(loadedReport);
+      setCanManage(Boolean(reportRes.data.canManage));
       setMyRole(roleRes.data.role);
 
       const draftObj = buildDraftFromOutput(loadedReport.aiOutput);
       setDraft(draftObj);
       setOriginalDraft(draftObj);
     } catch (error) {
+      setReport(null);
       setMessage(
         error instanceof Error ? error.message : "Tải báo cáo nhóm thất bại.",
       );
@@ -249,11 +257,19 @@ export default function TeamAiReportDetailPage() {
               >
                 Báo cáo cá nhân
               </Link>
+              {/*
+                Danh sach bao cao nhom chi danh cho nhom quan ly, hien link nay
+                voi thanh vien thuong chi dan ho toi mot trang bao loi.
+              */}
               <Link
                 className="flex h-10 items-center rounded-xl bg-brand-600 px-4 text-xs font-bold text-white shadow-md shadow-brand-600/20 transition hover:bg-brand-700"
-                href={`/workspaces/${params.workspaceId}/projects/${params.projectId}/ai-reports/team`}
+                href={
+                  canReview
+                    ? `/workspaces/${params.workspaceId}/projects/${params.projectId}/ai-reports/team`
+                    : `/workspaces/${params.workspaceId}/projects/${params.projectId}`
+                }
               >
-                Danh sách báo cáo nhóm
+                {canReview ? "Danh sách báo cáo nhóm" : "Về trang dự án"}
               </Link>
             </div>
           </div>
@@ -277,6 +293,29 @@ export default function TeamAiReportDetailPage() {
           </div>
         ) : report ? (
           <div className="space-y-6">
+            {isReadOnly ? (
+              <div
+                className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-5 py-4"
+                data-print-hidden="true"
+                id="team-report-read-only-notice"
+              >
+                <span
+                  aria-hidden="true"
+                  className="mt-1 h-2 w-2 shrink-0 rounded-full bg-brand-500"
+                />
+                <div>
+                  <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">
+                    Chế độ chỉ đọc
+                  </p>
+                  <p className="mt-1 text-sm font-medium text-slate-600">
+                    Đây là báo cáo giao ban đã được quản lý duyệt và gửi cho cả
+                    nhóm. Bạn xem và xuất PDF được, phần sửa và duyệt thuộc
+                    nhóm quản lý.
+                  </p>
+                </div>
+              </div>
+            ) : null}
+
             <TeamReportActionBar
               canReview={canReview}
               isApproving={isApproving}
@@ -301,7 +340,7 @@ export default function TeamAiReportDetailPage() {
               onDraftChange={setDraft}
             />
           </div>
-        ) : (
+        ) : message ? null : (
           <div
             className="rounded-2xl border border-zinc-200 bg-white p-6 text-sm font-semibold text-zinc-700 shadow-sm"
             data-print-hidden="true"

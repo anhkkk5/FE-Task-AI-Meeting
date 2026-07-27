@@ -264,6 +264,18 @@ export type TeamReportActionItem = {
   handledAt: string | null;
 };
 
+/**
+ * Ket qua doc danh sach de xuat cua mot bao cao giao ban.
+ *
+ * `canHandle` do backend tra ve theo role: thanh vien thuong doc duoc danh sach
+ * nhung khong chot duoc, nen frontend an cac nut thao tac thay vi de nguoi dung
+ * bam roi nhan 403.
+ */
+export type TeamReportActionItemsResult = {
+  items: TeamReportActionItem[];
+  canHandle: boolean;
+};
+
 export type CreateTeamReportTaskPayload = {
   source: TeamReportActionItemSource;
   itemIndex: number;

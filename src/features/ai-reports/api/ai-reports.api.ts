@@ -17,6 +17,7 @@ import {
   ReviewedMeetingActionItem,
   TeamReportActionItem,
   TeamReportActionItemSource,
+  TeamReportActionItemsResult,
   UpdateTeamReportPayload,
 } from "../types/ai-report.type";
 
@@ -205,9 +206,9 @@ export function getTeamDailyReportDetail(
   projectId: string,
   reportId: string,
 ) {
-  return apiRequest<ApiResponse<{ report: AiTeamReport }>>(
-    `${aiBasePath(workspaceId, projectId)}/team-daily-reports/${reportId}`,
-  );
+  return apiRequest<
+    ApiResponse<{ report: AiTeamReport; canManage: boolean }>
+  >(`${aiBasePath(workspaceId, projectId)}/team-daily-reports/${reportId}`);
 }
 
 /**
@@ -282,7 +283,7 @@ export function getTeamReportActionItems(
   projectId: string,
   reportId: string,
 ) {
-  return apiRequest<ApiResponse<{ items: TeamReportActionItem[] }>>(
+  return apiRequest<ApiResponse<TeamReportActionItemsResult>>(
     teamReportActionItemsPath(workspaceId, projectId, reportId),
   );
 }
