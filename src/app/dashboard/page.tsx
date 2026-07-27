@@ -5,9 +5,6 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   AlertTriangle,
   ArrowRight,
-  Bot,
-  CheckCircle2,
-  Clock,
   FolderKanban,
   ListChecks,
   Plus,
@@ -15,10 +12,21 @@ import {
   Sparkles,
 } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
+import { DashboardAiSuggestions } from "@/features/dashboard/components/DashboardAiSuggestions";
 import { DashboardMetricCards } from "@/features/dashboard/components/DashboardMetricCards";
+import { DashboardRecentActivity } from "@/features/dashboard/components/DashboardRecentActivity";
+import { DashboardSprintProgress } from "@/features/dashboard/components/DashboardSprintProgress";
 import { DashboardWorkspaceList } from "@/features/dashboard/components/DashboardWorkspaceList";
-import { getWorkspacesOverview } from "@/features/stats/api/stats.api";
-import { WorkspacesOverview } from "@/features/stats/types/stats.type";
+import { getMyWork } from "@/features/my-work/api/my-work.api";
+import { MyWorkData } from "@/features/my-work/types/my-work.type";
+import {
+  getWorkspaceDashboard,
+  getWorkspacesOverview,
+} from "@/features/stats/api/stats.api";
+import {
+  WorkspaceDashboard,
+  WorkspacesOverview,
+} from "@/features/stats/types/stats.type";
 import { getMyWorkspaces } from "@/features/workspaces/api/workspaces.api";
 import { Workspace } from "@/features/workspaces/types/workspace.type";
 import { useAuth } from "@/hooks/useAuth";
@@ -27,8 +35,18 @@ export default function DashboardPage() {
   const { user, isLoading: authLoading } = useAuth(true);
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
   const [overview, setOverview] = useState<WorkspacesOverview | null>(null);
+  const [myWorkData, setMyWorkData] = useState<MyWorkData | null>(null);
+  const [workspaceDashboard, setWorkspaceDashboard] =
+    useState<WorkspaceDashboard | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState("");
+
+  const getTimeGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "Chào buổi sáng";
+    if (hour < 18) return "Chào buổi chiều";
+    return "Chào buổi tối";
+  };
 
   const loadDashboard = useCallback(async () => {
     if (!user) return;
@@ -36,26 +54,55 @@ export default function DashboardPage() {
     setIsLoading(true);
     setMessage("");
 
-    const [workspacesResult, overviewResult] = await Promise.allSettled([
-      getMyWorkspaces("ACTIVE"),
-      getWorkspacesOverview(),
-    ]);
+    try {
+      // 1. Fetch workspaces, overview stats, and user tasks concurrently
+      const [workspacesRes, overviewRes, myWorkRes] = await Promise.allSettled([
+        getMyWorkspaces("ACTIVE"),
+        getWorkspacesOverview(),
+        getMyWork(user.id),
+      ]);
 
-    if (workspacesResult.status === "fulfilled") {
-      setWorkspaces(workspacesResult.value.data.items);
-    } else {
-      setWorkspaces([]);
-      setMessage(
-        workspacesResult.reason instanceof Error
-          ? workspacesResult.reason.message
-          : "Tải danh sách workspace thất bại.",
-      );
+      let loadedWorkspaces: Workspace[] = [];
+
+      if (workspacesRes.status === "fulfilled") {
+        loadedWorkspaces = workspacesRes.value.data.items;
+        setWorkspaces(loadedWorkspaces);
+      } else {
+        setWorkspaces([]);
+        setMessage(
+          workspacesRes.reason instanceof Error
+            ? workspacesRes.reason.message
+            : "Tải danh sách workspace thất bại.",
+        );
+      }
+
+      if (overviewRes.status === "fulfilled") {
+        setOverview(overviewRes.value.data);
+      } else {
+        setOverview(null);
+      }
+
+      if (myWorkRes.status === "fulfilled") {
+        setMyWorkData(myWorkRes.value);
+      } else {
+        setMyWorkData(null);
+      }
+
+      // 2. Fetch specific workspace dashboard for the primary workspace to get active sprint & productivity
+      if (loadedWorkspaces.length > 0) {
+        try {
+          const wsDashRes = await getWorkspaceDashboard(loadedWorkspaces[0].id);
+          if (wsDashRes.success && wsDashRes.data) {
+            setWorkspaceDashboard(wsDashRes.data);
+          }
+        } catch {
+          // Ignore individual workspace stat errors gracefully
+          setWorkspaceDashboard(null);
+        }
+      }
+    } finally {
+      setIsLoading(false);
     }
-
-    setOverview(
-      overviewResult.status === "fulfilled" ? overviewResult.value.data : null,
-    );
-    setIsLoading(false);
   }, [user]);
 
   useEffect(() => {
@@ -68,7 +115,15 @@ export default function DashboardPage() {
     [overview],
   );
 
-  const totalTasks = overview?.summary?.tasks ?? 0;
+  // Compute due today count from real user tasks
+  const dueTodayCount = useMemo(() => {
+    if (!myWorkData?.tasks) return 0;
+    const todayStr = new Date().toISOString().slice(0, 10);
+    return myWorkData.tasks.filter((t) => {
+      if (!t.dueDate) return false;
+      return t.dueDate.slice(0, 10) === todayStr && t.status !== "DONE";
+    }).length;
+  }, [myWorkData]);
 
   if (authLoading) {
     return (
@@ -81,19 +136,19 @@ export default function DashboardPage() {
   return (
     <AppShell>
       <div className="mx-auto max-w-7xl space-y-6">
-        {/* Header Section */}
+        {/* Header Section (Ảnh 2) */}
         <div className="rounded-3xl border border-[#c9dfea]/80 bg-white p-6 shadow-xs sm:p-8">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <div className="inline-flex items-center gap-2 rounded-full bg-[#b1dff6]/40 px-3 py-1 text-xs font-bold text-[#164654]">
+              <div className="inline-flex items-center gap-2 rounded-full bg-[#b1dff6]/40 px-3.5 py-1 text-xs font-bold text-[#164654]">
                 <Sparkles className="h-3.5 w-3.5 text-[#367ea2]" />
                 Agile AI Management Dashboard
               </div>
               <h1 className="mt-2.5 text-2xl font-extrabold tracking-tight text-[#164654] sm:text-3xl">
-                Xin chào, {user?.fullName ?? "bạn"} 👋
+                {getTimeGreeting()}, {user?.fullName ?? "bạn"} 👋
               </h1>
               <p className="mt-1 text-xs font-semibold text-slate-500 sm:text-sm">
-                Tổng quan chỉ số hoạt động, workspace và phân bổ công việc toàn hệ thống
+                Theo dõi tiến độ dự án và công việc của đội nhóm
               </p>
             </div>
 
@@ -105,7 +160,9 @@ export default function DashboardPage() {
                 disabled={isLoading}
                 className="inline-flex h-11 items-center gap-2 rounded-xl border border-[#c9dfea] bg-white px-4 text-xs font-bold text-[#164654] shadow-xs transition hover:bg-slate-50 active:scale-95 disabled:opacity-60"
               >
-                <RefreshCw className={`h-4 w-4 text-[#367ea2] ${isLoading ? "animate-spin" : ""}`} />
+                <RefreshCw
+                  className={`h-4 w-4 text-[#367ea2] ${isLoading ? "animate-spin" : ""}`}
+                />
                 Làm mới
               </button>
               <Link
@@ -114,7 +171,7 @@ export default function DashboardPage() {
                 className="inline-flex h-11 items-center gap-2 rounded-xl bg-[#367ea2] px-5 text-xs font-bold text-white shadow-md shadow-[#367ea2]/25 transition hover:bg-[#2b6887] active:scale-95"
               >
                 <Plus className="h-4 w-4" />
-                Tạo Workspace
+                Tạo workspace
               </Link>
             </div>
           </div>
@@ -128,69 +185,49 @@ export default function DashboardPage() {
           </div>
         ) : null}
 
-        {/* Thẻ Thống kê Chỉ số KPI (Metric Cards theo bảng màu ảnh 2) */}
+        {/* 4 Thẻ KPI Metric Cards (Dữ liệu thật) */}
         <DashboardMetricCards
           summary={overview?.summary ?? null}
+          myTasksCount={myWorkData?.tasks?.length ?? 0}
+          dueTodayCount={dueTodayCount}
           isPending={isLoading && !overview}
         />
 
-        {/* Nội dung Bố cục chính 2 cột */}
+        {/* Bố cục chính 2 Cột (2/3 + 1/3) */}
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           {/* Cột trái 2 Cols */}
           <div className="space-y-6 lg:col-span-2">
-            {/* Danh sách Workspace */}
+            {/* Thống kê Tiến độ Sprint & Sức khỏe công việc thực tế */}
+            <DashboardSprintProgress
+              sprint={workspaceDashboard?.sprint ?? null}
+              tasksBreakdown={workspaceDashboard?.taskStatusBreakdown ?? []}
+              productivity={workspaceDashboard?.productivity ?? []}
+              isLoading={isLoading && !workspaceDashboard}
+            />
+
+            {/* Danh sách Workspace gần đây dạng bảng (Ảnh 2) */}
             <DashboardWorkspaceList
               workspaces={workspaces}
               statsByWorkspace={statsByWorkspace}
               isLoading={isLoading && workspaces.length === 0}
             />
-
-            {/* Khung Thống kê Tiến độ & Phân bổ Công việc */}
-            <div className="rounded-3xl border border-[#c9dfea]/80 bg-white p-6 shadow-xs space-y-5">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-4">
-                <div>
-                  <h2 className="text-base font-extrabold text-[#164654]">Phân bổ & Sức khỏe Công việc</h2>
-                  <p className="text-xs text-slate-500 font-medium mt-0.5">Tỷ lệ hoàn thành công việc trên toàn hệ thống</p>
-                </div>
-                <span className="rounded-full bg-[#b1dff6]/40 px-3 py-1 text-xs font-bold text-[#164654]">
-                  {totalTasks} Task tổng cộng
-                </span>
-              </div>
-
-              {/* Progress visual bar */}
-              <div className="space-y-4">
-                <div className="flex items-center justify-between text-xs font-bold text-slate-700">
-                  <span>Tiến độ tổng thể</span>
-                  <span className="text-[#367ea2]">Đang vận hành tốt</span>
-                </div>
-
-                <div className="h-3.5 w-full overflow-hidden rounded-full bg-slate-100 flex">
-                  <div className="h-full bg-[#367ea2] transition-all" style={{ width: totalTasks > 0 ? "45%" : "0%" }} title="Đang làm (45%)" />
-                  <div className="h-full bg-[#b1dff6] transition-all" style={{ width: totalTasks > 0 ? "35%" : "0%" }} title="Hoàn thành (35%)" />
-                  <div className="h-full bg-[#c9dfea] transition-all" style={{ width: totalTasks > 0 ? "20%" : "0%" }} title="Cần làm (20%)" />
-                </div>
-
-                <div className="grid grid-cols-3 gap-3 pt-2">
-                  <div className="rounded-2xl border border-[#c9dfea]/60 bg-slate-50/70 p-3 text-center">
-                    <span className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider">Đang xử lý</span>
-                    <span className="mt-1 block text-lg font-extrabold text-[#367ea2]">45%</span>
-                  </div>
-                  <div className="rounded-2xl border border-[#b1dff6] bg-[#b1dff6]/20 p-3 text-center">
-                    <span className="block text-[11px] font-bold text-[#164654] uppercase tracking-wider">Hoàn thành</span>
-                    <span className="mt-1 block text-lg font-extrabold text-[#164654]">35%</span>
-                  </div>
-                  <div className="rounded-2xl border border-[#c9dfea]/60 bg-slate-50/70 p-3 text-center">
-                    <span className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider">Cần làm</span>
-                    <span className="mt-1 block text-lg font-extrabold text-slate-700">20%</span>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
 
           {/* Cột phải Sidebar 1 Col */}
           <div className="space-y-6">
-            {/* Khung Truy cập Nhanh */}
+            {/* Hoạt động & Công việc gần đây thực tế */}
+            <DashboardRecentActivity
+              tasks={myWorkData?.tasks ?? []}
+              isLoading={isLoading && !myWorkData}
+            />
+
+            {/* Thẻ Gợi ý từ AI thông minh */}
+            <DashboardAiSuggestions
+              summary={overview?.summary ?? null}
+              tasks={myWorkData?.tasks ?? []}
+            />
+
+            {/* Khung Truy cập nhanh */}
             <aside className="rounded-3xl border border-[#c9dfea]/80 bg-white p-6 shadow-xs space-y-4">
               <h2 className="text-base font-extrabold text-[#164654]">Truy cập nhanh</h2>
               <p className="text-xs font-semibold text-slate-500">
@@ -220,7 +257,7 @@ export default function DashboardPage() {
                 <Link
                   href="/workspaces"
                   id="dashboard-go-workspaces"
-                  className="group flex items-center gap-3.5 rounded-2xl border border-slate-100 bg-slate-50/80 p-4 transition-all hover:border-[#367ea2] hover:bg-[#b1dff6]/15 hover:shadow-xs"
+                  className="group flex flex-row items-center gap-3.5 rounded-2xl border border-slate-100 bg-slate-50/80 p-4 transition-all hover:border-[#367ea2] hover:bg-[#b1dff6]/15 hover:shadow-xs"
                 >
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-[#367ea2] shadow-2xs border border-slate-100 group-hover:scale-105 transition-transform">
                     <FolderKanban className="h-5 w-5" />
@@ -237,26 +274,6 @@ export default function DashboardPage() {
                 </Link>
               </div>
             </aside>
-
-            {/* Trợ lý AI Card */}
-            <div className="rounded-3xl border border-[#c9dfea] bg-gradient-to-br from-white via-[#b1dff6]/10 to-slate-50 p-6 shadow-xs space-y-4">
-              <div className="flex items-center gap-2 text-xs font-extrabold text-[#367ea2]">
-                <Bot className="h-4 w-4" />
-                Trợ lý AI & Báo cáo Hằng ngày
-              </div>
-              <p className="text-xs font-semibold text-[#164654] leading-relaxed">
-                Trợ lý AI tự động tổng hợp thông tin giao ban, tóm tắt cuộc họp và xuất báo cáo cá nhân / nhóm nhanh chóng.
-              </p>
-              <div className="pt-1">
-                <Link
-                  href="/workspaces"
-                  className="inline-flex h-9 items-center gap-2 rounded-xl bg-[#164654] px-4 text-xs font-bold text-white shadow-xs transition hover:bg-[#0f323d] active:scale-95"
-                >
-                  Mở báo cáo AI
-                  <ArrowRight className="h-3.5 w-3.5" />
-                </Link>
-              </div>
-            </div>
           </div>
         </div>
       </div>

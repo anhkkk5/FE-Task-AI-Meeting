@@ -5,12 +5,22 @@ import { ArrowRight, FolderKanban, Plus, Users } from "lucide-react";
 import { ProductOutlined } from "@ant-design/icons";
 import { WorkspaceStatItem } from "@/features/stats/types/stats.type";
 import { Workspace } from "@/features/workspaces/types/workspace.type";
+import { formatRelativeTime } from "@/lib/utils/relative-time";
 
 type DashboardWorkspaceListProps = {
   workspaces: Workspace[];
   statsByWorkspace: Map<string, WorkspaceStatItem>;
   isLoading: boolean;
 };
+
+// Custom avatar color themes for workspaces
+const AVATAR_STYLES = [
+  "bg-purple-100 text-purple-700 border-purple-200",
+  "bg-sky-100 text-sky-700 border-sky-200",
+  "bg-emerald-100 text-emerald-700 border-emerald-200",
+  "bg-amber-100 text-amber-700 border-amber-200",
+  "bg-rose-100 text-rose-700 border-rose-200",
+];
 
 export function DashboardWorkspaceList({
   workspaces,
@@ -56,8 +66,8 @@ export function DashboardWorkspaceList({
     <div className="rounded-3xl border border-[#c9dfea]/80 bg-white shadow-xs">
       <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
         <div>
-          <h2 className="text-base font-extrabold text-[#164654]">Không gian làm việc (Workspace)</h2>
-          <p className="text-xs text-slate-500 font-medium mt-0.5">Theo dõi tiến độ và số lượng dự án thuộc từng Workspace</p>
+          <h2 className="text-base font-extrabold text-[#164654]">Không gian làm việc gần đây</h2>
+          <p className="text-xs text-slate-500 font-medium mt-0.5">Các workspace đang quản lý và tham gia</p>
         </div>
         <Link
           href="/workspaces"
@@ -67,53 +77,81 @@ export function DashboardWorkspaceList({
         </Link>
       </div>
 
-      <ul className="divide-y divide-slate-100">
-        {workspaces.slice(0, 5).map((workspace) => {
-          const stats = statsByWorkspace.get(workspace.id);
-          const projectCount = stats?.projectCount ?? 0;
-          const memberCount = stats?.memberCount ?? 0;
+      <div className="overflow-x-auto">
+        <table className="w-full text-left border-collapse">
+          <thead>
+            <tr className="border-b border-slate-100 text-[11px] font-bold text-slate-400 uppercase tracking-wider bg-slate-50/50">
+              <th className="px-6 py-3">Tên workspace</th>
+              <th className="px-4 py-3">Dự án</th>
+              <th className="px-4 py-3">Thành viên</th>
+              <th className="px-4 py-3">Cập nhật gần nhất</th>
+              <th className="px-6 py-3 text-right"></th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-100 text-xs">
+            {workspaces.slice(0, 5).map((workspace, idx) => {
+              const stats = statsByWorkspace.get(workspace.id);
+              const projectCount = stats?.projectCount ?? 0;
+              const memberCount = stats?.memberCount ?? 0;
+              const updatedAt = stats?.updatedAt || workspace.updatedAt;
+              const avatarStyle = AVATAR_STYLES[idx % AVATAR_STYLES.length];
+              const initialLetter = (workspace.name.trim()[0] || "W").toUpperCase();
 
-          return (
-            <li key={workspace.id}>
-              <Link
-                href={`/workspaces/${workspace.id}`}
-                className="group flex flex-col gap-3 px-6 py-4 transition hover:bg-slate-50/80 sm:flex-row sm:items-center sm:justify-between"
-              >
-                <div className="flex items-center gap-4 min-w-0">
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#367ea2]/10 text-[#367ea2] border border-[#367ea2]/20 group-hover:bg-[#367ea2] group-hover:text-white transition-all">
-                    <ProductOutlined className="text-xl" />
-                  </div>
+              return (
+                <tr
+                  key={workspace.id}
+                  className="group transition-colors hover:bg-slate-50/80 cursor-pointer"
+                >
+                  <td className="px-6 py-4">
+                    <Link href={`/workspaces/${workspace.id}`} className="flex items-center gap-3 min-w-0">
+                      <div
+                        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border font-extrabold text-sm ${avatarStyle} shadow-2xs group-hover:scale-105 transition-transform`}
+                      >
+                        {initialLetter}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-extrabold text-[#164654] group-hover:text-[#367ea2] transition-colors">
+                          {workspace.name}
+                        </p>
+                        <p className="truncate text-[11px] font-medium text-slate-400">
+                          workspace-{workspace.slug}
+                        </p>
+                      </div>
+                    </Link>
+                  </td>
 
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-extrabold text-[#164654] group-hover:text-[#367ea2] transition-colors">
-                      {workspace.name}
-                    </p>
-                    <p className="truncate text-xs font-medium text-slate-400">
-                      @{workspace.slug}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between gap-6 sm:justify-end">
-                  <div className="flex items-center gap-4">
-                    <div className="flex items-center gap-1.5 rounded-xl bg-slate-100/70 px-3 py-1.5 text-xs font-bold text-slate-700">
+                  <td className="px-4 py-4 whitespace-nowrap">
+                    <div className="inline-flex items-center gap-1.5 rounded-xl bg-slate-100/70 px-3 py-1 text-xs font-bold text-slate-700">
                       <FolderKanban className="h-3.5 w-3.5 text-[#367ea2]" />
-                      <span>{projectCount} Dự án</span>
+                      <span>{projectCount} dự án</span>
                     </div>
+                  </td>
 
-                    <div className="flex items-center gap-1.5 rounded-xl bg-slate-100/70 px-3 py-1.5 text-xs font-bold text-slate-700">
+                  <td className="px-4 py-4 whitespace-nowrap">
+                    <div className="inline-flex items-center gap-1.5 rounded-xl bg-slate-100/70 px-3 py-1 text-xs font-bold text-slate-700">
                       <Users className="h-3.5 w-3.5 text-slate-500" />
-                      <span>{memberCount} Thành viên</span>
+                      <span>{memberCount} thành viên</span>
                     </div>
-                  </div>
+                  </td>
 
-                  <ArrowRight className="h-4 w-4 shrink-0 text-slate-300 transition group-hover:translate-x-1 group-hover:text-[#367ea2]" />
-                </div>
-              </Link>
-            </li>
-          );
-        })}
-      </ul>
+                  <td className="px-4 py-4 whitespace-nowrap text-slate-500 font-medium">
+                    {formatRelativeTime(updatedAt)}
+                  </td>
+
+                  <td className="px-6 py-4 text-right whitespace-nowrap">
+                    <Link
+                      href={`/workspaces/${workspace.id}`}
+                      className="inline-flex items-center justify-center h-8 w-8 rounded-full bg-slate-100 text-slate-400 group-hover:bg-[#367ea2] group-hover:text-white transition-all"
+                    >
+                      <ArrowRight className="h-4 w-4" />
+                    </Link>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
