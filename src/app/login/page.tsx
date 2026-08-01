@@ -51,7 +51,7 @@ export default function LoginPage() {
       }
 
       saveAccessToken(accessToken);
-      window.location.assign("/workspaces");
+      window.location.assign("/dashboard");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.");
     } finally {

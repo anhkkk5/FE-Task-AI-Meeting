@@ -84,7 +84,7 @@ export default function RegisterPage() {
 
   function handleVerified(accessToken: string) {
     saveAccessToken(accessToken);
-    window.location.assign("/workspaces");
+    window.location.assign("/dashboard");
   }
 
   if (step === "otp") {

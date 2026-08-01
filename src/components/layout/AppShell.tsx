@@ -17,6 +17,7 @@ import {
   LogOut,
   ChevronRight,
   ChevronDown,
+  Sparkles,
   User as UserIcon
 } from "lucide-react";
 import { ProjectAssistantChatbot } from "@/features/project-assistant/components/ProjectAssistantChatbot";
@@ -327,19 +328,16 @@ export function AppShell({
       {/* Sidebar - Matching Nexus Enterprise Dashboard Style */}
       <aside className="hidden w-64 shrink-0 flex-col border-r border-slate-200/80 bg-white md:flex justify-between">
         <div className="flex flex-col min-h-0 overflow-y-auto">
-          {/* Brand Logo Header */}
-          <div className="p-6 border-b border-slate-100">
+          {/* Brand Logo Header (AgileFlow AI) */}
+          <div className="p-5 border-b border-slate-100">
             <Link href="/" className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-xl bg-brand-600 flex items-center justify-center text-white font-bold shadow-md shadow-brand-600/20">
-                <CheckSquare className="w-4 h-4" />
+              <div className="w-8 h-8 rounded-xl bg-blue-600 flex items-center justify-center text-white font-bold shadow-md shadow-blue-600/20">
+                <Sparkles className="w-4 h-4" />
               </div>
               <div>
                 <h1 className="text-base font-extrabold text-slate-900 tracking-tight leading-tight">
-                  Nexus Enterprise
+                  AgileFlow AI
                 </h1>
-                <p className="text-[11px] font-medium text-slate-400">
-                  Agile Workspace
-                </p>
               </div>
             </Link>
           </div>
@@ -486,14 +484,17 @@ export function AppShell({
         {/* Top Header Bar */}
         <header className="h-16 shrink-0 border-b border-slate-200/80 bg-white px-6 flex items-center justify-between gap-4">
           <div className="flex min-w-0 flex-1 items-center gap-4">
-            {/* Search Bar */}
+            {/* Search Bar (Chuẩn Ảnh 1 & 2) */}
             <div className="relative hidden lg:flex items-center w-full max-w-sm">
               <Search className="absolute left-3.5 w-4 h-4 text-slate-400 pointer-events-none" />
               <input
                 type="text"
-                placeholder="Search tasks, people, or projects..."
-                className="w-full h-9 pl-9 pr-4 rounded-xl bg-slate-100/80 text-xs font-medium text-slate-800 placeholder:text-slate-400 placeholder:font-normal outline-none focus:bg-white focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition border border-transparent"
+                placeholder="Tìm dự án, công việc..."
+                className="w-full h-9 pl-9 pr-12 rounded-xl bg-slate-100/80 text-xs font-medium text-slate-800 placeholder:text-slate-400 outline-none focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition border border-transparent"
               />
+              <span className="absolute right-3 rounded-md border border-slate-200 bg-white px-1.5 py-0.5 text-[10px] font-bold text-slate-400 shadow-2xs pointer-events-none">
+                ⌘ K
+              </span>
             </div>
 
             {/* Breadcrumbs Navigation */}
