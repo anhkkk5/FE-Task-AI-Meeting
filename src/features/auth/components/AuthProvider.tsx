@@ -26,6 +26,7 @@ export type AuthUser = {
   avatarUrl?: string | null;
   phoneNumber?: string | null;
   jobTitle?: string | null;
+  isSystemAdmin?: boolean;
 };
 
 export type AuthContextValue = {

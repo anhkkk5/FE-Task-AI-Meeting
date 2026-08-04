@@ -292,6 +292,21 @@ export default function WorkspaceMembersPage() {
           </div>
 
           <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => {
+                const origin = typeof window !== "undefined" ? window.location.origin : "";
+                const inviteUrl = `${origin}/invite?token=WSP_${params.workspaceId}`;
+                void navigator.clipboard.writeText(inviteUrl);
+                setMessage("Đã sao chép đường dẫn mời vào bộ nhớ tạm: " + inviteUrl);
+              }}
+              className="inline-flex h-10 items-center gap-2 rounded-xl bg-blue-600 px-4 text-xs font-bold text-white shadow-md shadow-blue-600/20 transition hover:bg-blue-700 active:scale-95 shrink-0"
+              title="Tạo & sao chép link mời gia nhập Workspace"
+            >
+              <UserCheck className="h-4 w-4" />
+              Sao chép đường dẫn mời
+            </button>
+
             <div className="relative hidden sm:block">
               <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
               <input

@@ -4,33 +4,46 @@ import Link from "next/link";
 import { useParams, usePathname, useRouter } from "next/navigation";
 import { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import {
-  LayoutDashboard,
-  Boxes,
-  FolderKanban,
-  CheckSquare,
-  ListChecks,
-  Users,
-  Settings,
-  Search,
   Bell,
-  HelpCircle,
-  LogOut,
-  ChevronRight,
+  Boxes,
+  CheckSquare,
   ChevronDown,
+  ChevronRight,
+  FolderKanban,
+  HelpCircle,
+  LayoutDashboard,
+  ListChecks,
+  LogOut,
+  Radio,
+  Search,
+  Settings,
   Sparkles,
-  User as UserIcon
+  User as UserIcon,
+  Users,
 } from "lucide-react";
+import { getMeetings } from "@/features/meetings/api/meetings.api";
+import { getMyWork } from "@/features/my-work/api/my-work.api";
 import { ProjectAssistantChatbot } from "@/features/project-assistant/components/ProjectAssistantChatbot";
 import { getHandovers } from "@/features/shift-handovers/api/shift-handovers.api";
 import { getMyWorkspaces } from "@/features/workspaces/api/workspaces.api";
 import { Workspace } from "@/features/workspaces/types/workspace.type";
 import { useAuth } from "@/hooks/useAuth";
+import { formatDate } from "@/lib/utils/relative-time";
 
 type AppShellProps = {
   children: ReactNode;
   workspaceId?: string;
   projectId?: string;
   title?: string;
+};
+
+type RealNotification = {
+  id: string;
+  title: string;
+  description: string;
+  link: string;
+  timestamp?: string | null;
+  type: "task" | "handover" | "meeting";
 };
 
 const LAST_WORKSPACE_KEY = "agile_ai_last_active_workspace_id";
@@ -49,6 +62,9 @@ export function AppShell({
 
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
   const [showUserDropdown, setShowUserDropdown] = useState(false);
+  const [showNotificationDropdown, setShowNotificationDropdown] = useState(false);
+  const [realNotifications, setRealNotifications] = useState<RealNotification[]>([]);
+  const [readIds, setReadIds] = useState<Set<string>>(new Set());
   const [pendingHandovers, setPendingHandovers] = useState(0);
 
   const loadWorkspaces = useCallback(async () => {
@@ -66,12 +82,6 @@ export function AppShell({
     }
   }, [user, loadWorkspaces]);
 
-  /**
-   * Workspace dang mo duoc suy ra DUY NHAT tu URL.
-   * Truoc day gia tri nay con lay tu localStorage, nen o trang danh sach
-   * sidebar van dung menu cua mot workspace cu va bam vao la nhay thang
-   * vao do, nguoi dung khong duoc chon.
-   */
   const activeWorkspaceId = routeWorkspaceId ?? "";
 
   const currentWorkspace = useMemo(
@@ -80,49 +90,100 @@ export function AppShell({
     [workspaces, activeWorkspaceId],
   );
 
-  // Ghi nho workspace vua mo de trang Dashboard co the goi y mo lai nhanh.
   useEffect(() => {
     if (activeWorkspaceId && typeof window !== "undefined") {
       localStorage.setItem(LAST_WORKSPACE_KEY, activeWorkspaceId);
     }
   }, [activeWorkspaceId]);
 
-  useEffect(() => {
-    if (!user || !activeWorkspaceId || !projectId) {
-      setPendingHandovers(0);
-      return;
-    }
+  // Load REAL notification items dynamically for current user
+  const loadNotifications = useCallback(async () => {
+    if (!user) return;
 
-    let cancelled = false;
-    getHandovers(activeWorkspaceId, projectId, {
-      memberId: user.id,
-      status: "PENDING",
-      page: 1,
-      limit: 100,
-    })
-      .then((response) => {
-        if (cancelled) return;
-        const received = response.data.items.filter(
-          (handover) => handover.receiverId === user.id,
-        );
-        setPendingHandovers(received.length);
-      })
-      .catch(() => {
-        if (!cancelled) setPendingHandovers(0);
+    const notifs: RealNotification[] = [];
+
+    try {
+      // 1. Fetch user's assigned tasks
+      const myWork = await getMyWork(user.id);
+      myWork.tasks.slice(0, 4).forEach((t) => {
+        notifs.push({
+          id: `task-${t.id}`,
+          title: "Phân công công việc",
+          description: `[${t.projectKeyCode || "PRJ"}] ${t.title} (${t.projectName || "Dự án"})`,
+          link: `/workspaces/${t.workspaceId}/projects/${t.projectId}/tasks`,
+          timestamp: t.createdAt,
+          type: "task",
+        });
       });
 
-    return () => {
-      cancelled = true;
-    };
-  }, [activeWorkspaceId, projectId, user]);
+      // 2. Fetch pending handovers if inside project
+      if (activeWorkspaceId && projectId) {
+        const handoversRes = await getHandovers(activeWorkspaceId, projectId, {
+          memberId: user.id,
+          status: "PENDING",
+          limit: 5,
+        });
 
-  /*
-   * Chi chan man hinh khi CHUA co thong tin nguoi dung.
-   * Truoc day chi can isLoading la ca sidebar lan header deu bien mat, nen moi
-   * lan chuyen trang nguoi dung thay mot man hinh trang. Nay user duoc giu trong
-   * AuthProvider nen dieu kien nay chi dung o lan mo app dau tien; cac lan lam
-   * moi phien sau do dien ra am tham, layout giu nguyen.
-   */
+        const received = handoversRes.data.items.filter(
+          (h) => h.receiverId === user.id,
+        );
+        setPendingHandovers(received.length);
+
+        received.forEach((h) => {
+          notifs.push({
+            id: `handover-${h.id}`,
+            title: "Yêu cầu bàn giao ca mới",
+            description: `Bạn có yêu cầu bàn giao ca cần xác nhận từ đồng nghiệp`,
+            link: `/workspaces/${activeWorkspaceId}/projects/${projectId}/shift-handovers`,
+            timestamp: h.createdAt,
+            type: "handover",
+          });
+        });
+
+        // 3. Fetch upcoming meetings
+        const meetingsRes = await getMeetings(activeWorkspaceId, projectId, {
+          limit: 3,
+        });
+
+        meetingsRes.data.items.forEach((m) => {
+          notifs.push({
+            id: `meeting-${m.id}`,
+            title: "Cuộc họp sắp diễn ra",
+            description: `${m.title} - Ngày: ${m.meetingDate}`,
+            link: `/workspaces/${activeWorkspaceId}/projects/${projectId}/meetings/${m.id}`,
+            timestamp: m.startTime,
+            type: "meeting",
+          });
+        });
+      }
+    } catch {
+      // ignore
+    }
+
+    setRealNotifications(notifs);
+  }, [user, activeWorkspaceId, projectId]);
+
+  useEffect(() => {
+    if (user) {
+      void loadNotifications();
+    }
+  }, [user, loadNotifications]);
+
+  const unreadCount = useMemo(() => {
+    return realNotifications.filter((n) => !readIds.has(n.id)).length;
+  }, [realNotifications, readIds]);
+
+  const handleNotificationClick = (item: RealNotification) => {
+    setReadIds((prev) => new Set(prev).add(item.id));
+    setShowNotificationDropdown(false);
+    router.push(item.link);
+  };
+
+  const handleMarkAllRead = () => {
+    const allIds = new Set(realNotifications.map((n) => n.id));
+    setReadIds(allIds);
+  };
+
   if (isLoading && !user) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#f8fafc]">
@@ -142,135 +203,77 @@ export function AppShell({
     ? user.fullName.charAt(0).toUpperCase()
     : "U";
 
-  /**
-   * Goc breadcrumb doi theo trang dang mo.
-   * Truoc day moi trang deu bat dau bang "Workspaces", ke ca Dashboard,
-   * lam nguoi dung tuong Dashboard nam ben trong workspace.
-   */
   const breadcrumbs: { label: string; href: string }[] = [];
 
-  if (pathname === "/dashboard") {
+  if (pathname.startsWith("/dashboard")) {
     breadcrumbs.push({ label: "Dashboard", href: "/dashboard" });
-  } else if (pathname === "/my-work") {
-    breadcrumbs.push({ label: "Việc của tôi", href: "/my-work" });
-  } else if (pathname === "/profile") {
-    breadcrumbs.push({ label: "Trang cá nhân", href: "/profile" });
-  } else {
+  } else if (pathname.startsWith("/my-work")) {
+    breadcrumbs.push({ label: "Văn phòng của tôi", href: "/my-work" });
+  } else if (pathname.startsWith("/workspaces")) {
     breadcrumbs.push({ label: "Workspaces", href: "/workspaces" });
-  }
 
-  // Chi hien ten workspace khi URL that su nam trong workspace do.
-  // Truoc day dung currentWorkspace (co the den tu localStorage) nen trang danh sach
-  // van hien ten mot workspace, khien nguoi dung tuong minh dang dung ben trong no.
-  if (routeWorkspaceId && currentWorkspace) {
-    breadcrumbs.push({
-      label: currentWorkspace.name,
-      href: `/workspaces/${currentWorkspace.id}`,
-    });
-  }
-
-  if (projectId) {
-    breadcrumbs.push({
-      label: "Dự án",
-      href: `/workspaces/${activeWorkspaceId}/projects`,
-    });
-    breadcrumbs.push({
-      label: title || "Project",
-      href: `/workspaces/${activeWorkspaceId}/projects/${projectId}`,
-    });
-
-    const section = [
-      ["/sprints", "Backlog"],
-      ["/tasks", "Board"],
-      ["/daily-updates", "Cập nhật hằng ngày"],
-      ["/meetings", "Cuộc họp"],
-      ["/shift-handovers", "Bàn giao"],
-      ["/ai-reports", "Báo cáo AI"],
-      ["/assistant", "Trợ lý dự án"],
-    ].find(([segment]) => pathname.includes(segment));
-
-    if (section) {
+    if (currentWorkspace) {
       breadcrumbs.push({
-        label: section[1],
-        href: pathname,
+        label: currentWorkspace.name,
+        href: `/workspaces/${currentWorkspace.id}`,
       });
     }
-  } else if (pathname.includes("/members")) {
-    breadcrumbs.push({
-      label: "Thành viên",
-      href: `/workspaces/${activeWorkspaceId}/members`,
-    });
-  } else if (pathname.includes("/settings")) {
-    breadcrumbs.push({
-      label: "Cài đặt",
-      href: `/workspaces/${activeWorkspaceId}/settings`,
-    });
-  } else if (pathname.includes("/projects")) {
-    breadcrumbs.push({
-      label: "Dự án",
-      href: `/workspaces/${activeWorkspaceId}/projects`,
-    });
+
+    if (projectId) {
+      breadcrumbs.push({
+        label: title ?? "Dự án",
+        href: activeWorkspaceId
+          ? `/workspaces/${activeWorkspaceId}/projects/${projectId}`
+          : "#",
+      });
+    }
+
+    if (pathname.includes("/members")) {
+      breadcrumbs.push({ label: "Thành viên", href: "#" });
+    } else if (pathname.includes("/sprints")) {
+      breadcrumbs.push({ label: "Backlog", href: "#" });
+    } else if (pathname.includes("/tasks")) {
+      breadcrumbs.push({ label: "Board", href: "#" });
+    } else if (pathname.includes("/analytics")) {
+      breadcrumbs.push({ label: "Thống kê & Biểu đồ", href: "#" });
+    } else if (pathname.includes("/meetings")) {
+      breadcrumbs.push({ label: "Cuộc họp", href: "#" });
+    } else if (pathname.includes("/settings")) {
+      breadcrumbs.push({ label: "Cài đặt", href: "#" });
+    }
   }
 
-  // Menu toan cuc: khong phu thuoc workspace nao dang mo.
-  const globalNavItems = [
-    {
-      name: "Dashboard",
-      icon: LayoutDashboard,
-      href: "/dashboard",
-      active: pathname === "/dashboard",
-    },
-    {
-      name: "Việc của tôi",
-      icon: ListChecks,
-      href: "/my-work",
-      active: pathname === "/my-work",
-    },
-    {
-      name: "Workspaces",
-      icon: Boxes,
-      href: "/workspaces",
-      active: pathname === "/workspaces" || pathname === "/workspaces/create",
-    },
-  ];
+  const workspaceNavItems = activeWorkspaceId
+    ? [
+        {
+          name: "Tổng quan",
+          icon: LayoutDashboard,
+          href: `/workspaces/${activeWorkspaceId}`,
+          active: pathname === `/workspaces/${activeWorkspaceId}`,
+        },
+        {
+          name: "Dự án",
+          icon: FolderKanban,
+          href: `/workspaces/${activeWorkspaceId}/projects`,
+          active: pathname.includes("/projects"),
+        },
+        {
+          name: "Thành viên",
+          icon: Users,
+          href: `/workspaces/${activeWorkspaceId}/members`,
+          active: pathname.includes("/members"),
+        },
+        {
+          name: "Cài đặt",
+          icon: Settings,
+          href: `/workspaces/${activeWorkspaceId}/settings`,
+          active:
+            pathname === `/workspaces/${activeWorkspaceId}/settings` ||
+            (pathname.includes("/settings") && !projectId),
+        },
+      ]
+    : [];
 
-  /**
-   * Menu thuoc pham vi workspace dang mo.
-   * Tach rieng khoi menu toan cuc de nguoi dung thay ro dang dieu huong ben trong
-   * workspace nao, thay vi bi nhay vao mot workspace tu suy ra.
-   * Cac muc thuoc pham vi project (Board, Cuoc hop, Bao cao AI) khong dat o day vi chung
-   * can chon project truoc, va da co san o thanh tab cua project.
-   */
-  const workspaceNavItems = [
-    {
-      name: "Tổng quan",
-      icon: LayoutDashboard,
-      href: `/workspaces/${activeWorkspaceId}`,
-      active: pathname === `/workspaces/${activeWorkspaceId}`,
-    },
-    {
-      name: "Dự án",
-      icon: FolderKanban,
-      href: `/workspaces/${activeWorkspaceId}/projects`,
-      active: pathname.includes("/projects"),
-    },
-    {
-      name: "Thành viên",
-      icon: Users,
-      href: `/workspaces/${activeWorkspaceId}/members`,
-      active: pathname.includes("/members"),
-    },
-    {
-      name: "Cài đặt",
-      icon: Settings,
-      href: `/workspaces/${activeWorkspaceId}/settings`,
-      active:
-        pathname === `/workspaces/${activeWorkspaceId}/settings` ||
-        (pathname.includes("/settings") && !projectId),
-    },
-  ];
-
-  // Project Tabs (if inside a specific Project)
   const projectTabs =
     projectId && activeWorkspaceId
       ? [
@@ -288,6 +291,11 @@ export function AppShell({
             href: `/workspaces/${activeWorkspaceId}/projects/${projectId}/tasks`,
             label: "Board",
             active: pathname.includes("/tasks") && !pathname.includes("/sprints"),
+          },
+          {
+            href: `/workspaces/${activeWorkspaceId}/projects/${projectId}/analytics`,
+            label: "Thống kê & Biểu đồ",
+            active: pathname.includes("/analytics"),
           },
           {
             href: `/workspaces/${activeWorkspaceId}/projects/${projectId}/daily-updates/me`,
@@ -318,160 +326,176 @@ export function AppShell({
           {
             href: `/workspaces/${activeWorkspaceId}/projects/${projectId}/settings`,
             label: "Cài đặt dự án",
-            active: pathname.includes("/settings"),
+            active:
+              pathname === `/workspaces/${activeWorkspaceId}/projects/${projectId}/settings`,
           },
         ]
       : [];
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-[#f8fafc] font-sans text-slate-800 selection:bg-blue-500 selection:text-white">
-      {/* Sidebar - Matching Nexus Enterprise Dashboard Style */}
-      <aside className="hidden w-64 shrink-0 flex-col border-r border-slate-200/80 bg-white md:flex justify-between">
-        <div className="flex flex-col min-h-0 overflow-y-auto">
-          {/* Brand Logo Header (AgileFlow AI) */}
-          <div className="p-5 border-b border-slate-100">
-            <Link href="/" className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-xl bg-blue-600 flex items-center justify-center text-white font-bold shadow-md shadow-blue-600/20">
-                <Sparkles className="w-4 h-4" />
+    <div className="flex h-screen overflow-hidden bg-[#f8fafc]">
+      {/* Left Sidebar */}
+      <aside className="w-64 bg-white border-r border-slate-200/80 flex flex-col justify-between shrink-0 z-20">
+        <div>
+          {/* Top Logo */}
+          <div className="h-16 px-6 flex items-center justify-between border-b border-slate-100">
+            <Link href="/dashboard" className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-md shadow-blue-600/20 font-black text-base">
+                ✨
               </div>
-              <div>
-                <h1 className="text-base font-extrabold text-slate-900 tracking-tight leading-tight">
-                  AgileFlow AI
-                </h1>
-              </div>
+              <span className="font-black text-slate-900 text-lg tracking-tight">
+                AgileFlow AI
+              </span>
             </Link>
           </div>
 
-          {/* Active Workspace Switcher */}
-          <div className="p-3 border-b border-slate-100">
-            <label className="mb-1 block px-2 text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
-              Không gian làm việc
-            </label>
-            <select
-              className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50/80 px-3 text-xs font-semibold text-slate-800 outline-none hover:bg-slate-100 focus:bg-white focus:border-brand-500 transition cursor-pointer"
-              value={activeWorkspaceId}
-              onChange={(event) => {
-                const value = event.target.value;
-                if (value === "create") {
-                  router.push("/workspaces/create");
-                } else if (value) {
-                  router.push(`/workspaces/${value}`);
-                }
-              }}
-            >
-              <option value="">Chưa chọn workspace</option>
-              {workspaces.map((workspace) => (
-                <option key={workspace.id} value={workspace.id}>
-                  {workspace.name}
-                </option>
-              ))}
-              <option value="+ Tạo Workspace mới">+ Tạo Workspace mới</option>
-            </select>
+          {/* Workspace Selector Dropdown */}
+          <div className="p-3">
+            <div className="relative">
+              <span className="block px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
+                Không gian làm việc
+              </span>
+              <select
+                value={activeWorkspaceId}
+                onChange={(e) => {
+                  const wsId = e.target.value;
+                  if (wsId) {
+                    router.push(`/workspaces/${wsId}`);
+                  } else {
+                    router.push("/workspaces");
+                  }
+                }}
+                className="w-full h-10 px-3 pr-8 rounded-xl border border-slate-200 bg-slate-50/70 text-xs font-bold text-slate-800 outline-none hover:bg-slate-50 focus:border-blue-500 transition cursor-pointer appearance-none truncate"
+              >
+                <option value="">Chưa chọn workspace</option>
+                {workspaces.map((ws) => (
+                  <option key={ws.id} value={ws.id}>
+                    {ws.name}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="absolute right-3 bottom-2.5 w-4 h-4 text-slate-400 pointer-events-none" />
+            </div>
           </div>
 
-          {/* Main Sidebar Navigation Menu */}
-          <nav className="p-3 space-y-1">
-            {globalNavItems.map((item) => {
-              const Icon = item.icon;
-              return (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className={`flex items-center gap-3.5 px-4 py-2.5 rounded-xl text-sm font-semibold transition duration-150 ${
-                    item.active
-                      ? "bg-brand-50 text-brand-700 font-bold border-r-2 border-brand-600 shadow-2xs"
-                      : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
-                  }`}
-                >
-                  <Icon className={`w-4 h-4 ${item.active ? "text-brand-600" : "text-slate-400"}`} />
-                  <span>{item.name}</span>
-                </Link>
-              );
-            })}
+          {/* Main Navigation Links */}
+          <nav className="px-3 space-y-1">
+            <Link
+              href="/dashboard"
+              className={`flex items-center gap-3.5 px-4 py-2.5 rounded-xl text-sm font-semibold transition ${
+                pathname === "/dashboard"
+                  ? "bg-blue-50 text-blue-600 font-bold shadow-2xs"
+                  : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+              }`}
+            >
+              <LayoutDashboard className={`w-4 h-4 ${pathname === "/dashboard" ? "text-blue-600" : "text-slate-400"}`} />
+              <span>Dashboard</span>
+            </Link>
+
+            <Link
+              href="/my-work"
+              className={`flex items-center gap-3.5 px-4 py-2.5 rounded-xl text-sm font-semibold transition ${
+                pathname === "/my-work"
+                  ? "bg-blue-50 text-blue-600 font-bold shadow-2xs"
+                  : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+              }`}
+            >
+              <CheckSquare className={`w-4 h-4 ${pathname === "/my-work" ? "text-blue-600" : "text-slate-400"}`} />
+              <span>Việc của tôi</span>
+            </Link>
+
+            <Link
+              href="/workspaces"
+              className={`flex items-center gap-3.5 px-4 py-2.5 rounded-xl text-sm font-semibold transition ${
+                pathname === "/workspaces" && !activeWorkspaceId
+                  ? "bg-blue-50 text-blue-600 font-bold shadow-2xs"
+                  : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+              }`}
+            >
+              <Boxes className={`w-4 h-4 ${pathname === "/workspaces" && !activeWorkspaceId ? "text-blue-600" : "text-slate-400"}`} />
+              <span>Workspaces</span>
+            </Link>
+
+            {/* Admin link - only for System Admins */}
+            {user.isSystemAdmin ? (
+              <Link
+                href="/admin"
+                className={`flex items-center gap-3.5 px-4 py-2.5 rounded-xl text-sm font-semibold transition ${
+                  pathname.startsWith("/admin")
+                    ? "bg-blue-50 text-blue-600 font-bold shadow-2xs"
+                    : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                }`}
+              >
+                <Sparkles className={`w-4 h-4 ${pathname.startsWith("/admin") ? "text-blue-600" : "text-slate-400"}`} />
+                <span className="flex items-center gap-1.5">
+                  Quản trị hệ thống
+                  <span className="rounded-full bg-blue-600 px-1.5 py-0.5 text-[9px] font-black text-white leading-none">
+                    ADMIN
+                  </span>
+                </span>
+              </Link>
+            ) : null}
           </nav>
 
-          {/* Nhom menu cua workspace dang mo, chi hien khi da xac dinh duoc workspace */}
-          {activeWorkspaceId ? (
-            <nav className="px-3 pb-3 space-y-1">
-              <p className="mb-1 px-4 pt-2 text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
-                <span className="truncate">
+          {/* Workspace Specific Subnav */}
+          <div className="mt-4 pt-4 border-t border-slate-100">
+            {activeWorkspaceId ? (
+              <nav className="px-3 pb-3 space-y-1">
+                <p className="mb-1 px-4 text-[10px] font-extrabold uppercase tracking-wider text-slate-400 truncate">
                   {currentWorkspace?.name ?? "Workspace"}
-                </span>
-              </p>
-              {workspaceNavItems.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    className={`flex items-center gap-3.5 px-4 py-2.5 rounded-xl text-sm font-semibold transition duration-150 ${
-                      item.active
-                        ? "bg-brand-50 text-brand-700 font-bold border-r-2 border-brand-600 shadow-2xs"
-                        : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
-                    }`}
-                  >
-                    <Icon className={`w-4 h-4 ${item.active ? "text-brand-600" : "text-slate-400"}`} />
-                    <span>{item.name}</span>
-                  </Link>
-                );
-              })}
-            </nav>
-          ) : (
-            /*
-             * Chua chon workspace thi khong dung menu cua mot workspace bat ky,
-             * chi moi nguoi dung chon truoc.
-             */
-            <div className="px-3 pb-3">
-              <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50/80 p-4">
-                <p className="text-[11px] font-bold text-slate-700">
-                  Chưa chọn workspace
                 </p>
-                <p className="mt-1 text-[11px] font-medium leading-relaxed text-slate-500">
-                  Dự án và task nằm bên trong workspace. Chọn một workspace để
-                  hiện menu của nó.
-                </p>
-                <Link
-                  href="/workspaces"
-                  className="mt-2.5 inline-flex items-center gap-1.5 text-[11px] font-bold text-brand-600 transition hover:text-brand-700"
-                >
-                  Chọn workspace
-                  <ChevronRight className="h-3 w-3" />
-                </Link>
-              </div>
-            </div>
-          )}
+                {workspaceNavItems.map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <Link
+                      key={item.name}
+                      href={item.href}
+                      className={`flex items-center gap-3.5 px-4 py-2.5 rounded-xl text-sm font-semibold transition ${
+                        item.active
+                          ? "bg-blue-50 text-blue-600 font-bold shadow-2xs"
+                          : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                      }`}
+                    >
+                      <Icon className={`w-4 h-4 ${item.active ? "text-blue-600" : "text-slate-400"}`} />
+                      <span>{item.name}</span>
+                    </Link>
+                  );
+                })}
+              </nav>
+            ) : null}
+          </div>
         </div>
 
-        {/* User Profile Bar at bottom of sidebar */}
+        {/* User Profile Bar at bottom */}
         <div className="p-3 border-t border-slate-100">
-          <div className="flex items-center justify-between gap-2 p-1.5 rounded-xl hover:bg-slate-50 transition">
-            <Link href="/profile" className="flex items-center gap-2.5 min-w-0 flex-1">
+          <div className="flex items-center justify-between p-2 rounded-2xl bg-slate-50/80 border border-slate-200/60">
+            <div className="flex items-center gap-2.5 min-w-0">
               {user.avatarUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={user.avatarUrl}
                   alt={user.fullName}
-                  className="w-8 h-8 rounded-full object-cover ring-2 ring-brand-500/20"
+                  className="w-8 h-8 rounded-full object-cover ring-2 ring-blue-500/20 shrink-0"
                 />
               ) : (
-                <div className="w-8 h-8 rounded-full bg-brand-50 text-brand-700 font-bold border border-brand-200/80 text-xs flex items-center justify-center shrink-0">
+                <div className="w-8 h-8 rounded-full bg-blue-600 text-white font-extrabold text-xs flex items-center justify-center shrink-0">
                   {userInitial}
                 </div>
               )}
               <div className="min-w-0">
-                <p className="truncate text-xs font-bold text-slate-800">
+                <p className="text-xs font-extrabold text-slate-900 truncate">
                   {user.fullName}
                 </p>
-                <p className="truncate text-[10px] text-slate-400 font-medium">
+                <p className="text-[10px] text-slate-400 font-medium truncate">
                   {user.email}
                 </p>
               </div>
-            </Link>
+            </div>
+
             <button
               onClick={() => void logoutUser()}
-              className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition"
+              className="p-1.5 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition shrink-0"
               title="Đăng xuất"
-              type="button"
             >
               <LogOut className="w-4 h-4" />
             </button>
@@ -479,25 +503,22 @@ export function AppShell({
         </div>
       </aside>
 
-      {/* Main Right Content Section */}
-      <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
-        {/* Top Header Bar */}
-        <header className="h-16 shrink-0 border-b border-slate-200/80 bg-white px-6 flex items-center justify-between gap-4">
-          <div className="flex min-w-0 flex-1 items-center gap-4">
-            {/* Search Bar (Chuẩn Ảnh 1 & 2) */}
-            <div className="relative hidden lg:flex items-center w-full max-w-sm">
+      {/* Main Right Area */}
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+        {/* Top Header */}
+        <header className="h-16 bg-white border-b border-slate-200/80 px-6 flex items-center justify-between shrink-0 z-10">
+          <div className="flex items-center gap-4 min-w-0">
+            {/* Search Input */}
+            <div className="relative hidden md:flex items-center">
               <Search className="absolute left-3.5 w-4 h-4 text-slate-400 pointer-events-none" />
               <input
                 type="text"
-                placeholder="Tìm dự án, công việc..."
-                className="w-full h-9 pl-9 pr-12 rounded-xl bg-slate-100/80 text-xs font-medium text-slate-800 placeholder:text-slate-400 outline-none focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition border border-transparent"
+                placeholder="Tìm dự án, công việc...  ⌘ K"
+                className="h-10 w-72 pl-9 pr-12 rounded-xl border border-slate-200 bg-slate-50/50 text-xs font-medium outline-none focus:bg-white focus:border-blue-500 transition"
               />
-              <span className="absolute right-3 rounded-md border border-slate-200 bg-white px-1.5 py-0.5 text-[10px] font-bold text-slate-400 shadow-2xs pointer-events-none">
-                ⌘ K
-              </span>
             </div>
 
-            {/* Breadcrumbs Navigation */}
+            {/* Breadcrumbs */}
             <div className="flex min-w-0 items-center gap-1.5 text-xs text-slate-500 font-medium">
               {breadcrumbs.map((crumb, index) => (
                 <span
@@ -506,13 +527,13 @@ export function AppShell({
                 >
                   {index > 0 ? <ChevronRight className="w-3.5 h-3.5 text-slate-300 shrink-0" /> : null}
                   {index === breadcrumbs.length - 1 ? (
-                    <span className="truncate font-bold text-slate-900">
+                    <span className="truncate font-extrabold text-slate-900">
                       {crumb.label}
                     </span>
                   ) : (
                     <Link
                       href={crumb.href}
-                      className="truncate hover:text-brand-600 transition"
+                      className="truncate hover:text-blue-600 transition"
                     >
                       {crumb.label}
                     </Link>
@@ -522,23 +543,106 @@ export function AppShell({
             </div>
           </div>
 
-          {/* Right Action Icons & User Dropdown */}
+          {/* Right Notification Icon & User Menu */}
           <div className="flex items-center gap-3">
-            <button className="relative w-9 h-9 rounded-xl flex items-center justify-center text-slate-500 hover:bg-slate-100 transition">
-              <Bell className="w-4 h-4" />
-              <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-brand-600 ring-2 ring-white" />
-            </button>
+            {/* Notification Bell Dropdown (Thông báo Thật & Bấm vào Nhảy Trang) */}
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowNotificationDropdown((prev) => !prev);
+                  setShowUserDropdown(false);
+                }}
+                className="relative w-9 h-9 rounded-xl flex items-center justify-center text-slate-500 hover:bg-slate-100 transition active:scale-95"
+                title="Thông báo hệ thống"
+              >
+                <Bell className="w-4 h-4" />
+                {unreadCount > 0 ? (
+                  <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-blue-600 text-[9px] font-black text-white ring-2 ring-white">
+                    {unreadCount}
+                  </span>
+                ) : null}
+              </button>
 
-            <button className="w-9 h-9 rounded-xl flex items-center justify-center text-slate-500 hover:bg-slate-100 transition">
-              <HelpCircle className="w-4 h-4" />
-            </button>
+              {/* Notification Popover Drawer */}
+              {showNotificationDropdown ? (
+                <div className="absolute right-0 mt-2 w-80 sm:w-96 rounded-3xl border border-slate-200/80 bg-white p-4 shadow-xl ring-1 ring-slate-900/5 z-50 space-y-3">
+                  <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                    <div className="flex items-center gap-2">
+                      <h4 className="text-sm font-extrabold text-slate-900">
+                        Thông báo hệ thống
+                      </h4>
+                      {unreadCount > 0 ? (
+                        <span className="rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-extrabold text-blue-600 border border-blue-100">
+                          {unreadCount} chưa đọc
+                        </span>
+                      ) : null}
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={handleMarkAllRead}
+                      className="text-[11px] font-bold text-blue-600 hover:underline"
+                    >
+                      Đã đọc tất cả
+                    </button>
+                  </div>
+
+                  <div className="space-y-2 max-h-80 overflow-y-auto pr-1 text-xs">
+                    {realNotifications.length === 0 ? (
+                      <div className="py-6 text-center text-slate-400 font-medium">
+                        Chưa có thông báo nào.
+                      </div>
+                    ) : (
+                      realNotifications.map((notif) => {
+                        const isRead = readIds.has(notif.id);
+
+                        return (
+                          <div
+                            key={notif.id}
+                            onClick={() => handleNotificationClick(notif)}
+                            className={`group rounded-2xl border p-3 space-y-1 transition cursor-pointer hover:border-blue-500 hover:bg-blue-50/20 ${
+                              isRead
+                                ? "border-slate-100 bg-white opacity-70"
+                                : "border-blue-100 bg-blue-50/40"
+                            }`}
+                          >
+                            <div className="flex items-center justify-between">
+                              <span className="font-extrabold text-slate-900 group-hover:text-blue-600 transition-colors flex items-center gap-1.5">
+                                <span
+                                  className={`h-2 w-2 rounded-full ${
+                                    isRead ? "bg-slate-300" : "bg-blue-600 animate-pulse"
+                                  }`}
+                                />
+                                {notif.title}
+                              </span>
+                              {notif.timestamp ? (
+                                <span className="text-[10px] text-slate-400 font-semibold">
+                                  {formatDate(notif.timestamp)}
+                                </span>
+                              ) : null}
+                            </div>
+                            <p className="text-slate-600 font-medium leading-relaxed">
+                              {notif.description}
+                            </p>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+                </div>
+              ) : null}
+            </div>
 
             <div className="h-6 w-[1px] bg-slate-200 mx-1" />
 
             <div className="relative">
               <button
                 className="flex items-center gap-2 p-1.5 rounded-xl hover:bg-slate-50 transition"
-                onClick={() => setShowUserDropdown((value) => !value)}
+                onClick={() => {
+                  setShowUserDropdown((value) => !value);
+                  setShowNotificationDropdown(false);
+                }}
                 type="button"
               >
                 {user.avatarUrl ? (
@@ -546,105 +650,91 @@ export function AppShell({
                   <img
                     src={user.avatarUrl}
                     alt={user.fullName}
-                    className="w-8 h-8 rounded-full object-cover ring-2 ring-brand-500/20"
+                    className="w-8 h-8 rounded-full object-cover ring-2 ring-blue-500/20"
                   />
                 ) : (
-                  <div className="w-8 h-8 rounded-full bg-brand-50 text-brand-700 font-bold border border-brand-200/80 text-xs flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-full bg-blue-600 text-white font-extrabold text-xs flex items-center justify-center">
                     {userInitial}
                   </div>
                 )}
-                <span className="hidden max-w-32 truncate text-xs font-bold text-slate-700 md:inline">
+                <span className="text-xs font-extrabold text-slate-900 hidden sm:inline-block">
                   {user.fullName}
                 </span>
                 <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
               </button>
 
-              {showUserDropdown ? (
-                <div className="absolute right-0 z-50 mt-2 w-56 rounded-2xl border border-slate-100 bg-white py-1.5 shadow-xl shadow-slate-900/10">
-                  <div className="border-b border-slate-100 px-4 py-2.5">
-                    <p className="truncate text-xs font-bold text-slate-900">
+              {/* User Menu Popover */}
+              {showUserDropdown && (
+                <div className="absolute right-0 mt-2 w-56 rounded-2xl border border-slate-200/80 bg-white p-2 shadow-xl ring-1 ring-slate-900/5 z-50 space-y-1">
+                  <div className="p-2 border-b border-slate-100">
+                    <p className="text-xs font-extrabold text-slate-900 truncate">
                       {user.fullName}
                     </p>
-                    <p className="truncate text-[11px] text-slate-400 font-medium">
+                    <p className="text-[10px] text-slate-400 font-medium truncate">
                       {user.email}
                     </p>
                   </div>
+
                   <Link
-                    href="/profile"
-                    onClick={() => setShowUserDropdown(false)}
-                    className="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition"
+                    href="/my-work"
+                    className="flex items-center gap-2 px-3 py-2 text-xs font-semibold text-slate-700 rounded-xl hover:bg-slate-50 transition"
                   >
                     <UserIcon className="w-4 h-4 text-slate-400" />
-                    Trang cá nhân
+                    Hồ sơ & Việc của tôi
                   </Link>
+
                   <button
                     onClick={() => void logoutUser()}
-                    className="flex w-full items-center gap-2.5 px-4 py-2 text-left text-xs font-semibold text-red-600 hover:bg-red-50 transition"
-                    type="button"
+                    className="w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-rose-600 rounded-xl hover:bg-rose-50 transition text-left"
                   >
-                    <LogOut className="w-4 h-4 text-red-500" />
+                    <LogOut className="w-4 h-4 text-rose-500" />
                     Đăng xuất
                   </button>
                 </div>
-              ) : null}
+              )}
             </div>
           </div>
         </header>
 
-        {/* Project Sub-navigation Tabs (If active project) */}
-        {projectId && activeWorkspaceId ? (
-          <section className="shrink-0 border-b border-slate-200/80 bg-white">
-            <div className="px-6 pt-4">
-              <div className="flex items-center gap-3">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-600 text-sm font-bold text-white shadow-sm shadow-brand-600/20">
-                  {title ? title.charAt(0).toUpperCase() : "P"}
-                </div>
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2">
-                    <h2 className="truncate text-lg font-extrabold text-slate-900">
-                      {title || "Dự án"}
-                    </h2>
-                    <span className="rounded-full bg-brand-50 px-2.5 py-0.5 text-[10px] font-extrabold uppercase text-brand-700 border border-brand-200">
-                      Active
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-2 flex gap-1 overflow-x-auto px-6">
+        {/* Project Specific Subnav Tabs */}
+        {projectTabs.length > 0 ? (
+          <div className="bg-white border-b border-slate-200/80 px-6 shrink-0 z-0">
+            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
               {projectTabs.map((tab) => (
                 <Link
                   key={tab.href}
                   href={tab.href}
-                  className={`whitespace-nowrap border-b-2 px-4 py-2.5 text-sm font-semibold tracking-tight transition ${
+                  className={`relative py-3.5 px-3 text-xs font-extrabold transition whitespace-nowrap ${
                     tab.active
-                      ? "border-brand-600 text-brand-700 font-bold bg-brand-50/50 rounded-t-xl"
-                      : "border-transparent text-slate-600 hover:border-slate-300 hover:text-slate-900"
+                      ? "text-blue-600 border-b-2 border-blue-600"
+                      : "text-slate-500 hover:text-slate-900"
                   }`}
                 >
-                  {tab.label}
-                  {tab.badge ? (
-                    <span className="ml-1.5 rounded-full bg-red-500 px-1.5 py-0.5 text-[10px] font-bold text-white">
-                      {tab.badge > 99 ? "99+" : tab.badge}
-                    </span>
-                  ) : null}
+                  <span className="flex items-center gap-1.5">
+                    {tab.label}
+                    {tab.badge ? (
+                      <span className="flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[9px] font-black text-white">
+                        {tab.badge}
+                      </span>
+                    ) : null}
+                  </span>
                 </Link>
               ))}
             </div>
-          </section>
+          </div>
         ) : null}
 
-        {/* Page Content Body */}
-        <main className="flex-1 overflow-y-auto bg-[#f8fafc] p-6">
-          {children}
-        </main>
+        {/* Scrollable Main Content */}
+        <main className="flex-1 overflow-y-auto p-6">{children}</main>
       </div>
 
-      <ProjectAssistantChatbot
-        workspaceId={activeWorkspaceId}
-        projectId={projectId}
-      />
+      {/* Floating AI Assistant Chatbot */}
+      {activeWorkspaceId && projectId ? (
+        <ProjectAssistantChatbot
+          workspaceId={activeWorkspaceId}
+          projectId={projectId}
+        />
+      ) : null}
     </div>
   );
 }

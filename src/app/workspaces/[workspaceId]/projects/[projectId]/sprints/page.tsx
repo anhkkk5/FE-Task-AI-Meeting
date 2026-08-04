@@ -27,6 +27,12 @@ import { TaskDetailDrawer } from "@/features/tasks/components/TaskDetailDrawer";
 import { TaskImportPanel } from "@/features/tasks/components/TaskImportPanel";
 import { Task, TaskStatus } from "@/features/tasks/types/task.type";
 import { useAuth } from "@/hooks/useAuth";
+import { SprintBurndownChart } from "@/features/analytics/components/SprintBurndownChart";
+import {
+  exportSprintReportToPDF,
+  exportTasksToExcel,
+} from "@/features/sprints/utils/export-sprint-report";
+import { Download, Printer, FileSpreadsheet } from "lucide-react";
 
 const writeRoles = ["OWNER", "SCRUM_MASTER", "PROJECT_MANAGER"];
 const backlogDropTarget = "backlog";
@@ -753,6 +759,36 @@ export default function BacklogPage() {
                     Tạo sprint
                   </Link>
                   <button
+                    className="inline-flex h-10 items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 text-xs font-bold text-slate-700 shadow-xs transition hover:bg-slate-50 active:scale-95"
+                    onClick={() =>
+                      exportTasksToExcel(
+                        tasks,
+                        `${project?.keyCode || "PRJ"}_Tasks_Report.csv`,
+                      )
+                    }
+                    type="button"
+                    title="Xuất file Excel (.csv UTF-8 chuẩn tiếng Việt)"
+                  >
+                    <FileSpreadsheet className="h-4 w-4 text-emerald-600" />
+                    Xuất Excel
+                  </button>
+                  <button
+                    className="inline-flex h-10 items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 text-xs font-bold text-slate-700 shadow-xs transition hover:bg-slate-50 active:scale-95"
+                    onClick={() =>
+                      exportSprintReportToPDF(
+                        sprints.find((s) => s.status === "ACTIVE") || sprints[0] || null,
+                        tasks,
+                        project?.name,
+                        "Workspace",
+                      )
+                    }
+                    type="button"
+                    title="In & Xuất báo cáo PDF chuẩn"
+                  >
+                    <Printer className="h-4 w-4 text-blue-600" />
+                    Báo cáo PDF
+                  </button>
+                  <button
                     className={`inline-flex h-10 items-center justify-center gap-1.5 rounded-xl border px-3.5 text-xs font-semibold shadow-sm transition-all active:scale-95 ${
                       showImportPanel
                         ? "border-[#4F8EB0] bg-[#e9f2ff] text-[#4F8EB0]"
@@ -827,6 +863,13 @@ export default function BacklogPage() {
               <p className="mt-2 text-2xl font-extrabold text-emerald-700">{taskSummary.done}</p>
             </div>
           </div>
+
+          {/* Biểu đồ Burndown Chart trực quan */}
+          <SprintBurndownChart
+            sprint={sprints.find((s) => s.status === "ACTIVE") || sprints[0] || null}
+            tasks={tasks}
+            projectName={project?.name}
+          />
 
           {/* Bottom Info Bar */}
           <div className="flex flex-col gap-2 rounded-2xl border border-slate-100 bg-slate-50/70 px-4 py-3 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between font-medium">

@@ -58,6 +58,54 @@ function isMeetingExpired(meeting: Meeting) {
   return Number.isFinite(endTime) && endTime < Date.now();
 }
 
+export function exportMeetingMinutesToPDF(meeting: Meeting) {
+  const printWindow = window.open("", "_blank");
+  if (!printWindow) {
+    alert("Vui lòng cho phép mở popup để in file PDF.");
+    return;
+  }
+
+  const html = `
+    <!DOCTYPE html>
+    <html lang="vi">
+    <head>
+      <meta charset="UTF-8">
+      <title>Biên bản cuộc họp - ${meeting.title}</title>
+      <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 40px; color: #0f172a; }
+        .header { border-bottom: 2px solid #2563eb; padding-bottom: 15px; margin-bottom: 20px; display: flex; justify-content: space-between; }
+        .brand { font-size: 20px; font-weight: 800; color: #2563eb; }
+        .title { font-size: 22px; font-weight: 800; color: #0f172a; margin-top: 10px; }
+        .meta { font-size: 13px; color: #64748b; margin-top: 5px; }
+        .box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px; margin-top: 20px; }
+        .box-title { font-size: 12px; font-weight: 800; color: #2563eb; text-transform: uppercase; margin-bottom: 8px; tracking-wider: 1px; }
+        .content { font-size: 13px; line-height: 1.6; color: #334155; }
+      </style>
+    </head>
+    <body>
+      <div class="header">
+        <div>
+          <div class="brand">✨ AgileFlow AI — Biên bản Cuộc họp</div>
+          <div class="title">${meeting.title}</div>
+          <div class="meta">Ngày họp: ${meeting.meetingDate} · Trạng thái: ${meeting.status} · Loại: ${typeLabels[meeting.meetingType] || "General"}</div>
+        </div>
+      </div>
+
+      <div class="box">
+        <div class="box-title">Tóm tắt Biên bản & Nội dung AI Ghi nhận</div>
+        <div class="content">
+          ${meeting.description || "Biên bản cuộc họp được ghi nhận và tổng hợp tự động bởi Trợ lý AI AgileFlow."}
+        </div>
+      </div>
+
+      <script>window.onload = function() { window.print(); };</script>
+    </body>
+    </html>
+  `;
+  printWindow.document.write(html);
+  printWindow.document.close();
+}
+
 export function MeetingDetail({
   meeting,
   workspaceId,
@@ -164,6 +212,14 @@ export function MeetingDetail({
           >
             Tóm tắt của tôi
           </Link>
+          <button
+            type="button"
+            onClick={() => exportMeetingMinutesToPDF(meeting)}
+            className="h-9 rounded border border-blue-200 bg-blue-50 px-3 text-sm font-bold text-blue-700 hover:bg-blue-100 transition shadow-2xs"
+            title="In & Xuất biên bản cuộc họp ra file PDF"
+          >
+            📄 Xuất Biên bản PDF
+          </button>
           {canChangeStatus ? (
             <>
               <button
