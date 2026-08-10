@@ -16,6 +16,7 @@ export class ApiError extends Error {
   constructor(
     message: string,
     public readonly status: number,
+    public readonly details?: unknown,
   ) {
     super(message);
     this.name = "ApiError";
@@ -48,6 +49,7 @@ export async function apiRequest<T>(path: string, options: ApiOptions = {}) {
     throw new ApiError(
       payload.message || "Yêu cầu không thành công.",
       response.status,
+      payload,
     );
   }
 
@@ -71,6 +73,7 @@ export async function apiBlob(path: string, options: ApiOptions = {}) {
     throw new ApiError(
       payload.message || "Yêu cầu không thành công.",
       response.status,
+      payload,
     );
   }
 

@@ -7,6 +7,7 @@ type PublicUser = {
   avatarUrl?: string | null;
   phoneNumber?: string | null;
   jobTitle?: string | null;
+  isSystemAdmin?: boolean;
 };
 
 type AuthResponse = {

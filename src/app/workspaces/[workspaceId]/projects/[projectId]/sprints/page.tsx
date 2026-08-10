@@ -132,6 +132,7 @@ export default function BacklogPage() {
   const [message, setMessage] = useState("");
   const [searchKeyword, setSearchKeyword] = useState("");
   const [selectedStatus, setSelectedStatus] = useState<"ALL" | TaskStatus>("ALL");
+  const [dependencyFilter, setDependencyFilter] = useState<"ALL" | "BLOCKED" | "BLOCKING">("ALL");
   const [selectedAssigneeId, setSelectedAssigneeId] = useState<string | null>(null);
   const [collapsedSprints, setCollapsedSprints] = useState<Record<string, boolean>>({});
   const [showImportPanel, setShowImportPanel] = useState(false);
@@ -247,9 +248,10 @@ export default function BacklogPage() {
     }
   };
 
-  const handleDrawerStatusChange = async (task: Task, status: TaskStatus) => {
+  const handleDrawerStatusChange = async (task: Task, status: TaskStatus, override?: { overrideBlocked: boolean; overrideReason: string }) => {
     const response = await updateTaskStatus(params.workspaceId, params.projectId, task.id, {
       status,
+      ...override,
     });
     syncTask(response.data.task);
   };
@@ -384,7 +386,8 @@ export default function BacklogPage() {
       task.title.toLowerCase().includes(keyword) || task.taskCode.toLowerCase().includes(keyword);
     const matchesAssignee = selectedAssigneeId ? task.assigneeId === selectedAssigneeId : true;
     const matchesStatus = selectedStatus === "ALL" ? true : task.status === selectedStatus;
-    return matchesKeyword && matchesAssignee && matchesStatus;
+    const matchesDependency = dependencyFilter === "ALL" ? true : dependencyFilter === "BLOCKED" ? task.isBlocked : task.isBlocking;
+    return matchesKeyword && matchesAssignee && matchesStatus && matchesDependency;
   });
 
   const getTasksBySprint = (sprintId: string | null) =>
@@ -431,6 +434,8 @@ export default function BacklogPage() {
         >
           {task.taskCode}
         </span>
+        {task.isBlocked ? <span className="shrink-0 rounded bg-rose-50 px-1.5 py-0.5 text-[10px] font-bold text-rose-700">Bị chặn</span> : null}
+        {task.isBlocking ? <span className="shrink-0 rounded bg-amber-50 px-1.5 py-0.5 text-[10px] font-bold text-amber-700">Đang chặn</span> : null}
         <button
           className={`truncate text-left font-medium text-[#172b4d] hover:text-[#4F8EB0] ${
             task.status === "DONE" ? "line-through text-[#6b778c]" : ""
@@ -651,11 +656,13 @@ export default function BacklogPage() {
   const hasActiveFilters =
     searchKeyword.trim().length > 0 ||
     selectedStatus !== "ALL" ||
+    dependencyFilter !== "ALL" ||
     selectedAssigneeId !== null;
 
   const clearFilters = () => {
     setSearchKeyword("");
     setSelectedStatus("ALL");
+    setDependencyFilter("ALL");
     setSelectedAssigneeId(null);
   };
 
@@ -665,7 +672,7 @@ export default function BacklogPage() {
         <section className="rounded-3xl border border-slate-200/90 bg-white p-5 sm:p-6 shadow-sm shadow-slate-100/70 space-y-5">
           {/* Top Filter and Action Row */}
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-            <div className="grid flex-1 gap-3 sm:grid-cols-2 md:grid-cols-[minmax(220px,1fr)_160px_200px_auto] md:items-end">
+            <div className="grid flex-1 gap-3 sm:grid-cols-2 md:grid-cols-[minmax(220px,1fr)_150px_180px_170px_auto] md:items-end">
               <label className="grid gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-600">
                 Tìm task
                 <div className="relative">
@@ -721,6 +728,15 @@ export default function BacklogPage() {
                       {member.fullName || member.email || member.userId}
                     </option>
                   ))}
+                </select>
+              </label>
+
+              <label className="grid gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-600">
+                Liên kết
+                <select className="h-10 rounded-xl border border-slate-200 bg-slate-50/70 px-3 text-sm font-medium text-slate-800 outline-none focus:border-[#4F8EB0]" onChange={(event) => setDependencyFilter(event.target.value as typeof dependencyFilter)} value={dependencyFilter}>
+                  <option value="ALL">Tất cả</option>
+                  <option value="BLOCKED">Đang bị chặn</option>
+                  <option value="BLOCKING">Đang chặn Task khác</option>
                 </select>
               </label>
 

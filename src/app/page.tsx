@@ -2,19 +2,16 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { getStoredAccessToken } from "@/features/auth/utils/token-storage";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function Home() {
   const router = useRouter();
+  const { user, isLoading } = useAuth();
 
   useEffect(() => {
-    const token = getStoredAccessToken();
-    if (token) {
-      router.replace("/dashboard");
-    } else {
-      router.replace("/login");
-    }
-  }, [router]);
+    if (isLoading) return;
+    router.replace(user ? (user.isSystemAdmin ? "/admin" : "/dashboard") : "/login");
+  }, [isLoading, router, user]);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-50">

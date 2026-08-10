@@ -4,6 +4,10 @@ import {
   CreateTaskPayload,
   MoveTaskSprintPayload,
   Task,
+  TaskActivity,
+  TaskComment,
+  TaskDependency,
+  TaskDependencyType,
   TaskImportItem,
   TaskImportPreviewRow,
   TaskImportPreviewSummary,
@@ -49,6 +53,7 @@ export function getTasks(
   if (query.keyword) params.set("keyword", query.keyword);
   if (query.page) params.set("page", String(query.page));
   if (query.limit) params.set("limit", String(query.limit));
+  if (query.dependencyState) params.set("dependencyState", query.dependencyState);
 
   const search = params.toString();
 
@@ -126,6 +131,71 @@ export function getTaskDetail(
   return apiRequest<ApiResponse<{ task: Task }>>(
     `${taskBasePath(workspaceId, projectId)}/${taskId}`,
   );
+}
+
+export function getTaskActivities(
+  workspaceId: string,
+  projectId: string,
+  taskId: string,
+) {
+  return apiRequest<ApiResponse<{ items: TaskActivity[] }>>(
+    `${taskBasePath(workspaceId, projectId)}/${taskId}/activities`,
+  );
+}
+
+export function getTaskComments(workspaceId: string, projectId: string, taskId: string) {
+  return apiRequest<ApiResponse<{ items: TaskComment[] }>>(
+    `${taskBasePath(workspaceId, projectId)}/${taskId}/comments`,
+  );
+}
+
+export function createTaskComment(
+  workspaceId: string,
+  projectId: string,
+  taskId: string,
+  content: string,
+) {
+  return apiRequest<ApiResponse<{ comment: TaskComment }>>(
+    `${taskBasePath(workspaceId, projectId)}/${taskId}/comments`,
+    { method: "POST", body: { content } },
+  );
+}
+
+export function updateTaskComment(
+  workspaceId: string,
+  projectId: string,
+  taskId: string,
+  commentId: string,
+  content: string,
+) {
+  return apiRequest<ApiResponse<{ comment: TaskComment }>>(
+    `${taskBasePath(workspaceId, projectId)}/${taskId}/comments/${commentId}`,
+    { method: "PATCH", body: { content } },
+  );
+}
+
+export function deleteTaskComment(
+  workspaceId: string,
+  projectId: string,
+  taskId: string,
+  commentId: string,
+) {
+  return apiRequest<ApiResponse<null>>(
+    `${taskBasePath(workspaceId, projectId)}/${taskId}/comments/${commentId}`,
+    { method: "DELETE" },
+  );
+}
+
+export function getTaskDependencies(workspaceId: string, projectId: string, taskId: string) {
+  return apiRequest<ApiResponse<{ items: TaskDependency[] }>>(`${taskBasePath(workspaceId, projectId)}/${taskId}/dependencies`);
+}
+
+export function createTaskDependency(workspaceId: string, projectId: string, taskId: string, targetTaskId: string, type: TaskDependencyType) {
+  return apiRequest<ApiResponse<{ dependency: TaskDependency }>>(`${taskBasePath(workspaceId, projectId)}/${taskId}/dependencies`, { method: "POST", body: { targetTaskId, type } });
+}
+
+export function deleteTaskDependency(workspaceId: string, projectId: string, taskId: string, dependencyId: string) {
+  return apiRequest<ApiResponse<null>>(`${taskBasePath(workspaceId, projectId)}/${taskId}/dependencies/${dependencyId}`, { method: "DELETE" });
 }
 
 export function updateTask(

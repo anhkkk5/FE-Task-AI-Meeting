@@ -81,6 +81,8 @@ export function MyWorkTaskList({ tasks, isLoading }: MyWorkTaskListProps) {
                       Quá hạn
                     </span>
                   ) : null}
+                  {task.isBlocked ? <span className="rounded-full border border-rose-200 bg-rose-50 px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-rose-700">Đang bị chặn</span> : null}
+                  {task.isBlocking ? <span className="rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-amber-700">Đang chặn</span> : null}
                 </div>
                 <p className="mt-1.5 truncate text-sm font-bold text-slate-900">
                   {task.title}

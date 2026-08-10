@@ -37,6 +37,38 @@ export type Task = {
   storyPoints: number | null;
   createdAt: string;
   updatedAt?: string;
+  isBlocked?: boolean;
+  isBlocking?: boolean;
+};
+
+export type TaskActivityAction =
+  | "CREATED"
+  | "UPDATED"
+  | "STATUS_CHANGED"
+  | "ASSIGNED"
+  | "SPRINT_MOVED"
+  | "CANCELLED"
+  | "DELETED"
+  | "COMMENTED"
+  | "COMMENT_UPDATED"
+  | "COMMENT_DELETED";
+
+export type TaskActivity = {
+  id: string;
+  action: TaskActivityAction;
+  changes: Record<string, { from: unknown; to: unknown }> | null;
+  actor: TaskUserSummary;
+  createdAt: string;
+};
+
+export type TaskComment = {
+  id: string;
+  taskId: string;
+  content: string;
+  mentionedUserIds: string[];
+  author: TaskUserSummary;
+  createdAt: string;
+  updatedAt: string;
 };
 
 export type TaskQuery = {
@@ -46,6 +78,7 @@ export type TaskQuery = {
   keyword?: string;
   page?: number;
   limit?: number;
+  dependencyState?: "BLOCKED" | "BLOCKING";
 };
 
 export type CreateTaskPayload = {
@@ -68,6 +101,20 @@ export type UpdateTaskPayload = {
 
 export type UpdateTaskStatusPayload = {
   status: TaskStatus;
+  overrideBlocked?: boolean;
+  overrideReason?: string;
+};
+
+export type TaskDependencyType = "BLOCKS" | "DEPENDS_ON" | "RELATES_TO" | "DUPLICATES";
+export type TaskDependencyTask = Pick<Task, "id" | "taskCode" | "title" | "status" | "assigneeId">;
+export type TaskDependency = {
+  id: string;
+  sourceTaskId: string;
+  targetTaskId: string;
+  type: TaskDependencyType;
+  sourceTask: TaskDependencyTask;
+  targetTask: TaskDependencyTask;
+  createdAt: string;
 };
 
 export type AssignTaskPayload = {

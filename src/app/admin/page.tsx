@@ -45,16 +45,16 @@ export default function AdminDashboardPage() {
       <div className="space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-2xl font-extrabold tracking-tight text-white sm:text-3xl">
+          <h1 className="text-2xl font-extrabold tracking-tight text-[#173247] sm:text-3xl">
             Tổng quan hệ thống
           </h1>
-          <p className="mt-1 text-sm font-medium text-slate-400">
+          <p className="mt-1 text-sm font-medium text-slate-500">
             Thống kê toàn bộ nền tảng AgileFlow AI theo thời gian thực
           </p>
         </div>
 
         {error ? (
-          <div className="rounded-2xl border border-red-800/60 bg-red-900/20 px-5 py-4 text-sm font-semibold text-red-300">
+          <div className="rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-sm font-semibold text-red-700">
             {error}
           </div>
         ) : null}
@@ -69,7 +69,7 @@ export default function AdminDashboardPage() {
               icon={<Users className="h-5 w-5 text-blue-400" />}
               label="Tổng users"
               value={isLoading ? "..." : (stats?.users.total ?? 0)}
-              bg="bg-blue-600/10 border-blue-800/40"
+              bg="border-brand-200"
             />
             <StatCard
               icon={<CheckCircle2 className="h-5 w-5 text-emerald-400" />}
@@ -142,13 +142,13 @@ export default function AdminDashboardPage() {
               icon={<Users className="h-5 w-5 text-blue-400" />}
               label="Quản trị viên hệ thống"
               value={isLoading ? "..." : (stats?.users.admins ?? 0)}
-              bg="bg-blue-600/10 border-blue-800/40"
+              bg="border-brand-200"
             />
             <StatCard
               icon={<Building2 className="h-5 w-5 text-slate-400" />}
               label="Workspaces đã lưu trữ"
               value={isLoading ? "..." : (stats?.workspaces.archived ?? 0)}
-              bg="bg-slate-600/10 border-slate-700/40"
+              bg="border-slate-200"
             />
           </div>
         </div>
@@ -171,12 +171,12 @@ function StatCard({
   sub?: string;
 }) {
   return (
-    <div className={`rounded-2xl border p-5 space-y-3 ${bg}`}>
+    <div className={`space-y-3 rounded-2xl border bg-white p-5 shadow-sm ${bg}`}>
       <div className="flex items-center gap-2">
         {icon}
-        <span className="text-xs font-bold text-slate-400">{label}</span>
+        <span className="text-xs font-bold text-slate-500">{label}</span>
       </div>
-      <p className="text-3xl font-black text-white">{value}</p>
+      <p className="text-3xl font-black text-[#173247]">{value}</p>
       {sub ? <p className="text-xs font-medium text-slate-500">{sub}</p> : null}
     </div>
   );

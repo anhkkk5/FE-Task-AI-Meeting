@@ -43,6 +43,7 @@ export default function KanbanBoardPage() {
   const [message, setMessage] = useState("");
   const [searchKeyword, setSearchKeyword] = useState("");
   const [selectedAssigneeId, setSelectedAssigneeId] = useState<string | null>(null);
+  const [dependencyFilter, setDependencyFilter] = useState<"ALL" | "BLOCKED" | "BLOCKING">("ALL");
   const [activeDragTaskId, setActiveDragTaskId] = useState<string | null>(null);
   const [dragOverColumn, setDragOverColumn] = useState<TaskStatus | null>(null);
 
@@ -133,7 +134,8 @@ export default function KanbanBoardPage() {
     const matchesKeyword =
       task.title.toLowerCase().includes(keyword) || task.taskCode.toLowerCase().includes(keyword);
     const matchesAssignee = selectedAssigneeId ? task.assigneeId === selectedAssigneeId : true;
-    return matchesKeyword && matchesAssignee;
+    const matchesDependency = dependencyFilter === "ALL" ? true : dependencyFilter === "BLOCKED" ? task.isBlocked : task.isBlocking;
+    return matchesKeyword && matchesAssignee && matchesDependency;
   });
 
   const getTasksByStatus = (status: TaskStatus) => filteredTasks.filter((task) => task.status === status);
@@ -197,6 +199,11 @@ export default function KanbanBoardPage() {
                 );
               })}
             </div>
+            <select className="h-9 rounded border border-[#dfe1e6] bg-white px-3 text-sm text-[#44546f]" onChange={(event) => setDependencyFilter(event.target.value as typeof dependencyFilter)} value={dependencyFilter}>
+              <option value="ALL">Tất cả liên kết</option>
+              <option value="BLOCKED">Đang bị chặn</option>
+              <option value="BLOCKING">Đang chặn Task khác</option>
+            </select>
           </div>
 
           <div className="flex items-center gap-2">
@@ -275,6 +282,8 @@ export default function KanbanBoardPage() {
                         </Link>
 
                         <div className="mt-2 flex flex-wrap gap-1">
+                          {task.isBlocked ? <span className="rounded bg-rose-50 px-1.5 py-0.5 text-[10px] font-bold text-rose-700">Bị chặn</span> : null}
+                          {task.isBlocking ? <span className="rounded bg-amber-50 px-1.5 py-0.5 text-[10px] font-bold text-amber-700">Đang chặn</span> : null}
                           {task.sprint ? (
                             <span className="rounded border border-[#dfe1e6] px-1.5 py-0.5 text-xs text-[#44546f]">
                               {task.sprint.name}

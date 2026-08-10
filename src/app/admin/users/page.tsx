@@ -84,17 +84,17 @@ export default function AdminUsersPage() {
         {/* Header */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-2xl font-extrabold tracking-tight text-white">
+            <h1 className="text-2xl font-extrabold tracking-tight text-[#173247]">
               Quản lý Users
             </h1>
-            <p className="mt-1 text-sm text-slate-400">
-              Tổng cộng <strong className="text-white">{total}</strong> người dùng trong hệ thống
+            <p className="mt-1 text-sm text-slate-500">
+              Tổng cộng <strong className="text-[#173247]">{total}</strong> người dùng trong hệ thống
             </p>
           </div>
           <button
             onClick={() => void loadUsers()}
             disabled={isLoading}
-            className="inline-flex h-9 items-center gap-2 rounded-xl border border-slate-700 bg-slate-800 px-4 text-xs font-bold text-slate-300 hover:bg-slate-700 transition disabled:opacity-50"
+            className="inline-flex h-9 items-center gap-2 rounded-xl border border-brand-200 bg-white px-4 text-xs font-bold text-brand-800 transition hover:bg-brand-50 disabled:opacity-50"
           >
             <RefreshCw className={`h-3.5 w-3.5 ${isLoading ? "animate-spin" : ""}`} />
             Làm mới
@@ -102,7 +102,7 @@ export default function AdminUsersPage() {
         </div>
 
         {error ? (
-          <div className="rounded-2xl border border-red-800/60 bg-red-900/20 px-5 py-4 text-sm font-semibold text-red-300">
+          <div className="rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-sm font-semibold text-red-700">
             {error}
           </div>
         ) : null}
@@ -116,14 +116,14 @@ export default function AdminUsersPage() {
               value={search}
               onChange={(e) => { setSearch(e.target.value); setPage(1); }}
               placeholder="Tìm theo tên hoặc email..."
-              className="h-10 w-full pl-9 pr-4 rounded-xl border border-slate-700 bg-slate-800 text-xs font-medium text-slate-200 placeholder-slate-500 outline-none focus:border-blue-500 focus:bg-slate-900 transition"
+              className="h-10 w-full rounded-xl border border-slate-200 bg-white pl-9 pr-4 text-xs font-medium text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
             />
           </div>
 
           <select
             value={statusFilter}
             onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-            className="h-10 rounded-xl border border-slate-700 bg-slate-800 px-3 text-xs font-bold text-slate-300 outline-none focus:border-blue-500 transition cursor-pointer"
+            className="h-10 cursor-pointer rounded-xl border border-slate-200 bg-white px-3 text-xs font-bold text-slate-700 outline-none transition focus:border-brand-400"
           >
             <option value="">Tất cả users</option>
             <option value="active">Đang hoạt động</option>
@@ -133,10 +133,10 @@ export default function AdminUsersPage() {
         </div>
 
         {/* Users Table */}
-        <div className="rounded-2xl border border-slate-800 overflow-hidden">
+        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
           <table className="w-full text-xs">
             <thead>
-              <tr className="border-b border-slate-800 bg-slate-900">
+              <tr className="border-b border-slate-200 bg-slate-50">
                 <th className="px-5 py-3.5 text-left font-extrabold text-slate-500 uppercase tracking-wider">
                   Người dùng
                 </th>
@@ -154,7 +154,7 @@ export default function AdminUsersPage() {
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/60">
+            <tbody className="divide-y divide-slate-100">
               {isLoading ? (
                 <tr>
                   <td colSpan={5} className="px-5 py-10 text-center text-slate-500 font-medium">
@@ -171,21 +171,21 @@ export default function AdminUsersPage() {
                 </tr>
               ) : (
                 items.map((u) => (
-                  <tr key={u.id} className="bg-slate-950/50 hover:bg-slate-900/60 transition">
+                  <tr key={u.id} className="bg-white transition hover:bg-brand-50/50">
                     <td className="px-5 py-3.5">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-blue-600 text-white font-black text-xs flex items-center justify-center shrink-0">
+                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-600 text-xs font-black text-white">
                           {(u.fullName || u.email).charAt(0).toUpperCase()}
                         </div>
                         <div>
-                          <p className="font-extrabold text-slate-100">{u.fullName || "(Chưa đặt tên)"}</p>
+                          <p className="font-extrabold text-[#173247]">{u.fullName || "(Chưa đặt tên)"}</p>
                           <p className="text-slate-500">{u.email}</p>
                         </div>
                       </div>
                     </td>
                     <td className="px-4 py-3.5 hidden md:table-cell">
                       {u.isSystemAdmin ? (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-blue-600/20 border border-blue-700/40 px-2.5 py-0.5 text-[10px] font-extrabold text-blue-300">
+                        <span className="inline-flex items-center gap-1 rounded-full border border-brand-200 bg-brand-50 px-2.5 py-0.5 text-[10px] font-extrabold text-brand-800">
                           <Shield className="h-3 w-3" />
                           SYSTEM ADMIN
                         </span>
@@ -240,7 +240,7 @@ export default function AdminUsersPage() {
                             className={`inline-flex items-center gap-1.5 h-8 px-3 rounded-xl text-[11px] font-bold transition border disabled:opacity-50 ${
                               u.isSystemAdmin
                                 ? "border-amber-800/50 bg-amber-900/20 text-amber-400 hover:bg-amber-900/40"
-                                : "border-blue-800/50 bg-blue-900/20 text-blue-400 hover:bg-blue-900/40"
+                                : "border-brand-200 bg-brand-50 text-brand-800 hover:bg-brand-100"
                             }`}
                           >
                             {u.isSystemAdmin ? (
@@ -272,14 +272,14 @@ export default function AdminUsersPage() {
               <button
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page <= 1}
-                className="inline-flex h-8 w-8 items-center justify-center rounded-xl border border-slate-700 bg-slate-800 text-slate-400 hover:text-white disabled:opacity-40 transition"
+                className="inline-flex h-8 w-8 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 transition hover:border-brand-300 hover:text-brand-800 disabled:opacity-40"
               >
                 <ChevronLeft className="h-4 w-4" />
               </button>
               <button
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 disabled={page >= totalPages}
-                className="inline-flex h-8 w-8 items-center justify-center rounded-xl border border-slate-700 bg-slate-800 text-slate-400 hover:text-white disabled:opacity-40 transition"
+                className="inline-flex h-8 w-8 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 transition hover:border-brand-300 hover:text-brand-800 disabled:opacity-40"
               >
                 <ChevronRight className="h-4 w-4" />
               </button>

@@ -22,6 +22,7 @@ export default function MyWorkPage() {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("OPEN");
   const [projectFilter, setProjectFilter] = useState("");
   const [keyword, setKeyword] = useState("");
+  const [dependencyFilter, setDependencyFilter] = useState<"ALL" | "BLOCKED" | "BLOCKING">("ALL");
 
   const loadMyWork = useCallback(async () => {
     if (!user) return;
@@ -66,6 +67,7 @@ export default function MyWorkPage() {
         if (statusFilter === "ALL") return true;
         return task.status === statusFilter;
       })
+      .filter((task) => dependencyFilter === "ALL" ? true : dependencyFilter === "BLOCKED" ? task.isBlocked : task.isBlocking)
       .filter((task) =>
         projectFilter ? task.projectId === projectFilter : true,
       )
@@ -83,7 +85,7 @@ export default function MyWorkPage() {
         if (!right.dueDate) return -1;
         return left.dueDate.localeCompare(right.dueDate);
       });
-  }, [tasks, statusFilter, projectFilter, keyword]);
+  }, [tasks, statusFilter, projectFilter, keyword, dependencyFilter]);
 
   if (authLoading) {
     return (
@@ -147,6 +149,8 @@ export default function MyWorkPage() {
             status={statusFilter}
             onStatusChange={setStatusFilter}
             projects={data?.projects ?? []}
+            dependency={dependencyFilter}
+            onDependencyChange={setDependencyFilter}
           />
           <MyWorkTaskList tasks={visibleTasks} isLoading={isLoading && !data} />
         </section>

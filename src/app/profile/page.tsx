@@ -16,6 +16,11 @@ import type {
   AiUserPreferences,
 } from "@/features/users/types/user-profile.type";
 import { useAuth } from "@/hooks/useAuth";
+import {
+  getNotificationPreferences,
+  updateNotificationPreferences,
+  type NotificationType,
+} from "@/features/notifications/api/notifications.api";
 
 type Notice = {
   type: "" | "success" | "error";
@@ -87,6 +92,21 @@ const focusAreaOptions: Array<{ value: AiFocusArea; label: string }> = [
   { value: "ACTION_ITEMS", label: "Việc cần làm" },
 ];
 
+const notificationOptions: Array<{ value: NotificationType; label: string }> = [
+  { value: "TASK_ASSIGNED", label: "Được giao công việc" },
+  { value: "TASK_MENTIONED", label: "Được nhắc đến trong bình luận" },
+  { value: "TASK_DUE_SOON", label: "Công việc sắp đến hạn" },
+  { value: "TASK_OVERDUE", label: "Công việc quá hạn" },
+  { value: "TASK_BLOCKER_RESOLVED", label: "Công việc được gỡ chặn" },
+  { value: "HANDOVER_SUBMITTED", label: "Nhận bàn giao ca" },
+  { value: "HANDOVER_ACCEPTED", label: "Bàn giao được chấp nhận" },
+  { value: "HANDOVER_REJECTED", label: "Bàn giao bị từ chối" },
+  { value: "HANDOVER_CHANGES_REQUESTED", label: "Bàn giao cần chỉnh sửa" },
+  { value: "MEETING_INVITED", label: "Được mời vào cuộc họp" },
+  { value: "MEETING_UPDATED", label: "Cuộc họp thay đổi" },
+  { value: "MEETING_CANCELLED", label: "Cuộc họp bị hủy" },
+];
+
 export default function ProfilePage() {
   const { user, isLoading: authLoading, logoutUser, refreshUser } = useAuth(true);
 
@@ -111,6 +131,10 @@ export default function ProfilePage() {
   });
   const [isLoadingAiPreferences, setIsLoadingAiPreferences] = useState(true);
   const [isSavingAiPreferences, setIsSavingAiPreferences] = useState(false);
+  const [disabledNotificationTypes, setDisabledNotificationTypes] = useState<NotificationType[]>([]);
+  const [notificationMessage, setNotificationMessage] = useState<Notice>({ type: "", text: "" });
+  const [isLoadingNotifications, setIsLoadingNotifications] = useState(true);
+  const [isSavingNotifications, setIsSavingNotifications] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -119,6 +143,22 @@ export default function ProfilePage() {
       setPhoneNumber(user.phoneNumber || "");
       setJobTitle(user.jobTitle || "");
     }
+  }, [user]);
+
+  useEffect(() => {
+    if (!user) return;
+    let active = true;
+    void getNotificationPreferences()
+      .then((response) => {
+        if (active) setDisabledNotificationTypes(response.data.disabledTypes);
+      })
+      .catch((error) => {
+        if (active) setNotificationMessage({ type: "error", text: error instanceof Error ? error.message : "Không thể tải tùy chọn thông báo." });
+      })
+      .finally(() => {
+        if (active) setIsLoadingNotifications(false);
+      });
+    return () => { active = false; };
   }, [user]);
 
   useEffect(() => {
@@ -291,6 +331,26 @@ export default function ProfilePage() {
       });
     } finally {
       setIsSavingAiPreferences(false);
+    }
+  };
+
+  const toggleNotification = (type: NotificationType) => {
+    setDisabledNotificationTypes((current) =>
+      current.includes(type) ? current.filter((item) => item !== type) : [...current, type],
+    );
+  };
+
+  const handleSaveNotificationPreferences = async () => {
+    setNotificationMessage({ type: "", text: "" });
+    setIsSavingNotifications(true);
+    try {
+      const response = await updateNotificationPreferences({ disabledTypes: disabledNotificationTypes });
+      setDisabledNotificationTypes(response.data.disabledTypes);
+      setNotificationMessage({ type: "success", text: "Đã lưu tùy chọn thông báo." });
+    } catch (error) {
+      setNotificationMessage({ type: "error", text: error instanceof Error ? error.message : "Không thể lưu tùy chọn thông báo." });
+    } finally {
+      setIsSavingNotifications(false);
     }
   };
 
@@ -550,6 +610,40 @@ export default function ProfilePage() {
                 type="button"
               >
                 {isSavingAiPreferences ? "Đang lưu..." : "Lưu tùy chọn"}
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <section className="rounded border border-[#dfe1e6] bg-white">
+          <div className="border-b border-[#dfe1e6] px-5 py-4">
+            <h2 className="text-lg font-semibold text-[#172b4d]">Thông báo</h2>
+            <p className="mt-1 text-sm text-[#6b778c]">Chọn các sự kiện bạn muốn nhận trong hộp thư của ứng dụng.</p>
+          </div>
+          <div className="space-y-4 px-5 py-5">
+            <NoticeBox notice={notificationMessage} />
+            <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+              {notificationOptions.map((option) => (
+                <label className="flex cursor-pointer items-center gap-3 rounded border border-[#dfe1e6] p-3 text-sm text-[#44546f] hover:bg-[#f7f8f9]" key={option.value}>
+                  <input
+                    checked={!disabledNotificationTypes.includes(option.value)}
+                    className="h-4 w-4 accent-[#0c66e4]"
+                    disabled={isLoadingNotifications || isSavingNotifications}
+                    onChange={() => toggleNotification(option.value)}
+                    type="checkbox"
+                  />
+                  {option.label}
+                </label>
+              ))}
+            </div>
+            <div className="flex justify-end border-t border-[#dfe1e6] pt-4">
+              <button
+                className="h-9 rounded bg-[#0c66e4] px-4 text-sm font-semibold text-white hover:bg-[#0055cc] disabled:opacity-60"
+                disabled={isLoadingNotifications || isSavingNotifications}
+                onClick={() => void handleSaveNotificationPreferences()}
+                type="button"
+              >
+                {isSavingNotifications ? "Đang lưu..." : "Lưu tùy chọn thông báo"}
               </button>
             </div>
           </div>

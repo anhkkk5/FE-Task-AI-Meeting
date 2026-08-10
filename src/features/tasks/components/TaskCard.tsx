@@ -41,6 +41,10 @@ export function TaskCard({ task, workspaceId, projectId }: TaskCardProps) {
             {task.status}
           </span>
         </div>
+        <div className="flex flex-wrap gap-1.5">
+          {task.isBlocked ? <span className="rounded-full border border-rose-200 bg-rose-50 px-2 py-0.5 text-[10px] font-bold uppercase text-rose-700">Đang bị chặn</span> : null}
+          {task.isBlocking ? <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[10px] font-bold uppercase text-amber-700">Đang chặn Task khác</span> : null}
+        </div>
 
         {task.description ? (
           <p className="line-clamp-2 text-xs leading-relaxed text-zinc-600">

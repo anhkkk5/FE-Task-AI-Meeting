@@ -15,6 +15,8 @@ type MyWorkFiltersProps = {
   status: StatusFilter;
   onStatusChange: (value: StatusFilter) => void;
   projects: MyWorkProjectOption[];
+  dependency: "ALL" | "BLOCKED" | "BLOCKING";
+  onDependencyChange: (value: "ALL" | "BLOCKED" | "BLOCKING") => void;
 };
 
 /**
@@ -30,6 +32,8 @@ export function MyWorkFilters({
   status,
   onStatusChange,
   projects,
+  dependency,
+  onDependencyChange,
 }: MyWorkFiltersProps) {
   return (
     <div className="flex flex-col gap-3 border-b border-slate-100 p-4 lg:flex-row lg:items-center">
@@ -58,6 +62,11 @@ export function MyWorkFilters({
             {project.workspaceName} / {project.projectName}
           </option>
         ))}
+      </select>
+      <select aria-label="Lọc theo phụ thuộc" className="h-10 cursor-pointer rounded-xl border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 outline-none focus:border-blue-500" onChange={(event) => onDependencyChange(event.target.value as typeof dependency)} value={dependency}>
+        <option value="ALL">Tất cả liên kết</option>
+        <option value="BLOCKED">Đang bị chặn</option>
+        <option value="BLOCKING">Đang chặn Task khác</option>
       </select>
 
       <select

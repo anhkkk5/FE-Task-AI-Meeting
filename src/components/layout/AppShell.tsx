@@ -21,14 +21,13 @@ import {
   User as UserIcon,
   Users,
 } from "lucide-react";
-import { getMeetings } from "@/features/meetings/api/meetings.api";
-import { getMyWork } from "@/features/my-work/api/my-work.api";
 import { ProjectAssistantChatbot } from "@/features/project-assistant/components/ProjectAssistantChatbot";
 import { getHandovers } from "@/features/shift-handovers/api/shift-handovers.api";
 import { getMyWorkspaces } from "@/features/workspaces/api/workspaces.api";
 import { Workspace } from "@/features/workspaces/types/workspace.type";
 import { useAuth } from "@/hooks/useAuth";
 import { formatDate } from "@/lib/utils/relative-time";
+import { getNotifications, markAllNotificationsRead, markNotificationRead } from "@/features/notifications/api/notifications.api";
 
 type AppShellProps = {
   children: ReactNode;
@@ -66,6 +65,13 @@ export function AppShell({
   const [realNotifications, setRealNotifications] = useState<RealNotification[]>([]);
   const [readIds, setReadIds] = useState<Set<string>>(new Set());
   const [pendingHandovers, setPendingHandovers] = useState(0);
+  const [backendUnreadCount, setBackendUnreadCount] = useState(0);
+
+  useEffect(() => {
+    if (!isLoading && user?.isSystemAdmin) {
+      router.replace("/admin");
+    }
+  }, [isLoading, router, user]);
 
   const loadWorkspaces = useCallback(async () => {
     try {
@@ -77,7 +83,7 @@ export function AppShell({
   }, []);
 
   useEffect(() => {
-    if (user) {
+    if (user && !user.isSystemAdmin) {
       void loadWorkspaces();
     }
   }, [user, loadWorkspaces]);
@@ -103,18 +109,23 @@ export function AppShell({
     const notifs: RealNotification[] = [];
 
     try {
-      // 1. Fetch user's assigned tasks
-      const myWork = await getMyWork(user.id);
-      myWork.tasks.slice(0, 4).forEach((t) => {
+      const persisted = await getNotifications();
+      persisted.data.items.forEach((item) => {
         notifs.push({
-          id: `task-${t.id}`,
-          title: "Phân công công việc",
-          description: `[${t.projectKeyCode || "PRJ"}] ${t.title} (${t.projectName || "Dự án"})`,
-          link: `/workspaces/${t.workspaceId}/projects/${t.projectId}/tasks`,
-          timestamp: t.createdAt,
-          type: "task",
+          id: item.id,
+          title: item.title,
+          description: item.body,
+          link: item.link,
+          timestamp: item.createdAt,
+          type: item.type.startsWith("HANDOVER_")
+            ? "handover"
+            : item.type.startsWith("MEETING_")
+              ? "meeting"
+              : "task",
         });
       });
+      setReadIds(new Set(persisted.data.items.filter((item) => item.readAt).map((item) => item.id)));
+      setBackendUnreadCount(persisted.data.unreadCount);
 
       // 2. Fetch pending handovers if inside project
       if (activeWorkspaceId && projectId) {
@@ -129,32 +140,6 @@ export function AppShell({
         );
         setPendingHandovers(received.length);
 
-        received.forEach((h) => {
-          notifs.push({
-            id: `handover-${h.id}`,
-            title: "Yêu cầu bàn giao ca mới",
-            description: `Bạn có yêu cầu bàn giao ca cần xác nhận từ đồng nghiệp`,
-            link: `/workspaces/${activeWorkspaceId}/projects/${projectId}/shift-handovers`,
-            timestamp: h.createdAt,
-            type: "handover",
-          });
-        });
-
-        // 3. Fetch upcoming meetings
-        const meetingsRes = await getMeetings(activeWorkspaceId, projectId, {
-          limit: 3,
-        });
-
-        meetingsRes.data.items.forEach((m) => {
-          notifs.push({
-            id: `meeting-${m.id}`,
-            title: "Cuộc họp sắp diễn ra",
-            description: `${m.title} - Ngày: ${m.meetingDate}`,
-            link: `/workspaces/${activeWorkspaceId}/projects/${projectId}/meetings/${m.id}`,
-            timestamp: m.startTime,
-            type: "meeting",
-          });
-        });
       }
     } catch {
       // ignore
@@ -169,12 +154,14 @@ export function AppShell({
     }
   }, [user, loadNotifications]);
 
-  const unreadCount = useMemo(() => {
-    return realNotifications.filter((n) => !readIds.has(n.id)).length;
-  }, [realNotifications, readIds]);
+  const unreadCount = backendUnreadCount;
 
   const handleNotificationClick = (item: RealNotification) => {
     setReadIds((prev) => new Set(prev).add(item.id));
+    if (!readIds.has(item.id)) setBackendUnreadCount((count) => Math.max(0, count - 1));
+    if (!item.id.startsWith("handover-") && !item.id.startsWith("meeting-")) {
+      void markNotificationRead(item.id);
+    }
     setShowNotificationDropdown(false);
     router.push(item.link);
   };
@@ -182,6 +169,8 @@ export function AppShell({
   const handleMarkAllRead = () => {
     const allIds = new Set(realNotifications.map((n) => n.id));
     setReadIds(allIds);
+    setBackendUnreadCount(0);
+    void markAllNotificationsRead();
   };
 
   if (isLoading && !user) {

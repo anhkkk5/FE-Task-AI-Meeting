@@ -69,17 +69,17 @@ export default function AdminWorkspacesPage() {
         {/* Header */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-2xl font-extrabold tracking-tight text-white">
+            <h1 className="text-2xl font-extrabold tracking-tight text-[#173247]">
               Quản lý Workspaces
             </h1>
-            <p className="mt-1 text-sm text-slate-400">
-              Tổng cộng <strong className="text-white">{total}</strong> không gian làm việc trong hệ thống
+            <p className="mt-1 text-sm text-slate-500">
+              Tổng cộng <strong className="text-[#173247]">{total}</strong> không gian làm việc trong hệ thống
             </p>
           </div>
           <button
             onClick={() => void loadWorkspaces()}
             disabled={isLoading}
-            className="inline-flex h-9 items-center gap-2 rounded-xl border border-slate-700 bg-slate-800 px-4 text-xs font-bold text-slate-300 hover:bg-slate-700 transition disabled:opacity-50"
+            className="inline-flex h-9 items-center gap-2 rounded-xl border border-brand-200 bg-white px-4 text-xs font-bold text-brand-800 transition hover:bg-brand-50 disabled:opacity-50"
           >
             <RefreshCw className={`h-3.5 w-3.5 ${isLoading ? "animate-spin" : ""}`} />
             Làm mới
@@ -87,7 +87,7 @@ export default function AdminWorkspacesPage() {
         </div>
 
         {error ? (
-          <div className="rounded-2xl border border-red-800/60 bg-red-900/20 px-5 py-4 text-sm font-semibold text-red-300">
+          <div className="rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-sm font-semibold text-red-700">
             {error}
           </div>
         ) : null}
@@ -101,14 +101,14 @@ export default function AdminWorkspacesPage() {
               value={search}
               onChange={(e) => { setSearch(e.target.value); setPage(1); }}
               placeholder="Tìm theo tên hoặc slug..."
-              className="h-10 w-full pl-9 pr-4 rounded-xl border border-slate-700 bg-slate-800 text-xs font-medium text-slate-200 placeholder-slate-500 outline-none focus:border-blue-500 focus:bg-slate-900 transition"
+              className="h-10 w-full rounded-xl border border-slate-200 bg-white pl-9 pr-4 text-xs font-medium text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
             />
           </div>
 
           <select
             value={statusFilter}
             onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-            className="h-10 rounded-xl border border-slate-700 bg-slate-800 px-3 text-xs font-bold text-slate-300 outline-none focus:border-blue-500 transition cursor-pointer"
+            className="h-10 cursor-pointer rounded-xl border border-slate-200 bg-white px-3 text-xs font-bold text-slate-700 outline-none transition focus:border-brand-400"
           >
             <option value="">Tất cả</option>
             <option value="active">Đang hoạt động</option>
@@ -117,10 +117,10 @@ export default function AdminWorkspacesPage() {
         </div>
 
         {/* Workspaces Table */}
-        <div className="rounded-2xl border border-slate-800 overflow-hidden">
+        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
           <table className="w-full text-xs">
             <thead>
-              <tr className="border-b border-slate-800 bg-slate-900">
+              <tr className="border-b border-slate-200 bg-slate-50">
                 <th className="px-5 py-3.5 text-left font-extrabold text-slate-500 uppercase tracking-wider">
                   Workspace
                 </th>
@@ -141,7 +141,7 @@ export default function AdminWorkspacesPage() {
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/60">
+            <tbody className="divide-y divide-slate-100">
               {isLoading ? (
                 <tr>
                   <td colSpan={6} className="px-5 py-10 text-center text-slate-500 font-medium">
@@ -158,14 +158,14 @@ export default function AdminWorkspacesPage() {
                 </tr>
               ) : (
                 items.map((ws) => (
-                  <tr key={ws.id} className="bg-slate-950/50 hover:bg-slate-900/60 transition">
+                  <tr key={ws.id} className="bg-white transition hover:bg-brand-50/50">
                     <td className="px-5 py-3.5">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-xl bg-indigo-600/80 text-white font-black text-sm flex items-center justify-center shrink-0 border border-indigo-700/40">
+                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-brand-200 bg-brand-50 text-sm font-black text-brand-800">
                           {ws.name.charAt(0).toUpperCase()}
                         </div>
                         <div>
-                          <p className="font-extrabold text-slate-100">{ws.name}</p>
+                          <p className="font-extrabold text-[#173247]">{ws.name}</p>
                           <p className="text-slate-500">@{ws.slug}</p>
                         </div>
                       </div>
@@ -212,7 +212,7 @@ export default function AdminWorkspacesPage() {
                           title={ws.status === "active" ? "Lưu trữ workspace" : "Kích hoạt workspace"}
                           className={`inline-flex items-center gap-1.5 h-8 px-3 rounded-xl text-[11px] font-bold transition border disabled:opacity-50 ${
                             ws.status === "active"
-                              ? "border-slate-700/50 bg-slate-800/60 text-slate-400 hover:text-white hover:border-slate-600"
+                              ? "border-slate-200 bg-slate-50 text-slate-600 hover:border-slate-300 hover:bg-slate-100"
                               : "border-emerald-800/50 bg-emerald-900/20 text-emerald-400 hover:bg-emerald-900/40"
                           }`}
                         >
@@ -242,14 +242,14 @@ export default function AdminWorkspacesPage() {
               <button
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page <= 1}
-                className="inline-flex h-8 w-8 items-center justify-center rounded-xl border border-slate-700 bg-slate-800 text-slate-400 hover:text-white disabled:opacity-40 transition"
+                className="inline-flex h-8 w-8 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 transition hover:border-brand-300 hover:text-brand-800 disabled:opacity-40"
               >
                 <ChevronLeft className="h-4 w-4" />
               </button>
               <button
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 disabled={page >= totalPages}
-                className="inline-flex h-8 w-8 items-center justify-center rounded-xl border border-slate-700 bg-slate-800 text-slate-400 hover:text-white disabled:opacity-40 transition"
+                className="inline-flex h-8 w-8 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 transition hover:border-brand-300 hover:text-brand-800 disabled:opacity-40"
               >
                 <ChevronRight className="h-4 w-4" />
               </button>
