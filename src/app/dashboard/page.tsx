@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { AlertTriangle } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
 import { DashboardAiMeetingSummary } from "@/features/dashboard/components/DashboardAiMeetingSummary";
@@ -241,6 +242,9 @@ export default function DashboardPage() {
   }, [myWorkData]);
 
   const primaryWorkspace = workspaces[0];
+  const selectedProject = projects.find((project) => project.id === selectedProjectId);
+  const blockedProjectTasks = projectTasks.filter((task) => task.isBlocked);
+  const blockingProjectTasks = projectTasks.filter((task) => task.isBlocking);
 
   if (authLoading) {
     return (
@@ -283,6 +287,39 @@ export default function DashboardPage() {
           overdueTasks={overdueTasks}
           isPending={isLoading && !overview}
         />
+
+        <section className="rounded-3xl border border-slate-200/90 bg-white p-5 shadow-sm sm:p-6">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h2 className="text-base font-extrabold text-slate-900">Sức khỏe phụ thuộc</h2>
+              <p className="mt-1 text-xs font-medium text-slate-500">Các công việc có nguy cơ làm chậm Project đang chọn.</p>
+            </div>
+            {selectedProject ? <Link className="rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50" href={`/workspaces/${selectedProject.workspaceId}/projects/${selectedProject.id}/tasks`}>Mở Board</Link> : null}
+          </div>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            <div className="rounded-2xl border border-rose-200 bg-rose-50 p-4">
+              <p className="text-xs font-bold uppercase tracking-wide text-rose-700">Task đang bị chặn</p>
+              <p className="mt-1 text-3xl font-black text-rose-800">{blockedProjectTasks.length}</p>
+            </div>
+            <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4">
+              <p className="text-xs font-bold uppercase tracking-wide text-amber-700">Task đang chặn công việc khác</p>
+              <p className="mt-1 text-3xl font-black text-amber-800">{blockingProjectTasks.length}</p>
+            </div>
+          </div>
+          {blockedProjectTasks.length > 0 && selectedProject ? (
+            <div className="mt-4">
+              <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">Cần xử lý trước</p>
+              <div className="grid gap-2 md:grid-cols-2">
+                {blockedProjectTasks.slice(0, 6).map((task) => (
+                  <Link className="flex items-center justify-between gap-3 rounded-xl border border-slate-200 px-3 py-2.5 hover:border-rose-200 hover:bg-rose-50/50" href={`/workspaces/${selectedProject.workspaceId}/projects/${selectedProject.id}/tasks/${task.id}`} key={task.id}>
+                    <span className="min-w-0"><strong className="font-mono text-[11px] text-slate-500">{task.taskCode}</strong><span className="block truncate text-sm font-bold text-slate-800">{task.title}</span></span>
+                    <span className="shrink-0 rounded-full bg-rose-100 px-2 py-1 text-[10px] font-bold uppercase text-rose-700">Bị chặn</span>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          ) : <p className="mt-4 rounded-xl bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700">Project hiện không có Task nào bị chặn.</p>}
+        </section>
 
         {/* 3. Bottom Grid 2 Columns: Cuộc họp sắp tới (Lọc chính xác >= Hôm nay 1/8) & Trợ lý AI */}
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">

@@ -449,6 +449,29 @@ export function TaskDetailDrawer({
               }) ? <span className="rounded-full bg-rose-50 px-2 py-1 text-[10px] font-bold uppercase text-rose-700">Đang bị chặn</span> : null}
             </div>
             <div className="mt-3 space-y-2">
+              {dependencies.some((item) => item.type === "BLOCKS" || item.type === "DEPENDS_ON") ? (
+                <div className="mb-4 overflow-x-auto rounded-xl border border-slate-200 bg-slate-50 p-3">
+                  <p className="mb-3 text-[10px] font-bold uppercase tracking-wide text-slate-500">Sơ đồ phụ thuộc trực tiếp</p>
+                  <div className="flex min-w-max items-center gap-2">
+                    {dependencies.filter((item) => item.type === "BLOCKS" || item.type === "DEPENDS_ON").map((item) => {
+                      const relatedTask = item.sourceTaskId === task.id ? item.targetTask : item.sourceTask;
+                      const currentIsBlocked = (item.type === "DEPENDS_ON" && item.sourceTaskId === task.id) || (item.type === "BLOCKS" && item.targetTaskId === task.id);
+                      const leftTask = currentIsBlocked ? relatedTask : task;
+                      const rightTask = currentIsBlocked ? task : relatedTask;
+                      return <div className="flex items-center gap-2" key={`graph-${item.id}`}>
+                        <Link className={`w-32 rounded-lg border px-2 py-2 text-center ${leftTask.id === task.id ? "border-blue-300 bg-blue-50" : "border-slate-200 bg-white"}`} href={leftTask.id === task.id ? "#" : `/workspaces/${workspaceId}/projects/${projectId}/tasks/${leftTask.id}`}>
+                          <span className="block font-mono text-[10px] font-bold text-slate-500">{leftTask.taskCode}</span><span className="block truncate text-xs font-semibold text-slate-800">{leftTask.title}</span>
+                        </Link>
+                        <span className="text-lg font-black text-slate-400" title="chặn">→</span>
+                        <Link className={`w-32 rounded-lg border px-2 py-2 text-center ${rightTask.id === task.id ? "border-blue-300 bg-blue-50" : "border-slate-200 bg-white"}`} href={rightTask.id === task.id ? "#" : `/workspaces/${workspaceId}/projects/${projectId}/tasks/${rightTask.id}`}>
+                          <span className="block font-mono text-[10px] font-bold text-slate-500">{rightTask.taskCode}</span><span className="block truncate text-xs font-semibold text-slate-800">{rightTask.title}</span>
+                        </Link>
+                      </div>;
+                    })}
+                  </div>
+                  <p className="mt-2 text-[10px] text-slate-500">Mũi tên đi từ Task chặn đến Task bị chặn. Task hiện tại được tô xanh.</p>
+                </div>
+              ) : null}
               {dependencies.length === 0 ? <p className="rounded bg-[#f7f8f9] px-3 py-3 text-xs text-[#6b778c]">Chưa có liên kết nào.</p> : dependencies.map((item) => {
                 const relatedTask = item.sourceTaskId === task.id ? item.targetTask : item.sourceTask;
                 return <div className="flex items-center justify-between gap-3 rounded border border-[#dfe1e6] px-3 py-2" key={item.id}>
