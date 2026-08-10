@@ -6,7 +6,7 @@ import { WorkspaceMember } from "@/features/members/types/member.type";
 import { Sprint } from "@/features/sprints/types/sprint.type";
 import { TaskStatusSelect } from "./TaskStatusSelect";
 import { createTaskComment, createTaskDependency, deleteTaskComment, deleteTaskDependency, getTaskActivities, getTaskComments, getTaskDependencies, getTasks } from "../api/tasks.api";
-import { Task, TaskActivity, TaskActivityAction, TaskComment, TaskDependency, TaskDependencyType, TaskPriority, TaskStatus, TaskType } from "../types/task.type";
+import { Task, TaskActivity, TaskActivityAction, TaskComment, TaskDependency, TaskDependencyType, TaskPriority, TaskStatus, TaskType, UpdateTaskPayload } from "../types/task.type";
 import { useAuth } from "@/hooks/useAuth";
 import { ApiError } from "@/lib/api/client";
 
@@ -23,7 +23,7 @@ type TaskDetailDrawerProps = {
   onStatusChange: (task: Task, status: TaskStatus, override?: { overrideBlocked: boolean; overrideReason: string }) => Promise<void>;
   onAssign: (task: Task, assigneeId: string | null) => Promise<void>;
   onMoveSprint: (task: Task, sprintId: string | null) => Promise<void>;
-  onUpdateStructure: (task: Task, payload: { taskType: TaskType; priority: TaskPriority; parentId: string | null }) => Promise<void>;
+  onUpdateStructure: (task: Task, payload: UpdateTaskPayload) => Promise<void>;
   onCreateSubtask: (task: Task, payload: { title: string; storyPoints?: number }) => Promise<void>;
   onCancel: (task: Task) => Promise<void>;
   onDelete: (task: Task) => Promise<void>;
@@ -117,6 +117,9 @@ export function TaskDetailDrawer({
   const [parentId, setParentId] = useState("");
   const [subtaskTitle, setSubtaskTitle] = useState("");
   const [subtaskStoryPoints, setSubtaskStoryPoints] = useState("");
+  const [labels, setLabels] = useState("");
+  const [acceptanceCriteria, setAcceptanceCriteria] = useState("");
+  const [reporterId, setReporterId] = useState("");
   const [activities, setActivities] = useState<TaskActivity[]>([]);
   const [isLoadingActivities, setIsLoadingActivities] = useState(false);
   const [comments, setComments] = useState<TaskComment[]>([]);
@@ -231,6 +234,9 @@ export function TaskDetailDrawer({
     setTaskType(task?.taskType ?? "TASK");
     setPriority(task?.priority ?? "MEDIUM");
     setParentId(task?.parentId ?? "");
+    setLabels(task?.labels?.join(", ") ?? "");
+    setAcceptanceCriteria(task?.acceptanceCriteria ?? "");
+    setReporterId(task?.reporterId ?? "");
     try {
       await createTaskDependency(workspaceId, projectId, task.id, dependencyTargetId, dependencyType);
       setDependencyTargetId("");
@@ -387,6 +393,11 @@ export function TaskDetailDrawer({
           <section className="rounded border border-[#dfe1e6] bg-white p-4">
             <h3 className="text-sm font-semibold text-[#172b4d]">Cập nhật nhanh</h3>
 
+            <div className="mt-3 rounded bg-[#f7f8f9] p-3">
+              <div className="flex flex-wrap gap-1">{task.labels?.length ? task.labels.map((label) => <span className="rounded-full bg-blue-50 px-2 py-1 text-xs font-semibold text-blue-700" key={label}>#{label}</span>) : <span className="text-xs text-[#6b778c]">Chưa có nhãn</span>}</div>
+              <p className="mt-2 whitespace-pre-wrap text-xs text-[#44546f]">{task.acceptanceCriteria || "Chưa có tiêu chí nghiệm thu."}</p>
+              <p className="mt-2 text-xs text-[#6b778c]">Reporter: {task.reporter?.fullName || task.reporter?.email || "-"} · Hoàn thành: {task.completedAt ? formatDateTime(task.completedAt) : "-"}</p>
+            </div>
             <div className="mt-4 grid gap-3">
               <div className="grid gap-3 sm:grid-cols-2">
                 <label className="grid gap-1 text-xs font-semibold text-[#44546f]">Loại công việc<select className="h-10 rounded border border-[#dfe1e6] bg-white px-3 text-sm" disabled={!canManage || isBusy} onChange={(event) => { const value = event.target.value as TaskType; setTaskType(value); if (value !== "STORY" && value !== "SUBTASK") setParentId(""); }} value={taskType}><option value="EPIC">Epic</option><option value="STORY">Story</option><option value="TASK">Task</option><option value="BUG">Bug</option><option value="SUBTASK">Subtask</option></select></label>
@@ -397,6 +408,12 @@ export function TaskDetailDrawer({
 
               <label className="grid gap-1 text-xs font-semibold text-[#44546f]">
                 Trạng thái
+                <div className="mb-3 grid gap-3">
+                  <label className="grid gap-1 text-xs font-semibold text-[#44546f]">Nhãn<input className="h-10 rounded border border-[#dfe1e6] px-3 text-sm" disabled={!canManage || isBusy} onChange={(event) => setLabels(event.target.value)} placeholder="frontend, api" value={labels} /></label>
+                  <label className="grid gap-1 text-xs font-semibold text-[#44546f]">Reporter<select className="h-10 rounded border border-[#dfe1e6] bg-white px-3 text-sm" disabled={!canManage || isBusy} onChange={(event) => setReporterId(event.target.value)} value={reporterId}><option value="">Không chọn</option>{members.map((member) => <option key={member.userId} value={member.userId}>{member.fullName || member.email}</option>)}</select></label>
+                  <label className="grid gap-1 text-xs font-semibold text-[#44546f]">Tiêu chí nghiệm thu<textarea className="min-h-24 rounded border border-[#dfe1e6] px-3 py-2 text-sm" disabled={!canManage || isBusy} maxLength={4000} onChange={(event) => setAcceptanceCriteria(event.target.value)} value={acceptanceCriteria} /></label>
+                  <button className="h-10 rounded bg-[#0c66e4] px-4 text-sm font-semibold text-white disabled:bg-[#b3b9c4]" disabled={!canManage || isBusy} onClick={() => void runAction(() => onUpdateStructure(task, { labels: labels.split(",").map((label) => label.trim()).filter(Boolean), acceptanceCriteria, reporterId: reporterId || null }), "Đã cập nhật thông tin nghiệm thu.")} type="button">Lưu thông tin nghiệm thu</button>
+                </div>
                 <TaskStatusSelect
                   disabled={!canChangeStatus || isBusy || task.status === "CANCELLED"}
                   onChange={(status) => void changeStatus(status)}

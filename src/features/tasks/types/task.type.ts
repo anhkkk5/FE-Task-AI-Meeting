@@ -29,6 +29,8 @@ export type Task = {
   taskCode: string;
   title: string;
   description: string | null;
+  labels: string[];
+  acceptanceCriteria: string | null;
   status: TaskStatus;
   taskType: TaskType;
   priority: TaskPriority;
@@ -38,12 +40,15 @@ export type Task = {
   childProgress: { total: number; done: number; percent: number } | null;
   assigneeId: string | null;
   assignee: TaskUserSummary | null;
+  reporterId: string | null;
+  reporter: TaskUserSummary | null;
   createdBy: string;
   creator: TaskUserSummary | null;
   sprint: TaskSprintSummary | null;
   dueDate: string | null;
   estimatedHours: number | null;
   storyPoints: number | null;
+  completedAt: string | null;
   createdAt: string;
   updatedAt?: string;
   isBlocked?: boolean;
@@ -91,12 +96,18 @@ export type TaskQuery = {
   taskType?: TaskType;
   priority?: TaskPriority;
   parentId?: string;
+  labels?: string[];
+  acceptanceCriteria?: string;
+  reporterId?: string;
 };
 
 export type CreateTaskPayload = {
   taskType?: TaskType;
   priority?: TaskPriority;
   parentId?: string;
+  labels?: string[];
+  acceptanceCriteria?: string;
+  reporterId?: string;
   title: string;
   description?: string;
   sprintId?: string;
@@ -110,6 +121,9 @@ export type UpdateTaskPayload = {
   taskType?: TaskType;
   priority?: TaskPriority;
   parentId?: string | null;
+  labels?: string[];
+  acceptanceCriteria?: string;
+  reporterId?: string | null;
   title?: string;
   description?: string;
   dueDate?: string;

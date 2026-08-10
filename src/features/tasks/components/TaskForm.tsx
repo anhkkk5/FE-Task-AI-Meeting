@@ -26,6 +26,9 @@ export function TaskForm({
   const [assigneeId, setAssigneeId] = useState("");
   const [dueDate, setDueDate] = useState("");
   const [storyPoints, setStoryPoints] = useState("");
+  const [labels, setLabels] = useState("");
+  const [acceptanceCriteria, setAcceptanceCriteria] = useState("");
+  const [reporterId, setReporterId] = useState("");
   const [taskType, setTaskType] = useState<TaskType>("TASK");
   const [priority, setPriority] = useState<TaskPriority>("MEDIUM");
   const [parentId, setParentId] = useState("");
@@ -46,6 +49,9 @@ export function TaskForm({
         priority,
         parentId: parentId || undefined,
         storyPoints: storyPoints ? Number(storyPoints) : undefined,
+        labels: labels.split(",").map((label) => label.trim()).filter(Boolean),
+        acceptanceCriteria: acceptanceCriteria || undefined,
+        reporterId: reporterId || undefined,
       });
     } finally {
       setIsSubmitting(false);
@@ -72,6 +78,12 @@ export function TaskForm({
           onChange={(event) => setTitle(event.target.value)}
         />
       </div>
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <label className="grid gap-2 text-sm font-bold text-slate-800">Nhãn công việc<input className="h-11 rounded-xl border border-slate-200 bg-slate-50/50 px-4 text-sm" onChange={(event) => setLabels(event.target.value)} placeholder="frontend, api, khách-hàng" value={labels} /><span className="text-xs font-normal text-slate-500">Phân cách nhiều nhãn bằng dấu phẩy.</span></label>
+        <label className="grid gap-2 text-sm font-bold text-slate-800">Người báo cáo<select className="h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm" onChange={(event) => setReporterId(event.target.value)} value={reporterId}><option value="">Mặc định là người tạo</option>{members.map((member) => <option key={member.userId} value={member.userId}>{member.fullName || member.email}</option>)}</select></label>
+      </div>
+      <label className="grid gap-2 text-sm font-bold text-slate-800">Tiêu chí nghiệm thu<textarea className="min-h-28 rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-3 text-sm font-medium" maxLength={4000} onChange={(event) => setAcceptanceCriteria(event.target.value)} placeholder="Điều kiện để công việc được xem là hoàn thành..." value={acceptanceCriteria} /></label>
 
       {/* Mô tả công việc */}
       <div className="space-y-2">

@@ -136,6 +136,7 @@ export default function BacklogPage() {
   const [selectedStatus, setSelectedStatus] = useState<"ALL" | TaskStatus>("ALL");
   const [dependencyFilter, setDependencyFilter] = useState<"ALL" | "BLOCKED" | "BLOCKING">("ALL");
   const [selectedAssigneeId, setSelectedAssigneeId] = useState<string | null>(null);
+  const [selectedLabel, setSelectedLabel] = useState("");
   const [collapsedSprints, setCollapsedSprints] = useState<Record<string, boolean>>({});
   const [showImportPanel, setShowImportPanel] = useState(false);
   const [draggedTaskId, setDraggedTaskId] = useState<string | null>(null);
@@ -391,7 +392,8 @@ export default function BacklogPage() {
     const matchesAssignee = selectedAssigneeId ? task.assigneeId === selectedAssigneeId : true;
     const matchesStatus = selectedStatus === "ALL" ? true : task.status === selectedStatus;
     const matchesDependency = dependencyFilter === "ALL" ? true : dependencyFilter === "BLOCKED" ? task.isBlocked : task.isBlocking;
-    return matchesKeyword && matchesAssignee && matchesStatus && matchesDependency;
+    const matchesLabel = selectedLabel ? task.labels?.includes(selectedLabel) : true;
+    return matchesKeyword && matchesAssignee && matchesStatus && matchesDependency && matchesLabel;
   });
 
   const orderTasksByHierarchy = (items: Task[]) => {
@@ -735,13 +737,15 @@ export default function BacklogPage() {
     searchKeyword.trim().length > 0 ||
     selectedStatus !== "ALL" ||
     dependencyFilter !== "ALL" ||
-    selectedAssigneeId !== null;
+    selectedAssigneeId !== null || selectedLabel !== "";
+  const availableLabels = [...new Set(tasks.flatMap((task) => task.labels ?? []))].sort();
 
   const clearFilters = () => {
     setSearchKeyword("");
     setSelectedStatus("ALL");
     setDependencyFilter("ALL");
     setSelectedAssigneeId(null);
+    setSelectedLabel("");
   };
 
   return (
@@ -817,6 +821,8 @@ export default function BacklogPage() {
                   <option value="BLOCKING">Đang chặn Task khác</option>
                 </select>
               </label>
+
+              <label className="grid gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-600">Nhãn<select className="h-10 rounded-xl border border-slate-200 bg-slate-50/70 px-3 text-sm font-medium" onChange={(event) => setSelectedLabel(event.target.value)} value={selectedLabel}><option value="">Tất cả nhãn</option>{availableLabels.map((label) => <option key={label} value={label}>#{label}</option>)}</select></label>
 
               <button
                 className="h-10 rounded-xl border border-slate-200 bg-white px-3.5 text-xs font-semibold text-slate-600 transition-all hover:bg-slate-50 active:scale-95 disabled:opacity-40"
