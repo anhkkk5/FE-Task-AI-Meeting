@@ -10,9 +10,9 @@ import { getProjectDetail } from "@/features/projects/api/projects.api";
 import { Project } from "@/features/projects/types/project.type";
 import { getSprints } from "@/features/sprints/api/sprints.api";
 import { Sprint } from "@/features/sprints/types/sprint.type";
-import { createTask } from "@/features/tasks/api/tasks.api";
+import { createTask, getTasks } from "@/features/tasks/api/tasks.api";
 import { TaskForm } from "@/features/tasks/components/TaskForm";
-import { CreateTaskPayload } from "@/features/tasks/types/task.type";
+import { CreateTaskPayload, Task } from "@/features/tasks/types/task.type";
 import { useAuth } from "@/hooks/useAuth";
 
 const writeRoles = ["OWNER", "SCRUM_MASTER", "PROJECT_MANAGER"];
@@ -24,6 +24,7 @@ export default function CreateTaskPage() {
   const [project, setProject] = useState<Project | null>(null);
   const [members, setMembers] = useState<WorkspaceMember[]>([]);
   const [sprints, setSprints] = useState<Sprint[]>([]);
+  const [parentCandidates, setParentCandidates] = useState<Task[]>([]);
   const [myRole, setMyRole] = useState("");
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -36,7 +37,7 @@ export default function CreateTaskPage() {
       setMessage("");
 
       try {
-        const [projectResponse, membersResponse, sprintsResponse, roleResponse] =
+        const [projectResponse, membersResponse, sprintsResponse, roleResponse, tasksResponse] =
           await Promise.all([
             getProjectDetail(params.workspaceId, params.projectId),
             getWorkspaceMembers(params.workspaceId),
@@ -45,6 +46,7 @@ export default function CreateTaskPage() {
               limit: 100,
             }),
             getMyWorkspaceRole(params.workspaceId),
+            getTasks(params.workspaceId, params.projectId, { limit: 100 }),
           ]);
         setProject(projectResponse.data.project);
         setMembers(membersResponse.data.items);
@@ -55,6 +57,7 @@ export default function CreateTaskPage() {
           ),
         );
         setMyRole(roleResponse.data.role);
+        setParentCandidates(tasksResponse.data.items);
       } catch (error) {
         setMessage(
           error instanceof Error
@@ -157,6 +160,7 @@ export default function CreateTaskPage() {
           <div className="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-sm shadow-slate-100 sm:p-8">
             <TaskForm
               members={members}
+              parentCandidates={parentCandidates}
               sprints={sprints}
               submitLabel="Tạo task mới"
               onSubmit={handleSubmit}

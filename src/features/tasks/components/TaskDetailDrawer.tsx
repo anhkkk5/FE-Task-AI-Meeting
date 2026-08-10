@@ -6,7 +6,7 @@ import { WorkspaceMember } from "@/features/members/types/member.type";
 import { Sprint } from "@/features/sprints/types/sprint.type";
 import { TaskStatusSelect } from "./TaskStatusSelect";
 import { createTaskComment, createTaskDependency, deleteTaskComment, deleteTaskDependency, getTaskActivities, getTaskComments, getTaskDependencies, getTasks } from "../api/tasks.api";
-import { Task, TaskActivity, TaskActivityAction, TaskComment, TaskDependency, TaskDependencyType, TaskStatus } from "../types/task.type";
+import { Task, TaskActivity, TaskActivityAction, TaskComment, TaskDependency, TaskDependencyType, TaskPriority, TaskStatus, TaskType } from "../types/task.type";
 import { useAuth } from "@/hooks/useAuth";
 import { ApiError } from "@/lib/api/client";
 
@@ -23,6 +23,7 @@ type TaskDetailDrawerProps = {
   onStatusChange: (task: Task, status: TaskStatus, override?: { overrideBlocked: boolean; overrideReason: string }) => Promise<void>;
   onAssign: (task: Task, assigneeId: string | null) => Promise<void>;
   onMoveSprint: (task: Task, sprintId: string | null) => Promise<void>;
+  onUpdateStructure: (task: Task, payload: { taskType: TaskType; priority: TaskPriority; parentId: string | null }) => Promise<void>;
   onCancel: (task: Task) => Promise<void>;
   onDelete: (task: Task) => Promise<void>;
 };
@@ -100,6 +101,7 @@ export function TaskDetailDrawer({
   onStatusChange,
   onAssign,
   onMoveSprint,
+  onUpdateStructure,
   onCancel,
   onDelete,
 }: TaskDetailDrawerProps) {
@@ -108,6 +110,9 @@ export function TaskDetailDrawer({
   const [sprintId, setSprintId] = useState("");
   const [message, setMessage] = useState("");
   const [isBusy, setIsBusy] = useState(false);
+  const [taskType, setTaskType] = useState<TaskType>("TASK");
+  const [priority, setPriority] = useState<TaskPriority>("MEDIUM");
+  const [parentId, setParentId] = useState("");
   const [activities, setActivities] = useState<TaskActivity[]>([]);
   const [isLoadingActivities, setIsLoadingActivities] = useState(false);
   const [comments, setComments] = useState<TaskComment[]>([]);
@@ -209,6 +214,9 @@ export function TaskDetailDrawer({
     if (!task || !dependencyTargetId) return;
     setIsSavingDependency(true);
     setMessage("");
+    setTaskType(task?.taskType ?? "TASK");
+    setPriority(task?.priority ?? "MEDIUM");
+    setParentId(task?.parentId ?? "");
     try {
       await createTaskDependency(workspaceId, projectId, task.id, dependencyTargetId, dependencyType);
       setDependencyTargetId("");
@@ -327,6 +335,8 @@ export function TaskDetailDrawer({
               <span className="rounded border border-[#dfe1e6] bg-white px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#44546f]">
                 {task.sprint?.name ?? "Backlog"}
               </span>
+              <span className="rounded bg-violet-50 px-2 py-0.5 text-[10px] font-bold text-violet-700">{task.taskType}</span>
+              <span className="rounded bg-amber-50 px-2 py-0.5 text-[10px] font-bold text-amber-700">{task.priority}</span>
             </div>
 
             <div>
@@ -364,6 +374,13 @@ export function TaskDetailDrawer({
             <h3 className="text-sm font-semibold text-[#172b4d]">Cập nhật nhanh</h3>
 
             <div className="mt-4 grid gap-3">
+              <div className="grid gap-3 sm:grid-cols-2">
+                <label className="grid gap-1 text-xs font-semibold text-[#44546f]">Loại công việc<select className="h-10 rounded border border-[#dfe1e6] bg-white px-3 text-sm" disabled={!canManage || isBusy} onChange={(event) => { const value = event.target.value as TaskType; setTaskType(value); if (value !== "STORY" && value !== "SUBTASK") setParentId(""); }} value={taskType}><option value="EPIC">Epic</option><option value="STORY">Story</option><option value="TASK">Task</option><option value="BUG">Bug</option><option value="SUBTASK">Subtask</option></select></label>
+                <label className="grid gap-1 text-xs font-semibold text-[#44546f]">Độ ưu tiên<select className="h-10 rounded border border-[#dfe1e6] bg-white px-3 text-sm" disabled={!canManage || isBusy} onChange={(event) => setPriority(event.target.value as TaskPriority)} value={priority}><option value="LOW">Thấp</option><option value="MEDIUM">Trung bình</option><option value="HIGH">Cao</option><option value="URGENT">Khẩn cấp</option></select></label>
+              </div>
+              <label className="grid gap-1 text-xs font-semibold text-[#44546f]">Công việc cha<select className="h-10 rounded border border-[#dfe1e6] bg-white px-3 text-sm disabled:bg-[#f1f2f4]" disabled={!canManage || isBusy || (taskType !== "STORY" && taskType !== "SUBTASK")} onChange={(event) => setParentId(event.target.value)} value={parentId}><option value="">Không có</option>{dependencyCandidates.filter((item) => taskType === "STORY" ? item.taskType === "EPIC" : taskType === "SUBTASK" ? ["STORY", "TASK", "BUG"].includes(item.taskType) : false).map((item) => <option key={item.id} value={item.id}>{item.taskCode} · {item.title}</option>)}</select></label>
+              <button className="h-10 rounded bg-[#0c66e4] px-4 text-sm font-semibold text-white disabled:bg-[#b3b9c4]" disabled={!canManage || isBusy || (taskType === "SUBTASK" && !parentId)} onClick={() => void runAction(() => onUpdateStructure(task, { taskType, priority, parentId: parentId || null }), "Đã cập nhật loại, ưu tiên và cây công việc.")} type="button">Lưu cấu trúc công việc</button>
+
               <label className="grid gap-1 text-xs font-semibold text-[#44546f]">
                 Trạng thái
                 <TaskStatusSelect

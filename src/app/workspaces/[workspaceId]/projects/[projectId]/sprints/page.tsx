@@ -21,6 +21,7 @@ import {
   deleteTask,
   getTasks,
   moveTaskToSprint,
+  updateTask,
   updateTaskStatus,
 } from "@/features/tasks/api/tasks.api";
 import { TaskDetailDrawer } from "@/features/tasks/components/TaskDetailDrawer";
@@ -390,8 +391,39 @@ export default function BacklogPage() {
     return matchesKeyword && matchesAssignee && matchesStatus && matchesDependency;
   });
 
+  const orderTasksByHierarchy = (items: Task[]) => {
+    const itemIds = new Set(items.map((item) => item.id));
+    const children = new Map<string, Task[]>();
+    items.forEach((item) => {
+      if (item.parentId && itemIds.has(item.parentId)) {
+        children.set(item.parentId, [...(children.get(item.parentId) ?? []), item]);
+      }
+    });
+    const ordered: Task[] = [];
+    const visit = (item: Task) => {
+      ordered.push(item);
+      (children.get(item.id) ?? []).forEach(visit);
+    };
+    items.filter((item) => !item.parentId || !itemIds.has(item.parentId)).forEach(visit);
+    return ordered;
+  };
+
   const getTasksBySprint = (sprintId: string | null) =>
-    filteredTasks.filter((task) => task.sprintId === sprintId);
+    orderTasksByHierarchy(filteredTasks.filter((task) => task.sprintId === sprintId));
+
+  const getTaskDepth = (task: Task, currentSprintId: string | null) => {
+    let depth = 0;
+    let parentId = task.parentId;
+    const visited = new Set<string>();
+    while (parentId && depth < 3 && !visited.has(parentId)) {
+      visited.add(parentId);
+      const parent = filteredTasks.find((item) => item.id === parentId && item.sprintId === currentSprintId);
+      if (!parent) break;
+      depth += 1;
+      parentId = parent.parentId;
+    }
+    return depth;
+  };
 
   const getSprintTaskCounts = (sprintId: string | null) => {
     const sprintTasks = tasks.filter((task) => task.sprintId === sprintId);
@@ -426,7 +458,8 @@ export default function BacklogPage() {
         type="checkbox"
       />
 
-      <div className="flex min-w-0 items-center gap-3">
+      <div className="flex min-w-0 items-center gap-2" style={{ paddingLeft: `${getTaskDepth(task, currentSprintId) * 20}px` }}>
+        {getTaskDepth(task, currentSprintId) > 0 ? <span className="shrink-0 text-[#8590a2]">└</span> : null}
         <span
           className={`shrink-0 font-mono text-xs font-medium text-[#6b778c] ${
             task.status === "DONE" ? "line-through" : ""
@@ -434,6 +467,8 @@ export default function BacklogPage() {
         >
           {task.taskCode}
         </span>
+        <span className="shrink-0 rounded bg-violet-50 px-1.5 py-0.5 text-[10px] font-bold text-violet-700">{task.taskType}</span>
+        <span className={`shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold ${task.priority === "URGENT" ? "bg-rose-50 text-rose-700" : task.priority === "HIGH" ? "bg-amber-50 text-amber-700" : task.priority === "LOW" ? "bg-slate-100 text-slate-600" : "bg-blue-50 text-blue-700"}`}>{task.priority}</span>
         {task.isBlocked ? <span className="shrink-0 rounded bg-rose-50 px-1.5 py-0.5 text-[10px] font-bold text-rose-700">Bị chặn</span> : null}
         {task.isBlocking ? <span className="shrink-0 rounded bg-amber-50 px-1.5 py-0.5 text-[10px] font-bold text-amber-700">Đang chặn</span> : null}
         <button
@@ -1103,6 +1138,11 @@ export default function BacklogPage() {
           onDelete={handleDrawerDelete}
           onClose={() => setSelectedTask(null)}
           onMoveSprint={handleDrawerMoveSprint}
+          onUpdateStructure={async (task, payload) => {
+            const response = await updateTask(params.workspaceId, params.projectId, task.id, payload);
+            setSelectedTask(response.data.task);
+            await loadData();
+          }}
           onStatusChange={handleDrawerStatusChange}
           projectId={params.projectId}
           sprints={sprints}

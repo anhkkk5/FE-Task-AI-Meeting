@@ -54,6 +54,9 @@ export function getTasks(
   if (query.page) params.set("page", String(query.page));
   if (query.limit) params.set("limit", String(query.limit));
   if (query.dependencyState) params.set("dependencyState", query.dependencyState);
+  if (query.taskType) params.set("taskType", query.taskType);
+  if (query.priority) params.set("priority", query.priority);
+  if (query.parentId) params.set("parentId", query.parentId);
 
   const search = params.toString();
 

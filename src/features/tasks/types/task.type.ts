@@ -6,6 +6,9 @@ export type TaskStatus =
   | "DONE"
   | "CANCELLED";
 
+export type TaskType = "EPIC" | "STORY" | "TASK" | "BUG" | "SUBTASK";
+export type TaskPriority = "LOW" | "MEDIUM" | "HIGH" | "URGENT";
+
 export type TaskUserSummary = {
   id: string;
   fullName: string;
@@ -27,6 +30,12 @@ export type Task = {
   title: string;
   description: string | null;
   status: TaskStatus;
+  taskType: TaskType;
+  priority: TaskPriority;
+  parentId: string | null;
+  parent: { id: string; taskCode: string; title: string; taskType: TaskType } | null;
+  children: Array<{ id: string; taskCode: string; title: string; taskType: TaskType; status: TaskStatus }>;
+  childProgress: { total: number; done: number; percent: number } | null;
   assigneeId: string | null;
   assignee: TaskUserSummary | null;
   createdBy: string;
@@ -79,9 +88,15 @@ export type TaskQuery = {
   page?: number;
   limit?: number;
   dependencyState?: "BLOCKED" | "BLOCKING";
+  taskType?: TaskType;
+  priority?: TaskPriority;
+  parentId?: string;
 };
 
 export type CreateTaskPayload = {
+  taskType?: TaskType;
+  priority?: TaskPriority;
+  parentId?: string;
   title: string;
   description?: string;
   sprintId?: string;
@@ -92,6 +107,9 @@ export type CreateTaskPayload = {
 };
 
 export type UpdateTaskPayload = {
+  taskType?: TaskType;
+  priority?: TaskPriority;
+  parentId?: string | null;
   title?: string;
   description?: string;
   dueDate?: string;

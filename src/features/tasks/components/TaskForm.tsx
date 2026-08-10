@@ -3,11 +3,12 @@
 import { FormEvent, useState } from "react";
 import { Sprint } from "@/features/sprints/types/sprint.type";
 import { WorkspaceMember } from "@/features/members/types/member.type";
-import { CreateTaskPayload } from "../types/task.type";
+import { CreateTaskPayload, Task, TaskPriority, TaskType } from "../types/task.type";
 
 type TaskFormProps = {
   members: WorkspaceMember[];
   sprints: Sprint[];
+  parentCandidates?: Task[];
   submitLabel: string;
   onSubmit: (payload: CreateTaskPayload) => Promise<void>;
 };
@@ -15,6 +16,7 @@ type TaskFormProps = {
 export function TaskForm({
   members,
   sprints,
+  parentCandidates = [],
   submitLabel,
   onSubmit,
 }: TaskFormProps) {
@@ -23,6 +25,9 @@ export function TaskForm({
   const [sprintId, setSprintId] = useState("");
   const [assigneeId, setAssigneeId] = useState("");
   const [dueDate, setDueDate] = useState("");
+  const [taskType, setTaskType] = useState<TaskType>("TASK");
+  const [priority, setPriority] = useState<TaskPriority>("MEDIUM");
+  const [parentId, setParentId] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -36,6 +41,9 @@ export function TaskForm({
         sprintId: sprintId || undefined,
         assigneeId: assigneeId || undefined,
         dueDate: dueDate || undefined,
+        taskType,
+        priority,
+        parentId: parentId || undefined,
       });
     } finally {
       setIsSubmitting(false);
@@ -81,6 +89,28 @@ export function TaskForm({
       </div>
 
       {/* Khung Phân công & Kế hoạch */}
+      <div className="grid gap-4 rounded-2xl border border-slate-200/80 bg-slate-50/60 p-5 sm:grid-cols-3 sm:p-6">
+        <label className="grid gap-2 text-xs font-bold text-slate-700">
+          Loại công việc
+          <select className="h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm" onChange={(event) => { const value = event.target.value as TaskType; setTaskType(value); if (value === "EPIC" || value === "TASK" || value === "BUG") setParentId(""); }} value={taskType}>
+            <option value="EPIC">Epic</option><option value="STORY">Story</option><option value="TASK">Task</option><option value="BUG">Bug</option><option value="SUBTASK">Subtask</option>
+          </select>
+        </label>
+        <label className="grid gap-2 text-xs font-bold text-slate-700">
+          Độ ưu tiên
+          <select className="h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm" onChange={(event) => setPriority(event.target.value as TaskPriority)} value={priority}>
+            <option value="LOW">Thấp</option><option value="MEDIUM">Trung bình</option><option value="HIGH">Cao</option><option value="URGENT">Khẩn cấp</option>
+          </select>
+        </label>
+        <label className="grid gap-2 text-xs font-bold text-slate-700">
+          Công việc cha
+          <select className="h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm disabled:bg-slate-100" disabled={taskType !== "STORY" && taskType !== "SUBTASK"} onChange={(event) => setParentId(event.target.value)} required={taskType === "SUBTASK"} value={parentId}>
+            <option value="">{taskType === "SUBTASK" ? "Chọn công việc cha" : "Không có"}</option>
+            {parentCandidates.filter((item) => taskType === "STORY" ? item.taskType === "EPIC" : taskType === "SUBTASK" ? ["STORY", "TASK", "BUG"].includes(item.taskType) : false).map((item) => <option key={item.id} value={item.id}>{item.taskCode} · {item.title}</option>)}
+          </select>
+        </label>
+      </div>
+
       <div className="rounded-2xl border border-slate-200/80 bg-slate-50/60 p-5 sm:p-6 space-y-5">
         <div className="flex items-center gap-2 border-b border-slate-200/60 pb-3">
           <svg className="h-4 w-4 text-[#4F8EB0]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
