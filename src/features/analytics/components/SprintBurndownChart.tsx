@@ -62,14 +62,13 @@ export function SprintBurndownChart({
       // Ideal remaining line
       const idealRemaining = Math.max(0, Math.round(totalCount - day * idealStep));
 
-      // Simulated/Actual remaining tasks based on completion ratio over past days
+      // Actual remaining tasks reconstructed from persisted completedAt timestamps.
       let actualRemaining: number | null = null;
       if (isPastOrToday) {
-        const ratio = day / totalDays;
-        actualRemaining = Math.max(
-          remainingCount,
-          Math.round(totalCount - completedCount * Math.min(1, ratio * 1.1)),
-        );
+        const endOfDay = new Date(dayDate);
+        endOfDay.setHours(23, 59, 59, 999);
+        const completedByDay = tasks.filter((task) => task.completedAt && new Date(task.completedAt).getTime() <= endOfDay.getTime()).length;
+        actualRemaining = totalCount - completedByDay;
       }
 
       points.push({

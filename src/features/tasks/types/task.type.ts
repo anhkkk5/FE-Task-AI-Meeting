@@ -49,6 +49,7 @@ export type Task = {
   estimatedHours: number | null;
   storyPoints: number | null;
   completedAt: string | null;
+  startedAt: string | null;
   createdAt: string;
   updatedAt?: string;
   isBlocked?: boolean;
