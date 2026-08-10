@@ -1,9 +1,11 @@
 import { Task, TaskStatus } from "../types/task.type";
+import { WorkflowStatusConfig } from "@/features/projects/types/project.type";
 
 type TaskBoardProps = {
   items: Task[];
   selectedIds?: Set<string>;
   onToggle?: (taskId: string) => void;
+  workflowStatuses?: WorkflowStatusConfig[];
 };
 
 const columns: { status: TaskStatus; label: string }[] = [
@@ -21,19 +23,20 @@ function formatDate(value: string | null) {
   });
 }
 
-export function TaskBoard({ items, selectedIds = new Set(), onToggle }: TaskBoardProps) {
+export function TaskBoard({ items, selectedIds = new Set(), onToggle, workflowStatuses }: TaskBoardProps) {
+  const boardColumns = workflowStatuses?.filter((status) => status.enabled && status.key !== "BACKLOG" && status.key !== "CANCELLED").sort((a, b) => a.order - b.order).map((status) => ({ status: status.key as TaskStatus, label: status.label, color: status.color })) ?? columns.map((column) => ({ ...column, color: "#6b778c" }));
   return (
-    <div className="grid min-w-[960px] gap-3 overflow-x-auto pb-2 xl:grid-cols-4">
-      {columns.map((column) => {
+    <div className="flex min-w-[960px] gap-3 overflow-x-auto pb-2">
+      {boardColumns.map((column) => {
         const columnTasks = items.filter((task) => task.status === column.status);
 
         return (
           <section
             key={column.status}
-            className="flex min-h-[520px] flex-col rounded bg-[#f1f2f4]"
+            className="flex min-h-[520px] min-w-[230px] flex-1 flex-col rounded bg-[#f1f2f4]"
           >
             <div className="flex h-11 items-center justify-between px-3">
-              <h2 className="text-xs font-semibold uppercase tracking-wide text-[#44546f]">
+              <h2 className="border-l-4 pl-2 text-xs font-semibold uppercase tracking-wide text-[#44546f]" style={{ borderColor: column.color }}>
                 {column.label}
               </h2>
               <span className="rounded bg-[#dfe1e6] px-1.5 py-0.5 text-xs font-semibold text-[#44546f]">

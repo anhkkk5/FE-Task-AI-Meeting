@@ -150,7 +150,7 @@ export default function SprintBoardPage() {
             <div className="h-6 w-6 animate-spin rounded-full border-2 border-slate-900 border-t-transparent"></div>
           </div>
         ) : (
-          <TaskBoard items={items} onToggle={toggleSelection} selectedIds={selectedIds} />
+          <TaskBoard items={items} onToggle={toggleSelection} selectedIds={selectedIds} workflowStatuses={project?.workflowStatuses} />
         )}
       </div>
     </AppShell>
