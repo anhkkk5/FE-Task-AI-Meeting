@@ -25,6 +25,7 @@ export function TaskForm({
   const [sprintId, setSprintId] = useState("");
   const [assigneeId, setAssigneeId] = useState("");
   const [dueDate, setDueDate] = useState("");
+  const [storyPoints, setStoryPoints] = useState("");
   const [taskType, setTaskType] = useState<TaskType>("TASK");
   const [priority, setPriority] = useState<TaskPriority>("MEDIUM");
   const [parentId, setParentId] = useState("");
@@ -44,6 +45,7 @@ export function TaskForm({
         taskType,
         priority,
         parentId: parentId || undefined,
+        storyPoints: storyPoints ? Number(storyPoints) : undefined,
       });
     } finally {
       setIsSubmitting(false);
@@ -108,6 +110,10 @@ export function TaskForm({
             <option value="">{taskType === "SUBTASK" ? "Chọn công việc cha" : "Không có"}</option>
             {parentCandidates.filter((item) => taskType === "STORY" ? item.taskType === "EPIC" : taskType === "SUBTASK" ? ["STORY", "TASK", "BUG"].includes(item.taskType) : false).map((item) => <option key={item.id} value={item.id}>{item.taskCode} · {item.title}</option>)}
           </select>
+        </label>
+        <label className="grid gap-2 text-xs font-bold text-slate-700">
+          Story Point
+          <input className="h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm" min="0" onChange={(event) => setStoryPoints(event.target.value)} placeholder="Ví dụ: 3" step="1" type="number" value={storyPoints} />
         </label>
       </div>
 

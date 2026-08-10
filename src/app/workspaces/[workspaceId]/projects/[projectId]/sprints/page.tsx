@@ -18,6 +18,7 @@ import { Sprint } from "@/features/sprints/types/sprint.type";
 import {
   assignTask,
   cancelTask,
+  createTask,
   deleteTask,
   getTasks,
   moveTaskToSprint,
@@ -425,6 +426,19 @@ export default function BacklogPage() {
     return depth;
   };
 
+  const getDescendantStoryPoints = (taskId: string): number =>
+    tasks.filter((item) => item.parentId === taskId).reduce(
+      (total, child) => total + (child.storyPoints ?? 0) + getDescendantStoryPoints(child.id),
+      0,
+    );
+
+  const getDescendantProgress = (taskId: string) => {
+    const collect = (parentId: string): Task[] => tasks.filter((item) => item.parentId === parentId).flatMap((item) => [item, ...collect(item.id)]);
+    const descendants = collect(taskId);
+    const done = descendants.filter((item) => item.status === "DONE").length;
+    return descendants.length ? Math.round((done / descendants.length) * 100) : 0;
+  };
+
   const getSprintTaskCounts = (sprintId: string | null) => {
     const sprintTasks = tasks.filter((task) => task.sprintId === sprintId);
     return {
@@ -469,6 +483,7 @@ export default function BacklogPage() {
         </span>
         <span className="shrink-0 rounded bg-violet-50 px-1.5 py-0.5 text-[10px] font-bold text-violet-700">{task.taskType}</span>
         <span className={`shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold ${task.priority === "URGENT" ? "bg-rose-50 text-rose-700" : task.priority === "HIGH" ? "bg-amber-50 text-amber-700" : task.priority === "LOW" ? "bg-slate-100 text-slate-600" : "bg-blue-50 text-blue-700"}`}>{task.priority}</span>
+        {task.taskType === "EPIC" ? <span className="shrink-0 text-[10px] font-semibold text-[#6b778c]">{getDescendantProgress(task.id)}% · {getDescendantStoryPoints(task.id)} SP</span> : null}
         {task.isBlocked ? <span className="shrink-0 rounded bg-rose-50 px-1.5 py-0.5 text-[10px] font-bold text-rose-700">Bị chặn</span> : null}
         {task.isBlocking ? <span className="shrink-0 rounded bg-amber-50 px-1.5 py-0.5 text-[10px] font-bold text-amber-700">Đang chặn</span> : null}
         <button
@@ -1142,6 +1157,20 @@ export default function BacklogPage() {
             const response = await updateTask(params.workspaceId, params.projectId, task.id, payload);
             setSelectedTask(response.data.task);
             await loadData();
+          }}
+          onCreateSubtask={async (task, payload) => {
+            await createTask(params.workspaceId, params.projectId, {
+              ...payload,
+              taskType: "SUBTASK",
+              priority: task.priority,
+              parentId: task.id,
+              sprintId: task.sprintId ?? undefined,
+              assigneeId: task.assigneeId ?? undefined,
+            });
+            await loadData();
+            const refreshed = await getTasks(params.workspaceId, params.projectId, { limit: 100 });
+            const current = refreshed.data.items.find((item) => item.id === task.id);
+            if (current) setSelectedTask(current);
           }}
           onStatusChange={handleDrawerStatusChange}
           projectId={params.projectId}

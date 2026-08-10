@@ -24,6 +24,7 @@ type TaskDetailDrawerProps = {
   onAssign: (task: Task, assigneeId: string | null) => Promise<void>;
   onMoveSprint: (task: Task, sprintId: string | null) => Promise<void>;
   onUpdateStructure: (task: Task, payload: { taskType: TaskType; priority: TaskPriority; parentId: string | null }) => Promise<void>;
+  onCreateSubtask: (task: Task, payload: { title: string; storyPoints?: number }) => Promise<void>;
   onCancel: (task: Task) => Promise<void>;
   onDelete: (task: Task) => Promise<void>;
 };
@@ -102,6 +103,7 @@ export function TaskDetailDrawer({
   onAssign,
   onMoveSprint,
   onUpdateStructure,
+  onCreateSubtask,
   onCancel,
   onDelete,
 }: TaskDetailDrawerProps) {
@@ -113,6 +115,8 @@ export function TaskDetailDrawer({
   const [taskType, setTaskType] = useState<TaskType>("TASK");
   const [priority, setPriority] = useState<TaskPriority>("MEDIUM");
   const [parentId, setParentId] = useState("");
+  const [subtaskTitle, setSubtaskTitle] = useState("");
+  const [subtaskStoryPoints, setSubtaskStoryPoints] = useState("");
   const [activities, setActivities] = useState<TaskActivity[]>([]);
   const [isLoadingActivities, setIsLoadingActivities] = useState(false);
   const [comments, setComments] = useState<TaskComment[]>([]);
@@ -150,7 +154,7 @@ export function TaskDetailDrawer({
     try {
       const [dependencyResponse, tasksResponse] = await Promise.all([
         getTaskDependencies(workspaceId, projectId, taskId),
-        getTasks(workspaceId, projectId, { limit: 50 }),
+        getTasks(workspaceId, projectId, { limit: 100 }),
       ]);
       setDependencies(dependencyResponse.data.items);
       setDependencyCandidates(tasksResponse.data.items.filter((item) => item.id !== taskId));
@@ -175,6 +179,16 @@ export function TaskDetailDrawer({
   }, [task?.id, workspaceId, projectId]);
 
   if (!task) return null;
+
+  const descendants = (() => {
+    const result: Task[] = [];
+    const visit = (parentTaskId: string) => dependencyCandidates.filter((item) => item.parentId === parentTaskId).forEach((item) => { result.push(item); visit(item.id); });
+    visit(task.id);
+    return result;
+  })();
+  const aggregateStoryPoints = descendants.reduce((total, item) => total + (item.storyPoints ?? 0), 0);
+  const completedDescendants = descendants.filter((item) => item.status === "DONE").length;
+  const hierarchyPercent = descendants.length ? Math.round((completedDescendants / descendants.length) * 100) : 0;
 
   const activeSprints = sprints.filter(
     (sprint) => sprint.status !== "COMPLETED" && sprint.status !== "CANCELLED",
@@ -453,6 +467,17 @@ export function TaskDetailDrawer({
               </button>
             </div>
           </section>
+
+          {(descendants.length > 0 || task.taskType === "EPIC") ? <section className="rounded border border-[#dfe1e6] bg-white p-4">
+            <div className="flex items-center justify-between gap-3"><h3 className="text-sm font-semibold text-[#172b4d]">Tiến độ cấu trúc</h3><span className="text-sm font-bold text-[#0c66e4]">{hierarchyPercent}%</span></div>
+            <div className="mt-3 h-2 overflow-hidden rounded-full bg-[#dfe1e6]"><div className="h-full rounded-full bg-[#0c66e4] transition-all" style={{ width: `${hierarchyPercent}%` }} /></div>
+            <div className="mt-2 flex justify-between text-xs text-[#6b778c]"><span>{descendants.length ? `${completedDescendants}/${descendants.length} công việc con hoàn thành` : "Chưa có công việc con"}</span>{task.taskType === "EPIC" ? <strong>{aggregateStoryPoints} Story Point</strong> : null}</div>
+          </section> : null}
+
+          {["STORY", "TASK", "BUG"].includes(task.taskType) && canManage ? <section className="rounded border border-[#dfe1e6] bg-white p-4">
+            <h3 className="text-sm font-semibold text-[#172b4d]">Tạo Subtask</h3><p className="mt-1 text-xs text-[#6b778c]">Subtask sẽ kế thừa Sprint của công việc cha.</p>
+            <div className="mt-3 grid gap-2 sm:grid-cols-[1fr_100px_auto]"><input className="h-10 rounded border border-[#dfe1e6] px-3 text-sm" maxLength={200} minLength={2} onChange={(event) => setSubtaskTitle(event.target.value)} placeholder="Tên Subtask" value={subtaskTitle} /><input className="h-10 rounded border border-[#dfe1e6] px-3 text-sm" min="0" onChange={(event) => setSubtaskStoryPoints(event.target.value)} placeholder="Point" type="number" value={subtaskStoryPoints} /><button className="h-10 rounded bg-[#0c66e4] px-4 text-sm font-semibold text-white disabled:bg-[#b3b9c4]" disabled={isBusy || subtaskTitle.trim().length < 2} onClick={() => void runAction(async () => { await onCreateSubtask(task, { title: subtaskTitle.trim(), storyPoints: subtaskStoryPoints ? Number(subtaskStoryPoints) : undefined }); setSubtaskTitle(""); setSubtaskStoryPoints(""); await loadActivities(task.id); }, "Đã tạo Subtask." )} type="button">Tạo</button></div>
+          </section> : null}
 
           <section className="rounded border border-[#dfe1e6] bg-white p-4">
             <div className="flex items-center justify-between gap-3">
