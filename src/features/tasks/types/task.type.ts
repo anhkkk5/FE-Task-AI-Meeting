@@ -134,7 +134,8 @@ export type UpdateTaskPayload = {
 };
 
 export type UpdateTaskStatusPayload = {
-  status: TaskStatus;
+  status?: TaskStatus;
+  workflowStatusId?: string;
   overrideBlocked?: boolean;
   overrideReason?: string;
 };

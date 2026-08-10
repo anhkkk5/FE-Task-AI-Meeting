@@ -120,7 +120,7 @@ export default function TaskDetailPage() {
     }
   }, [user, params.workspaceId, params.projectId, params.taskId, loadTask]);
 
-  async function handleStatusChange(status: TaskStatus) {
+  async function handleStatusChange(status: TaskStatus, workflowStatusId?: string) {
     if (!task) return;
     setActionBusy(true);
     setMessage("");
@@ -130,7 +130,7 @@ export default function TaskDetailPage() {
         params.workspaceId,
         params.projectId,
         task.id,
-        { status },
+        workflowStatusId ? { workflowStatusId } : { status },
       );
       setTask(response.data.task);
       setMessage("Cập nhật trạng thái task thành công.");
@@ -402,7 +402,8 @@ export default function TaskDetailPage() {
                   <TaskStatusSelect
                     disabled={!canChangeStatus || actionBusy || task.status === "CANCELLED"}
                     value={task.status}
-                    onChange={(status) => void handleStatusChange(status)}
+                    options={project?.workflowStatuses.map((status) => ({ id: status.workflowStatusId, key: status.key, label: status.label, enabled: status.enabled }))}
+                    onChange={(status, workflowStatusId) => void handleStatusChange(status, workflowStatusId)}
                   />
                 </div>
               </div>

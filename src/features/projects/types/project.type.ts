@@ -1,6 +1,6 @@
 export type ProjectStatus = "ACTIVE" | "ARCHIVED" | "COMPLETED";
 export type WorkflowStatusKey = "BACKLOG" | "TODO" | "IN_PROGRESS" | "REVIEW" | "DONE" | "CANCELLED";
-export type WorkflowStatusConfig = { key: WorkflowStatusKey; label: string; color: string; category: "TO_DO" | "IN_PROGRESS" | "DONE"; order: number; enabled: boolean };
+export type WorkflowStatusConfig = { workflowStatusId?: string; key: WorkflowStatusKey; label: string; color: string; category: "TO_DO" | "IN_PROGRESS" | "DONE"; order: number; enabled: boolean };
 export type WorkflowTransitionConfig = { from: WorkflowStatusKey; to: WorkflowStatusKey; roles?: string[] };
 
 export type Project = {
