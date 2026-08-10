@@ -8,7 +8,9 @@ import { getProjectDetail } from "@/features/projects/api/projects.api";
 import { Project } from "@/features/projects/types/project.type";
 import { getSprintDetail } from "@/features/sprints/api/sprints.api";
 import { Sprint } from "@/features/sprints/types/sprint.type";
-import { getSprintTasks } from "@/features/tasks/api/tasks.api";
+import { assignTask, getSprintTasks, moveTaskToSprint, updateTask, updateTaskStatus } from "@/features/tasks/api/tasks.api";
+import { getWorkspaceMembers } from "@/features/members/api/members.api";
+import { WorkspaceMember } from "@/features/members/types/member.type";
 import { TaskBoard } from "@/features/tasks/components/TaskBoard";
 import { Task } from "@/features/tasks/types/task.type";
 import { useAuth } from "@/hooks/useAuth";
@@ -25,6 +27,9 @@ export default function SprintBoardPage() {
   const [items, setItems] = useState<Task[]>([]);
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [members, setMembers] = useState<WorkspaceMember[]>([]);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [isBulkUpdating, setIsBulkUpdating] = useState(false);
 
   const loadBoard = useCallback(
     async () => {
@@ -32,7 +37,7 @@ export default function SprintBoardPage() {
       setMessage("");
 
       try {
-        const [projectResponse, sprintResponse, tasksResponse] =
+        const [projectResponse, sprintResponse, tasksResponse, membersResponse] =
           await Promise.all([
             getProjectDetail(params.workspaceId, params.projectId),
             getSprintDetail(
@@ -41,10 +46,12 @@ export default function SprintBoardPage() {
               params.sprintId,
             ),
             getSprintTasks(params.workspaceId, params.projectId, params.sprintId),
+            getWorkspaceMembers(params.workspaceId),
           ]);
         setProject(projectResponse.data.project);
         setSprint(sprintResponse.data.sprint);
         setItems(tasksResponse.data.items);
+        setMembers(membersResponse.data.items);
       } catch (error) {
         setMessage(
           error instanceof Error ? error.message : "Tải sprint board thất bại.",
@@ -67,6 +74,18 @@ export default function SprintBoardPage() {
     params.sprintId,
     loadBoard,
   ]);
+
+  const toggleSelection = (taskId: string) => setSelectedIds((current) => { const next = new Set(current); if (next.has(taskId)) next.delete(taskId); else next.add(taskId); return next; });
+  const runBulk = async (action: "status" | "assignee" | "priority" | "backlog", value: string) => {
+    setIsBulkUpdating(true);
+    const selected = items.filter((item) => selectedIds.has(item.id));
+    const results = await Promise.allSettled(selected.map((task) => action === "status" ? updateTaskStatus(params.workspaceId, params.projectId, task.id, { status: value as Task["status"] }) : action === "assignee" ? assignTask(params.workspaceId, params.projectId, task.id, { assigneeId: value === "UNASSIGNED" ? null : value }) : action === "priority" ? updateTask(params.workspaceId, params.projectId, task.id, { priority: value as Task["priority"] }) : moveTaskToSprint(params.workspaceId, params.projectId, task.id, { sprintId: null })));
+    const failed = results.filter((result) => result.status === "rejected").length;
+    setSelectedIds(new Set());
+    await loadBoard();
+    setMessage(failed ? `Đã cập nhật ${results.length - failed}/${results.length} Task; ${failed} Task bị từ chối.` : `Đã cập nhật ${results.length} Task.`);
+    setIsBulkUpdating(false);
+  };
 
   if (authLoading) {
     return (
@@ -121,12 +140,17 @@ export default function SprintBoardPage() {
           </div>
         ) : null}
 
+        <div className="flex flex-wrap items-center gap-2 rounded-xl border border-blue-200 bg-blue-50 p-3">
+          <label className="flex items-center gap-2 text-xs font-bold text-blue-900"><input checked={items.length > 0 && items.every((item) => selectedIds.has(item.id))} onChange={(event) => setSelectedIds(event.target.checked ? new Set(items.map((item) => item.id)) : new Set())} type="checkbox" />Chọn tất cả</label><span className="rounded-full bg-blue-600 px-2 py-1 text-xs font-bold text-white">{selectedIds.size} đã chọn</span>
+          {selectedIds.size ? <><select className="h-9 rounded border border-blue-200 bg-white px-2 text-xs" defaultValue="" disabled={isBulkUpdating} onChange={(event) => { void runBulk("status", event.target.value); event.target.value = ""; }}><option value="" disabled>Trạng thái...</option><option value="TODO">Cần làm</option><option value="IN_PROGRESS">Đang làm</option><option value="REVIEW">Review</option><option value="DONE">Hoàn thành</option></select><select className="h-9 rounded border border-blue-200 bg-white px-2 text-xs" defaultValue="" disabled={isBulkUpdating} onChange={(event) => { void runBulk("assignee", event.target.value); event.target.value = ""; }}><option value="" disabled>Người phụ trách...</option><option value="UNASSIGNED">Bỏ gán</option>{members.map((member) => <option key={member.userId} value={member.userId}>{member.fullName || member.email}</option>)}</select><select className="h-9 rounded border border-blue-200 bg-white px-2 text-xs" defaultValue="" disabled={isBulkUpdating} onChange={(event) => { void runBulk("priority", event.target.value); event.target.value = ""; }}><option value="" disabled>Ưu tiên...</option><option value="LOW">Thấp</option><option value="MEDIUM">Trung bình</option><option value="HIGH">Cao</option><option value="URGENT">Khẩn cấp</option></select><button className="h-9 rounded border border-blue-300 bg-white px-3 text-xs font-semibold text-blue-800" disabled={isBulkUpdating} onClick={() => void runBulk("backlog", "BACKLOG")} type="button">Chuyển về Backlog</button></> : <span className="text-xs text-blue-700">Chọn các thẻ để thao tác hàng loạt.</span>}
+        </div>
+
         {isLoading ? (
           <div className="flex h-48 items-center justify-center">
             <div className="h-6 w-6 animate-spin rounded-full border-2 border-slate-900 border-t-transparent"></div>
           </div>
         ) : (
-          <TaskBoard items={items} />
+          <TaskBoard items={items} onToggle={toggleSelection} selectedIds={selectedIds} />
         )}
       </div>
     </AppShell>

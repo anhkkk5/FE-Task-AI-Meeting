@@ -2,6 +2,8 @@ import { Task, TaskStatus } from "../types/task.type";
 
 type TaskBoardProps = {
   items: Task[];
+  selectedIds?: Set<string>;
+  onToggle?: (taskId: string) => void;
 };
 
 const columns: { status: TaskStatus; label: string }[] = [
@@ -19,7 +21,7 @@ function formatDate(value: string | null) {
   });
 }
 
-export function TaskBoard({ items }: TaskBoardProps) {
+export function TaskBoard({ items, selectedIds = new Set(), onToggle }: TaskBoardProps) {
   return (
     <div className="grid min-w-[960px] gap-3 overflow-x-auto pb-2 xl:grid-cols-4">
       {columns.map((column) => {
@@ -45,6 +47,7 @@ export function TaskBoard({ items }: TaskBoardProps) {
                   key={task.id}
                   className="rounded border border-[#dfe1e6] bg-white p-3 shadow-[0_1px_1px_rgba(9,30,66,0.16)] transition hover:border-[#b3b9c4]"
                 >
+                  {onToggle ? <input aria-label={`Chọn ${task.taskCode}`} checked={selectedIds.has(task.id)} className="mb-2 h-4 w-4 rounded" onChange={() => onToggle(task.id)} type="checkbox" /> : null}
                   <h3 className="line-clamp-2 text-sm font-medium leading-5 text-[#172b4d]">
                     {task.title}
                   </h3>

@@ -141,6 +141,8 @@ export default function BacklogPage() {
   const [draggedTaskId, setDraggedTaskId] = useState<string | null>(null);
   const [dragOverTarget, setDragOverTarget] = useState<DropTargetId | null>(null);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [selectedTaskIds, setSelectedTaskIds] = useState<Set<string>>(new Set());
+  const [isBulkUpdating, setIsBulkUpdating] = useState(false);
 
   const canWrite = writeRoles.includes(myRole) && project?.status === "ACTIVE";
 
@@ -448,6 +450,31 @@ export default function BacklogPage() {
     };
   };
 
+  const toggleTaskSelection = (taskId: string) => {
+    setSelectedTaskIds((current) => {
+      const next = new Set(current);
+      if (next.has(taskId)) next.delete(taskId); else next.add(taskId);
+      return next;
+    });
+  };
+
+  const runBulkAction = async (action: "status" | "sprint" | "assignee" | "priority", value: string) => {
+    if (!value || selectedTaskIds.size === 0) return;
+    setIsBulkUpdating(true);
+    const selected = tasks.filter((task) => selectedTaskIds.has(task.id));
+    const results = await Promise.allSettled(selected.map((task) => {
+      if (action === "status") return updateTaskStatus(params.workspaceId, params.projectId, task.id, { status: value as TaskStatus });
+      if (action === "sprint") return moveTaskToSprint(params.workspaceId, params.projectId, task.id, { sprintId: value === "BACKLOG" ? null : value });
+      if (action === "assignee") return assignTask(params.workspaceId, params.projectId, task.id, { assigneeId: value === "UNASSIGNED" ? null : value });
+      return updateTask(params.workspaceId, params.projectId, task.id, { priority: value as Task["priority"] });
+    }));
+    const failed = results.filter((result) => result.status === "rejected").length;
+    setSelectedTaskIds(new Set());
+    await loadData();
+    setMessage(failed ? `Đã cập nhật ${results.length - failed}/${results.length} Task. ${failed} Task không hợp lệ hoặc bị chặn.` : `Đã cập nhật ${results.length} Task.`);
+    setIsBulkUpdating(false);
+  };
+
   const renderTaskRow = (task: Task, currentSprintId: string | null) => {
     // MEMBER duoc tu doi trang thai task cua chinh minh, giong Jira.
     const canChangeStatus =
@@ -465,10 +492,11 @@ export default function BacklogPage() {
       onDragStart={(event) => handleTaskDragStart(event, task.id)}
     >
       <input
-        checked={task.status === "DONE"}
+        aria-label={`Chọn ${task.taskCode}`}
+        checked={selectedTaskIds.has(task.id)}
         className="h-4 w-4 rounded border-[#b3b9c4] text-[#4F8EB0]"
-        disabled={!canWrite}
-        onChange={() => void handleToggleTaskStatus(task)}
+        disabled={!canWrite || isBulkUpdating}
+        onChange={() => toggleTaskSelection(task.id)}
         type="checkbox"
       />
 
@@ -881,6 +909,17 @@ export default function BacklogPage() {
               ) : null}
             </div>
           </div>
+
+          {canWrite ? <div className="flex flex-col gap-3 rounded-2xl border border-blue-200 bg-blue-50/70 p-3 sm:flex-row sm:items-center">
+            <label className="flex items-center gap-2 text-sm font-bold text-blue-900"><input checked={filteredTasks.length > 0 && filteredTasks.every((task) => selectedTaskIds.has(task.id))} className="h-4 w-4 rounded" onChange={(event) => setSelectedTaskIds(event.target.checked ? new Set(filteredTasks.map((task) => task.id)) : new Set())} type="checkbox" />Chọn tất cả đang hiển thị</label>
+            <span className="rounded-full bg-blue-600 px-2.5 py-1 text-xs font-bold text-white">{selectedTaskIds.size} đã chọn</span>
+            {selectedTaskIds.size > 0 ? <div className="grid flex-1 gap-2 sm:grid-cols-4">
+              <select className="h-9 rounded-lg border border-blue-200 bg-white px-2 text-xs" defaultValue="" disabled={isBulkUpdating} onChange={(event) => { void runBulkAction("status", event.target.value); event.target.value = ""; }}><option value="" disabled>Đổi trạng thái...</option><option value="TODO">Cần làm</option><option value="IN_PROGRESS">Đang làm</option><option value="REVIEW">Review</option><option value="DONE">Hoàn thành</option></select>
+              <select className="h-9 rounded-lg border border-blue-200 bg-white px-2 text-xs" defaultValue="" disabled={isBulkUpdating} onChange={(event) => { void runBulkAction("sprint", event.target.value); event.target.value = ""; }}><option value="" disabled>Chuyển Sprint...</option><option value="BACKLOG">Backlog</option>{sprints.filter((sprint) => sprint.status !== "COMPLETED" && sprint.status !== "CANCELLED").map((sprint) => <option key={sprint.id} value={sprint.id}>{sprint.name}</option>)}</select>
+              <select className="h-9 rounded-lg border border-blue-200 bg-white px-2 text-xs" defaultValue="" disabled={isBulkUpdating} onChange={(event) => { void runBulkAction("assignee", event.target.value); event.target.value = ""; }}><option value="" disabled>Gán người phụ trách...</option><option value="UNASSIGNED">Bỏ gán</option>{members.map((member) => <option key={member.userId} value={member.userId}>{member.fullName || member.email}</option>)}</select>
+              <select className="h-9 rounded-lg border border-blue-200 bg-white px-2 text-xs" defaultValue="" disabled={isBulkUpdating} onChange={(event) => { void runBulkAction("priority", event.target.value); event.target.value = ""; }}><option value="" disabled>Đổi ưu tiên...</option><option value="LOW">Thấp</option><option value="MEDIUM">Trung bình</option><option value="HIGH">Cao</option><option value="URGENT">Khẩn cấp</option></select>
+            </div> : <span className="text-xs text-blue-700">Chọn Task bằng ô đầu mỗi dòng để thao tác hàng loạt.</span>}
+          </div> : null}
 
           {/* Stat KPI Cards Grid */}
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
