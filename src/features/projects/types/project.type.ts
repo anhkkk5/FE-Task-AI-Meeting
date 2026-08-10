@@ -1,4 +1,7 @@
 export type ProjectStatus = "ACTIVE" | "ARCHIVED" | "COMPLETED";
+export type WorkflowStatusKey = "BACKLOG" | "TODO" | "IN_PROGRESS" | "REVIEW" | "DONE" | "CANCELLED";
+export type WorkflowStatusConfig = { key: WorkflowStatusKey; label: string; color: string; category: "TO_DO" | "IN_PROGRESS" | "DONE"; order: number; enabled: boolean };
+export type WorkflowTransitionConfig = { from: WorkflowStatusKey; to: WorkflowStatusKey };
 
 export type Project = {
   id: string;
@@ -9,6 +12,8 @@ export type Project = {
   status: ProjectStatus;
   startDate: string | null;
   endDate: string | null;
+  workflowStatuses: WorkflowStatusConfig[];
+  workflowTransitions: WorkflowTransitionConfig[];
   createdBy: string;
   /**
    * Chi co o endpoint chi tiet du an.
@@ -37,6 +42,8 @@ export type CreateProjectPayload = {
   description?: string;
   startDate?: string;
   endDate?: string;
+  workflowStatuses?: WorkflowStatusConfig[];
+  workflowTransitions?: WorkflowTransitionConfig[];
 };
 
 export type UpdateProjectPayload = {
@@ -44,4 +51,6 @@ export type UpdateProjectPayload = {
   description?: string;
   startDate?: string;
   endDate?: string;
+  workflowStatuses?: WorkflowStatusConfig[];
+  workflowTransitions?: WorkflowTransitionConfig[];
 };

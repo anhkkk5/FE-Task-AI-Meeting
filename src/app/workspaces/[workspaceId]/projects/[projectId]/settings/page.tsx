@@ -10,7 +10,7 @@ import {
   updateProject,
 } from "@/features/projects/api/projects.api";
 import { ProjectForm } from "@/features/projects/components/ProjectForm";
-import { Project } from "@/features/projects/types/project.type";
+import { Project, WorkflowStatusConfig, WorkflowTransitionConfig } from "@/features/projects/types/project.type";
 import { useAuth } from "@/hooks/useAuth";
 
 export default function ProjectSettingsPage() {
@@ -20,6 +20,8 @@ export default function ProjectSettingsPage() {
   const [project, setProject] = useState<Project | null>(null);
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [workflowStatuses, setWorkflowStatuses] = useState<WorkflowStatusConfig[]>([]);
+  const [workflowTransitions, setWorkflowTransitions] = useState<WorkflowTransitionConfig[]>([]);
 
   const loadProject = useCallback(
     async () => {
@@ -32,6 +34,8 @@ export default function ProjectSettingsPage() {
           params.projectId,
         );
         setProject(response.data.project);
+        setWorkflowStatuses(response.data.project.workflowStatuses);
+        setWorkflowTransitions(response.data.project.workflowTransitions);
       } catch (error) {
         setMessage(error instanceof Error ? error.message : "Tải cấu hình dự án thất bại.");
       } finally {
@@ -82,6 +86,18 @@ export default function ProjectSettingsPage() {
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Lưu trữ dự án thất bại.");
     }
+  }
+
+  async function saveWorkflow() {
+    try {
+      const response = await updateProject(params.workspaceId, params.projectId, { workflowStatuses, workflowTransitions });
+      setProject(response.data.project);
+      setMessage("Đã lưu workflow và áp dụng cho các lần đổi trạng thái tiếp theo.");
+    } catch (error) { setMessage(error instanceof Error ? error.message : "Không thể lưu workflow."); }
+  }
+
+  function toggleTransition(from: WorkflowStatusConfig["key"], to: WorkflowStatusConfig["key"]) {
+    setWorkflowTransitions((items) => items.some((item) => item.from === from && item.to === to) ? items.filter((item) => item.from !== from || item.to !== to) : [...items, { from, to }]);
   }
 
   async function handleComplete() {
@@ -151,6 +167,13 @@ export default function ProjectSettingsPage() {
                 submitLabel="Lưu thay đổi"
                 onSubmit={handleUpdate}
               />
+            </div>
+
+            <div className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">
+              <div className="flex items-center justify-between gap-3"><div><h2 className="text-sm font-bold text-zinc-800">Workflow của Project</h2><p className="mt-1 text-xs text-zinc-500">Đổi tên, màu, thứ tự và các bước chuyển trạng thái được phép.</p></div><button className="rounded-xl bg-blue-600 px-4 py-2 text-xs font-bold text-white" onClick={() => void saveWorkflow()} type="button">Lưu workflow</button></div>
+              <div className="mt-5 grid gap-3 sm:grid-cols-2">{[...workflowStatuses].sort((a, b) => a.order - b.order).map((status, index) => <div className="grid grid-cols-[36px_1fr_90px_70px] items-center gap-2 rounded-xl bg-zinc-50 p-3" key={status.key}><span className="text-xs font-black text-zinc-400">{index + 1}</span><input className="h-9 rounded-lg border border-zinc-200 px-2 text-xs font-semibold" onChange={(event) => setWorkflowStatuses((items) => items.map((item) => item.key === status.key ? { ...item, label: event.target.value } : item))} value={status.label} /><input className="h-9 w-full rounded-lg border border-zinc-200" onChange={(event) => setWorkflowStatuses((items) => items.map((item) => item.key === status.key ? { ...item, color: event.target.value } : item))} type="color" value={status.color} /><label className="flex items-center gap-1 text-[10px] font-bold"><input checked={status.enabled} disabled={status.key === "DONE"} onChange={(event) => setWorkflowStatuses((items) => items.map((item) => item.key === status.key ? { ...item, enabled: event.target.checked } : item))} type="checkbox" />Bật</label></div>)}</div>
+              <h3 className="mt-6 text-xs font-bold uppercase text-zinc-500">Transition được phép</h3><div className="mt-3 overflow-x-auto"><table className="w-full text-xs"><thead><tr><th className="p-2 text-left">Từ / Đến</th>{workflowStatuses.filter((status) => status.enabled).map((status) => <th className="p-2" key={status.key}>{status.label}</th>)}</tr></thead><tbody>{workflowStatuses.filter((status) => status.enabled).map((from) => <tr className="border-t border-zinc-100" key={from.key}><th className="p-2 text-left">{from.label}</th>{workflowStatuses.filter((status) => status.enabled).map((to) => <td className="p-2 text-center" key={to.key}><input checked={from.key !== to.key && workflowTransitions.some((item) => item.from === from.key && item.to === to.key)} disabled={from.key === to.key} onChange={() => toggleTransition(from.key, to.key)} type="checkbox" /></td>)}</tr>)}</tbody></table></div>
+              <div className="mt-6"><h3 className="text-xs font-bold uppercase text-zinc-500">Preview Board</h3><div className="mt-3 flex gap-2 overflow-x-auto">{workflowStatuses.filter((status) => status.enabled && status.key !== "CANCELLED").sort((a, b) => a.order - b.order).map((status) => <div className="min-w-36 rounded-xl border border-zinc-200 bg-zinc-50 p-3" key={status.key}><div className="h-1.5 rounded-full" style={{ backgroundColor: status.color }} /><p className="mt-2 text-xs font-bold text-zinc-700">{status.label}</p><div className="mt-3 h-16 rounded-lg border border-dashed border-zinc-200 bg-white" /></div>)}</div></div>
             </div>
 
             {/* Actions / Danger Zone Panel */}
