@@ -14,6 +14,7 @@ export type Project = {
   endDate: string | null;
   workflowStatuses: WorkflowStatusConfig[];
   workflowTransitions: WorkflowTransitionConfig[];
+  workflowTemplateId: string | null;
   createdBy: string;
   /**
    * Chi co o endpoint chi tiet du an.

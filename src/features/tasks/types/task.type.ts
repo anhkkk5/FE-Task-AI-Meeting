@@ -32,6 +32,7 @@ export type Task = {
   labels: string[];
   acceptanceCriteria: string | null;
   status: TaskStatus;
+  workflowStatusId: string | null;
   taskType: TaskType;
   priority: TaskPriority;
   parentId: string | null;

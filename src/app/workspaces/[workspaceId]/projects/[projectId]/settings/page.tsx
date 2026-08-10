@@ -4,10 +4,14 @@ import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { AppShell } from "@/components/layout/AppShell";
 import {
+  applyWorkflowTemplate,
   archiveProject,
   completeProject,
+  createWorkflowTemplate,
   getProjectDetail,
+  getWorkflowTemplates,
   updateProject,
+  type WorkflowTemplate,
 } from "@/features/projects/api/projects.api";
 import { ProjectForm } from "@/features/projects/components/ProjectForm";
 import { Project, WorkflowStatusConfig, WorkflowTransitionConfig } from "@/features/projects/types/project.type";
@@ -22,6 +26,8 @@ export default function ProjectSettingsPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [workflowStatuses, setWorkflowStatuses] = useState<WorkflowStatusConfig[]>([]);
   const [workflowTransitions, setWorkflowTransitions] = useState<WorkflowTransitionConfig[]>([]);
+  const [workflowTemplates, setWorkflowTemplates] = useState<WorkflowTemplate[]>([]);
+  const [selectedTemplateId, setSelectedTemplateId] = useState("");
 
   const loadProject = useCallback(
     async () => {
@@ -36,6 +42,9 @@ export default function ProjectSettingsPage() {
         setProject(response.data.project);
         setWorkflowStatuses(response.data.project.workflowStatuses);
         setWorkflowTransitions(response.data.project.workflowTransitions);
+        setSelectedTemplateId(response.data.project.workflowTemplateId ?? "");
+        const templates = await getWorkflowTemplates(params.workspaceId);
+        setWorkflowTemplates(templates.data.items);
       } catch (error) {
         setMessage(error instanceof Error ? error.message : "Tải cấu hình dự án thất bại.");
       } finally {
@@ -94,6 +103,29 @@ export default function ProjectSettingsPage() {
       setProject(response.data.project);
       setMessage("Đã lưu workflow và áp dụng cho các lần đổi trạng thái tiếp theo.");
     } catch (error) { setMessage(error instanceof Error ? error.message : "Không thể lưu workflow."); }
+  }
+
+  async function applySelectedTemplate() {
+    if (!selectedTemplateId) return;
+    try {
+      const response = await applyWorkflowTemplate(params.workspaceId, params.projectId, selectedTemplateId);
+      setProject(response.data.project);
+      setWorkflowStatuses(response.data.project.workflowStatuses);
+      setWorkflowTransitions(response.data.project.workflowTransitions);
+      setMessage("Đã áp dụng workflow template và đồng bộ trạng thái công việc.");
+    } catch (error) { setMessage(error instanceof Error ? error.message : "Không thể áp dụng template."); }
+  }
+
+  async function saveAsTemplate() {
+    const name = prompt("Tên workflow template mới:");
+    if (!name?.trim()) return;
+    try {
+      const response = await createWorkflowTemplate(params.workspaceId, { name: name.trim(), statuses: workflowStatuses, transitions: workflowTransitions });
+      const templates = await getWorkflowTemplates(params.workspaceId);
+      setWorkflowTemplates(templates.data.items);
+      setSelectedTemplateId(response.data.id);
+      setMessage("Đã lưu workflow thành template dùng chung.");
+    } catch (error) { setMessage(error instanceof Error ? error.message : "Không thể lưu template."); }
   }
 
   function toggleTransition(from: WorkflowStatusConfig["key"], to: WorkflowStatusConfig["key"]) {
@@ -170,6 +202,17 @@ export default function ProjectSettingsPage() {
             </div>
 
             <div className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">
+              <div className="mb-5 rounded-xl border border-blue-100 bg-blue-50/60 p-4">
+                <p className="text-xs font-bold uppercase text-blue-700">Template dùng chung</p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  <select className="min-w-56 rounded-lg border border-blue-200 bg-white px-3 py-2 text-xs" onChange={(event) => setSelectedTemplateId(event.target.value)} value={selectedTemplateId}>
+                    <option value="">Chọn workflow template</option>
+                    {workflowTemplates.map((template) => <option key={template.id} value={template.id}>{template.name}{template.is_system ? " (Hệ thống)" : ""}</option>)}
+                  </select>
+                  <button className="rounded-lg bg-blue-600 px-3 py-2 text-xs font-bold text-white disabled:opacity-50" disabled={!selectedTemplateId} onClick={() => void applySelectedTemplate()} type="button">Áp dụng template</button>
+                  <button className="rounded-lg border border-blue-200 bg-white px-3 py-2 text-xs font-bold text-blue-700" onClick={() => void saveAsTemplate()} type="button">Lưu thành template mới</button>
+                </div>
+              </div>
               <div className="flex items-center justify-between gap-3"><div><h2 className="text-sm font-bold text-zinc-800">Workflow của Project</h2><p className="mt-1 text-xs text-zinc-500">Đổi tên, màu, thứ tự và các bước chuyển trạng thái được phép.</p></div><button className="rounded-xl bg-blue-600 px-4 py-2 text-xs font-bold text-white" onClick={() => void saveWorkflow()} type="button">Lưu workflow</button></div>
               <div className="mt-5 grid gap-3 sm:grid-cols-2">{[...workflowStatuses].sort((a, b) => a.order - b.order).map((status, index) => <div className="grid grid-cols-[36px_1fr_90px_70px] items-center gap-2 rounded-xl bg-zinc-50 p-3" key={status.key}><span className="text-xs font-black text-zinc-400">{index + 1}</span><input className="h-9 rounded-lg border border-zinc-200 px-2 text-xs font-semibold" onChange={(event) => setWorkflowStatuses((items) => items.map((item) => item.key === status.key ? { ...item, label: event.target.value } : item))} value={status.label} /><input className="h-9 w-full rounded-lg border border-zinc-200" onChange={(event) => setWorkflowStatuses((items) => items.map((item) => item.key === status.key ? { ...item, color: event.target.value } : item))} type="color" value={status.color} /><label className="flex items-center gap-1 text-[10px] font-bold"><input checked={status.enabled} disabled={status.key === "DONE"} onChange={(event) => setWorkflowStatuses((items) => items.map((item) => item.key === status.key ? { ...item, enabled: event.target.checked } : item))} type="checkbox" />Bật</label></div>)}</div>
               <h3 className="mt-6 text-xs font-bold uppercase text-zinc-500">Transition được phép</h3><div className="mt-3 overflow-x-auto"><table className="w-full text-xs"><thead><tr><th className="p-2 text-left">Từ / Đến</th>{workflowStatuses.filter((status) => status.enabled).map((status) => <th className="p-2" key={status.key}>{status.label}</th>)}</tr></thead><tbody>{workflowStatuses.filter((status) => status.enabled).map((from) => <tr className="border-t border-zinc-100" key={from.key}><th className="p-2 text-left">{from.label}</th>{workflowStatuses.filter((status) => status.enabled).map((to) => <td className="p-2 text-center" key={to.key}><input checked={from.key !== to.key && workflowTransitions.some((item) => item.from === from.key && item.to === to.key)} disabled={from.key === to.key} onChange={() => toggleTransition(from.key, to.key)} type="checkbox" /></td>)}</tr>)}</tbody></table></div>
