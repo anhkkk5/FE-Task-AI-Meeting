@@ -733,6 +733,15 @@ export default function BacklogPage() {
     inProgress: tasks.filter((task) => task.status === "IN_PROGRESS" || task.status === "REVIEW").length,
     done: tasks.filter((task) => task.status === "DONE").length,
   };
+  const planningSprint = sprints.find((sprint) => sprint.status === "ACTIVE") ?? sprints.find((sprint) => sprint.status === "PLANNED") ?? null;
+  const planningCapacity = (() => {
+    if (!planningSprint) return null;
+    const dates: string[] = [];
+    for (let date = new Date(planningSprint.startDate); date <= new Date(planningSprint.endDate); date.setDate(date.getDate() + 1)) if (date.getDay() !== 0 && date.getDay() !== 6) dates.push(date.toISOString().slice(0, 10));
+    const available = members.reduce((sum, member) => sum + dates.filter((date) => !(member.unavailableDates ?? []).includes(date)).length * (member.dailyCapacityHours ?? 8), 0);
+    const assigned = tasks.filter((task) => task.sprintId === planningSprint.id && task.status !== "DONE").reduce((sum, task) => sum + (task.estimatedHours ?? 0), 0);
+    return { available, assigned, utilization: available ? Math.round(assigned / available * 100) : 0 };
+  })();
   const hasActiveFilters =
     searchKeyword.trim().length > 0 ||
     selectedStatus !== "ALL" ||
@@ -926,6 +935,8 @@ export default function BacklogPage() {
               <select className="h-9 rounded-lg border border-blue-200 bg-white px-2 text-xs" defaultValue="" disabled={isBulkUpdating} onChange={(event) => { void runBulkAction("priority", event.target.value); event.target.value = ""; }}><option value="" disabled>Đổi ưu tiên...</option><option value="LOW">Thấp</option><option value="MEDIUM">Trung bình</option><option value="HIGH">Cao</option><option value="URGENT">Khẩn cấp</option></select>
             </div> : <span className="text-xs text-blue-700">Chọn Task bằng ô đầu mỗi dòng để thao tác hàng loạt.</span>}
           </div> : null}
+
+          {planningCapacity ? <div className="rounded-2xl border border-indigo-100 bg-indigo-50/60 p-4"><div className="flex items-center justify-between text-xs font-bold text-indigo-900"><span>Capacity · {planningSprint?.name}</span><span>{planningCapacity.assigned}h / {planningCapacity.available}h · {planningCapacity.utilization}%</span></div><div className="mt-2 h-2 overflow-hidden rounded-full bg-indigo-100"><div className={`h-full ${planningCapacity.utilization > 100 ? "bg-rose-500" : "bg-indigo-600"}`} style={{ width: `${Math.min(100, planningCapacity.utilization)}%` }} /></div>{planningCapacity.utilization > 100 ? <p className="mt-2 text-xs font-semibold text-rose-700">Đội đang bị giao vượt quá giờ khả dụng.</p> : null}</div> : null}
 
           {/* Stat KPI Cards Grid */}
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">

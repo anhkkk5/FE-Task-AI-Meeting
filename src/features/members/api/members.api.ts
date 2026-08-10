@@ -98,3 +98,7 @@ export async function removeWorkspaceMember(
 
   return response;
 }
+
+export function updateWorkspaceMemberCapacity(workspaceId: string, memberId: string, payload: { dailyCapacityHours: number; unavailableDates: string[] }) {
+  return apiRequest<ApiResponse<{ member: WorkspaceMember }>>(`/workspaces/${workspaceId}/members/${memberId}/capacity`, { method: "PATCH", body: payload });
+}

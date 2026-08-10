@@ -16,6 +16,8 @@ export type WorkspaceMember = {
   role: WorkspaceRole;
   status: WorkspaceMemberStatus;
   joinedAt: string | null;
+  dailyCapacityHours: number;
+  unavailableDates: string[];
 };
 
 export type WorkspaceMemberLookupUser = {

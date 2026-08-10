@@ -26,7 +26,7 @@ import {
 import { getTasks } from "@/features/tasks/api/tasks.api";
 import { Task } from "@/features/tasks/types/task.type";
 import { useAuth } from "@/hooks/useAuth";
-import { getWorkspaceMembers } from "@/features/members/api/members.api";
+import { getWorkspaceMembers, updateWorkspaceMemberCapacity } from "@/features/members/api/members.api";
 import { WorkspaceMember } from "@/features/members/types/member.type";
 
 export default function ProjectAnalyticsPage() {
@@ -39,6 +39,8 @@ export default function ProjectAnalyticsPage() {
   const [selectedSprintId, setSelectedSprintId] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
   const [members, setMembers] = useState<WorkspaceMember[]>([]);
+  const [capacityDrafts, setCapacityDrafts] = useState<Record<string, { hours: string; dates: string }>>({});
+  const [capacityMessage, setCapacityMessage] = useState("");
 
   const loadData = useCallback(async () => {
     if (!params.workspaceId || !params.projectId) return;
@@ -70,7 +72,10 @@ export default function ProjectAnalyticsPage() {
       if (tasksRes.status === "fulfilled") {
         setTasks(tasksRes.value.data.items);
       }
-      if (membersRes.status === "fulfilled") setMembers(membersRes.value.data.items);
+      if (membersRes.status === "fulfilled") {
+        setMembers(membersRes.value.data.items);
+        setCapacityDrafts(Object.fromEntries(membersRes.value.data.items.map((member) => [member.memberId, { hours: String(member.dailyCapacityHours ?? 8), dates: (member.unavailableDates ?? []).join(", ") }])));
+      }
     } finally {
       setIsLoading(false);
     }
@@ -130,12 +135,31 @@ export default function ProjectAnalyticsPage() {
     const level = score >= 55 ? "HIGH" : score >= 25 ? "MEDIUM" : "LOW";
     const cycleTimes = tasks.filter((task) => task.completedAt && task.startedAt).map((task) => (new Date(task.completedAt!).getTime() - new Date(task.startedAt!).getTime()) / 86400000).filter((days) => days >= 0);
     const avgLeadTime = cycleTimes.length ? cycleTimes.reduce((sum, days) => sum + days, 0) / cycleTimes.length : 0;
+    const sprintStart = currentSprint ? new Date(currentSprint.startDate) : new Date();
+    const sprintEnd = currentSprint ? new Date(currentSprint.endDate) : new Date();
+    const workDates: string[] = [];
+    for (let date = new Date(sprintStart); date <= sprintEnd; date.setDate(date.getDate() + 1)) if (date.getDay() !== 0 && date.getDay() !== 6) workDates.push(date.toISOString().slice(0, 10));
     const capacity = members.filter((member) => member.status === "ACTIVE").map((member) => {
       const assigned = sprintTasks.filter((task) => task.assigneeId === member.userId && task.status !== "DONE");
-      return { id: member.userId, name: member.fullName || member.email || member.userId, wip: assigned.filter((task) => ["IN_PROGRESS", "REVIEW"].includes(task.status)).length, points: assigned.reduce((sum, task) => sum + (task.storyPoints ?? 0), 0) };
-    }).sort((a, b) => b.points - a.points);
+      const unavailable = new Set(member.unavailableDates ?? []);
+      const availableDays = workDates.filter((date) => !unavailable.has(date)).length;
+      const availableHours = availableDays * (member.dailyCapacityHours ?? 8);
+      const assignedHours = assigned.reduce((sum, task) => sum + (task.estimatedHours ?? 0), 0);
+      const utilization = availableHours ? Math.round(assignedHours / availableHours * 100) : assignedHours ? 999 : 0;
+      return { id: member.userId, memberId: member.memberId, name: member.fullName || member.email || member.userId, wip: assigned.filter((task) => ["IN_PROGRESS", "REVIEW"].includes(task.status)).length, points: assigned.reduce((sum, task) => sum + (task.storyPoints ?? 0), 0), availableHours, assignedHours, utilization };
+    }).sort((a, b) => b.utilization - a.utilization);
     return { score, level, factors, overdue, blocked, wip, avgLeadTime, capacity };
   }, [currentSprint, tasks, members]);
+
+  async function saveCapacity(memberId: string) {
+    const draft = capacityDrafts[memberId];
+    if (!draft) return;
+    try {
+      await updateWorkspaceMemberCapacity(params.workspaceId, memberId, { dailyCapacityHours: Number(draft.hours), unavailableDates: draft.dates.split(",").map((date) => date.trim()).filter(Boolean) });
+      setCapacityMessage("Đã lưu Capacity.");
+      await loadData();
+    } catch (error) { setCapacityMessage(error instanceof Error ? error.message : "Không thể lưu Capacity."); }
+  }
 
   if (authLoading) {
     return (
@@ -307,7 +331,8 @@ export default function ProjectAnalyticsPage() {
         <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-xs">
           <h3 className="flex items-center gap-2 font-extrabold text-slate-900"><Users className="h-5 w-5 text-indigo-600" />Capacity & WIP theo thành viên</h3>
           <p className="mt-1 text-xs text-slate-500">Khối lượng còn lại theo Story Point; đây là load hiện tại, chưa phải giờ khả dụng đã khai báo.</p>
-          <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{sprintHealth.capacity.map((member) => <div className="rounded-xl border border-slate-100 bg-slate-50 p-4" key={member.id}><div className="flex justify-between gap-2"><strong className="truncate text-sm text-slate-800">{member.name}</strong><span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${member.wip > 2 ? "bg-rose-100 text-rose-700" : "bg-emerald-100 text-emerald-700"}`}>{member.wip} WIP</span></div><p className="mt-2 text-xl font-black text-indigo-700">{member.points} SP</p></div>)}</div>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{sprintHealth.capacity.map((member) => <div className="rounded-xl border border-slate-100 bg-slate-50 p-4" key={member.id}><div className="flex justify-between gap-2"><strong className="truncate text-sm text-slate-800">{member.name}</strong><span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${member.utilization > 100 ? "bg-rose-100 text-rose-700" : member.utilization < 50 ? "bg-amber-100 text-amber-700" : "bg-emerald-100 text-emerald-700"}`}>{member.utilization}%</span></div><div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-200"><div className={`h-full ${member.utilization > 100 ? "bg-rose-500" : "bg-indigo-500"}`} style={{ width: `${Math.min(100, member.utilization)}%` }} /></div><p className="mt-2 text-xs font-semibold text-slate-600">{member.assignedHours}h đã giao / {member.availableHours}h khả dụng</p><p className="mt-1 text-xs text-slate-500">{member.points} SP · {member.wip} WIP</p></div>)}</div>
+          <div className="mt-6 border-t border-slate-100 pt-5"><h4 className="text-sm font-bold text-slate-800">Cấu hình giờ và ngày không khả dụng</h4>{capacityMessage ? <p className="mt-2 text-xs font-semibold text-blue-700">{capacityMessage}</p> : null}<div className="mt-3 space-y-2">{members.filter((member) => member.status === "ACTIVE").map((member) => <div className="grid gap-2 rounded-xl bg-slate-50 p-3 sm:grid-cols-[minmax(150px,1fr)_100px_2fr_auto] sm:items-center" key={member.memberId}><strong className="truncate text-xs text-slate-700">{member.fullName || member.email}</strong><input className="h-9 rounded-lg border border-slate-200 px-2 text-xs" max="24" min="0" onChange={(event) => setCapacityDrafts((drafts) => ({ ...drafts, [member.memberId]: { ...(drafts[member.memberId] ?? { dates: "" }), hours: event.target.value } }))} step="0.5" type="number" value={capacityDrafts[member.memberId]?.hours ?? "8"} /><input className="h-9 rounded-lg border border-slate-200 px-2 text-xs" onChange={(event) => setCapacityDrafts((drafts) => ({ ...drafts, [member.memberId]: { ...(drafts[member.memberId] ?? { hours: "8" }), dates: event.target.value } }))} placeholder="Ngày nghỉ: 2026-08-12, 2026-08-13" value={capacityDrafts[member.memberId]?.dates ?? ""} /><button className="h-9 rounded-lg bg-indigo-600 px-3 text-xs font-bold text-white" onClick={() => void saveCapacity(member.memberId)} type="button">Lưu</button></div>)}</div></div>
         </section>
       </div>
     </AppShell>
