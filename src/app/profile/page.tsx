@@ -16,7 +16,7 @@ import type {
   AiUserPreferences,
 } from "@/features/users/types/user-profile.type";
 import { useAuth } from "@/hooks/useAuth";
-import { setMfa } from "@/features/auth/api/auth.api";
+import { getSessions, revokeOtherSessions, revokeSession, setMfa, type AuthSession } from "@/features/auth/api/auth.api";
 import {
   getNotificationPreferences,
   updateNotificationPreferences,
@@ -118,6 +118,8 @@ export default function ProfilePage() {
   const [profileMessage, setProfileMessage] = useState<Notice>({ type: "", text: "" });
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
   const [isUpdatingMfa, setIsUpdatingMfa] = useState(false);
+  const [sessions, setSessions] = useState<AuthSession[]>([]);
+  const [sessionNotice, setSessionNotice] = useState<Notice>({ type: "", text: "" });
 
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -162,6 +164,8 @@ export default function ProfilePage() {
       });
     return () => { active = false; };
   }, [user]);
+
+  useEffect(() => { if (user) void getSessions().then((response) => setSessions(response.data.items)).catch(() => undefined); }, [user]);
 
   useEffect(() => {
     if (!user) return;
@@ -517,6 +521,11 @@ export default function ProfilePage() {
             </form>
           </section>
         </div>
+
+        <section className="rounded border border-[#dfe1e6] bg-white">
+          <div className="flex items-center justify-between border-b border-[#dfe1e6] px-5 py-4"><div><h2 className="text-lg font-semibold text-[#172b4d]">Phiên đăng nhập</h2><p className="mt-1 text-sm text-[#6b778c]">Kiểm tra thiết bị và thu hồi phiên bạn không nhận ra.</p></div><button className="rounded bg-[#fff4f2] px-3 py-2 text-sm font-semibold text-[#ae2a19]" onClick={async () => { await revokeOtherSessions(); const response = await getSessions(); setSessions(response.data.items); setSessionNotice({ type: "success", text: "Đã thu hồi các phiên khác." }); }} type="button">Đăng xuất thiết bị khác</button></div>
+          <div className="space-y-3 p-5"><NoticeBox notice={sessionNotice} />{sessions.length ? sessions.map((session) => <div className="flex items-center justify-between gap-3 rounded border border-[#dfe1e6] p-3" key={session.id}><div><p className="text-sm font-semibold text-[#172b4d]">{session.current ? "Thiết bị hiện tại" : session.userAgent?.slice(0, 80) || "Thiết bị không xác định"}</p><p className="mt-1 text-xs text-[#6b778c]">IP {session.ipAddress ?? "-"} · hoạt động {new Date(session.lastUsedAt).toLocaleString("vi-VN")}{session.revokedAt ? " · đã thu hồi" : ""}</p></div>{!session.current && !session.revokedAt ? <button className="text-sm font-semibold text-[#ae2a19]" onClick={async () => { await revokeSession(session.id); setSessions((items) => items.map((item) => item.id === session.id ? { ...item, revokedAt: new Date().toISOString() } : item)); }} type="button">Thu hồi</button> : null}</div>) : <p className="text-sm text-[#6b778c]">Phiên hiện tại được tạo trước khi tính năng quản lý thiết bị được bật.</p>}</div>
+        </section>
 
         <section className="rounded border border-[#dfe1e6] bg-white">
           <div className="border-b border-[#dfe1e6] px-5 py-4">

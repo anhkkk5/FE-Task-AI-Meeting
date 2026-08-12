@@ -117,5 +117,9 @@ export type GetMeResponse = {
 export function getMe() {
   return apiRequest<GetMeResponse>("/auth/me");
 }
+export type AuthSession = { id: string; current: boolean; userAgent: string | null; ipAddress: string | null; lastUsedAt: string; createdAt: string; expiresAt: string; revokedAt: string | null };
+export function getSessions() { return apiRequest<{ success: boolean; message: string; data: { items: AuthSession[] } }>("/auth/sessions"); }
+export function revokeSession(sessionId: string) { return apiRequest<{ success: boolean; message: string; data: null }>(`/auth/sessions/${sessionId}`, { method: "DELETE" }); }
+export function revokeOtherSessions() { return apiRequest<{ success: boolean; message: string; data: null }>("/auth/sessions/others", { method: "DELETE" }); }
 
 
