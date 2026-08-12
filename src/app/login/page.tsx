@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { FormEvent, useState } from "react";
 import { Mail, Lock, Eye, EyeOff, Loader2, ArrowRight } from "lucide-react";
-import { login } from "@/features/auth/api/auth.api";
+import { login, verifyMfa } from "@/features/auth/api/auth.api";
 import { AuthShell } from "@/features/auth/components/AuthShell";
 import { saveAccessToken } from "@/features/auth/utils/token-storage";
 
@@ -14,6 +14,8 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [mfaEmail, setMfaEmail] = useState("");
+  const [mfaOtp, setMfaOtp] = useState("");
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -44,6 +46,11 @@ export default function LoginPage() {
         email: nextEmail,
         password: nextPassword,
       });
+      if ("mfaRequired" in response.data) {
+        setMfaEmail(response.data.email);
+        setMessage("Nhập mã MFA 6 số đã gửi tới email.");
+        return;
+      }
       const accessToken = response.data.tokens.accessToken;
 
       if (!accessToken) {
@@ -57,6 +64,16 @@ export default function LoginPage() {
     } finally {
       setIsSubmitting(false);
     }
+  }
+
+  async function handleMfa(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault(); setIsSubmitting(true); setMessage("");
+    try {
+      const response = await verifyMfa({ email: mfaEmail, otp: mfaOtp });
+      saveAccessToken(response.data.tokens.accessToken);
+      window.location.assign(response.data.user.isSystemAdmin ? "/admin" : "/dashboard");
+    } catch (error) { setMessage(error instanceof Error ? error.message : "Mã MFA không hợp lệ."); }
+    finally { setIsSubmitting(false); }
   }
 
   return (
@@ -74,7 +91,7 @@ export default function LoginPage() {
         </div>
       ) : null}
 
-      <form className="space-y-4" noValidate onSubmit={handleSubmit}>
+      {mfaEmail ? <form className="space-y-4" onSubmit={handleMfa}><label className="block text-xs font-semibold text-slate-700">Mã MFA<input className="mt-2 h-11 w-full rounded-xl border px-3 text-center text-lg tracking-[0.4em]" inputMode="numeric" maxLength={6} value={mfaOtp} onChange={(event) => setMfaOtp(event.target.value.replace(/\D/g, ""))} /></label><button className="h-11 w-full rounded-xl bg-blue-600 font-semibold text-white disabled:opacity-50" disabled={mfaOtp.length !== 6 || isSubmitting}>Xác thực đăng nhập</button></form> : <form className="space-y-4" noValidate onSubmit={handleSubmit}>
         {/* Work Email Field */}
         <div>
           <label className="block text-xs font-semibold text-slate-700 mb-1.5">
@@ -99,16 +116,12 @@ export default function LoginPage() {
             <label className="text-xs font-semibold text-slate-700">
               Mật khẩu
             </label>
-            <a
-              href="#"
-              onClick={(e) => {
-                e.preventDefault();
-                alert("Tính năng quên mật khẩu đang được kết nối.");
-              }}
+            <Link
+              href="/forgot-password"
               className="text-[11px] font-semibold text-blue-600 hover:text-blue-700 transition hover:underline"
             >
               Quên mật khẩu?
-            </a>
+            </Link>
           </div>
           <div className="relative flex items-center">
             <Lock className="absolute left-3.5 w-4 h-4 text-slate-400 pointer-events-none" />
@@ -232,7 +245,7 @@ export default function LoginPage() {
             </svg>
           </button>
         </div>
-      </form>
+      </form>}
     </AuthShell>
   );
 }

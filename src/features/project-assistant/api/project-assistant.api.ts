@@ -37,3 +37,11 @@ export function getSprintRisk(
     `${assistantBasePath(workspaceId, projectId)}/sprints/${sprintId}/risk`,
   );
 }
+
+export function getProjectAssistantHistory(workspaceId: string, projectId: string) {
+  return apiRequest<ApiResponse<{ items: Array<{ id: string; role: "USER" | "ASSISTANT"; content: string; sources?: ProjectAssistantAnswer["sources"]; actionDraft?: ProjectAssistantAnswer["actionDraft"] }> }>>(`${assistantBasePath(workspaceId, projectId)}/history`);
+}
+
+export function clearProjectAssistantHistory(workspaceId: string, projectId: string) {
+  return apiRequest<ApiResponse<null>>(`${assistantBasePath(workspaceId, projectId)}/history`, { method: "DELETE" });
+}

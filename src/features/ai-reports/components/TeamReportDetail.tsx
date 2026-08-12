@@ -4,6 +4,7 @@ import { TeamReportDraft, TeamReportEditor } from "./TeamReportEditor";
 import { TeamReportMemberResults } from "./TeamReportMemberResults";
 import { TeamReportMetricCards } from "./TeamReportMetricCards";
 import { TeamReportSprintProgress } from "./TeamReportSprintProgress";
+import { ReportCitations } from "./ReportCitations";
 
 type TeamReportDetailProps = {
   report: AiTeamReport;
@@ -94,6 +95,7 @@ export function TeamReportDetail({
 
   return (
     <div className="grid gap-5" data-print-area="true">
+      <ReportCitations citations={report.citations} />
       <section
         className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
         data-print-block="true"

@@ -59,4 +59,23 @@ export type ProjectAssistantAnswer = {
     sprintId: string | null;
     sprintName: string | null;
   };
+  actionDraft?: ProjectAssistantActionDraft;
+};
+
+export type ProjectAssistantActionDraft = {
+  type: "CREATE_TASK" | "UPDATE_TASK" | "CHANGE_STATUS" | "ASSIGN_TASK" | "MOVE_TASK";
+  requiresConfirmation: true;
+  taskId?: string;
+  taskLabel?: string;
+  payload: {
+    title?: string;
+    description?: string;
+    sprintId?: string;
+    priority: "LOW" | "MEDIUM" | "HIGH" | "URGENT";
+    dueDate?: string;
+    estimatedHours?: number;
+    storyPoints?: number;
+    status?: "BACKLOG" | "TODO" | "IN_PROGRESS" | "REVIEW" | "DONE";
+    assigneeId?: string | null;
+  };
 };

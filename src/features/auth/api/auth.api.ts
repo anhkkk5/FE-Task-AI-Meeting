@@ -8,6 +8,7 @@ type PublicUser = {
   phoneNumber?: string | null;
   jobTitle?: string | null;
   isSystemAdmin?: boolean;
+  mfaEnabled?: boolean;
 };
 
 type AuthResponse = {
@@ -20,6 +21,7 @@ type AuthResponse = {
     };
   };
 };
+export type LoginResponse = AuthResponse | { success: true; message: string; data: { mfaRequired: true; email: string; otpExpiresInSeconds: number } };
 
 export type LoginPayload = {
   email: string;
@@ -51,12 +53,17 @@ export type VerifyOtpPayload = {
 };
 
 export function login(payload: LoginPayload) {
-  return apiRequest<AuthResponse>("/auth/login", {
+  return apiRequest<LoginResponse>("/auth/login", {
     method: "POST",
     body: payload,
     skipAuthRefresh: true,
   });
 }
+
+export function forgotPassword(email: string) { return apiRequest<OtpChallengeResponse>("/auth/forgot-password", { method: "POST", body: { email }, skipAuthRefresh: true }); }
+export function resetPassword(payload: { email: string; otp: string; newPassword: string }) { return apiRequest<{ success: boolean; message: string; data: null }>("/auth/reset-password", { method: "POST", body: payload, skipAuthRefresh: true }); }
+export function verifyMfa(payload: { email: string; otp: string }) { return apiRequest<AuthResponse>("/auth/mfa/verify", { method: "POST", body: payload, skipAuthRefresh: true }); }
+export function setMfa(enabled: boolean) { return apiRequest<GetMeResponse>("/auth/mfa", { method: "PATCH", body: { enabled } }); }
 
 /** Bước 1 của đăng ký: gửi mã OTP tới email, chưa tạo tài khoản. */
 export function register(payload: RegisterPayload) {

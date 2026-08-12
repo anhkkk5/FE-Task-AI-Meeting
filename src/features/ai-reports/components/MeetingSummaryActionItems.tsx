@@ -2,6 +2,10 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { getWorkspaceMembers } from "@/features/members/api/members.api";
+import { WorkspaceMember } from "@/features/members/types/member.type";
+import { getSprints } from "@/features/sprints/api/sprints.api";
+import { Sprint } from "@/features/sprints/types/sprint.type";
 import {
   approveMeetingActionItem,
   getMeetingActionItems,
@@ -40,6 +44,10 @@ export function MeetingSummaryActionItems({
   const [canReview, setCanReview] = useState(false);
   const [busyIndex, setBusyIndex] = useState<number | null>(null);
   const [error, setError] = useState("");
+  const [reviewing, setReviewing] = useState<ReviewedMeetingActionItem | null>(null);
+  const [members, setMembers] = useState<WorkspaceMember[]>([]);
+  const [sprints, setSprints] = useState<Sprint[]>([]);
+  const [draft, setDraft] = useState({ title: "", description: "", assigneeId: "", sprintId: "", priority: "MEDIUM" as "LOW" | "MEDIUM" | "HIGH" | "URGENT", dueDate: "" });
 
   useEffect(() => {
     let active = true;
@@ -64,6 +72,14 @@ export function MeetingSummaryActionItems({
     };
   }, [workspaceId, projectId, summaryId]);
 
+  useEffect(() => {
+    if (!canReview) return;
+    void Promise.all([getWorkspaceMembers(workspaceId), getSprints(workspaceId, projectId, { page: 1, limit: 100 })]).then(([memberResponse, sprintResponse]) => {
+      setMembers(memberResponse.data.items);
+      setSprints(sprintResponse.data.items.filter((sprint) => sprint.status === "PLANNED" || sprint.status === "ACTIVE"));
+    }).catch(() => undefined);
+  }, [canReview, workspaceId, projectId]);
+
   function replaceItem(item: ReviewedMeetingActionItem) {
     setReviewedItems((current) =>
       current.map((currentItem) =>
@@ -72,8 +88,17 @@ export function MeetingSummaryActionItems({
     );
   }
 
+  function openReview(item: ReviewedMeetingActionItem) {
+    setDraft({ title: item.text.slice(0, 200), description: item.text, assigneeId: item.assigneeUserId ?? "", sprintId: "", priority: "MEDIUM", dueDate: item.dueDate?.slice(0, 10) ?? "" });
+    setReviewing(item);
+  }
+
   async function handleApprove(item: ReviewedMeetingActionItem) {
-    if (!window.confirm("Tạo task từ việc cần làm này?")) return;
+    const hasDuplicates = Boolean(item.duplicateCandidates?.length);
+    const confirmation = hasDuplicates
+      ? `Phát hiện ${item.duplicateCandidates!.length} task tương tự. Bạn vẫn muốn tạo task mới?`
+      : "Tạo task từ việc cần làm này?";
+    if (!window.confirm(confirmation)) return;
 
     setBusyIndex(item.index);
     setError("");
@@ -84,11 +109,17 @@ export function MeetingSummaryActionItems({
         summaryId,
         item.index,
         {
-          assigneeId: item.assigneeUserId ?? undefined,
-          dueDate: item.dueDate?.slice(0, 10) || undefined,
+          title: draft.title,
+          description: draft.description,
+          assigneeId: draft.assigneeId || undefined,
+          sprintId: draft.sprintId || undefined,
+          priority: draft.priority,
+          dueDate: draft.dueDate || undefined,
+          allowDuplicate: hasDuplicates,
         },
       );
       replaceItem(response.data.actionItem);
+      setReviewing(null);
     } catch (requestError) {
       setError(
         requestError instanceof Error
@@ -161,6 +192,14 @@ export function MeetingSummaryActionItems({
                 <tr key={`${item.index}-${item.text}`}>
                   <td className="max-w-md px-4 py-3 font-semibold text-zinc-800">
                     {item.text}
+                    {item.source ? <span className="mt-1 block text-xs font-normal text-blue-700">Nguồn AI: {item.source}</span> : null}
+                    {item.confidence != null ? <span className="mt-1 block text-xs font-normal text-emerald-700">Độ tin cậy transcript: {Math.round(item.confidence * 100)}%</span> : null}
+                    {item.citation ? <span className="mt-2 block rounded border border-blue-100 bg-blue-50 p-2 text-xs font-normal text-slate-700"><b>{item.citation.speakerName ?? "Thành viên"}</b> · {new Date(item.citation.startedAt).toLocaleTimeString("vi-VN")}<br />“{item.citation.text}”</span> : null}
+                    {item.duplicateCandidates?.length ? (
+                      <span className="mt-2 block rounded border border-amber-200 bg-amber-50 p-2 text-xs font-normal text-amber-900">
+                        Có thể trùng: {item.duplicateCandidates.map((candidate, index) => <span key={candidate.id}>{index ? ", " : ""}<Link className="font-bold underline" href={`/workspaces/${workspaceId}/projects/${projectId}/tasks/${candidate.id}`}>{candidate.taskCode} ({candidate.similarity}%)</Link></span>)}
+                      </span>
+                    ) : null}
                   </td>
                   <td className="px-4 py-3 text-zinc-600">
                     {item.assigneeName ?? "Chưa xác định"}
@@ -210,7 +249,7 @@ export function MeetingSummaryActionItems({
                           <button
                             className="bg-blue-600 px-3 py-2 font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
                             disabled={isBusy}
-                            onClick={() => void handleApprove(item)}
+                            onClick={() => openReview(item)}
                             type="button"
                           >
                             {isBusy ? "Đang xử lý..." : "Tạo task"}
@@ -225,6 +264,7 @@ export function MeetingSummaryActionItems({
           </tbody>
         </table>
       </div>
+      {reviewing ? <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 p-4"><div className="w-full max-w-xl rounded-2xl bg-white p-6 shadow-2xl"><h3 className="text-lg font-bold">Duyệt và tạo Task</h3><div className="mt-4 grid gap-3"><label className="grid gap-1 text-xs font-bold">Tiêu đề<input className="rounded-lg border p-2 text-sm" maxLength={200} onChange={(event) => setDraft({ ...draft, title: event.target.value })} value={draft.title} /></label><label className="grid gap-1 text-xs font-bold">Mô tả<textarea className="min-h-24 rounded-lg border p-2 text-sm" maxLength={2000} onChange={(event) => setDraft({ ...draft, description: event.target.value })} value={draft.description} /></label><div className="grid gap-3 sm:grid-cols-2"><label className="grid gap-1 text-xs font-bold">Người phụ trách<select className="rounded-lg border p-2 text-sm" onChange={(event) => setDraft({ ...draft, assigneeId: event.target.value })} value={draft.assigneeId}><option value="">Chưa gán</option>{members.map((member) => <option key={member.userId} value={member.userId}>{member.fullName || member.email}</option>)}</select></label><label className="grid gap-1 text-xs font-bold">Sprint<select className="rounded-lg border p-2 text-sm" onChange={(event) => setDraft({ ...draft, sprintId: event.target.value })} value={draft.sprintId}><option value="">Backlog</option>{sprints.map((sprint) => <option key={sprint.id} value={sprint.id}>{sprint.name}</option>)}</select></label><label className="grid gap-1 text-xs font-bold">Ưu tiên<select className="rounded-lg border p-2 text-sm" onChange={(event) => setDraft({ ...draft, priority: event.target.value as typeof draft.priority })} value={draft.priority}><option value="LOW">Thấp</option><option value="MEDIUM">Trung bình</option><option value="HIGH">Cao</option><option value="URGENT">Khẩn cấp</option></select></label><label className="grid gap-1 text-xs font-bold">Deadline<input className="rounded-lg border p-2 text-sm" onChange={(event) => setDraft({ ...draft, dueDate: event.target.value })} type="date" value={draft.dueDate} /></label></div></div><div className="mt-5 flex justify-end gap-2"><button className="rounded-lg border px-4 py-2 text-sm font-bold" onClick={() => setReviewing(null)} type="button">Hủy</button><button className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-bold text-white disabled:opacity-50" disabled={busyIndex != null || draft.title.trim().length < 2} onClick={() => void handleApprove(reviewing)} type="button">Xác nhận tạo Task</button></div></div></div> : null}
     </div>
   );
 }

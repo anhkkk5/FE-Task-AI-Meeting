@@ -16,6 +16,7 @@ import type {
   AiUserPreferences,
 } from "@/features/users/types/user-profile.type";
 import { useAuth } from "@/hooks/useAuth";
+import { setMfa } from "@/features/auth/api/auth.api";
 import {
   getNotificationPreferences,
   updateNotificationPreferences,
@@ -116,6 +117,7 @@ export default function ProfilePage() {
   const [jobTitle, setJobTitle] = useState("");
   const [profileMessage, setProfileMessage] = useState<Notice>({ type: "", text: "" });
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
+  const [isUpdatingMfa, setIsUpdatingMfa] = useState(false);
 
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -453,6 +455,12 @@ export default function ProfilePage() {
                 </button>
               </div>
             </form>
+            <div className="border-t border-[#dfe1e6] px-5 py-4">
+              <div className="flex items-center justify-between gap-4">
+                <div><p className="text-sm font-semibold text-[#172b4d]">MFA qua email</p><p className="mt-1 text-xs text-[#6b778c]">Yêu cầu mã OTP sau khi mật khẩu đúng.</p></div>
+                <button className={`rounded px-3 py-2 text-sm font-semibold ${user?.mfaEnabled ? "bg-[#fff4f2] text-[#ae2a19]" : "bg-[#0c66e4] text-white"}`} disabled={isUpdatingMfa} onClick={async () => { setIsUpdatingMfa(true); try { await setMfa(!user?.mfaEnabled); await refreshUser(); } finally { setIsUpdatingMfa(false); } }} type="button">{isUpdatingMfa ? "Đang lưu..." : user?.mfaEnabled ? "Tắt MFA" : "Bật MFA"}</button>
+              </div>
+            </div>
           </section>
 
           <section className="rounded border border-[#dfe1e6] bg-white">

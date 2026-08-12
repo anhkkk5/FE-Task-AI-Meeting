@@ -116,13 +116,19 @@ export type ReviewedMeetingActionItem = MeetingSummaryActionItem & {
   createdTaskId?: string | null;
   rejectionReason?: string | null;
   reviewedAt?: string | null;
+  duplicateCandidates?: Array<{ id: string; taskCode: string; title: string; status: string; similarity: number }>;
+  confidence?: number | null;
+  citation?: { speakerName: string | null; text: string; startedAt: string; endedAt: string | null; confidence: number | null } | null;
 };
 
 export type ApproveMeetingActionItemPayload = {
   title?: string;
+  description?: string;
+  priority?: "LOW" | "MEDIUM" | "HIGH" | "URGENT";
   assigneeId?: string;
   sprintId?: string;
   dueDate?: string;
+  allowDuplicate?: boolean;
 };
 
 export type MeetingSummaryOutput = {
@@ -138,6 +144,7 @@ export type MeetingSummaryOutput = {
 };
 
 export type AiPersonalReport = {
+  citations?: ReportCitation[];
   id: string;
   workspaceId: string;
   projectId: string;
@@ -156,6 +163,7 @@ export type AiPersonalReport = {
 };
 
 export type AiTeamReport = {
+  citations?: ReportCitation[];
   id: string;
   workspaceId: string;
   projectId: string;
@@ -180,6 +188,8 @@ export type AiTeamReport = {
   createdAt?: string;
   updatedAt?: string;
 };
+
+export type ReportCitation = { type: "TASK" | "DAILY_UPDATE" | "MEETING" | "HANDOVER"; id: string; label: string; href: string };
 
 export type AiMeetingSummary = {
   id: string;

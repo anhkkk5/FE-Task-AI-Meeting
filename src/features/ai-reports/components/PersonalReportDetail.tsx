@@ -1,4 +1,5 @@
 import { AiPersonalReport } from "../types/ai-report.type";
+import { ReportCitations } from "./ReportCitations";
 
 type PersonalReportDetailProps = {
   report: AiPersonalReport;
@@ -34,6 +35,7 @@ export function PersonalReportDetail({ report }: PersonalReportDetailProps) {
 
   return (
     <div className="grid gap-5">
+      <ReportCitations citations={report.citations} />
       <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div className="min-w-0">

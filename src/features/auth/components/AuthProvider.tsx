@@ -27,6 +27,7 @@ export type AuthUser = {
   phoneNumber?: string | null;
   jobTitle?: string | null;
   isSystemAdmin?: boolean;
+  mfaEnabled?: boolean;
 };
 
 export type AuthContextValue = {
