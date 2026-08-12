@@ -1,5 +1,6 @@
 import { AiMeetingSummary } from "../types/ai-report.type";
 import { MeetingSummaryActionItems } from "./MeetingSummaryActionItems";
+import { MeetingClaims } from "./MeetingClaims";
 
 type MeetingSummaryDetailProps = {
   summary: AiMeetingSummary;
@@ -81,6 +82,7 @@ export function MeetingSummaryDetail({ summary }: MeetingSummaryDetailProps) {
           {output.generatedText}
         </p>
       </section>
+      <MeetingClaims claims={summary.claims} />
 
       <section className="grid gap-4 lg:grid-cols-2">
         <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">

@@ -145,6 +145,7 @@ export type MeetingSummaryOutput = {
 
 export type AiPersonalReport = {
   citations?: ReportCitation[];
+  claims?: ReportClaim[];
   id: string;
   workspaceId: string;
   projectId: string;
@@ -164,6 +165,7 @@ export type AiPersonalReport = {
 
 export type AiTeamReport = {
   citations?: ReportCitation[];
+  claims?: ReportClaim[];
   id: string;
   workspaceId: string;
   projectId: string;
@@ -189,9 +191,12 @@ export type AiTeamReport = {
   updatedAt?: string;
 };
 
+export type ReportClaim = { id: string; text: string; kind: "FACT" | "INFERENCE" | "RECOMMENDATION"; category: "PROGRESS" | "BLOCKER" | "RISK" | "DECISION" | "OPEN_QUESTION" | "RECOMMENDATION"; sourceIds: string[] };
+
 export type ReportCitation = { type: "TASK" | "DAILY_UPDATE" | "MEETING" | "HANDOVER"; id: string; label: string; href: string };
 
 export type AiMeetingSummary = {
+  claims?: MeetingClaim[];
   id: string;
   workspaceId: string;
   projectId: string;
@@ -213,6 +218,8 @@ export type AiMeetingSummary = {
   createdAt?: string;
   updatedAt?: string;
 };
+
+export type MeetingClaim = { id: string; text: string; kind: "FACT" | "INFERENCE" | "RECOMMENDATION"; category: "KEY_POINT" | "DECISION" | "BLOCKER" | "OPEN_QUESTION" | "RECOMMENDATION"; citation: { segmentId: string | null; speakerName: string | null; text: string; startedAt: string; endedAt: string | null; confidence: number | null } | null };
 
 export type GeneratePersonalReportPayload = {
   reportDate: string;
