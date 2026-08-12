@@ -16,6 +16,7 @@ import {
 import { ProjectForm } from "@/features/projects/components/ProjectForm";
 import { Project, WorkflowStatusConfig, WorkflowTransitionConfig } from "@/features/projects/types/project.type";
 import { useAuth } from "@/hooks/useAuth";
+import { AutomationRuleBuilder } from "@/features/automation/components/AutomationRuleBuilder";
 
 export default function ProjectSettingsPage() {
   const params = useParams<{ workspaceId: string; projectId: string }>();
@@ -219,6 +220,8 @@ export default function ProjectSettingsPage() {
               <div className="mt-5 space-y-2"><h3 className="text-xs font-bold uppercase text-zinc-500">Vai trò theo transition</h3>{workflowTransitions.map((transition, index) => <div className="grid gap-2 rounded-lg bg-zinc-50 p-2 sm:grid-cols-[180px_1fr]" key={`${transition.from}-${transition.to}`}><span className="text-xs font-bold text-zinc-700">{transition.from} → {transition.to}</span><div className="flex flex-wrap gap-2">{(["OWNER", "SCRUM_MASTER", "PROJECT_MANAGER", "MEMBER", "VIEWER"] as const).map((role) => <label className="flex items-center gap-1 text-[10px] font-semibold" key={role}><input checked={!transition.roles?.length || transition.roles.includes(role)} onChange={(event) => setWorkflowTransitions((items) => items.map((item, itemIndex) => { if (itemIndex !== index) return item; const current = item.roles?.length ? item.roles : ["OWNER", "SCRUM_MASTER", "PROJECT_MANAGER", "MEMBER", "VIEWER"]; return { ...item, roles: event.target.checked ? [...new Set([...current, role])] : current.filter((value) => value !== role) }; }))} type="checkbox" />{role}</label>)}</div></div>)}</div>
               <div className="mt-6"><h3 className="text-xs font-bold uppercase text-zinc-500">Preview Board</h3><div className="mt-3 flex gap-2 overflow-x-auto">{workflowStatuses.filter((status) => status.enabled && status.key !== "CANCELLED").sort((a, b) => a.order - b.order).map((status) => <div className="min-w-36 rounded-xl border border-zinc-200 bg-zinc-50 p-3" key={status.key}><div className="h-1.5 rounded-full" style={{ backgroundColor: status.color }} /><p className="mt-2 text-xs font-bold text-zinc-700">{status.label}</p><div className="mt-3 h-16 rounded-lg border border-dashed border-zinc-200 bg-white" /></div>)}</div></div>
             </div>
+
+            <AutomationRuleBuilder workspaceId={params.workspaceId} projectId={params.projectId} />
 
             {/* Actions / Danger Zone Panel */}
             <div className="border border-red-200 bg-white p-6 rounded-2xl shadow-sm space-y-4">

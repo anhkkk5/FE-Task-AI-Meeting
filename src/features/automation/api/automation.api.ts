@@ -1,0 +1,11 @@
+import { apiRequest } from "@/lib/api/client";
+export type AutomationRule = { id: string; name: string; enabled: boolean; dryRunAt?: string | null; trigger: { type: "DUE_DATE"; daysBefore?: number }; conditions: Array<{ field: string; operator: string; value?: unknown }>; actions: Array<{ type: "NOTIFY_ASSIGNEE" | "CHANGE_STATUS" | "ASSIGN_USER"; value?: string; message?: string }> };
+type Response<T> = { success: boolean; message: string; data: T };
+const base = (w: string, p: string) => `/workspaces/${w}/projects/${p}/automations`;
+export const listAutomations = (w: string, p: string) => apiRequest<Response<{ items: AutomationRule[] }>>(base(w, p));
+export const createAutomation = (w: string, p: string, body: Omit<AutomationRule, "id">) => apiRequest<Response<{ rule: AutomationRule }>>(base(w, p), { method: "POST", body });
+export const updateAutomation = (w: string, p: string, id: string, body: Omit<AutomationRule, "id">) => apiRequest<Response<{ rule: AutomationRule }>>(`${base(w, p)}/${id}`, { method: "PATCH", body });
+export const deleteAutomation = (w: string, p: string, id: string) => apiRequest<Response<null>>(`${base(w, p)}/${id}`, { method: "DELETE" });
+export const dryRunAutomation = (w: string, p: string, id: string) => apiRequest<Response<{ count: number; matchedTasks: Array<{ id: string; taskCode: string; title: string }>; plannedActions: AutomationRule["actions"] }>>(`${base(w, p)}/${id}/dry-run`, { method: "POST" });
+export const automationRuns = (w: string, p: string, id: string) => apiRequest<Response<{ items: Array<{ id: string; status: string; error: string | null; retryCount: number; createdAt: string }> }>>(`${base(w, p)}/${id}/runs`);
+export const retryAutomationRun = (w: string, p: string, id: string) => apiRequest<Response<unknown>>(`${base(w, p)}/runs/${id}/retry`, { method: "POST" });
