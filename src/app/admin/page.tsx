@@ -12,7 +12,7 @@ import {
   XCircle,
 } from "lucide-react";
 import { AdminShell } from "@/components/layout/AdminShell";
-import { getSystemStats, SystemStats } from "@/features/admin/api/admin.api";
+import { getAdminAuditLogs, getObservability, getSystemStats, type AdminAuditItem, type ObservabilitySummary, SystemStats } from "@/features/admin/api/admin.api";
 import { useAuth } from "@/hooks/useAuth";
 
 export default function AdminDashboardPage() {
@@ -20,13 +20,15 @@ export default function AdminDashboardPage() {
   const [stats, setStats] = useState<SystemStats | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [observability, setObservability] = useState<ObservabilitySummary | null>(null);
+  const [audits, setAudits] = useState<AdminAuditItem[]>([]);
 
   const loadStats = useCallback(async () => {
     setIsLoading(true);
     setError("");
     try {
-      const res = await getSystemStats();
-      setStats(res.data);
+      const [res, telemetryRes, auditRes] = await Promise.all([getSystemStats(), getObservability(), getAdminAuditLogs()]);
+      setStats(res.data); setObservability(telemetryRes.data); setAudits(auditRes.data.items);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Không thể tải thống kê hệ thống.");
     } finally {
@@ -151,6 +153,19 @@ export default function AdminDashboardPage() {
               bg="border-slate-200"
             />
           </div>
+        </div>
+        <div>
+          <p className="mb-3 text-[11px] font-extrabold uppercase tracking-widest text-slate-500">Vận hành 24 giờ</p>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <StatCard icon={<XCircle className="h-5 w-5 text-rose-500" />} label="API / hệ thống lỗi" value={observability?.totals.failures ?? 0} bg="border-rose-200" />
+            <StatCard icon={<Activity className="h-5 w-5 text-amber-500" />} label="API chậm" value={observability?.totals.slowApis ?? 0} bg="border-amber-200" />
+            <StatCard icon={<XCircle className="h-5 w-5 text-orange-500" />} label="Job thất bại" value={observability?.totals.failedJobs ?? 0} bg="border-orange-200" />
+            <StatCard icon={<BarChart3 className="h-5 w-5 text-violet-500" />} label="AI token / chi phí" value={`${(observability?.ai.inputTokens ?? 0) + (observability?.ai.outputTokens ?? 0)} / $${(observability?.ai.estimatedCostUsd ?? 0).toFixed(4)}`} bg="border-violet-200" sub={`Độ trễ TB ${observability?.ai.averageLatencyMs ?? 0} ms`} />
+          </div>
+        </div>
+        <div className="grid gap-4 lg:grid-cols-2">
+          <section className="rounded-2xl border bg-white p-5 shadow-sm"><h2 className="font-bold text-slate-800">Cảnh báo gần đây</h2><div className="mt-3 space-y-2 text-xs">{observability?.recentFailures.length ? observability.recentFailures.map((item) => <div key={item.id} className="rounded-lg bg-rose-50 p-3"><b>{item.kind} · {item.operation}</b><p className="mt-1 text-rose-700">{item.error}</p></div>) : <p className="text-slate-500">Không có lỗi trong cửa sổ theo dõi.</p>}</div></section>
+          <section className="rounded-2xl border bg-white p-5 shadow-sm"><h2 className="font-bold text-slate-800">Nhật ký quản trị</h2><div className="mt-3 space-y-2 text-xs">{audits.slice(0, 10).map((item) => <div key={item.id} className="rounded-lg bg-slate-50 p-3"><b>{item.action}</b><p className="text-slate-500">{item.targetType} · {item.targetId}</p></div>)}</div></section>
         </div>
       </div>
     </AdminShell>

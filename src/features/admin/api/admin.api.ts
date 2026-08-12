@@ -64,6 +64,11 @@ export function getSystemStats() {
   return apiRequest<ApiResponse<SystemStats>>("/admin/stats");
 }
 
+export type ObservabilitySummary = { windowHours: number; totals: { events: number; failures: number; slowApis: number; failedJobs: number; failedEmails: number }; ai: { calls: number; inputTokens: number; outputTokens: number; estimatedCostUsd: number; averageLatencyMs: number }; recentFailures: Array<{ id: string; kind: string; operation: string; error: string | null; createdAt: string }> };
+export type AdminAuditItem = { id: string; actorId: string; action: string; targetType: string; targetId: string; before: Record<string, unknown> | null; after: Record<string, unknown> | null; createdAt: string };
+export function getObservability(hours = 24) { return apiRequest<ApiResponse<ObservabilitySummary>>(`/admin/observability?hours=${hours}`); }
+export function getAdminAuditLogs() { return apiRequest<ApiResponse<{ items: AdminAuditItem[]; total: number }>>("/admin/audit-logs"); }
+
 // ===== User Management =====
 export function getAdminUsers(params?: {
   page?: number;

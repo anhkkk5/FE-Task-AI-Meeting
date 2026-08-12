@@ -33,6 +33,7 @@ export type Task = {
   acceptanceCriteria: string | null;
   status: TaskStatus;
   workflowStatusId: string | null;
+  workflowStatusKey?: TaskStatus;
   taskType: TaskType;
   priority: TaskPriority;
   parentId: string | null;
