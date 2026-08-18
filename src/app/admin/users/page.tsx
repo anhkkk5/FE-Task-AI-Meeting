@@ -84,17 +84,17 @@ export default function AdminUsersPage() {
         {/* Header */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-2xl font-extrabold tracking-tight text-[#173247]">
+            <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">
               Quản lý Users
             </h1>
             <p className="mt-1 text-sm text-slate-500">
-              Tổng cộng <strong className="text-[#173247]">{total}</strong> người dùng trong hệ thống
+              Tổng cộng <strong className="text-slate-900">{total}</strong> người dùng trong hệ thống
             </p>
           </div>
           <button
             onClick={() => void loadUsers()}
             disabled={isLoading}
-            className="inline-flex h-9 items-center gap-2 rounded-xl border border-brand-200 bg-white px-4 text-xs font-bold text-brand-800 transition hover:bg-brand-50 disabled:opacity-50"
+            className="inline-flex h-9 items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-xs font-bold text-slate-700 transition hover:border-blue-200 hover:bg-blue-50/40 hover:text-blue-700 disabled:opacity-50"
           >
             <RefreshCw className={`h-3.5 w-3.5 ${isLoading ? "animate-spin" : ""}`} />
             Làm mới
@@ -116,14 +116,14 @@ export default function AdminUsersPage() {
               value={search}
               onChange={(e) => { setSearch(e.target.value); setPage(1); }}
               placeholder="Tìm theo tên hoặc email..."
-              className="h-10 w-full rounded-xl border border-slate-200 bg-white pl-9 pr-4 text-xs font-medium text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
+              className="h-10 w-full rounded-xl border border-slate-200 bg-white pl-9 pr-4 text-xs font-medium text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10"
             />
           </div>
 
           <select
             value={statusFilter}
             onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-            className="h-10 cursor-pointer rounded-xl border border-slate-200 bg-white px-3 text-xs font-bold text-slate-700 outline-none transition focus:border-brand-400"
+            className="h-10 cursor-pointer rounded-xl border border-slate-200 bg-white px-3 text-xs font-bold text-slate-700 outline-none transition focus:border-blue-500"
           >
             <option value="">Tất cả users</option>
             <option value="active">Đang hoạt động</option>
@@ -133,7 +133,7 @@ export default function AdminUsersPage() {
         </div>
 
         {/* Users Table */}
-        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xs">
           <table className="w-full text-xs">
             <thead>
               <tr className="border-b border-slate-200 bg-slate-50">
@@ -171,21 +171,21 @@ export default function AdminUsersPage() {
                 </tr>
               ) : (
                 items.map((u) => (
-                  <tr key={u.id} className="bg-white transition hover:bg-brand-50/50">
+                  <tr key={u.id} className="bg-white transition hover:bg-blue-50/30">
                     <td className="px-5 py-3.5">
                       <div className="flex items-center gap-3">
-                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-600 text-xs font-black text-white">
+                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-600 text-xs font-black text-white">
                           {(u.fullName || u.email).charAt(0).toUpperCase()}
                         </div>
                         <div>
-                          <p className="font-extrabold text-[#173247]">{u.fullName || "(Chưa đặt tên)"}</p>
+                          <p className="font-extrabold text-slate-900">{u.fullName || "(Chưa đặt tên)"}</p>
                           <p className="text-slate-500">{u.email}</p>
                         </div>
                       </div>
                     </td>
                     <td className="px-4 py-3.5 hidden md:table-cell">
                       {u.isSystemAdmin ? (
-                        <span className="inline-flex items-center gap-1 rounded-full border border-brand-200 bg-brand-50 px-2.5 py-0.5 text-[10px] font-extrabold text-brand-800">
+                        <span className="inline-flex items-center gap-1 rounded-full border border-blue-100 bg-blue-50 px-2.5 py-0.5 text-[10px] font-extrabold text-blue-700">
                           <Shield className="h-3 w-3" />
                           SYSTEM ADMIN
                         </span>
@@ -195,12 +195,12 @@ export default function AdminUsersPage() {
                     </td>
                     <td className="px-4 py-3.5">
                       {u.status === "active" ? (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-600/20 border border-emerald-700/40 px-2.5 py-0.5 text-[10px] font-extrabold text-emerald-300">
+                        <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 text-[10px] font-extrabold text-emerald-700">
                           <CheckCircle2 className="h-3 w-3" />
                           Hoạt động
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-slate-600/20 border border-slate-700/40 px-2.5 py-0.5 text-[10px] font-extrabold text-slate-400">
+                        <span className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-100 px-2.5 py-0.5 text-[10px] font-extrabold text-slate-600">
                           Vô hiệu hóa
                         </span>
                       )}
@@ -218,8 +218,8 @@ export default function AdminUsersPage() {
                             title={u.status === "active" ? "Vô hiệu hóa tài khoản" : "Kích hoạt tài khoản"}
                             className={`inline-flex items-center gap-1.5 h-8 px-3 rounded-xl text-[11px] font-bold transition border disabled:opacity-50 ${
                               u.status === "active"
-                                ? "border-rose-800/50 bg-rose-900/20 text-rose-400 hover:bg-rose-900/40"
-                                : "border-emerald-800/50 bg-emerald-900/20 text-emerald-400 hover:bg-emerald-900/40"
+                                ? "border-rose-200 bg-white text-rose-600 hover:bg-rose-50"
+                                : "border-emerald-200 bg-white text-emerald-700 hover:bg-emerald-50"
                             }`}
                           >
                             {u.status === "active" ? (
@@ -239,8 +239,8 @@ export default function AdminUsersPage() {
                             title={u.isSystemAdmin ? "Thu hồi quyền Admin" : "Cấp quyền Admin"}
                             className={`inline-flex items-center gap-1.5 h-8 px-3 rounded-xl text-[11px] font-bold transition border disabled:opacity-50 ${
                               u.isSystemAdmin
-                                ? "border-amber-800/50 bg-amber-900/20 text-amber-400 hover:bg-amber-900/40"
-                                : "border-brand-200 bg-brand-50 text-brand-800 hover:bg-brand-100"
+                                ? "border-amber-200 bg-white text-amber-700 hover:bg-amber-50"
+                                : "border-blue-100 bg-blue-50 text-blue-700 hover:bg-blue-100"
                             }`}
                           >
                             {u.isSystemAdmin ? (
@@ -272,14 +272,14 @@ export default function AdminUsersPage() {
               <button
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page <= 1}
-                className="inline-flex h-8 w-8 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 transition hover:border-brand-300 hover:text-brand-800 disabled:opacity-40"
+                className="inline-flex h-8 w-8 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 transition hover:border-blue-300 hover:text-blue-700 disabled:opacity-40"
               >
                 <ChevronLeft className="h-4 w-4" />
               </button>
               <button
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 disabled={page >= totalPages}
-                className="inline-flex h-8 w-8 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 transition hover:border-brand-300 hover:text-brand-800 disabled:opacity-40"
+                className="inline-flex h-8 w-8 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 transition hover:border-blue-300 hover:text-blue-700 disabled:opacity-40"
               >
                 <ChevronRight className="h-4 w-4" />
               </button>
