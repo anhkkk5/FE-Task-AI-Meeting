@@ -39,18 +39,18 @@ export function WorkspaceCard({ workspace, stats }: WorkspaceCardProps) {
       : "Chờ duyệt";
 
   return (
-    <article className="group relative flex flex-col justify-between h-full rounded-3xl border border-[#c9dfea]/80 bg-white p-6 shadow-xs transition-all duration-300 hover:-translate-y-1 hover:border-[#367ea2] hover:shadow-md">
+    <article className="group relative flex h-full flex-col justify-between rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs transition-all duration-300 hover:-translate-y-1 hover:border-blue-500 hover:shadow-md">
       <div>
         {/* Header Info */}
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-center gap-3.5 min-w-0">
             {/* Ant Design ProductOutlined Icon Badge */}
-            <div className="flex h-13 w-13 shrink-0 items-center justify-center rounded-2xl bg-[#367ea2]/10 text-[#367ea2] border border-[#367ea2]/20 shadow-2xs group-hover:bg-[#367ea2] group-hover:text-white transition-all">
+            <div className="flex h-13 w-13 shrink-0 items-center justify-center rounded-2xl border border-blue-100 bg-blue-50 text-blue-600 shadow-2xs transition-all group-hover:bg-blue-600 group-hover:text-white">
               <ProductOutlined className="text-2xl" />
             </div>
 
             <div className="min-w-0">
-              <h2 className="truncate text-base font-bold tracking-tight text-[#164654] group-hover:text-[#367ea2] transition-colors">
+              <h2 className="truncate text-base font-bold tracking-tight text-slate-900 transition-colors group-hover:text-blue-600">
                 {workspace.name}
               </h2>
               <p className="truncate text-xs font-semibold text-slate-400 mt-0.5">
@@ -95,9 +95,9 @@ export function WorkspaceCard({ workspace, stats }: WorkspaceCardProps) {
         {/* Metrics Row - Thiết kế thoáng và rõ nét */}
         <div className="mt-5 grid grid-cols-3 gap-2.5 border-t border-slate-100 pt-4 pb-2">
           <div className="flex flex-col items-center justify-center rounded-2xl bg-slate-50/90 py-2.5 px-2 border border-slate-100">
-            <div className="flex items-center gap-1.5 text-[#367ea2] mb-0.5">
+            <div className="mb-0.5 flex items-center gap-1.5 text-blue-600">
               <UserOutlined className="text-xs" />
-              <span className="text-sm font-extrabold text-[#164654]">
+              <span className="text-sm font-extrabold text-slate-900">
                 {memberCount}
               </span>
             </div>
@@ -109,7 +109,7 @@ export function WorkspaceCard({ workspace, stats }: WorkspaceCardProps) {
           <div className="flex flex-col items-center justify-center rounded-2xl bg-slate-50/90 py-2.5 px-2 border border-slate-100">
             <div className="flex items-center gap-1.5 text-emerald-600 mb-0.5">
               <ProjectOutlined className="text-xs" />
-              <span className="text-sm font-extrabold text-[#164654]">
+              <span className="text-sm font-extrabold text-slate-900">
                 {projectCount}
               </span>
             </div>
@@ -121,7 +121,7 @@ export function WorkspaceCard({ workspace, stats }: WorkspaceCardProps) {
           <div className="flex flex-col items-center justify-center rounded-2xl bg-slate-50/90 py-2.5 px-2 border border-slate-100">
             <div className="flex items-center gap-1.5 text-amber-600 mb-0.5">
               <ClockCircleOutlined className="text-xs" />
-              <span className="text-xs font-extrabold text-[#164654] truncate">
+              <span className="truncate text-xs font-extrabold text-slate-900">
                 {updatedLabel}
               </span>
             </div>
@@ -131,10 +131,10 @@ export function WorkspaceCard({ workspace, stats }: WorkspaceCardProps) {
           </div>
         </div>
 
-        {/* Action Buttons - Nút chính "Vào dự án" nổi bật màu xanh #367ea2 */}
+        {/* Primary action follows the shared blue application palette. */}
         <div className="mt-3 flex items-center gap-2">
           <Link
-            className="flex-1 inline-flex items-center justify-center gap-2 rounded-2xl bg-[#367ea2] px-4 py-2.5 text-xs font-bold text-white shadow-xs transition-all hover:bg-[#2b6887] active:scale-95"
+            className="inline-flex flex-1 items-center justify-center gap-2 rounded-2xl bg-blue-600 px-4 py-2.5 text-xs font-bold text-white shadow-sm transition-all hover:bg-blue-700 active:scale-95"
             href={`/workspaces/${workspace.id}/projects`}
           >
             <FolderOutlined className="text-sm" />

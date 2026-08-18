@@ -44,9 +44,9 @@ export function DashboardAiSuggestions({
   ];
 
   return (
-    <div className="rounded-3xl border border-[#c9dfea] bg-gradient-to-br from-white via-indigo-50/30 to-slate-50 p-6 shadow-xs space-y-4">
+    <div className="space-y-4 rounded-3xl border border-slate-200 bg-gradient-to-br from-white via-indigo-50/30 to-slate-50 p-6 shadow-xs">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2 text-xs font-extrabold text-[#367ea2]">
+        <div className="flex items-center gap-2 text-xs font-extrabold text-blue-600">
           <Sparkles className="h-4 w-4 text-purple-600" />
           Gợi ý thông minh từ AI
         </div>
@@ -63,20 +63,20 @@ export function DashboardAiSuggestions({
             <Link
               key={item.id}
               href="/workspaces"
-              className="group flex items-start gap-3 rounded-2xl border border-white/80 bg-white/90 p-3.5 shadow-2xs transition-all hover:border-[#367ea2] hover:bg-white hover:shadow-xs"
+              className="group flex items-start gap-3 rounded-2xl border border-white/80 bg-white/90 p-3.5 shadow-2xs transition-all hover:border-blue-400 hover:bg-white hover:shadow-xs"
             >
               <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-purple-50 text-purple-600 border border-purple-100 group-hover:scale-105 transition-transform">
                 <Icon className="h-4 w-4" />
               </div>
               <div className="min-w-0 flex-1">
-                <span className="block text-xs font-extrabold text-[#164654] group-hover:text-[#367ea2] transition-colors">
+                <span className="block text-xs font-extrabold text-slate-900 transition-colors group-hover:text-blue-600">
                   {item.title}
                 </span>
                 <span className="block text-[11px] font-medium text-slate-500 leading-relaxed mt-0.5">
                   {item.description}
                 </span>
               </div>
-              <ArrowRight className="h-4 w-4 shrink-0 text-slate-300 transition-transform group-hover:translate-x-1 group-hover:text-[#367ea2]" />
+              <ArrowRight className="h-4 w-4 shrink-0 text-slate-300 transition-transform group-hover:translate-x-1 group-hover:text-blue-600" />
             </Link>
           );
         })}
@@ -85,7 +85,7 @@ export function DashboardAiSuggestions({
       <div className="pt-2 flex items-center justify-between border-t border-slate-200/60">
         <Link
           href="/workspaces"
-          className="inline-flex items-center gap-1.5 text-xs font-bold text-[#367ea2] transition hover:underline"
+          className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-600 transition hover:underline"
         >
           <span>Xem tất cả gợi ý & Báo cáo AI</span>
           <ArrowRight className="h-3.5 w-3.5" />

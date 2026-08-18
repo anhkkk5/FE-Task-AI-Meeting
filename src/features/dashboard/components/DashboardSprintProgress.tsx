@@ -45,9 +45,9 @@ export function DashboardSprintProgress({
 
   if (isLoading) {
     return (
-      <div className="flex h-64 items-center justify-center rounded-3xl border border-[#c9dfea]/80 bg-white p-6 shadow-xs">
+      <div className="flex h-64 items-center justify-center rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs">
         <div className="flex items-center gap-3 text-xs font-semibold text-slate-500">
-          <div className="h-5 w-5 animate-spin rounded-full border-2 border-[#367ea2] border-t-transparent" />
+          <div className="h-5 w-5 animate-spin rounded-full border-2 border-blue-600 border-t-transparent" />
           Đang tải thông tin tiến độ...
         </div>
       </div>
@@ -55,16 +55,16 @@ export function DashboardSprintProgress({
   }
 
   return (
-    <div className="rounded-3xl border border-[#c9dfea]/80 bg-white p-6 shadow-xs space-y-6">
+    <div className="space-y-6 rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs">
       {/* Header */}
       <div className="flex flex-col gap-2 border-b border-slate-100 pb-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <div className="flex items-center gap-2">
-            <h2 className="text-base font-extrabold text-[#164654]">
+            <h2 className="text-base font-extrabold text-slate-900">
               {sprint ? sprint.name : "Tiến độ & Phân bổ Công việc"}
             </h2>
             {sprint?.projectName ? (
-              <span className="text-xs font-bold text-[#367ea2]">
+              <span className="text-xs font-bold text-blue-600">
                 • {sprint.projectName}
               </span>
             ) : null}
@@ -80,7 +80,7 @@ export function DashboardSprintProgress({
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="rounded-full bg-[#b1dff6]/30 px-3 py-1 text-xs font-extrabold text-[#164654]">
+          <span className="rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-xs font-extrabold text-blue-700">
             {totalTasks} Công việc
           </span>
         </div>
@@ -92,7 +92,7 @@ export function DashboardSprintProgress({
         <div className="space-y-5">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-slate-700">Tỷ lệ hoàn thành</span>
-            <span className="text-sm font-extrabold text-[#367ea2]">{donePct}%</span>
+            <span className="text-sm font-extrabold text-blue-600">{donePct}%</span>
           </div>
 
           {/* Segmented Progress Bar */}
@@ -126,7 +126,7 @@ export function DashboardSprintProgress({
                 <CheckCircle2 className="h-4 w-4" />
                 <span className="text-[11px] font-bold">Hoàn thành</span>
               </div>
-              <span className="block text-lg font-extrabold text-[#164654]">{doneCount}</span>
+              <span className="block text-lg font-extrabold text-slate-900">{doneCount}</span>
             </div>
 
             <div className="rounded-2xl border border-indigo-100 bg-indigo-50/50 p-3 text-center">
@@ -134,7 +134,7 @@ export function DashboardSprintProgress({
                 <PlayCircle className="h-4 w-4" />
                 <span className="text-[11px] font-bold">Đang làm</span>
               </div>
-              <span className="block text-lg font-extrabold text-[#164654]">{inProgressCount}</span>
+              <span className="block text-lg font-extrabold text-slate-900">{inProgressCount}</span>
             </div>
 
             <div className="rounded-2xl border border-amber-100 bg-amber-50/50 p-3 text-center">
@@ -142,7 +142,7 @@ export function DashboardSprintProgress({
                 <Clock className="h-4 w-4" />
                 <span className="text-[11px] font-bold">Đang chờ</span>
               </div>
-              <span className="block text-lg font-extrabold text-[#164654]">{inReviewCount}</span>
+              <span className="block text-lg font-extrabold text-slate-900">{inReviewCount}</span>
             </div>
 
             <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3 text-center">
@@ -150,13 +150,13 @@ export function DashboardSprintProgress({
                 <StopCircle className="h-4 w-4" />
                 <span className="text-[11px] font-bold">Chưa làm</span>
               </div>
-              <span className="block text-lg font-extrabold text-[#164654]">{todoCount}</span>
+              <span className="block text-lg font-extrabold text-slate-900">{todoCount}</span>
             </div>
           </div>
         </div>
 
         {/* Right Column: Burndown / Daily Productivity Chart */}
-        <div className="flex flex-col justify-between rounded-2xl border border-[#c9dfea]/60 bg-slate-50/50 p-4">
+        <div className="flex flex-col justify-between rounded-2xl border border-slate-200/80 bg-slate-50/50 p-4">
           <div className="flex items-center justify-between text-xs font-bold text-slate-700 mb-3">
             <span>Tiến độ hoàn thành theo ngày</span>
             <span className="text-[11px] text-slate-400 font-semibold">7 ngày gần nhất</span>
@@ -176,11 +176,11 @@ export function DashboardSprintProgress({
 
               return (
                 <div key={idx} className="flex-1 flex flex-col items-center gap-1.5 h-full justify-end group">
-                  <span className="text-[10px] font-extrabold text-[#367ea2] opacity-0 group-hover:opacity-100 transition-opacity">
+                  <span className="text-[10px] font-extrabold text-blue-600 opacity-0 transition-opacity group-hover:opacity-100">
                     {item.completed}
                   </span>
                   <div
-                    className="w-full max-w-[28px] rounded-t-lg bg-[#367ea2] transition-all group-hover:bg-[#2b6887]"
+                    className="w-full max-w-[28px] rounded-t-lg bg-blue-600 transition-all group-hover:bg-blue-700"
                     style={{ height: `${Math.max(heightPct, 8)}%` }}
                   />
                   <span className="text-[10px] font-bold text-slate-400 truncate w-full text-center">
