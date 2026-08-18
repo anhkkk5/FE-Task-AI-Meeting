@@ -726,6 +726,10 @@ export default function BacklogPage() {
   const isBacklogDragOver = dragOverTarget === backlogDropTarget;
   const activeSprintCount = sprints.filter((sprint) => sprint.status === "ACTIVE").length;
   const plannedSprintCount = sprints.filter((sprint) => sprint.status === "PLANNED").length;
+  const chartSprint = sprints.find((sprint) => sprint.status === "ACTIVE") ?? sprints[0] ?? null;
+  const chartTasks = chartSprint
+    ? tasks.filter((task) => task.sprintId === chartSprint.id)
+    : [];
   const taskSummary = {
     total: tasks.length,
     backlog: tasks.filter((task) => task.sprintId === null).length,
@@ -762,8 +766,8 @@ export default function BacklogPage() {
       <div className="space-y-4">
         <section className="rounded-3xl border border-slate-200/90 bg-white p-5 sm:p-6 shadow-sm shadow-slate-100/70 space-y-5">
           {/* Top Filter and Action Row */}
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-            <div className="grid flex-1 gap-3 sm:grid-cols-2 md:grid-cols-[minmax(220px,1fr)_150px_180px_170px_auto] md:items-end">
+          <div className="flex flex-col gap-4">
+            <div className="grid w-full gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-[minmax(240px,1.35fr)_minmax(150px,.8fr)_minmax(180px,1fr)_minmax(170px,.9fr)_minmax(150px,.8fr)_auto] 2xl:items-end">
               <label className="grid gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-600">
                 Tìm task
                 <div className="relative">
@@ -844,7 +848,7 @@ export default function BacklogPage() {
             </div>
 
             {/* Action Buttons */}
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex flex-wrap items-center justify-start gap-2 border-t border-slate-100 pt-4 lg:justify-end">
               <button
                 className="inline-flex h-10 items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 text-xs font-semibold text-slate-700 shadow-sm transition-all hover:bg-slate-50 active:scale-95 disabled:opacity-60"
                 disabled={isLoading}
@@ -988,8 +992,8 @@ export default function BacklogPage() {
 
           {/* Biểu đồ Burndown Chart trực quan */}
           <SprintBurndownChart
-            sprint={sprints.find((s) => s.status === "ACTIVE") || sprints[0] || null}
-            tasks={tasks}
+            sprint={chartSprint}
+            tasks={chartTasks}
             projectName={project?.name}
           />
 
