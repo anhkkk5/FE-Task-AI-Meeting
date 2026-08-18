@@ -94,26 +94,34 @@ export default function WorkspacesPage() {
 
   return (
     <AppShell>
-      <div className="space-y-6 max-w-7xl mx-auto">
+      <div className="mx-auto max-w-7xl space-y-5 pb-10">
         {/* Header Toolbar Card */}
-        <div className="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs sm:p-8">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="relative overflow-hidden rounded-3xl border border-slate-200/80 bg-white p-6 shadow-sm shadow-slate-200/40 sm:p-8">
+          <div className="pointer-events-none absolute inset-y-0 right-0 hidden w-[43%] overflow-hidden lg:block">
+            <div className="absolute -right-12 -top-28 h-80 w-80 rounded-[4rem] border border-blue-100/70 bg-gradient-to-br from-blue-50/70 to-transparent rotate-12" />
+            <div className="absolute right-28 top-24 flex h-20 w-20 rotate-6 items-center justify-center rounded-3xl border border-blue-200/60 bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-xl shadow-blue-500/20">
+              <ProductOutlined className="text-3xl" />
+            </div>
+            <div className="absolute right-4 top-40 h-28 w-28 rotate-12 rounded-3xl border border-blue-100/70 bg-blue-50/30" />
+            <div className="absolute right-52 top-10 h-8 w-8 rotate-12 rounded-lg border border-blue-100 bg-blue-50/40" />
+          </div>
+          <div className="relative flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <div className="inline-flex items-center gap-1.5 rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-xs font-bold text-blue-700">
                 <ProductOutlined className="text-sm text-blue-600" />
                 Workspace Management
               </div>
-              <h1 className="mt-2.5 text-2xl font-extrabold text-slate-900 sm:text-3xl">
+              <h1 className="mt-3 text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl">
                 Không gian làm việc (Workspace)
               </h1>
-              <p className="mt-1 text-xs font-medium text-slate-500 sm:text-sm">
+              <p className="mt-2 text-sm font-medium text-slate-500 sm:text-base">
                 Quản lý toàn bộ Workspace, dự án và thành viên thuộc quyền của bạn
               </p>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="relative z-10 flex flex-wrap items-center gap-3">
               <button
-                className="inline-flex h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-xs font-bold text-slate-700 shadow-xs transition hover:border-blue-200 hover:bg-blue-50/40 hover:text-blue-700 active:scale-95 disabled:opacity-60"
+                className="inline-flex h-12 items-center gap-2 rounded-xl border border-slate-200 bg-white px-5 text-sm font-bold text-slate-700 shadow-md shadow-slate-200/50 transition hover:border-blue-200 hover:bg-blue-50/40 hover:text-blue-700 active:scale-95 disabled:opacity-60"
                 type="button"
                 onClick={() => void loadWorkspaces()}
                 disabled={isLoading}
@@ -122,7 +130,7 @@ export default function WorkspacesPage() {
                 Làm mới
               </button>
               <Link
-                className="inline-flex h-11 items-center gap-2 rounded-xl bg-blue-600 px-5 text-xs font-bold text-white shadow-md shadow-blue-600/20 transition hover:bg-blue-700 active:scale-95"
+                className="inline-flex h-12 items-center gap-2 rounded-xl bg-blue-600 px-6 text-sm font-bold text-white shadow-lg shadow-blue-600/25 transition hover:bg-blue-700 active:scale-95"
                 href="/workspaces/create"
               >
                 <Plus className="h-4 w-4" />
@@ -132,10 +140,10 @@ export default function WorkspacesPage() {
           </div>
 
           {/* Search bar inside header */}
-          <div className="mt-6 pt-5 border-t border-slate-100 flex items-center justify-between gap-4">
-            <div className="relative flex-1 max-w-md">
+          <div className="relative mt-7 flex items-center justify-between gap-4 border-t border-slate-100 pt-5">
+            <div className="relative max-w-xl flex-1">
               <input
-                className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50/60 pl-10 pr-4 text-xs font-semibold text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10"
+                className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50/50 pl-11 pr-4 text-sm font-medium text-slate-900 outline-none transition placeholder:text-slate-400 hover:bg-white focus:border-blue-400 focus:bg-white focus:ring-4 focus:ring-blue-100"
                 placeholder="Tìm kiếm workspace theo tên hoặc slug..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -150,9 +158,9 @@ export default function WorkspacesPage() {
         </div>
 
         {/* Top Stats KPI Cards với Font chữ rõ nét & Nhãn dễ đọc */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {/* Workspaces */}
-          <div className="flex items-center gap-4 rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xs transition-transform hover:-translate-y-0.5 hover:border-blue-200">
+          <div className="flex items-center gap-4 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs transition hover:border-blue-200 hover:shadow-sm">
             <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-blue-100 bg-blue-50 text-blue-600">
               <ProductOutlined className="text-2xl" />
             </div>
@@ -163,7 +171,7 @@ export default function WorkspacesPage() {
           </div>
 
           {/* Projects */}
-          <div className="flex items-center gap-4 rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xs transition-transform hover:-translate-y-0.5 hover:border-emerald-200">
+          <div className="flex items-center gap-4 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs transition hover:border-emerald-200 hover:shadow-sm">
             <div className="h-12 w-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 border border-emerald-200/80">
               <FolderKanban className="h-6 w-6" />
             </div>
@@ -174,7 +182,7 @@ export default function WorkspacesPage() {
           </div>
 
           {/* Members */}
-          <div className="flex items-center gap-4 rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xs transition-transform hover:-translate-y-0.5 hover:border-indigo-200">
+          <div className="flex items-center gap-4 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs transition hover:border-indigo-200 hover:shadow-sm">
             <div className="h-12 w-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 border border-indigo-200/80">
               <Users className="h-6 w-6" />
             </div>
@@ -185,7 +193,7 @@ export default function WorkspacesPage() {
           </div>
 
           {/* Meetings */}
-          <div className="flex items-center gap-4 rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xs transition-transform hover:-translate-y-0.5 hover:border-amber-200">
+          <div className="flex items-center gap-4 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs transition hover:border-amber-200 hover:shadow-sm">
             <div className="h-12 w-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0 border border-amber-200/80">
               <Calendar className="h-6 w-6" />
             </div>
@@ -209,7 +217,7 @@ export default function WorkspacesPage() {
             <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
           </div>
         ) : (
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
             {filteredItems.map((workspace) => (
               <WorkspaceCard
                 key={workspace.id}
@@ -217,22 +225,6 @@ export default function WorkspacesPage() {
                 stats={statsByWorkspace.get(workspace.id)}
               />
             ))}
-            
-            {/* Add Workspace Card */}
-            <Link 
-              href="/workspaces/create"
-              className="group flex min-h-[260px] flex-col items-center justify-center rounded-3xl border-2 border-dashed border-slate-200 bg-slate-50/50 p-8 shadow-2xs transition-all duration-200 hover:border-blue-400 hover:bg-blue-50/40"
-            >
-              <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-blue-100 bg-white text-blue-600 shadow-xs transition-all group-hover:scale-110 group-hover:bg-blue-600 group-hover:text-white">
-                <ProductOutlined className="text-2xl" />
-              </div>
-              <p className="text-base font-extrabold text-slate-900 transition-colors group-hover:text-blue-600">
-                Thêm Workspace mới
-              </p>
-              <p className="text-xs font-semibold text-slate-400 mt-1 text-center max-w-xs">
-                Tạo một không gian cộng tác mới cho đội ngũ của bạn
-              </p>
-            </Link>
           </div>
         )}
       </div>
