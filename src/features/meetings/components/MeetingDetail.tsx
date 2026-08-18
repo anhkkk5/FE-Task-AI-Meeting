@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { formatDateTime } from "@/lib/utils/relative-time";
 import { Meeting } from "../types/meeting.type";
+import { Bot, CalendarDays, CheckCircle2, Clock3, FileDown, FileText, Sparkles, Users, Video } from "lucide-react";
 
 type MeetingDetailProps = {
   meeting: Meeting;
@@ -31,11 +32,11 @@ const statusLabels: Record<Meeting["status"], string> = {
 };
 
 const statusTone: Record<Meeting["status"], string> = {
-  SCHEDULED: "bg-[#e9f2ff] text-[#0c66e4]",
-  IN_PROGRESS: "bg-[#fff7d6] text-[#974f0c]",
-  COMPLETED: "bg-[#dcfff1] text-[#216e4e]",
-  CANCELLED: "bg-[#fff4f2] text-[#ae2a19]",
-  ARCHIVED: "bg-[#f1f2f4] text-[#44546f]",
+  SCHEDULED: "border-blue-100 bg-blue-50 text-blue-700",
+  IN_PROGRESS: "border-amber-100 bg-amber-50 text-amber-700",
+  COMPLETED: "border-emerald-100 bg-emerald-50 text-emerald-700",
+  CANCELLED: "border-rose-100 bg-rose-50 text-rose-700",
+  ARCHIVED: "border-slate-200 bg-slate-100 text-slate-600",
 };
 
 // meetingDate la ngay tran dang "2026-07-26" (khong co gio, khong co mui gio)
@@ -136,15 +137,15 @@ export function MeetingDetail({
   };
 
   return (
-    <section className="rounded border border-[#dfe1e6] bg-white">
-      <div className="flex flex-col gap-5 border-b border-[#dfe1e6] px-5 py-5 lg:flex-row lg:items-start lg:justify-between">
+    <section className="overflow-hidden rounded-3xl border border-slate-200/80 bg-white shadow-xs">
+      <div className="flex flex-col gap-6 border-b border-slate-100 p-6 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="rounded bg-[#e9f2ff] px-2 py-1 text-xs font-semibold uppercase tracking-wide text-[#0c66e4]">
+            <span className="rounded-lg border border-blue-100 bg-blue-50 px-2.5 py-1 text-xs font-bold text-blue-700">
               {typeLabels[meeting.meetingType]}
             </span>
             <span
-              className={`rounded px-2 py-1 text-xs font-semibold ${statusTone[meeting.status]}`}
+              className={`rounded-lg border px-2.5 py-1 text-xs font-semibold ${statusTone[meeting.status]}`}
             >
               {statusLabels[meeting.status]}
             </span>
@@ -165,23 +166,23 @@ export function MeetingDetail({
             ) : null}
           </div>
 
-          <h1 className="mt-4 truncate text-2xl font-semibold text-[#172b4d]">
+          <h1 className="mt-4 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">
             {meeting.title}
           </h1>
           {meeting.description ? (
-            <p className="mt-3 max-w-3xl whitespace-pre-line text-sm leading-6 text-[#44546f]">
+            <p className="mt-2 max-w-3xl whitespace-pre-line text-sm font-medium leading-6 text-slate-500">
               {meeting.description}
             </p>
           ) : null}
         </div>
 
-        <div className="flex flex-wrap gap-2">
+        <div className="flex max-w-xl flex-wrap justify-start gap-2 lg:justify-end">
           {canEnterRoom ? (
             <Link
-              className="h-9 rounded bg-[#172b4d] px-3 py-2 text-sm font-semibold text-white hover:bg-[#0c1f3f]"
+              className="inline-flex h-10 items-center gap-2 rounded-xl bg-blue-600 px-4 text-sm font-bold text-white shadow-md shadow-blue-600/20 transition hover:bg-blue-700"
               href={`/workspaces/${workspaceId}/projects/${projectId}/meetings/${meeting.id}/room`}
             >
-              Vào phòng họp
+              <Video className="h-4 w-4" /> Vào phòng họp
             </Link>
           ) : (
             <span className="h-9 rounded bg-[#f1f2f4] px-3 py-2 text-sm font-semibold text-[#6b778c]">
@@ -189,47 +190,47 @@ export function MeetingDetail({
             </span>
           )}
           <Link
-            className="h-9 rounded border border-[#dfe1e6] bg-white px-3 py-2 text-sm font-medium text-[#44546f] hover:bg-[#f1f2f4]"
+            className="inline-flex h-10 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-blue-600"
             href={`/workspaces/${workspaceId}/projects/${projectId}/meetings/${meeting.id}/participants`}
           >
-            Người tham gia
+            <Users className="h-4 w-4" /> Người tham gia
           </Link>
           <Link
-            className="h-9 rounded border border-[#dfe1e6] bg-white px-3 py-2 text-sm font-medium text-[#44546f] hover:bg-[#f1f2f4]"
+            className="inline-flex h-10 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-blue-600"
             href={`/workspaces/${workspaceId}/projects/${projectId}/meetings/${meeting.id}/transcript`}
           >
-            Biên bản
+            <FileText className="h-4 w-4" /> Biên bản
           </Link>
           <Link
-            className="h-9 rounded border border-[#dfe1e6] bg-white px-3 py-2 text-sm font-medium text-[#44546f] hover:bg-[#f1f2f4]"
+            className="inline-flex h-10 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-blue-600"
             href={`/workspaces/${workspaceId}/projects/${projectId}/meetings/${meeting.id}/summary`}
           >
-            Tóm tắt AI
+            <Sparkles className="h-4 w-4" /> Tóm tắt AI
           </Link>
           <Link
-            className="h-9 rounded border border-[#dfe1e6] bg-white px-3 py-2 text-sm font-medium text-[#44546f] hover:bg-[#f1f2f4]"
+            className="inline-flex h-10 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-blue-600"
             href={`/workspaces/${workspaceId}/projects/${projectId}/meetings/${meeting.id}/personalized-summary`}
           >
-            Tóm tắt của tôi
+            <Bot className="h-4 w-4" /> Tóm tắt của tôi
           </Link>
           <button
             type="button"
             onClick={() => exportMeetingMinutesToPDF(meeting)}
-            className="h-9 rounded border border-blue-200 bg-blue-50 px-3 text-sm font-bold text-blue-700 hover:bg-blue-100 transition shadow-2xs"
+            className="inline-flex h-10 items-center gap-2 rounded-xl border border-blue-200 bg-blue-50 px-3 text-sm font-bold text-blue-700 transition hover:bg-blue-100"
             title="In & Xuất biên bản cuộc họp ra file PDF"
           >
-            📄 Xuất Biên bản PDF
+            <FileDown className="h-4 w-4" /> Xuất biên bản PDF
           </button>
           {canChangeStatus ? (
             <>
               <button
-                className="h-9 rounded bg-[#00875a] px-3 text-sm font-semibold text-white hover:bg-[#216e4e] disabled:bg-[#b3b9c4]"
+                className="inline-flex h-10 items-center gap-2 rounded-xl bg-emerald-600 px-4 text-sm font-bold text-white transition hover:bg-emerald-700 disabled:bg-slate-300"
                 disabled={isMutating}
                 id="meeting-complete-button"
                 onClick={handleComplete}
                 type="button"
               >
-                Kết thúc cuộc họp
+                <CheckCircle2 className="h-4 w-4" /> Kết thúc cuộc họp
               </button>
               <button
                 className="h-9 rounded bg-[#de350b] px-3 text-sm font-semibold text-white hover:bg-[#ae2a19] disabled:bg-[#b3b9c4]"
@@ -254,8 +255,9 @@ export function MeetingDetail({
         </div>
       </div>
 
-      <div className="grid gap-px bg-[#dfe1e6] md:grid-cols-5">
-        <div className="bg-white p-4">
+      <div className="grid gap-3 bg-slate-50/70 p-4 sm:grid-cols-2 lg:grid-cols-5">
+        <div className="rounded-2xl border border-slate-200/80 bg-white p-4">
+          <CalendarDays className="mb-3 h-5 w-5 text-blue-600" />
           <p className="text-xs font-semibold uppercase tracking-wide text-[#6b778c]">
             Ngày họp
           </p>
@@ -263,7 +265,8 @@ export function MeetingDetail({
             {formatDate(meeting.meetingDate)}
           </p>
         </div>
-        <div className="bg-white p-4">
+        <div className="rounded-2xl border border-slate-200/80 bg-white p-4">
+          <Clock3 className="mb-3 h-5 w-5 text-blue-600" />
           <p className="text-xs font-semibold uppercase tracking-wide text-[#6b778c]">
             Bắt đầu
           </p>
@@ -271,7 +274,8 @@ export function MeetingDetail({
             {formatDateTime(meeting.startTime)}
           </p>
         </div>
-        <div className="bg-white p-4">
+        <div className="rounded-2xl border border-slate-200/80 bg-white p-4">
+          <Clock3 className="mb-3 h-5 w-5 text-sky-600" />
           <p className="text-xs font-semibold uppercase tracking-wide text-[#6b778c]">
             Kết thúc
           </p>
@@ -279,7 +283,8 @@ export function MeetingDetail({
             {formatDateTime(meeting.endTime)}
           </p>
         </div>
-        <div className="bg-white p-4">
+        <div className="rounded-2xl border border-slate-200/80 bg-white p-4">
+          <FileText className="mb-3 h-5 w-5 text-emerald-600" />
           <p className="text-xs font-semibold uppercase tracking-wide text-[#6b778c]">
             Biên bản
           </p>
@@ -287,7 +292,8 @@ export function MeetingDetail({
             {meeting.mongoTranscriptId ? "Đã có" : "Chưa có"}
           </p>
         </div>
-        <div className="bg-white p-4">
+        <div className="rounded-2xl border border-slate-200/80 bg-white p-4">
+          <Sparkles className="mb-3 h-5 w-5 text-violet-600" />
           <p className="text-xs font-semibold uppercase tracking-wide text-[#6b778c]">
             Tóm tắt AI
           </p>

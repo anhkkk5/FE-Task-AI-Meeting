@@ -21,6 +21,7 @@ import { Project } from "@/features/projects/types/project.type";
 import { getSprints } from "@/features/sprints/api/sprints.api";
 import { Sprint } from "@/features/sprints/types/sprint.type";
 import { useAuth } from "@/hooks/useAuth";
+import { CalendarDays, Plus, RefreshCw, Search, SlidersHorizontal } from "lucide-react";
 
 const managerRoles = ["OWNER", "SCRUM_MASTER", "PROJECT_MANAGER"];
 
@@ -189,50 +190,52 @@ export default function MeetingsPage() {
       title={project?.name}
       workspaceId={params.workspaceId}
     >
-      <div className="mx-auto max-w-6xl space-y-4 pb-12">
-        <section className="rounded border border-[#dfe1e6] bg-white p-5">
+      <div className="mx-auto max-w-7xl space-y-5 pb-12">
+        <section className="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs sm:p-7">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-[#0c66e4]">
-                Cuộc họp
-              </p>
-              <h1 className="mt-1 text-2xl font-semibold text-[#172b4d]">
-                Cuộc họp trong dự án
-              </h1>
-              <p className="mt-2 max-w-2xl text-sm text-[#6b778c]">
-                Quản lý lịch họp, người tham gia và biên bản theo từng dự án
-                hoặc sprint.
-              </p>
+            <div className="flex items-center gap-4">
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-blue-50 text-blue-600 ring-1 ring-blue-100">
+                <CalendarDays className="h-7 w-7" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">Cuộc họp trong dự án</h1>
+                <p className="mt-1.5 max-w-2xl text-sm font-medium text-slate-500">
+                  Quản lý lịch họp, người tham gia và biên bản theo từng dự án hoặc sprint.
+                </p>
+              </div>
             </div>
             <div className="flex flex-wrap gap-2">
               <button
-                className="h-9 rounded border border-[#dfe1e6] bg-white px-3 text-sm font-medium text-[#44546f] hover:bg-[#f1f2f4]"
+                className="inline-flex h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 shadow-xs transition hover:border-blue-200 hover:bg-blue-50/50"
                 type="button"
                 onClick={() => void loadData()}
               >
-                Làm mới
+                <RefreshCw className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`} /> Làm mới
               </button>
               {canManage ? (
                 <Link
-                  className="flex h-9 items-center rounded bg-[#0c66e4] px-3 text-sm font-semibold text-white hover:bg-[#0055cc]"
+                  className="inline-flex h-11 items-center gap-2 rounded-xl bg-blue-600 px-4 text-sm font-bold text-white shadow-md shadow-blue-600/20 transition hover:bg-blue-700"
                   href={`/workspaces/${params.workspaceId}/projects/${params.projectId}/meetings/create`}
                 >
-                  Tạo cuộc họp
+                  <Plus className="h-4 w-4" /> Tạo cuộc họp
                 </Link>
               ) : null}
             </div>
           </div>
         </section>
 
-        <section className="grid gap-3 rounded border border-[#dfe1e6] bg-white p-3 lg:grid-cols-[1fr_180px_180px_220px_auto]">
-          <input
-            className="h-9 rounded border border-[#dfe1e6] bg-white px-3 text-sm outline-none hover:bg-[#f7f8f9] focus:border-[#0c66e4]"
-            placeholder="Tìm cuộc họp..."
-            value={query.keyword ?? ""}
-            onChange={(event) => patchQuery({ keyword: event.target.value })}
-          />
+        <section className="grid gap-3 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-xs lg:grid-cols-[minmax(240px,1fr)_180px_180px_220px_auto]">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            <input
+              className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50/50 pl-10 pr-3 text-sm outline-none transition placeholder:text-slate-400 hover:bg-white focus:border-blue-400 focus:bg-white focus:ring-4 focus:ring-blue-100"
+              placeholder="Tìm cuộc họp..."
+              value={query.keyword ?? ""}
+              onChange={(event) => patchQuery({ keyword: event.target.value })}
+            />
+          </div>
           <select
-            className="h-9 rounded border border-[#dfe1e6] bg-white px-3 text-sm outline-none hover:bg-[#f7f8f9] focus:border-[#0c66e4]"
+            className="h-11 rounded-xl border border-slate-200 bg-slate-50/50 px-3 text-sm text-slate-700 outline-none transition hover:bg-white focus:border-blue-400 focus:ring-4 focus:ring-blue-100"
             value={query.status ?? ""}
             onChange={(event) =>
               patchQuery({
@@ -250,7 +253,7 @@ export default function MeetingsPage() {
             ))}
           </select>
           <select
-            className="h-9 rounded border border-[#dfe1e6] bg-white px-3 text-sm outline-none hover:bg-[#f7f8f9] focus:border-[#0c66e4]"
+            className="h-11 rounded-xl border border-slate-200 bg-slate-50/50 px-3 text-sm text-slate-700 outline-none transition hover:bg-white focus:border-blue-400 focus:ring-4 focus:ring-blue-100"
             value={query.meetingType ?? ""}
             onChange={(event) =>
               patchQuery({
@@ -268,7 +271,7 @@ export default function MeetingsPage() {
             ))}
           </select>
           <select
-            className="h-9 rounded border border-[#dfe1e6] bg-white px-3 text-sm outline-none hover:bg-[#f7f8f9] focus:border-[#0c66e4]"
+            className="h-11 rounded-xl border border-slate-200 bg-slate-50/50 px-3 text-sm text-slate-700 outline-none transition hover:bg-white focus:border-blue-400 focus:ring-4 focus:ring-blue-100"
             value={query.sprintId ?? ""}
             onChange={(event) =>
               patchQuery({ sprintId: event.target.value || undefined })
@@ -282,23 +285,24 @@ export default function MeetingsPage() {
             ))}
           </select>
           <button
-            className="h-9 rounded bg-[#172b4d] px-3 text-sm font-semibold text-white hover:bg-[#0c1f3f]"
+            className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 disabled:opacity-40"
+            disabled={!query.keyword && !query.status && !query.meetingType && !query.sprintId}
             type="button"
             onClick={() => setQuery({ page: 1, limit: 20 })}
           >
-            Xóa lọc
+            <SlidersHorizontal className="h-4 w-4" /> Xóa lọc
           </button>
         </section>
 
         {message ? (
-          <div className="rounded border border-[#f5cd47] bg-[#fff7d6] px-3 py-2 text-sm font-medium text-[#7f5f01]">
+          <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800">
             {message}
           </div>
         ) : null}
 
         {isLoading ? (
-          <div className="flex h-48 items-center justify-center rounded border border-[#dfe1e6] bg-white">
-            <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#0c66e4] border-t-transparent"></div>
+          <div className="flex h-64 items-center justify-center rounded-3xl border border-slate-200 bg-white shadow-xs">
+            <div className="h-7 w-7 animate-spin rounded-full border-2 border-blue-600 border-t-transparent"></div>
           </div>
         ) : (
           <MeetingList

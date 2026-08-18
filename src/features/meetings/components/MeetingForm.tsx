@@ -141,12 +141,12 @@ export function MeetingForm({
   const activeMembers = members.filter((member) => member.status === "ACTIVE");
 
   return (
-    <form className="grid gap-5" onSubmit={handleSubmit}>
+    <form className="grid gap-6" onSubmit={handleSubmit}>
       <div className="grid gap-4 md:grid-cols-[1.3fr_0.7fr]">
         <label className="grid gap-2 text-sm font-semibold text-zinc-700">
           Tiêu đề cuộc họp
           <input
-            className="h-11 rounded border border-[#dfe1e6] bg-white px-3 text-sm font-normal outline-none transition focus:border-[#0c66e4]"
+            className="h-11 rounded-xl border border-slate-200 bg-slate-50/50 px-3 text-sm font-normal outline-none transition hover:bg-white focus:border-blue-400 focus:bg-white focus:ring-4 focus:ring-blue-100"
             maxLength={200}
             minLength={2}
             placeholder="Lập kế hoạch Sprint 4"
@@ -159,7 +159,7 @@ export function MeetingForm({
         <label className="grid gap-2 text-sm font-semibold text-zinc-700">
           Loại cuộc họp
           <select
-            className="h-11 rounded border border-[#dfe1e6] bg-white px-3 text-sm font-normal outline-none transition focus:border-[#0c66e4]"
+            className="h-11 rounded-xl border border-slate-200 bg-slate-50/50 px-3 text-sm font-normal outline-none transition hover:bg-white focus:border-blue-400 focus:bg-white focus:ring-4 focus:ring-blue-100"
             value={meetingType}
             onChange={(event) =>
               setMeetingType(event.target.value as MeetingType)
@@ -177,7 +177,7 @@ export function MeetingForm({
       <label className="grid gap-2 text-sm font-semibold text-zinc-700">
         Mô tả
         <textarea
-          className="min-h-28 resize-y rounded border border-[#dfe1e6] bg-white px-3 py-3 text-sm font-normal leading-relaxed outline-none transition focus:border-[#0c66e4]"
+          className="min-h-28 resize-y rounded-xl border border-slate-200 bg-slate-50/50 px-3 py-3 text-sm font-normal leading-relaxed outline-none transition hover:bg-white focus:border-blue-400 focus:bg-white focus:ring-4 focus:ring-blue-100"
           maxLength={1000}
           placeholder="Nội dung chính, mục tiêu cuộc họp, ghi chú chuẩn bị..."
           value={description}
@@ -189,7 +189,7 @@ export function MeetingForm({
         <label className="grid gap-2 text-sm font-semibold text-zinc-700">
           Ngày họp
           <input
-            className="h-11 rounded border border-[#dfe1e6] bg-white px-3 text-sm font-normal outline-none transition focus:border-[#0c66e4]"
+            className="h-11 rounded-xl border border-slate-200 bg-slate-50/50 px-3 text-sm font-normal outline-none transition hover:bg-white focus:border-blue-400 focus:bg-white focus:ring-4 focus:ring-blue-100"
             required
             type="date"
             value={meetingDate}
@@ -200,7 +200,7 @@ export function MeetingForm({
         <label className="grid gap-2 text-sm font-semibold text-zinc-700">
           Bắt đầu
           <input
-            className="h-11 rounded border border-[#dfe1e6] bg-white px-3 text-sm font-normal outline-none transition focus:border-[#0c66e4]"
+            className="h-11 rounded-xl border border-slate-200 bg-slate-50/50 px-3 text-sm font-normal outline-none transition hover:bg-white focus:border-blue-400 focus:bg-white focus:ring-4 focus:ring-blue-100"
             required
             type="datetime-local"
             value={startTime}
@@ -214,7 +214,7 @@ export function MeetingForm({
         <label className="grid gap-2 text-sm font-semibold text-zinc-700">
           Kết thúc
           <input
-            className="h-11 rounded border border-[#dfe1e6] bg-white px-3 text-sm font-normal outline-none transition focus:border-[#0c66e4]"
+            className="h-11 rounded-xl border border-slate-200 bg-slate-50/50 px-3 text-sm font-normal outline-none transition hover:bg-white focus:border-blue-400 focus:bg-white focus:ring-4 focus:ring-blue-100"
             required
             type="datetime-local"
             value={endTime}
@@ -225,7 +225,7 @@ export function MeetingForm({
         <label className="grid gap-2 text-sm font-semibold text-zinc-700">
           Sprint
           <select
-            className="h-11 rounded border border-[#dfe1e6] bg-white px-3 text-sm font-normal outline-none transition focus:border-[#0c66e4]"
+            className="h-11 rounded-xl border border-slate-200 bg-slate-50/50 px-3 text-sm font-normal outline-none transition hover:bg-white focus:border-blue-400 focus:bg-white focus:ring-4 focus:ring-blue-100"
             value={sprintId}
             onChange={(event) => setSprintId(event.target.value)}
           >
@@ -244,12 +244,12 @@ export function MeetingForm({
           <span className="text-sm font-semibold text-zinc-700">
             Người tham gia
           </span>
-          <div className="grid max-h-64 gap-2 overflow-y-auto rounded border border-[#dfe1e6] bg-[#f7f8f9] p-3 md:grid-cols-2">
+          <div className="grid max-h-64 gap-2 overflow-y-auto rounded-2xl border border-slate-200 bg-slate-50/70 p-3 md:grid-cols-2">
             {activeMembers.length ? (
               activeMembers.map((member) => (
                 <label
                   key={member.userId}
-                  className="flex cursor-pointer items-center gap-3 rounded border border-[#dfe1e6] bg-white px-3 py-2 text-sm transition hover:border-[#85b8ff] hover:bg-[#f4f8ff]"
+                  className="flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm transition hover:border-blue-300 hover:bg-blue-50/50"
                 >
                   <input
                     checked={participantIds.includes(member.userId)}
@@ -277,7 +277,7 @@ export function MeetingForm({
       ) : null}
 
       <button
-        className="h-11 w-fit rounded bg-[#0c66e4] px-5 text-sm font-bold text-white shadow-sm transition hover:bg-[#0055cc] disabled:cursor-not-allowed disabled:bg-[#b3b9c4]"
+        className="h-11 w-fit rounded-xl bg-blue-600 px-6 text-sm font-bold text-white shadow-md shadow-blue-600/20 transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none"
         disabled={isSubmitting}
         type="submit"
       >

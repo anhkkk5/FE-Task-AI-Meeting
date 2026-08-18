@@ -28,6 +28,7 @@ import { Project } from "@/features/projects/types/project.type";
 import { getSprints } from "@/features/sprints/api/sprints.api";
 import { Sprint } from "@/features/sprints/types/sprint.type";
 import { useAuth } from "@/hooks/useAuth";
+import { ArrowLeft, Pencil } from "lucide-react";
 
 const managerRoles = ["OWNER", "SCRUM_MASTER", "PROJECT_MANAGER"];
 
@@ -195,34 +196,34 @@ export default function MeetingDetailPage() {
       title={project?.name}
       workspaceId={params.workspaceId}
     >
-      <div className="mx-auto max-w-6xl space-y-6 pb-12">
+      <div className="mx-auto max-w-7xl space-y-5 pb-12">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <Link
-            className="rounded border border-[#dfe1e6] bg-white px-4 py-2 text-sm font-semibold text-[#172b4d] transition hover:bg-[#f4f5f7]"
+            className="inline-flex h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 shadow-xs transition hover:border-blue-200 hover:bg-blue-50/50"
             href={`/workspaces/${params.workspaceId}/projects/${params.projectId}/meetings`}
           >
-            Quay lại danh sách cuộc họp
+            <ArrowLeft className="h-4 w-4" /> Quay lại danh sách cuộc họp
           </Link>
           {canManage && meeting ? (
             <button
-              className="rounded border border-[#dfe1e6] bg-white px-4 py-2 text-sm font-semibold text-[#172b4d] transition hover:bg-[#f4f5f7]"
+              className="inline-flex h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 shadow-xs transition hover:border-blue-200 hover:bg-blue-50/50"
               type="button"
               onClick={() => setIsEditing((value) => !value)}
             >
-              {isEditing ? "Đóng form sửa" : "Sửa cuộc họp"}
+              <Pencil className="h-4 w-4" /> {isEditing ? "Đóng form sửa" : "Sửa cuộc họp"}
             </button>
           ) : null}
         </div>
 
         {message ? (
-          <div className="rounded border border-[#f5cd47] bg-[#fff7d6] px-4 py-3 text-sm font-semibold text-[#7f5f01]">
+          <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-800">
             {message}
           </div>
         ) : null}
 
         {isLoading ? (
-          <div className="flex h-48 items-center justify-center rounded border border-[#dfe1e6] bg-white">
-            <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#0c66e4] border-t-transparent"></div>
+          <div className="flex h-64 items-center justify-center rounded-3xl border border-slate-200 bg-white shadow-xs">
+            <div className="h-7 w-7 animate-spin rounded-full border-2 border-blue-600 border-t-transparent"></div>
           </div>
         ) : meeting ? (
           <>
@@ -239,8 +240,8 @@ export default function MeetingDetailPage() {
             />
 
             {isEditing && canManage ? (
-              <section className="rounded border border-[#dfe1e6] bg-white p-5">
-                <h2 className="mb-5 text-lg font-semibold text-[#172b4d]">
+              <section className="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs">
+                <h2 className="mb-5 text-xl font-extrabold text-slate-900">
                   Cập nhật cuộc họp
                 </h2>
                 <MeetingForm
