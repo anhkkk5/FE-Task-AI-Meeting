@@ -721,12 +721,10 @@ export function AppShell({
       </div>
 
       {/* Floating AI Assistant Chatbot */}
-      {activeWorkspaceId && projectId ? (
-        <ProjectAssistantChatbot
-          workspaceId={activeWorkspaceId}
-          projectId={projectId}
-        />
-      ) : null}
+      <ProjectAssistantChatbot
+        workspaceId={activeWorkspaceId}
+        projectId={projectId}
+      />
     </div>
   );
 }

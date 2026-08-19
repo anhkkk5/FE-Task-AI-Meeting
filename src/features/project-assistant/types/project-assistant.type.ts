@@ -60,6 +60,8 @@ export type ProjectAssistantAnswer = {
     sprintName: string | null;
   };
   actionDraft?: ProjectAssistantActionDraft;
+  state?: "GLOBAL" | "NEED_WORKSPACE" | "NEED_PROJECT" | "NEED_SPRINT" | "READY";
+  choices?: Array<{ id: string; label: string; description?: string }>;
 };
 
 export type ProjectAssistantActionDraft = {

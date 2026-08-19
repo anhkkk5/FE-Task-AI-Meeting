@@ -38,6 +38,18 @@ export function getSprintRisk(
   );
 }
 
+export function askAgileFlowAssistant(payload: {
+  question: string;
+  workspaceId?: string;
+  projectId?: string;
+  sprintId?: string;
+}) {
+  return apiRequest<ApiResponse<ProjectAssistantAnswer>>("/ai/assistant/ask", {
+    method: "POST",
+    body: payload,
+  });
+}
+
 export function getProjectAssistantHistory(workspaceId: string, projectId: string) {
   return apiRequest<ApiResponse<{ items: Array<{ id: string; role: "USER" | "ASSISTANT"; content: string; sources?: ProjectAssistantAnswer["sources"]; actionDraft?: ProjectAssistantAnswer["actionDraft"] }> }>>(`${assistantBasePath(workspaceId, projectId)}/history`);
 }

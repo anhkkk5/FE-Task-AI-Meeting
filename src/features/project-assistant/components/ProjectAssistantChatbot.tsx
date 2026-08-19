@@ -6,8 +6,10 @@ import { getProjects } from "@/features/projects/api/projects.api";
 import { Project } from "@/features/projects/types/project.type";
 import { getSprints } from "@/features/sprints/api/sprints.api";
 import { Sprint } from "@/features/sprints/types/sprint.type";
-import { askProjectAssistant } from "../api/project-assistant.api";
-import { AssistantSource } from "../types/project-assistant.type";
+import { getMyWorkspaces } from "@/features/workspaces/api/workspaces.api";
+import { Workspace } from "@/features/workspaces/types/workspace.type";
+import { askAgileFlowAssistant } from "../api/project-assistant.api";
+import { AssistantSource, ProjectAssistantAnswer } from "../types/project-assistant.type";
 
 type ProjectAssistantChatbotProps = {
   workspaceId?: string;
@@ -19,6 +21,8 @@ type ChatMessage = {
   role: "USER" | "ASSISTANT";
   content: string;
   sources?: AssistantSource[];
+  state?: ProjectAssistantAnswer["state"];
+  choices?: ProjectAssistantAnswer["choices"];
 };
 
 const starterQuestions = [
@@ -68,6 +72,8 @@ export function ProjectAssistantChatbot({
   projectId,
 }: ProjectAssistantChatbotProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
+  const [selectedWorkspaceId, setSelectedWorkspaceId] = useState(workspaceId ?? "");
   const [projects, setProjects] = useState<Project[]>([]);
   const [selectedProjectId, setSelectedProjectId] = useState(projectId ?? "");
   const [sprints, setSprints] = useState<Sprint[]>([]);
@@ -80,6 +86,17 @@ export function ProjectAssistantChatbot({
   const [errorMessage, setErrorMessage] = useState("");
   const messageEndRef = useRef<HTMLDivElement>(null);
 
+  useEffect(() => {
+    if (workspaceId) setSelectedWorkspaceId(workspaceId);
+  }, [workspaceId]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    void getMyWorkspaces().then((response) => {
+      setWorkspaces(response.data.items);
+    }).catch(() => setWorkspaces([]));
+  }, [isOpen]);
+
   const selectedProject = useMemo(
     () => projects.find((project) => project.id === selectedProjectId),
     [projects, selectedProjectId],
@@ -90,12 +107,15 @@ export function ProjectAssistantChatbot({
   }, [projectId]);
 
   useEffect(() => {
-    if (!isOpen || !workspaceId) return;
+    if (!isOpen || !selectedWorkspaceId) {
+      setProjects([]);
+      return;
+    }
 
     let active = true;
     setIsLoadingContext(true);
     setErrorMessage("");
-    void getProjects(workspaceId, { status: "ACTIVE", page: 1, limit: 100 })
+    void getProjects(selectedWorkspaceId, { status: "ACTIVE", page: 1, limit: 100 })
       .then((response) => {
         if (!active) return;
         const items = response.data.items;
@@ -107,7 +127,7 @@ export function ProjectAssistantChatbot({
           if (current && items.some((item) => item.id === current)) {
             return current;
           }
-          return items[0]?.id ?? "";
+          return "";
         });
       })
       .catch((error: unknown) => {
@@ -126,25 +146,25 @@ export function ProjectAssistantChatbot({
     return () => {
       active = false;
     };
-  }, [isOpen, projectId, workspaceId]);
+  }, [isOpen, projectId, selectedWorkspaceId]);
 
   useEffect(() => {
-    if (!isOpen || !workspaceId || !selectedProjectId) {
+    if (!isOpen || !selectedWorkspaceId || !selectedProjectId) {
       setSprints([]);
       setSelectedSprintId("");
       return;
     }
 
     let active = true;
-    void getSprints(workspaceId, selectedProjectId, { page: 1, limit: 100 })
+    void getSprints(selectedWorkspaceId, selectedProjectId, { page: 1, limit: 100 })
       .then((response) => {
         if (!active) return;
         const available = response.data.items.filter(
           (sprint) => sprint.status === "ACTIVE" || sprint.status === "PLANNED",
         );
         setSprints(available);
-        setSelectedSprintId(
-          available.find((sprint) => sprint.status === "ACTIVE")?.id ?? "",
+        setSelectedSprintId((current) =>
+          available.some((sprint) => sprint.id === current) ? current : "",
         );
       })
       .catch(() => {
@@ -157,7 +177,7 @@ export function ProjectAssistantChatbot({
     return () => {
       active = false;
     };
-  }, [isOpen, selectedProjectId, workspaceId]);
+  }, [isOpen, selectedProjectId, selectedWorkspaceId]);
 
   useEffect(() => {
     messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -170,10 +190,83 @@ export function ProjectAssistantChatbot({
     setErrorMessage("");
   }
 
+  function changeWorkspace(value: string) {
+    setSelectedWorkspaceId(value);
+    setSelectedProjectId("");
+    setSelectedSprintId("");
+    setMessages([]);
+    setSuggestions(starterQuestions);
+  }
+
+  async function ask(content: string) {
+    const response = await askAgileFlowAssistant({
+      question: content,
+      ...(selectedWorkspaceId ? { workspaceId: selectedWorkspaceId } : {}),
+      ...(selectedProjectId ? { projectId: selectedProjectId } : {}),
+      ...(selectedSprintId ? { sprintId: selectedSprintId } : {}),
+    });
+    setMessages((current) => [
+      ...current,
+      {
+        id: crypto.randomUUID(),
+        role: "ASSISTANT",
+        content: response.data.answer,
+        sources: response.data.sources,
+        state: response.data.state,
+        choices: response.data.choices,
+      },
+    ]);
+    if (response.data.suggestedQuestions.length > 0) {
+      setSuggestions(response.data.suggestedQuestions);
+    }
+  }
+
+  async function chooseContext(message: ChatMessage, choiceId: string) {
+    const originalQuestion = [...messages].reverse().find((item) => item.role === "USER")?.content;
+    if (!originalQuestion || isAsking) return;
+    if (message.state === "NEED_WORKSPACE") {
+      setSelectedWorkspaceId(choiceId);
+      setSelectedProjectId("");
+      setSelectedSprintId("");
+    } else if (message.state === "NEED_PROJECT") {
+      setSelectedProjectId(choiceId);
+      setSelectedSprintId("");
+    } else if (message.state === "NEED_SPRINT") {
+      setSelectedSprintId(choiceId);
+    }
+    setIsAsking(true);
+    try {
+      const response = await askAgileFlowAssistant({
+        question: originalQuestion,
+        workspaceId: message.state === "NEED_WORKSPACE" ? choiceId : selectedWorkspaceId,
+        projectId:
+          message.state === "NEED_WORKSPACE"
+            ? undefined
+            : message.state === "NEED_PROJECT"
+              ? choiceId
+              : selectedProjectId || undefined,
+        sprintId:
+          message.state === "NEED_SPRINT"
+            ? choiceId
+            : message.state === "READY"
+              ? selectedSprintId || undefined
+              : undefined,
+      });
+      setMessages((current) => [...current, {
+        id: crypto.randomUUID(), role: "ASSISTANT", content: response.data.answer,
+        sources: response.data.sources, state: response.data.state, choices: response.data.choices,
+      }]);
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : "Không thể chọn phạm vi.");
+    } finally {
+      setIsAsking(false);
+    }
+  }
+
   async function submitQuestion(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const content = question.trim();
-    if (!workspaceId || !selectedProjectId || content.length < 3 || isAsking) {
+    if (content.length < 3 || isAsking) {
       return;
     }
 
@@ -186,26 +279,7 @@ export function ProjectAssistantChatbot({
     setIsAsking(true);
 
     try {
-      const response = await askProjectAssistant(
-        workspaceId,
-        selectedProjectId,
-        {
-          question: content,
-          ...(selectedSprintId ? { sprintId: selectedSprintId } : {}),
-        },
-      );
-      setMessages((current) => [
-        ...current,
-        {
-          id: crypto.randomUUID(),
-          role: "ASSISTANT",
-          content: response.data.answer,
-          sources: response.data.sources,
-        },
-      ]);
-      if (response.data.suggestedQuestions.length > 0) {
-        setSuggestions(response.data.suggestedQuestions);
-      }
+      await ask(content);
     } catch (error) {
       setErrorMessage(
         error instanceof Error
@@ -217,13 +291,11 @@ export function ProjectAssistantChatbot({
     }
   }
 
-  if (!workspaceId) return null;
-
   return (
     <>
       {isOpen ? (
         <section
-          aria-label="Trợ lý dự án"
+          aria-label="Trợ lý AgileFlow"
           className="fixed inset-x-3 bottom-20 z-50 flex max-h-[min(680px,calc(100vh-6rem))] flex-col overflow-hidden rounded border border-[#dfe1e6] bg-white shadow-2xl sm:left-auto sm:right-5 sm:w-[410px]"
         >
           <header className="flex items-center justify-between border-b border-[#dfe1e6] px-4 py-3">
@@ -232,9 +304,9 @@ export function ProjectAssistantChatbot({
                 <ChatIcon />
               </span>
               <div className="min-w-0">
-                <h2 className="font-semibold text-[#172b4d]">Trợ lý dự án</h2>
+                <h2 className="font-semibold text-[#172b4d]">Trợ lý AgileFlow</h2>
                 <p className="truncate text-xs text-[#6b778c]">
-                  {selectedProject?.name ?? "Chọn dự án để bắt đầu"}
+                  {selectedProject?.name ?? "Hỏi về AgileFlow hoặc dữ liệu dự án"}
                 </p>
               </div>
             </div>
@@ -249,7 +321,22 @@ export function ProjectAssistantChatbot({
             </button>
           </header>
 
-          <div className="grid grid-cols-2 gap-2 border-b border-[#dfe1e6] bg-[#f7f8f9] p-3">
+          <div className="grid grid-cols-1 gap-2 border-b border-[#dfe1e6] bg-[#f7f8f9] p-3 sm:grid-cols-3">
+            <label className="text-[11px] font-semibold uppercase text-[#626f86]">
+              Workspace
+              <select
+                className="mt-1 h-9 w-full rounded border border-[#b7b9be] bg-white px-2 text-sm normal-case text-[#172b4d] outline-none focus:border-[#0c66e4]"
+                onChange={(event) => changeWorkspace(event.target.value)}
+                value={selectedWorkspaceId}
+              >
+                <option value="">Chọn khi cần dữ liệu</option>
+                {workspaces.map((workspace) => (
+                  <option key={workspace.id} value={workspace.id}>
+                    {workspace.name}
+                  </option>
+                ))}
+              </select>
+            </label>
             <label className="text-[11px] font-semibold uppercase text-[#626f86]">
               Dự án
               <select
@@ -258,9 +345,7 @@ export function ProjectAssistantChatbot({
                 onChange={(event) => changeProject(event.target.value)}
                 value={selectedProjectId}
               >
-                {projects.length === 0 ? (
-                  <option value="">Chưa có dự án</option>
-                ) : null}
+                <option value="">Chọn khi cần dữ liệu</option>
                 {projects.map((project) => (
                   <option key={project.id} value={project.id}>
                     {project.name}
@@ -316,6 +401,21 @@ export function ProjectAssistantChatbot({
                 key={message.id}
               >
                 <p className="whitespace-pre-wrap">{message.content}</p>
+                {message.choices && message.choices.length > 0 ? (
+                  <div className="mt-2 grid gap-1.5 border-t border-[#dfe1e6] pt-2">
+                    {message.choices.map((choice) => (
+                      <button
+                        className="rounded border border-[#b3d4ff] bg-white px-2.5 py-1.5 text-left text-xs font-medium text-[#0c66e4] hover:bg-[#e9f2ff]"
+                        disabled={isAsking}
+                        key={choice.id}
+                        onClick={() => void chooseContext(message, choice.id)}
+                        type="button"
+                      >
+                        {choice.label}
+                      </button>
+                    ))}
+                  </div>
+                ) : null}
                 {message.sources && message.sources.length > 0 ? (
                   <div className="mt-2 flex flex-wrap gap-1 border-t border-[#dfe1e6] pt-2">
                     {message.sources.slice(0, 4).map((source) => (
@@ -323,7 +423,7 @@ export function ProjectAssistantChatbot({
                         className="rounded bg-white px-2 py-0.5 text-xs text-[#0c66e4] hover:underline"
                         href={sourceHref(
                           source,
-                          workspaceId,
+                          selectedWorkspaceId,
                           selectedProjectId,
                         )}
                         key={`${source.type}-${source.id}`}
@@ -373,7 +473,7 @@ export function ProjectAssistantChatbot({
                 aria-label="Gửi câu hỏi"
                 className="flex h-11 w-11 shrink-0 items-center justify-center rounded bg-[#0c66e4] text-white hover:bg-[#0055cc] disabled:cursor-not-allowed disabled:bg-[#b7b9be]"
                 disabled={
-                  !selectedProjectId || question.trim().length < 3 || isAsking
+                  question.trim().length < 3 || isAsking
                 }
                 title="Gửi"
                 type="submit"
@@ -397,7 +497,7 @@ export function ProjectAssistantChatbot({
             {selectedProjectId ? (
               <Link
                 className="mt-2 inline-block text-xs font-medium text-[#0c66e4] hover:underline"
-                href={`/workspaces/${workspaceId}/projects/${selectedProjectId}/assistant`}
+                href={`/workspaces/${selectedWorkspaceId}/projects/${selectedProjectId}/assistant`}
                 onClick={() => setIsOpen(false)}
               >
                 Mở trang phân tích đầy đủ
@@ -409,10 +509,10 @@ export function ProjectAssistantChatbot({
 
       <button
         aria-expanded={isOpen}
-        aria-label={isOpen ? "Đóng trợ lý dự án" : "Mở trợ lý dự án"}
+        aria-label={isOpen ? "Đóng trợ lý AgileFlow" : "Mở trợ lý AgileFlow"}
         className="fixed bottom-6 right-6 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-brand-600 text-white shadow-lg shadow-brand-600/25 ring-4 ring-brand-500/15 transition-all duration-200 hover:bg-brand-700 hover:scale-105 focus:outline-none"
         onClick={() => setIsOpen((current) => !current)}
-        title="Trợ lý dự án"
+        title="Trợ lý AgileFlow"
         type="button"
       >
         {isOpen ? (
