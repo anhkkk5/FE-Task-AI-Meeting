@@ -8,6 +8,7 @@ import {
   resetAiUserPreferences,
   updateAiUserPreferences,
   updateProfile,
+  uploadAvatar,
 } from "@/features/users/api/users.api";
 import type {
   AiFocusArea,
@@ -117,6 +118,7 @@ export default function ProfilePage() {
   const [jobTitle, setJobTitle] = useState("");
   const [profileMessage, setProfileMessage] = useState<Notice>({ type: "", text: "" });
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const [isUpdatingMfa, setIsUpdatingMfa] = useState(false);
   const [sessions, setSessions] = useState<AuthSession[]>([]);
   const [sessionNotice, setSessionNotice] = useState<Notice>({ type: "", text: "" });
@@ -340,6 +342,32 @@ export default function ProfilePage() {
     }
   };
 
+  const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+    setProfileMessage({ type: "", text: "" });
+    if (!file.type.startsWith("image/")) {
+      setProfileMessage({ type: "error", text: "Vui lòng chọn tệp hình ảnh." });
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setProfileMessage({ type: "error", text: "Ảnh không được lớn hơn 5 MB." });
+      return;
+    }
+    setIsUploadingAvatar(true);
+    try {
+      const response = await uploadAvatar(file);
+      setAvatarUrl(response.data.avatarUrl ?? "");
+      setProfileMessage({ type: "success", text: "Đã tải và lưu ảnh đại diện trên Cloudinary." });
+      await refreshUser();
+    } catch (error) {
+      setProfileMessage({ type: "error", text: error instanceof Error ? error.message : "Không thể tải ảnh đại diện." });
+    } finally {
+      setIsUploadingAvatar(false);
+    }
+  };
+
   const toggleNotification = (type: NotificationType) => {
     setDisabledNotificationTypes((current) =>
       current.includes(type) ? current.filter((item) => item !== type) : [...current, type],
@@ -439,14 +467,22 @@ export default function ProfilePage() {
                 </Field>
               </div>
 
-              <Field label="Avatar URL">
-                <input
-                  className={inputClass}
-                  onChange={(event) => setAvatarUrl(event.target.value)}
-                  placeholder="https://example.com/avatar.jpg"
-                  type="url"
-                  value={avatarUrl}
-                />
+              <Field label="Ảnh đại diện">
+                <div className="flex flex-wrap items-center gap-3 rounded border border-dashed border-[#b3b9c4] bg-[#f7f8f9] p-3">
+                  {avatarUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={avatarUrl} alt="Ảnh đại diện xem trước" className="h-16 w-16 rounded-full border-2 border-white object-cover shadow-sm" />
+                  ) : (
+                    <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#deebff] text-xl font-bold text-[#0c66e4]">{userInitial}</div>
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <label className="inline-flex h-9 cursor-pointer items-center rounded bg-[#0c66e4] px-4 text-sm font-semibold text-white hover:bg-[#0055cc] has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-60">
+                      {isUploadingAvatar ? "Đang tải lên..." : "Chọn ảnh từ máy"}
+                      <input className="sr-only" type="file" accept="image/png,image/jpeg,image/webp,image/gif" disabled={isUploadingAvatar} onChange={(event) => void handleAvatarUpload(event)} />
+                    </label>
+                    <p className="mt-2 text-xs text-[#6b778c]">PNG, JPG, WEBP hoặc GIF · tối đa 5 MB. Ảnh được cắt vuông và lưu trên Cloudinary.</p>
+                  </div>
+                </div>
               </Field>
 
               <div className="flex justify-end border-t border-[#dfe1e6] pt-4">

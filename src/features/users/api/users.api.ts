@@ -21,6 +21,16 @@ export function updateProfile(payload: UpdateProfilePayload) {
   });
 }
 
+export function uploadAvatar(file: File) {
+  const formData = new FormData();
+  formData.append("avatar", file);
+  return apiRequest<UserProfileResponse>("/users/me/avatar", {
+    method: "POST",
+    body: formData,
+    timeoutMs: 60000,
+  });
+}
+
 export function changePassword(payload: ChangePasswordPayload) {
   return apiRequest<ChangePasswordResponse>("/users/me/password", {
     method: "PATCH",
