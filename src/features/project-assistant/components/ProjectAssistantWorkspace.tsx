@@ -239,15 +239,15 @@ export function ProjectAssistantWorkspace({
   }
 
   return (
-    <div className="mx-auto max-w-[1440px] space-y-4 pb-8">
-      <header className="border border-[#dfe1e6] bg-white px-5 py-4">
+    <div className="mx-auto max-w-[1440px] space-y-5 pb-8">
+      <header className="rounded-2xl border border-slate-200 bg-white px-6 py-5 shadow-sm">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <p className="text-[11px] font-semibold uppercase text-[#0c66e4]">
-              Theo dõi và hỗ trợ
+              AgileFlow AI
             </p>
             <h1 className="mt-1 text-2xl font-semibold text-[#172b4d]">
-              Trợ lý dự án
+              Trợ lý AgileFlow AI
             </h1>
             <p className="mt-1 text-sm text-[#44546f]">
               Hỏi nhanh về tiến độ và phát hiện sớm những vấn đề có thể làm chậm
@@ -257,7 +257,7 @@ export function ProjectAssistantWorkspace({
           <label className="w-full max-w-sm text-xs font-semibold text-[#44546f]">
             Phạm vi phân tích
             <select
-              className="mt-1 h-10 w-full rounded border border-[#dfe1e6] bg-white px-3 text-sm text-[#172b4d] outline-none focus:border-[#0c66e4]"
+              className="mt-1 h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-[#172b4d] outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
               value={selectedSprintId}
               onChange={(event) => setSelectedSprintId(event.target.value)}
             >
@@ -274,8 +274,8 @@ export function ProjectAssistantWorkspace({
       </header>
 
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1.08fr)_minmax(420px,0.92fr)]">
-        <section className="min-w-0 border border-[#dfe1e6] bg-white">
-          <div className="flex items-center justify-between border-b border-[#dfe1e6] px-5 py-3">
+        <section className="min-w-0 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
             <div>
               <h2 className="font-semibold text-[#172b4d]">
                 Dự báo rủi ro Sprint
@@ -285,7 +285,7 @@ export function ProjectAssistantWorkspace({
               </p>
             </div>
             <button
-              className="rounded border border-[#dfe1e6] px-3 py-2 text-sm font-medium text-[#44546f] hover:bg-[#f1f2f4] disabled:opacity-50"
+              className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-[#44546f] transition hover:bg-slate-50 disabled:opacity-50"
               disabled={!selectedSprintId || isRiskLoading}
               onClick={() => void loadRisk()}
               type="button"
@@ -319,8 +319,8 @@ export function ProjectAssistantWorkspace({
             </div>
           ) : (
             <div>
-              <div className="grid gap-4 border-b border-[#dfe1e6] p-5 md:grid-cols-[170px_1fr]">
-                <div className={`rounded border p-4 ${riskStyles[risk.level]}`}>
+              <div className="grid gap-5 border-b border-slate-100 p-6 md:grid-cols-[180px_1fr]">
+                <div className={`rounded-xl border p-4 ${riskStyles[risk.level]}`}>
                   <p className="text-xs font-semibold uppercase">Mức rủi ro</p>
                   <p className="mt-2 text-3xl font-bold">{risk.score}/100</p>
                   <p className="mt-1 text-sm font-semibold">
@@ -353,7 +353,7 @@ export function ProjectAssistantWorkspace({
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 border-b border-[#dfe1e6] md:grid-cols-4">
+              <div className="grid grid-cols-2 gap-3 border-b border-slate-100 bg-slate-50/50 p-4 md:grid-cols-4">
                 {[
                   ["Còn lại", `${risk.metrics.remainingTasks} task`],
                   ["Quá hạn", `${risk.metrics.overdueTasks} task`],
@@ -361,7 +361,7 @@ export function ProjectAssistantWorkspace({
                   ["Trở ngại", `${risk.metrics.blockedMembers} người`],
                 ].map(([label, value]) => (
                   <div
-                    className="border-r border-[#dfe1e6] px-4 py-3 last:border-r-0"
+                    className="rounded-xl border border-slate-200 bg-white px-4 py-3"
                     key={label}
                   >
                     <p className="text-[11px] font-semibold uppercase text-[#6b778c]">
@@ -374,7 +374,7 @@ export function ProjectAssistantWorkspace({
                 ))}
               </div>
 
-              <div className="grid gap-5 p-5 lg:grid-cols-2">
+              <div className="grid gap-5 p-6 lg:grid-cols-2">
                 <div>
                   <h3 className="mb-2 text-sm font-semibold text-[#172b4d]">
                     Dấu hiệu cần chú ý
@@ -387,7 +387,7 @@ export function ProjectAssistantWorkspace({
                     ) : (
                       risk.signals.map((signal) => (
                         <div
-                          className={`border-l-4 px-3 py-2 ${signalStyles[signal.severity]}`}
+                          className={`rounded-lg border px-3 py-2 ${signalStyles[signal.severity]}`}
                           key={signal.code}
                         >
                           <p className="text-sm font-semibold text-[#172b4d]">
@@ -424,8 +424,8 @@ export function ProjectAssistantWorkspace({
           )}
         </section>
 
-        <section className="flex min-h-[620px] min-w-0 flex-col border border-[#dfe1e6] bg-white">
-          <div className="relative border-b border-[#dfe1e6] px-5 py-3">
+        <section className="flex min-h-[620px] min-w-0 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <div className="relative border-b border-slate-100 px-5 py-4">
             {conversation.length ? <button className="absolute right-5 top-3 text-xs font-bold text-rose-600 hover:underline" onClick={() => void clearConversation()} type="button">Xóa lịch sử</button> : null}
             <h2 className="font-semibold text-[#172b4d]">Hỏi trợ lý</h2>
             <p className="text-xs text-[#6b778c]">
@@ -435,14 +435,14 @@ export function ProjectAssistantWorkspace({
 
           <div className="flex-1 space-y-3 overflow-y-auto p-4">
             {conversation.length === 0 ? (
-              <div className="border border-dashed border-[#dfe1e6] px-4 py-6">
+              <div className="rounded-xl border border-slate-200 bg-slate-50/60 px-4 py-6 text-center">
                 <p className="text-sm font-medium text-[#172b4d]">
                   Bạn muốn kiểm tra điều gì?
                 </p>
                 <div className="mt-3 grid gap-2">
                   {suggestedQuestions.map((item) => (
                     <button
-                      className="rounded border border-[#dfe1e6] px-3 py-2 text-left text-sm text-[#44546f] hover:border-[#0c66e4] hover:bg-[#e9f2ff]"
+                      className="rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-left text-sm text-[#44546f] transition hover:border-blue-300 hover:bg-blue-50/50"
                       key={item}
                       onClick={() => chooseQuestion(item)}
                       type="button"
@@ -455,10 +455,10 @@ export function ProjectAssistantWorkspace({
             ) : (
               conversation.map((item) => (
                 <article
-                  className={`max-w-[92%] rounded px-3 py-2 text-sm leading-6 ${
+                  className={`max-w-[92%] rounded-xl px-3.5 py-2.5 text-sm leading-6 ${
                     item.role === "USER"
-                      ? "ml-auto bg-[#0c66e4] text-white"
-                      : "border border-[#dfe1e6] bg-[#f7f8f9] text-[#172b4d]"
+                      ? "ml-auto bg-indigo-50 text-[#172b4d]"
+                      : "border border-slate-200 bg-white text-[#172b4d] shadow-sm"
                   }`}
                   key={item.id}
                 >
@@ -497,11 +497,11 @@ export function ProjectAssistantWorkspace({
           </div>
 
           <form
-            className="border-t border-[#dfe1e6] p-4"
+            className="border-t border-slate-100 bg-slate-50/40 p-4"
             onSubmit={submitQuestion}
           >
             <textarea
-              className="min-h-24 w-full resize-none rounded border border-[#dfe1e6] px-3 py-2 text-sm text-[#172b4d] outline-none placeholder:text-[#7a869a] focus:border-[#0c66e4]"
+              className="min-h-24 w-full resize-none rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-[#172b4d] outline-none transition placeholder:text-[#7a869a] focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
               maxLength={500}
               onChange={(event) => setQuestion(event.target.value)}
               placeholder="Ví dụ: Sprint đang có rủi ro gì?"
@@ -512,7 +512,7 @@ export function ProjectAssistantWorkspace({
                 {question.length}/500
               </span>
               <button
-                className="rounded bg-[#0c66e4] px-4 py-2 text-sm font-semibold text-white hover:bg-[#0055cc] disabled:cursor-not-allowed disabled:bg-[#b3b9c4]"
+                className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-300"
                 disabled={question.trim().length < 3 || isAsking}
                 type="submit"
               >

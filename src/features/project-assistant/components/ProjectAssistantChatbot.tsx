@@ -296,11 +296,11 @@ export function ProjectAssistantChatbot({
       {isOpen ? (
         <section
           aria-label="Trợ lý AgileFlow"
-          className="fixed inset-x-3 bottom-20 z-50 flex max-h-[min(680px,calc(100vh-6rem))] flex-col overflow-hidden rounded border border-[#dfe1e6] bg-white shadow-2xl sm:left-auto sm:right-5 sm:w-[410px]"
+          className="fixed inset-x-3 bottom-20 z-50 flex max-h-[min(700px,calc(100vh-6rem))] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_18px_50px_rgba(15,23,42,0.16)] sm:left-auto sm:right-5 sm:w-[430px]"
         >
-          <header className="flex items-center justify-between border-b border-[#dfe1e6] px-4 py-3">
+          <header className="flex items-center justify-between border-b border-slate-100 px-4 py-3.5">
             <div className="flex min-w-0 items-center gap-3">
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded bg-[#0c66e4] text-white">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-blue-100 bg-blue-50 text-blue-600">
                 <ChatIcon />
               </span>
               <div className="min-w-0">
@@ -321,11 +321,11 @@ export function ProjectAssistantChatbot({
             </button>
           </header>
 
-          <div className="grid grid-cols-1 gap-2 border-b border-[#dfe1e6] bg-[#f7f8f9] p-3 sm:grid-cols-3">
+          <div className="grid grid-cols-1 gap-2 border-b border-slate-100 bg-slate-50/60 p-3 sm:grid-cols-3">
             <label className="text-[11px] font-semibold uppercase text-[#626f86]">
               Workspace
               <select
-                className="mt-1 h-9 w-full rounded border border-[#b7b9be] bg-white px-2 text-sm normal-case text-[#172b4d] outline-none focus:border-[#0c66e4]"
+                className="mt-1 h-9 w-full rounded-lg border border-slate-200 bg-white px-2 text-sm normal-case text-[#172b4d] outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                 onChange={(event) => changeWorkspace(event.target.value)}
                 value={selectedWorkspaceId}
               >
@@ -340,7 +340,7 @@ export function ProjectAssistantChatbot({
             <label className="text-[11px] font-semibold uppercase text-[#626f86]">
               Dự án
               <select
-                className="mt-1 h-9 w-full rounded border border-[#b7b9be] bg-white px-2 text-sm normal-case text-[#172b4d] outline-none focus:border-[#0c66e4]"
+                className="mt-1 h-9 w-full rounded-lg border border-slate-200 bg-white px-2 text-sm normal-case text-[#172b4d] outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                 disabled={isLoadingContext}
                 onChange={(event) => changeProject(event.target.value)}
                 value={selectedProjectId}
@@ -356,7 +356,7 @@ export function ProjectAssistantChatbot({
             <label className="text-[11px] font-semibold uppercase text-[#626f86]">
               Phạm vi
               <select
-                className="mt-1 h-9 w-full rounded border border-[#b7b9be] bg-white px-2 text-sm normal-case text-[#172b4d] outline-none focus:border-[#0c66e4]"
+                className="mt-1 h-9 w-full rounded-lg border border-slate-200 bg-white px-2 text-sm normal-case text-[#172b4d] outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                 onChange={(event) => setSelectedSprintId(event.target.value)}
                 value={selectedSprintId}
               >
@@ -372,14 +372,17 @@ export function ProjectAssistantChatbot({
 
           <div className="min-h-52 flex-1 space-y-3 overflow-y-auto p-4">
             {messages.length === 0 ? (
-              <div>
-                <p className="text-sm font-medium text-[#172b4d]">
-                  Bạn muốn kiểm tra điều gì?
+              <div className="py-2 text-center">
+                <span className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-indigo-50 text-indigo-600">
+                  <ChatIcon />
+                </span>
+                <p className="mt-3 text-sm font-semibold text-[#172b4d]">
+                  Xin chào! Tôi có thể giúp gì cho bạn?
                 </p>
                 <div className="mt-3 space-y-2">
                   {suggestions.map((suggestion) => (
                     <button
-                      className="w-full rounded border border-[#dfe1e6] px-3 py-2 text-left text-sm text-[#44546f] hover:border-[#0c66e4] hover:bg-[#e9f2ff]"
+                      className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-left text-sm text-[#44546f] transition hover:border-blue-300 hover:bg-blue-50/50"
                       key={suggestion}
                       onClick={() => setQuestion(suggestion)}
                       type="button"
@@ -393,10 +396,10 @@ export function ProjectAssistantChatbot({
 
             {messages.map((message) => (
               <article
-                className={`max-w-[88%] rounded px-3 py-2 text-sm leading-6 ${
+                className={`max-w-[88%] rounded-xl px-3.5 py-2.5 text-sm leading-6 ${
                   message.role === "USER"
-                    ? "ml-auto bg-[#0c66e4] text-white"
-                    : "border border-[#dfe1e6] bg-[#f7f8f9] text-[#172b4d]"
+                    ? "ml-auto bg-indigo-50 text-[#172b4d]"
+                    : "border border-slate-200 bg-white text-[#172b4d] shadow-sm"
                 }`}
                 key={message.id}
               >
@@ -405,7 +408,7 @@ export function ProjectAssistantChatbot({
                   <div className="mt-2 grid gap-1.5 border-t border-[#dfe1e6] pt-2">
                     {message.choices.map((choice) => (
                       <button
-                        className="rounded border border-[#b3d4ff] bg-white px-2.5 py-1.5 text-left text-xs font-medium text-[#0c66e4] hover:bg-[#e9f2ff]"
+                        className="rounded-lg border border-blue-200 bg-white px-2.5 py-1.5 text-left text-xs font-medium text-blue-600 hover:bg-blue-50"
                         disabled={isAsking}
                         key={choice.id}
                         onClick={() => void chooseContext(message, choice.id)}
@@ -438,7 +441,7 @@ export function ProjectAssistantChatbot({
             ))}
 
             {isAsking ? (
-              <div className="w-fit rounded border border-[#dfe1e6] bg-[#f7f8f9] px-3 py-2 text-sm text-[#6b778c]">
+              <div className="w-fit rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-[#6b778c]">
                 Đang phân tích dữ liệu dự án...
               </div>
             ) : null}
@@ -451,13 +454,13 @@ export function ProjectAssistantChatbot({
           </div>
 
           <form
-            className="border-t border-[#dfe1e6] p-3"
+            className="border-t border-slate-100 bg-slate-50/40 p-3"
             onSubmit={submitQuestion}
           >
             <div className="flex gap-2">
               <textarea
                 aria-label="Câu hỏi cho trợ lý"
-                className="min-h-11 flex-1 resize-none rounded border border-[#b7b9be] px-3 py-2 text-sm text-[#172b4d] outline-none focus:border-[#0c66e4]"
+                className="min-h-11 flex-1 resize-none rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-[#172b4d] outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                 onChange={(event) => setQuestion(event.target.value)}
                 onKeyDown={(event) => {
                   if (event.key === "Enter" && !event.shiftKey) {
@@ -471,7 +474,7 @@ export function ProjectAssistantChatbot({
               />
               <button
                 aria-label="Gửi câu hỏi"
-                className="flex h-11 w-11 shrink-0 items-center justify-center rounded bg-[#0c66e4] text-white hover:bg-[#0055cc] disabled:cursor-not-allowed disabled:bg-[#b7b9be]"
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-300"
                 disabled={
                   question.trim().length < 3 || isAsking
                 }
@@ -510,7 +513,7 @@ export function ProjectAssistantChatbot({
       <button
         aria-expanded={isOpen}
         aria-label={isOpen ? "Đóng trợ lý AgileFlow" : "Mở trợ lý AgileFlow"}
-        className="fixed bottom-6 right-6 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-brand-600 text-white shadow-lg shadow-brand-600/25 ring-4 ring-brand-500/15 transition-all duration-200 hover:bg-brand-700 hover:scale-105 focus:outline-none"
+        className="fixed bottom-6 right-6 z-50 flex h-12 w-12 items-center justify-center rounded-full border border-blue-500 bg-blue-600 text-white shadow-lg shadow-blue-900/15 transition duration-200 hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-100"
         onClick={() => setIsOpen((current) => !current)}
         title="Trợ lý AgileFlow"
         type="button"
