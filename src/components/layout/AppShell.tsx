@@ -196,6 +196,8 @@ export function AppShell({
 
   if (pathname.startsWith("/dashboard")) {
     breadcrumbs.push({ label: "Dashboard", href: "/dashboard" });
+  } else if (pathname.startsWith("/profile")) {
+    breadcrumbs.push({ label: "Hồ sơ cá nhân", href: "/profile" });
   } else if (pathname.startsWith("/my-work")) {
     breadcrumbs.push({ label: "Văn phòng của tôi", href: "/my-work" });
   } else if (pathname.startsWith("/workspaces")) {
@@ -665,11 +667,12 @@ export function AppShell({
                   </div>
 
                   <Link
-                    href="/my-work"
+                    href="/profile"
+                    onClick={() => setShowUserDropdown(false)}
                     className="flex items-center gap-2 px-3 py-2 text-xs font-semibold text-slate-700 rounded-xl hover:bg-slate-50 transition"
                   >
                     <UserIcon className="w-4 h-4 text-slate-400" />
-                    Hồ sơ & Việc của tôi
+                    Hồ sơ cá nhân
                   </Link>
 
                   <button
