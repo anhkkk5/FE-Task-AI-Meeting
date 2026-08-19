@@ -1,5 +1,6 @@
 import { Task, TaskStatus } from "../types/task.type";
 import { WorkflowStatusConfig } from "@/features/projects/types/project.type";
+import { AssigneeAvatar } from "./AssigneeAvatar";
 
 type TaskBoardProps = {
   items: Task[];
@@ -76,12 +77,11 @@ export function TaskBoard({ items, selectedIds = new Set(), onToggle, workflowSt
                           {formatDate(task.dueDate)}
                         </span>
                       ) : null}
-                      <span
-                        className="flex h-6 w-6 items-center justify-center rounded-full bg-[#00875a] text-xs font-semibold text-white"
-                        title={task.assignee?.fullName ?? "Chưa gán"}
-                      >
-                        {task.assignee?.fullName ? task.assignee.fullName.charAt(0).toUpperCase() : "-"}
-                      </span>
+                      <AssigneeAvatar
+                        avatarUrl={task.assignee?.avatarUrl}
+                        displayName={task.assignee?.fullName || task.assignee?.email}
+                        fallbackClassName={task.assignee ? "bg-[#00875a] text-white" : "bg-[#dfe1e6] text-[#6b778c]"}
+                      />
                     </div>
                   </div>
                 </article>

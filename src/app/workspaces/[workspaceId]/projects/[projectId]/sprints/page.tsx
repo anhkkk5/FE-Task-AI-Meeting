@@ -27,6 +27,7 @@ import {
 } from "@/features/tasks/api/tasks.api";
 import { TaskDetailDrawer } from "@/features/tasks/components/TaskDetailDrawer";
 import { TaskImportPanel } from "@/features/tasks/components/TaskImportPanel";
+import { AssigneeAvatar } from "@/features/tasks/components/AssigneeAvatar";
 import { Task, TaskStatus } from "@/features/tasks/types/task.type";
 import { useAuth } from "@/hooks/useAuth";
 import { SprintBurndownChart } from "@/features/analytics/components/SprintBurndownChart";
@@ -483,6 +484,13 @@ export default function BacklogPage() {
       task.status !== "CANCELLED" &&
       (canWrite || (myRole === "MEMBER" && task.assigneeId === user?.id));
 
+    const assignedMember = members.find((member) => member.userId === task.assigneeId);
+    const assigneeDisplayName =
+      assignedMember?.fullName ||
+      task.assignee?.fullName ||
+      assignedMember?.email ||
+      task.assignee?.email;
+
     return (
     <div
       className={`grid grid-cols-[28px_minmax(120px,1fr)_128px_110px_90px_150px] items-center gap-3 border-t border-[#dfe1e6] bg-white px-3 py-2 text-sm transition hover:bg-[#f7f8f9] ${
@@ -570,14 +578,11 @@ export default function BacklogPage() {
       </div>
 
       <div className="flex min-w-0 items-center gap-2">
-        <span
-          className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-semibold ${
-            task.assignee ? "bg-[#00875a] text-white" : "bg-[#dfe1e6] text-[#6b778c]"
-          }`}
-          title={task.assignee?.fullName ?? "Chưa gán"}
-        >
-          {task.assignee?.fullName ? task.assignee.fullName.charAt(0).toUpperCase() : "-"}
-        </span>
+        <AssigneeAvatar
+          avatarUrl={assignedMember?.avatarUrl || task.assignee?.avatarUrl}
+          displayName={assigneeDisplayName}
+          fallbackClassName={task.assigneeId ? "bg-[#00875a] text-white" : "bg-[#dfe1e6] text-[#6b778c]"}
+        />
         {canWrite ? (
           <select
             className="h-7 min-w-0 flex-1 cursor-pointer rounded border border-[#dfe1e6] bg-white px-1.5 text-xs text-[#44546f] outline-none focus:border-[#4F8EB0]"
@@ -1046,22 +1051,25 @@ export default function BacklogPage() {
 
             <div className="flex -space-x-1">
               {members.slice(0, 6).map((member) => {
-                const initial = member.fullName ? member.fullName.charAt(0).toUpperCase() : "?";
                 const selected = selectedAssigneeId === member.userId;
 
                 return (
                   <button
-                    className={`flex h-8 w-8 items-center justify-center rounded-full border-2 text-xs font-semibold ${
+                    className={`rounded-full ${
                       selected
-                        ? "z-10 border-[#4F8EB0] bg-[#deebff] text-[#4F8EB0]"
-                        : "border-white bg-[#00875a] text-white hover:bg-[#216e4e]"
+                        ? "z-10 ring-2 ring-[#4F8EB0] ring-offset-1"
+                        : "hover:z-10 hover:ring-2 hover:ring-[#b3d4ff]"
                     }`}
                     key={member.userId}
                     onClick={() => setSelectedAssigneeId(selected ? null : member.userId)}
                     title={member.fullName || member.email || undefined}
                     type="button"
                   >
-                    {initial}
+                    <AssigneeAvatar
+                      avatarUrl={member.avatarUrl}
+                      className="h-8 w-8"
+                      displayName={member.fullName || member.email}
+                    />
                   </button>
                 );
               })}
