@@ -495,7 +495,7 @@ export function AppShell({
       {/* Main Right Area */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Top Header */}
-        <header className="h-16 bg-white border-b border-slate-200/80 px-6 flex items-center justify-between shrink-0 z-10">
+        <header className="relative h-16 bg-white border-b border-slate-200/80 px-6 flex items-center justify-between shrink-0 z-40">
           <div className="flex items-center gap-4 min-w-0">
             {/* Search Input */}
             <div className="relative hidden md:flex items-center">

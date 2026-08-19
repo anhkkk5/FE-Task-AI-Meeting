@@ -214,7 +214,7 @@ export default function WorkspacesPage() {
               </p>
             </div>
 
-            <div className="relative z-10 flex flex-wrap items-center gap-3">
+            <div className="relative flex flex-wrap items-center gap-3">
               <button
                 className="inline-flex h-12 items-center gap-2 rounded-xl border border-slate-200 bg-white px-5 text-sm font-bold text-slate-700 shadow-md shadow-slate-200/50 transition hover:border-blue-200 hover:bg-blue-50/40 hover:text-blue-700 active:scale-95 disabled:opacity-60"
                 type="button"
