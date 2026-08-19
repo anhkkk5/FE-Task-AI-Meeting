@@ -1,11 +1,14 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
 import {
   Archive,
   Building2,
   ChevronLeft,
   ChevronRight,
+  Eye,
+  Plus,
   RefreshCw,
   Search,
   Zap,
@@ -13,6 +16,7 @@ import {
 import { AdminShell } from "@/components/layout/AdminShell";
 import {
   AdminWorkspace,
+  createAdminWorkspace,
   getAdminWorkspaces,
   toggleWorkspaceStatus,
 } from "@/features/admin/api/admin.api";
@@ -29,6 +33,9 @@ export default function AdminWorkspacesPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [actionId, setActionId] = useState<string | null>(null);
+  const [showCreate, setShowCreate] = useState(false);
+  const [newName, setNewName] = useState("");
+  const [newDescription, setNewDescription] = useState("");
 
   const loadWorkspaces = useCallback(async () => {
     setIsLoading(true);
@@ -63,6 +70,22 @@ export default function AdminWorkspacesPage() {
     }
   }
 
+  async function handleCreate() {
+    if (!newName.trim()) return;
+    setActionId("create");
+    try {
+      await createAdminWorkspace({ name: newName.trim(), description: newDescription.trim() || undefined });
+      setNewName("");
+      setNewDescription("");
+      setShowCreate(false);
+      await loadWorkspaces();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Không thể tạo workspace.");
+    } finally {
+      setActionId(null);
+    }
+  }
+
   return (
     <AdminShell title="Quản lý Workspaces">
       <div className="space-y-6">
@@ -76,15 +99,24 @@ export default function AdminWorkspacesPage() {
               Tổng cộng <strong className="text-slate-900">{total}</strong> không gian làm việc trong hệ thống
             </p>
           </div>
-          <button
-            onClick={() => void loadWorkspaces()}
-            disabled={isLoading}
-            className="inline-flex h-9 items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-xs font-bold text-slate-700 transition hover:border-blue-200 hover:bg-blue-50/40 hover:text-blue-700 disabled:opacity-50"
-          >
-            <RefreshCw className={`h-3.5 w-3.5 ${isLoading ? "animate-spin" : ""}`} />
-            Làm mới
-          </button>
+          <div className="flex gap-2">
+            <button onClick={() => setShowCreate(true)} className="inline-flex h-9 items-center gap-2 rounded-xl bg-blue-600 px-4 text-xs font-bold text-white hover:bg-blue-700"><Plus className="h-3.5 w-3.5" /> Tạo Workspace</button>
+            <button onClick={() => void loadWorkspaces()} disabled={isLoading} className="inline-flex h-9 items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-xs font-bold text-slate-700 transition hover:border-blue-200 hover:bg-blue-50/40 hover:text-blue-700 disabled:opacity-50">
+              <RefreshCw className={`h-3.5 w-3.5 ${isLoading ? "animate-spin" : ""}`} /> Làm mới
+            </button>
+          </div>
         </div>
+
+        {showCreate ? (
+          <div className="rounded-2xl border border-blue-100 bg-blue-50/40 p-5">
+            <div className="grid gap-3 md:grid-cols-[1fr_2fr_auto]">
+              <input value={newName} onChange={(event) => setNewName(event.target.value)} placeholder="Tên Workspace" className="h-10 rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-blue-500" />
+              <input value={newDescription} onChange={(event) => setNewDescription(event.target.value)} placeholder="Mô tả (không bắt buộc)" className="h-10 rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-blue-500" />
+              <div className="flex gap-2"><button onClick={() => void handleCreate()} disabled={!newName.trim() || actionId === "create"} className="rounded-xl bg-blue-600 px-4 text-xs font-bold text-white disabled:opacity-50">Tạo</button><button onClick={() => setShowCreate(false)} className="rounded-xl border border-slate-200 bg-white px-4 text-xs font-bold text-slate-600">Hủy</button></div>
+            </div>
+            <p className="mt-2 text-xs text-slate-500">Tài khoản tạo Workspace trở thành OWNER. Người dùng thường cũng có thể tự tạo Workspace và mời thành viên mà không cần quyền System Admin.</p>
+          </div>
+        ) : null}
 
         {error ? (
           <div className="rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-sm font-semibold text-red-700">
@@ -189,7 +221,7 @@ export default function AdminWorkspacesPage() {
                       </div>
                     </td>
                     <td className="px-4 py-3.5">
-                      {ws.status === "active" ? (
+                      {ws.status === "ACTIVE" ? (
                         <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 text-[10px] font-extrabold text-emerald-700">
                           <Zap className="h-3 w-3" />
                           Đang chạy
@@ -205,23 +237,26 @@ export default function AdminWorkspacesPage() {
                       {new Date(ws.createdAt).toLocaleDateString("vi-VN")}
                     </td>
                     <td className="px-4 py-3.5">
-                      <div className="flex items-center justify-end">
+                      <div className="flex items-center justify-end gap-2">
+                        <Link href={`/admin/workspaces/${ws.id}`} title="Xem chi tiết workspace" className="inline-flex h-8 items-center gap-1.5 rounded-xl border border-blue-200 bg-white px-3 text-[11px] font-bold text-blue-700 hover:bg-blue-50">
+                          <Eye className="h-3.5 w-3.5" /> Chi tiết
+                        </Link>
                         <button
                           onClick={() => void handleToggleStatus(ws.id)}
                           disabled={actionId === ws.id}
-                          title={ws.status === "active" ? "Lưu trữ workspace" : "Kích hoạt workspace"}
+                          title={ws.status === "ACTIVE" ? "Lưu trữ workspace" : "Kích hoạt workspace"}
                           className={`inline-flex items-center gap-1.5 h-8 px-3 rounded-xl text-[11px] font-bold transition border disabled:opacity-50 ${
-                            ws.status === "active"
+                            ws.status === "ACTIVE"
                               ? "border-slate-200 bg-slate-50 text-slate-600 hover:border-slate-300 hover:bg-slate-100"
                               : "border-emerald-200 bg-white text-emerald-700 hover:bg-emerald-50"
                           }`}
                         >
-                          {ws.status === "active" ? (
+                          {ws.status === "ACTIVE" ? (
                             <Archive className="h-3.5 w-3.5" />
                           ) : (
                             <Zap className="h-3.5 w-3.5" />
                           )}
-                          {ws.status === "active" ? "Lưu trữ" : "Kích hoạt"}
+                          {ws.status === "ACTIVE" ? "Lưu trữ" : "Kích hoạt"}
                         </button>
                       </div>
                     </td>

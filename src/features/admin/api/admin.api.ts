@@ -19,11 +19,44 @@ export type AdminWorkspace = {
   slug: string;
   description: string | null;
   plan: string;
-  status: string;
+  status: "ACTIVE" | "ARCHIVED";
   ownerId: string;
   memberCount: number;
   createdAt: string;
   updatedAt: string;
+};
+
+export type AdminWorkspaceMember = {
+  id: string;
+  userId: string;
+  role: "OWNER" | "PROJECT_MANAGER" | "SCRUM_MASTER" | "MEMBER" | "VIEWER";
+  status: "ACTIVE" | "INACTIVE";
+  joinedAt: string;
+  fullName: string;
+  email: string;
+  avatarUrl: string | null;
+  jobTitle: string | null;
+};
+
+export type AdminWorkspaceProject = {
+  id: string;
+  name: string;
+  keyCode: string;
+  status: string;
+  createdBy: string;
+  createdAt: string;
+  creatorName: string | null;
+  sprintCount: number;
+  taskCount: number;
+};
+
+export type AdminWorkspaceDetail = {
+  workspace: AdminWorkspace & {
+    owner: { id: string; email: string; full_name: string; avatar_url: string | null; job_title: string | null } | null;
+  };
+  members: AdminWorkspaceMember[];
+  projects: AdminWorkspaceProject[];
+  totals: { memberCount: number; projectCount: number; sprintCount: number; taskCount: number };
 };
 
 export type SystemStats = {
@@ -126,4 +159,25 @@ export function toggleWorkspaceStatus(workspaceId: string) {
     `/admin/workspaces/${workspaceId}/status`,
     { method: "PATCH" },
   );
+}
+
+export function getAdminWorkspaceDetail(workspaceId: string) {
+  return apiRequest<ApiResponse<AdminWorkspaceDetail>>(`/admin/workspaces/${workspaceId}`);
+}
+
+export function createAdminWorkspace(payload: { name: string; description?: string; ownerId?: string }) {
+  return apiRequest<ApiResponse<AdminWorkspaceDetail>>("/admin/workspaces", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export function updateAdminWorkspace(
+  workspaceId: string,
+  payload: { name?: string; description?: string; plan?: string },
+) {
+  return apiRequest<ApiResponse<AdminWorkspaceDetail>>(`/admin/workspaces/${workspaceId}`, {
+    method: "PATCH",
+    body: JSON.stringify(payload),
+  });
 }
