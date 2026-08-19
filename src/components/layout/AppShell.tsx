@@ -495,7 +495,7 @@ export function AppShell({
       {/* Main Right Area */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Top Header */}
-        <header className="relative h-16 bg-white border-b border-slate-200/80 px-6 flex items-center justify-between shrink-0 z-40">
+        <header className="relative isolate h-16 bg-white border-b border-slate-200/80 px-6 flex items-center justify-between shrink-0 z-[100]">
           <div className="flex items-center gap-4 min-w-0">
             {/* Search Input */}
             <div className="relative hidden md:flex items-center">
@@ -555,7 +555,7 @@ export function AppShell({
 
               {/* Notification Popover Drawer */}
               {showNotificationDropdown ? (
-                <div className="absolute right-0 mt-2 w-80 sm:w-96 rounded-3xl border border-slate-200/80 bg-white p-4 shadow-xl ring-1 ring-slate-900/5 z-50 space-y-3">
+                <div className="absolute right-0 z-[110] mt-2 w-80 sm:w-96 rounded-3xl border border-slate-200/80 bg-white p-4 shadow-xl ring-1 ring-slate-900/5 space-y-3">
                   <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                     <div className="flex items-center gap-2">
                       <h4 className="text-sm font-extrabold text-slate-900">
@@ -654,7 +654,7 @@ export function AppShell({
 
               {/* User Menu Popover */}
               {showUserDropdown && (
-                <div className="absolute right-0 mt-2 w-56 rounded-2xl border border-slate-200/80 bg-white p-2 shadow-xl ring-1 ring-slate-900/5 z-50 space-y-1">
+                <div className="absolute right-0 z-[110] mt-2 w-56 rounded-2xl border border-slate-200/80 bg-white p-2 shadow-xl ring-1 ring-slate-900/5 space-y-1">
                   <div className="p-2 border-b border-slate-100">
                     <p className="text-xs font-extrabold text-slate-900 truncate">
                       {user.fullName}
@@ -714,7 +714,7 @@ export function AppShell({
         ) : null}
 
         {/* Scrollable Main Content */}
-        <main className="flex-1 overflow-y-auto p-6">{children}</main>
+        <main className="relative z-0 flex-1 overflow-y-auto p-6">{children}</main>
       </div>
 
       {/* Floating AI Assistant Chatbot */}
