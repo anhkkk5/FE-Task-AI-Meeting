@@ -37,6 +37,7 @@ type ProjectOption = {
 
 export default function DashboardPage() {
   const { user, isLoading: authLoading } = useAuth(true);
+  const userId = user?.id;
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
   const [projects, setProjects] = useState<ProjectOption[]>([]);
   const [selectedProjectId, setSelectedProjectId] = useState<string>("");
@@ -50,7 +51,7 @@ export default function DashboardPage() {
   const [message, setMessage] = useState("");
 
   const loadDashboard = useCallback(async () => {
-    if (!user) return;
+    if (!userId) return;
 
     setIsLoading(true);
     setMessage("");
@@ -60,7 +61,7 @@ export default function DashboardPage() {
       const [workspacesRes, overviewRes, myWorkRes] = await Promise.allSettled([
         getMyWorkspaces("ACTIVE"),
         getWorkspacesOverview(),
-        getMyWork(user.id),
+        getMyWork(userId),
       ]);
 
       let loadedWorkspaces: Workspace[] = [];
@@ -103,14 +104,11 @@ export default function DashboardPage() {
 
         setProjects(allProjects);
 
-        const targetProjectId =
-          selectedProjectId && allProjects.some((p) => p.id === selectedProjectId)
-            ? selectedProjectId
-            : allProjects.length > 0
-            ? allProjects[0].id
-            : "";
-
-        setSelectedProjectId(targetProjectId);
+        setSelectedProjectId((currentProjectId) =>
+          currentProjectId && allProjects.some((p) => p.id === currentProjectId)
+            ? currentProjectId
+            : allProjects[0]?.id ?? "",
+        );
 
         // 3. Query real UPCOMING meetings across projects (Lọc ngày giờ >= hôm nay)
         try {
@@ -173,7 +171,7 @@ export default function DashboardPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [user, selectedProjectId]);
+  }, [userId]);
 
   useEffect(() => {
     void loadDashboard();
@@ -269,12 +267,8 @@ export default function DashboardPage() {
         <DashboardSprintBanner
           projects={projects}
           selectedProjectId={selectedProjectId}
-          onSelectProject={(id) => {
-            setSelectedProjectId(id);
-            void loadProjectSprintsAndTasks(id);
-          }}
+          onSelectProject={setSelectedProjectId}
           sprints={sprints}
-          tasks={projectTasks}
           isLoading={isLoading || isProjectLoading}
         />
 
