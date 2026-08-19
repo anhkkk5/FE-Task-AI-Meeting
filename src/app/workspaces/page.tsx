@@ -15,15 +15,69 @@ import { AppShell } from "@/components/layout/AppShell";
 import { getWorkspacesOverview } from "@/features/stats/api/stats.api";
 import { WorkspacesOverview } from "@/features/stats/types/stats.type";
 import { getMyWorkspaces } from "@/features/workspaces/api/workspaces.api";
+import { getWorkspaceMembers } from "@/features/members/api/members.api";
+import { WorkspaceMember } from "@/features/members/types/member.type";
 import { WorkspaceCard } from "@/features/workspaces/components/WorkspaceCard";
 import { Workspace, WorkspaceStatus } from "@/features/workspaces/types/workspace.type";
 import { useAuth } from "@/hooks/useAuth";
+
+const KPI_AVATAR_COLORS = [
+  "bg-blue-100 text-blue-700 border-blue-200",
+  "bg-purple-100 text-purple-700 border-purple-200",
+  "bg-emerald-100 text-emerald-700 border-emerald-200",
+  "bg-amber-100 text-amber-800 border-amber-200",
+];
+
+function getMemberInitials(name?: string | null, email?: string | null): string {
+  if (name && name.trim()) {
+    const parts = name.trim().split(/\s+/);
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    }
+    return parts[0].slice(0, 2).toUpperCase();
+  }
+  if (email && email.trim()) {
+    return email.slice(0, 2).toUpperCase();
+  }
+  return "U";
+}
+
+function KpiMemberAvatar({ member, index }: { member: WorkspaceMember; index: number }) {
+  const [imgError, setImgError] = useState(false);
+  const displayName = member.fullName?.trim() || member.email || "Thành viên";
+  const initials = getMemberInitials(member.fullName, member.email);
+  const colorClass = KPI_AVATAR_COLORS[index % KPI_AVATAR_COLORS.length];
+
+  return (
+    <div
+      className="inline-block transition-transform duration-150 hover:z-20 hover:scale-110"
+      title={displayName}
+    >
+      {member.avatarUrl && !imgError ? (
+        <img
+          src={member.avatarUrl}
+          alt={displayName}
+          onError={() => setImgError(true)}
+          className="h-6 w-6 rounded-full object-cover border-2 border-white shadow-2xs"
+        />
+      ) : (
+        <div
+          className={`flex h-6 w-6 items-center justify-center rounded-full border-2 border-white text-[9px] font-black tracking-tight shadow-2xs ${colorClass}`}
+        >
+          {initials}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function WorkspacesPage() {
   const { user, isLoading: authLoading } = useAuth(true);
   const [status, setStatus] = useState<WorkspaceStatus | "">("");
   const [items, setItems] = useState<Workspace[]>([]);
   const [overview, setOverview] = useState<WorkspacesOverview | null>(null);
+  const [membersByWorkspace, setMembersByWorkspace] = useState<Record<string, WorkspaceMember[]>>({});
+  const [isLoadingMembers, setIsLoadingMembers] = useState(false);
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -39,8 +93,11 @@ export default function WorkspacesPage() {
           getWorkspacesOverview(),
         ]);
 
+        let loadedItems: Workspace[] = [];
+
         if (workspacesResult.status === "fulfilled") {
-          setItems(workspacesResult.value.data.items);
+          loadedItems = workspacesResult.value.data.items;
+          setItems(loadedItems);
         } else {
           setItems([]);
           setMessage(
@@ -54,6 +111,30 @@ export default function WorkspacesPage() {
           setOverview(overviewResult.value.data);
         } else {
           setOverview(null);
+        }
+
+        // Tải danh sách thành viên của từng workspace song song
+        if (loadedItems.length > 0) {
+          setIsLoadingMembers(true);
+          try {
+            const memberResults = await Promise.allSettled(
+              loadedItems.map((ws) => getWorkspaceMembers(ws.id)),
+            );
+            const mapping: Record<string, WorkspaceMember[]> = {};
+            memberResults.forEach((res, index) => {
+              const wsId = loadedItems[index].id;
+              if (res.status === "fulfilled") {
+                mapping[wsId] = res.value.data.items;
+              } else {
+                mapping[wsId] = [];
+              }
+            });
+            setMembersByWorkspace(mapping);
+          } catch {
+            // Không chặn giao diện nếu lỗi tải avatar
+          } finally {
+            setIsLoadingMembers(false);
+          }
         }
       } catch (error) {
         setMessage(error instanceof Error ? error.message : "Tải danh sách không gian thất bại.");
@@ -75,6 +156,20 @@ export default function WorkspacesPage() {
       (overview?.workspaces ?? []).map((item) => [item.workspaceId, item]),
     );
   }, [overview]);
+
+  // Gom các thành viên duy nhất trên toàn bộ các workspace cho card Tổng thành viên
+  const distinctGlobalMembers = useMemo(() => {
+    const map = new Map<string, WorkspaceMember>();
+    Object.values(membersByWorkspace).forEach((members) => {
+      members.forEach((m) => {
+        const key = m.userId || m.email || m.memberId;
+        if (!map.has(key)) {
+          map.set(key, m);
+        }
+      });
+    });
+    return Array.from(map.values());
+  }, [membersByWorkspace]);
 
   const summaryValue = (value: number | undefined) =>
     value === undefined ? "—" : String(value);
@@ -186,8 +281,17 @@ export default function WorkspacesPage() {
             <div className="h-12 w-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 border border-indigo-200/80">
               <Users className="h-6 w-6" />
             </div>
-            <div>
-              <p className="text-xs font-bold text-slate-500">Tổng thành viên</p>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <p className="text-xs font-bold text-slate-500">Tổng thành viên</p>
+                {distinctGlobalMembers.length > 0 && (
+                  <div className="flex -space-x-1.5 overflow-hidden">
+                    {distinctGlobalMembers.slice(0, 3).map((m, idx) => (
+                      <KpiMemberAvatar key={m.userId || m.email || idx} member={m} index={idx} />
+                    ))}
+                  </div>
+                )}
+              </div>
               <p className="mt-0.5 text-2xl font-black text-slate-900">{summaryValue(overview?.summary.members)}</p>
             </div>
           </div>
@@ -223,6 +327,8 @@ export default function WorkspacesPage() {
                 key={workspace.id}
                 workspace={workspace}
                 stats={statsByWorkspace.get(workspace.id)}
+                members={membersByWorkspace[workspace.id] || []}
+                isLoadingMembers={isLoadingMembers}
               />
             ))}
           </div>
