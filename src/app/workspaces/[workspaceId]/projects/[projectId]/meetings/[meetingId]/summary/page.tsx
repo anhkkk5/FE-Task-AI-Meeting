@@ -3,6 +3,16 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
+import {
+  Sparkles,
+  FileText,
+  User,
+  ArrowLeft,
+  Calendar,
+  AlertCircle,
+  Clock,
+  CheckCircle2,
+} from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
 import {
   generateMeetingSummary,
@@ -23,7 +33,10 @@ import { useAuth } from "@/hooks/useAuth";
 const managerRoles = ["OWNER", "SCRUM_MASTER", "PROJECT_MANAGER"];
 
 function isNotFound(error: unknown) {
-  return error instanceof Error && error.message.toLowerCase().includes("not found");
+  return (
+    error instanceof Error &&
+    error.message.toLowerCase().includes("not found")
+  );
 }
 
 export default function MeetingSummaryPage() {
@@ -91,7 +104,9 @@ export default function MeetingSummaryPage() {
       }
     } catch (error) {
       setMessage(
-        error instanceof Error ? error.message : "Tải tóm tắt cuộc họp thất bại.",
+        error instanceof Error
+          ? error.message
+          : "Tải tóm tắt cuộc họp thất bại.",
       );
     } finally {
       setIsLoading(false);
@@ -131,8 +146,8 @@ export default function MeetingSummaryPage() {
       setHistory(historyRes.data.items);
       setMessage(
         forceRegenerate
-          ? "Đã tạo lại tóm tắt cuộc họp."
-          : "Đã tạo tóm tắt cuộc họp.",
+          ? "Đã tạo lại tóm tắt cuộc họp mới thành công."
+          : "Đã tạo tóm tắt cuộc họp thành công.",
       );
     } catch (error) {
       setMessage(
@@ -147,8 +162,8 @@ export default function MeetingSummaryPage() {
 
   if (authLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-zinc-50">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-900 border-t-transparent"></div>
+      <div className="flex min-h-screen items-center justify-center bg-slate-50">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
       </div>
     );
   }
@@ -159,22 +174,36 @@ export default function MeetingSummaryPage() {
       title={project?.name}
       workspaceId={params.workspaceId}
     >
-      <div className="mx-auto max-w-6xl space-y-6 pb-12">
-        <section className="rounded-2xl border border-zinc-200/80 bg-white p-6 shadow-sm">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-            <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.18em] text-blue-600">
-                Tóm tắt cuộc họp
-              </p>
-              <h1 className="mt-1 text-2xl font-black text-zinc-950">
+      <div className="mx-auto max-w-7xl space-y-6 pb-16">
+        {/* Navigation Breadcrumb / Top Header */}
+        <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-2">
+                <Link
+                  href={`/workspaces/${params.workspaceId}/projects/${params.projectId}/meetings/${params.meetingId}`}
+                  className="inline-flex items-center gap-1 text-xs font-bold text-slate-500 hover:text-slate-800 transition"
+                >
+                  <ArrowLeft className="h-3.5 w-3.5" />
+                  Quay lại Cuộc họp
+                </Link>
+                <span className="text-slate-300">/</span>
+                <span className="inline-flex items-center gap-1 rounded-md bg-blue-50 px-2 py-0.5 text-[11px] font-bold text-blue-700">
+                  <Sparkles className="h-3 w-3" />
+                  AI Summary
+                </span>
+              </div>
+
+              <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
                 {meeting?.title ?? "Tóm tắt cuộc họp"}
               </h1>
-              <p className="mt-2 max-w-2xl text-sm font-medium leading-relaxed text-zinc-500">
-                Xem các ý chính, quyết định, rủi ro và việc cần làm được tổng hợp
-                từ nội dung cuộc họp.
+
+              <p className="text-xs font-medium text-slate-500 max-w-2xl">
+                Tổng hợp thông minh từ biên bản cuộc họp: Rút trích ý chính, quyết định, rủi ro và các việc cần làm để phê duyệt thành task.
               </p>
             </div>
-            <div className="flex flex-col items-start gap-3 lg:items-end">
+
+            <div className="flex flex-col items-start gap-3 lg:items-end shrink-0">
               <MeetingSummaryGenerateButton
                 canManage={canManage}
                 disabled={isGenerating || isLoading}
@@ -182,23 +211,27 @@ export default function MeetingSummaryPage() {
                 hasTranscript={hasTranscript}
                 onGenerate={(force) => void handleGenerate(force)}
               />
-              <div className="flex flex-wrap gap-2">
+
+              <div className="flex flex-wrap items-center gap-2">
                 <Link
-                  className="flex h-10 items-center rounded-xl border border-zinc-200 bg-white px-4 text-xs font-bold text-zinc-700 transition hover:bg-zinc-50"
+                  className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 text-xs font-bold text-slate-700 shadow-2xs hover:bg-slate-50 transition"
                   href={`/workspaces/${params.workspaceId}/projects/${params.projectId}/meetings/${params.meetingId}`}
                 >
+                  <Calendar className="h-3.5 w-3.5 text-slate-500" />
                   Chi tiết cuộc họp
                 </Link>
                 <Link
-                  className="flex h-10 items-center rounded-xl border border-zinc-200 bg-white px-4 text-xs font-bold text-zinc-700 transition hover:bg-zinc-50"
+                  className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 text-xs font-bold text-slate-700 shadow-2xs hover:bg-slate-50 transition"
                   href={`/workspaces/${params.workspaceId}/projects/${params.projectId}/meetings/${params.meetingId}/transcript`}
                 >
-                  Nội dung cuộc họp
+                  <FileText className="h-3.5 w-3.5 text-slate-500" />
+                  Biên bản ghi âm
                 </Link>
                 <Link
-                  className="flex h-10 items-center rounded-xl bg-violet-600 px-4 text-xs font-bold text-white shadow-md shadow-violet-500/20 transition hover:bg-violet-700"
+                  className="inline-flex h-9 items-center gap-1.5 rounded-xl bg-violet-600 px-3.5 text-xs font-bold text-white shadow-md shadow-violet-500/20 hover:bg-violet-700 transition"
                   href={`/workspaces/${params.workspaceId}/projects/${params.projectId}/meetings/${params.meetingId}/personalized-summary`}
                 >
+                  <User className="h-3.5 w-3.5" />
                   Tóm tắt của tôi
                 </Link>
               </div>
@@ -206,45 +239,57 @@ export default function MeetingSummaryPage() {
           </div>
         </section>
 
-        {!hasTranscript ? (
-          <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-900">
-            Cuộc họp này chưa có nội dung ghi nhận. Hãy ghi nhận nội dung cuộc
-            họp trước khi tạo tóm tắt.
+        {!hasTranscript && (
+          <div className="flex items-center gap-3 rounded-2xl border border-amber-200 bg-amber-50/80 p-4 text-xs font-semibold text-amber-900 shadow-xs">
+            <AlertCircle className="h-5 w-5 shrink-0 text-amber-600" />
+            <div>
+              <p className="font-bold">Chưa có nội dung biên bản cuộc họp</p>
+              <p className="text-amber-700 font-normal mt-0.5">
+                Vui lòng nhập hoặc ghi nhận biên bản transcript cuộc họp trước khi tiến hành tạo tóm tắt AI.
+              </p>
+            </div>
           </div>
-        ) : null}
+        )}
 
-        {message ? (
-          <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-900">
-            {message}
+        {message && (
+          <div className="flex items-center gap-2 rounded-xl border border-blue-200 bg-blue-50/90 px-4 py-3 text-xs font-bold text-blue-900 shadow-xs">
+            <CheckCircle2 className="h-4 w-4 shrink-0 text-blue-600" />
+            <span>{message}</span>
           </div>
-        ) : null}
+        )}
 
         {isLoading ? (
-          <div className="flex h-48 items-center justify-center rounded-2xl border border-zinc-200 bg-white">
-            <div className="h-6 w-6 animate-spin rounded-full border-2 border-blue-600 border-t-transparent"></div>
+          <div className="flex h-64 flex-col items-center justify-center rounded-2xl border border-slate-200 bg-white shadow-xs">
+            <div className="h-8 w-8 animate-spin rounded-full border-3 border-blue-600 border-t-transparent"></div>
+            <p className="mt-3 text-xs font-bold text-slate-600">Đang tải dữ liệu tóm tắt cuộc họp...</p>
           </div>
         ) : (
-          <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
+          <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
             <div>
               {summary ? (
                 <MeetingSummaryDetail summary={summary} />
               ) : (
-                <section className="rounded-2xl border border-dashed border-zinc-300 bg-white px-6 py-14 text-center shadow-sm">
-                  <p className="text-sm font-bold text-zinc-700">
-                    Chưa có tóm tắt.
+                <section className="rounded-2xl border border-dashed border-slate-300 bg-white p-12 text-center shadow-xs">
+                  <Sparkles className="mx-auto h-10 w-10 text-slate-300 mb-3" />
+                  <p className="text-base font-bold text-slate-800">
+                    Chưa có bản tóm tắt nào cho cuộc họp này
                   </p>
-                  <p className="mt-2 text-xs font-medium text-zinc-500">
-                    Khi đã có nội dung cuộc họp, bạn có thể tạo tóm tắt tại đây.
+                  <p className="mt-1.5 max-w-md mx-auto text-xs text-slate-500 leading-relaxed">
+                    Khi đã có biên bản nội dung cuộc họp, bạn có thể bấm nút &quot;Tạo tóm tắt AI&quot; ở phía trên để hệ thống tự động bóc tách ý chính, quyết định và việc cần làm.
                   </p>
                 </section>
               )}
             </div>
-            <MeetingSummaryHistory
-              currentSummaryId={summary?.id}
-              items={history}
-              projectId={params.projectId}
-              workspaceId={params.workspaceId}
-            />
+
+            {/* Cột phải: Lịch sử phiên bản */}
+            <div>
+              <MeetingSummaryHistory
+                currentSummaryId={summary?.id}
+                items={history}
+                projectId={params.projectId}
+                workspaceId={params.workspaceId}
+              />
+            </div>
           </div>
         )}
       </div>
