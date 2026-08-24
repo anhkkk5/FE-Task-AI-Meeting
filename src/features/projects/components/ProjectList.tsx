@@ -16,7 +16,12 @@ export function ProjectList({ items, workspaceId, canCreate = true }: ProjectLis
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
       {/* Existing Project Cards */}
       {items.map((project) => (
-        <ProjectCard key={project.id} project={project} />
+        <ProjectCard
+          key={project.id}
+          project={project}
+          totalTasks={project.totalTasks}
+          completedTasks={project.completedTasks}
+        />
       ))}
 
       {/* Card Tạo dự án mới (Chuẩn thiết kế Ảnh 2) */}

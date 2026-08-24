@@ -16,6 +16,8 @@ export type Project = {
   workflowTransitions: WorkflowTransitionConfig[];
   workflowTemplateId: string | null;
   createdBy: string;
+  totalTasks?: number;
+  completedTasks?: number;
   /**
    * Chi co o endpoint chi tiet du an.
    *
