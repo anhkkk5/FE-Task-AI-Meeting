@@ -1,5 +1,7 @@
 "use client";
 
+import { confirmAction } from "@/components/feedback/AppDialogProvider";
+
 import { useParams } from "next/navigation";
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import {
@@ -228,7 +230,7 @@ export default function WorkspaceMembersPage() {
   }
 
   async function handleRemove(memberId: string) {
-    if (!confirm("Bạn có chắc chắn muốn xóa thành viên này khỏi Workspace không?")) {
+    if (!await confirmAction({ title: "Xóa thành viên", description: "Thành viên này sẽ mất quyền truy cập Workspace và các dữ liệu thuộc Workspace.", confirmLabel: "Xóa thành viên", tone: "danger" })) {
       return;
     }
 

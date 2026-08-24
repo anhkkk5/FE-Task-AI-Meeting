@@ -1,5 +1,7 @@
 "use client";
 
+import { confirmAction, showAppNotice } from "@/components/feedback/AppDialogProvider";
+
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { DragEvent, useCallback, useEffect, useState } from "react";
@@ -206,7 +208,7 @@ export default function BacklogPage() {
       );
       syncTask(response.data.task);
     } catch (error) {
-      alert(error instanceof Error ? error.message : "Không thể cập nhật trạng thái task");
+      showAppNotice({ title: "Không thể cập nhật công việc", description: error instanceof Error ? error.message : "Không thể cập nhật trạng thái công việc.", tone: "danger" });
     }
   };
 
@@ -217,7 +219,7 @@ export default function BacklogPage() {
       });
       syncTask(response.data.task);
     } catch (error) {
-      alert(error instanceof Error ? error.message : "Không thể di chuyển task");
+      showAppNotice({ title: "Không thể di chuyển công việc", description: error instanceof Error ? error.message : "Không thể di chuyển công việc.", tone: "danger" });
     }
   };
 
@@ -236,7 +238,7 @@ export default function BacklogPage() {
       });
       syncTask(response.data.task);
     } catch (error) {
-      alert(error instanceof Error ? error.message : "Không thể cập nhật trạng thái task");
+      showAppNotice({ title: "Không thể cập nhật công việc", description: error instanceof Error ? error.message : "Không thể cập nhật trạng thái công việc.", tone: "danger" });
     }
   };
 
@@ -250,7 +252,7 @@ export default function BacklogPage() {
       });
       syncTask(response.data.task);
     } catch (error) {
-      alert(error instanceof Error ? error.message : "Không thể gán người phụ trách");
+      showAppNotice({ title: "Không thể giao việc", description: error instanceof Error ? error.message : "Không thể gán người phụ trách.", tone: "danger" });
     }
   };
 
@@ -348,29 +350,29 @@ export default function BacklogPage() {
   };
 
   const handleStartSprint = async (sprintId: string) => {
-    if (!confirm("Bắt đầu sprint này?")) return;
+    if (!await confirmAction({ title: "Bắt đầu Sprint", description: "Sprint sẽ chuyển sang trạng thái đang chạy và bắt đầu theo dõi tiến độ.", confirmLabel: "Bắt đầu" })) return;
 
     try {
       await startSprint(params.workspaceId, params.projectId, sprintId);
       await loadData();
     } catch (error) {
-      alert(error instanceof Error ? error.message : "Bắt đầu sprint thất bại");
+      showAppNotice({ title: "Không thể bắt đầu Sprint", description: error instanceof Error ? error.message : "Bắt đầu Sprint thất bại.", tone: "danger" });
     }
   };
 
   const handleCompleteSprint = async (sprintId: string) => {
-    if (!confirm("Hoàn thành sprint này? Task chưa xong sẽ được trả về Backlog.")) return;
+    if (!await confirmAction({ title: "Hoàn thành Sprint", description: "Các công việc chưa hoàn thành sẽ được trả về Backlog.", confirmLabel: "Hoàn thành", tone: "success" })) return;
 
     try {
       await completeSprint(params.workspaceId, params.projectId, sprintId);
       await loadData();
     } catch (error) {
-      alert(error instanceof Error ? error.message : "Hoàn thành sprint thất bại");
+      showAppNotice({ title: "Không thể hoàn thành Sprint", description: error instanceof Error ? error.message : "Hoàn thành Sprint thất bại.", tone: "danger" });
     }
   };
 
   const handleDeleteSprint = async (sprint: Sprint) => {
-    if (!confirm(`Xóa sprint "${sprint.name}"? Các task sẽ được đưa về Backlog.`)) {
+    if (!await confirmAction({ title: "Xóa Sprint", description: `Sprint “${sprint.name}” sẽ bị xóa và các công việc sẽ được đưa về Backlog.`, confirmLabel: "Xóa Sprint", tone: "danger" })) {
       return;
     }
 
@@ -378,7 +380,7 @@ export default function BacklogPage() {
       await deleteSprint(params.workspaceId, params.projectId, sprint.id);
       await loadData();
     } catch (error) {
-      alert(error instanceof Error ? error.message : "Xóa sprint thất bại");
+      showAppNotice({ title: "Không thể xóa Sprint", description: error instanceof Error ? error.message : "Xóa Sprint thất bại.", tone: "danger" });
     }
   };
 

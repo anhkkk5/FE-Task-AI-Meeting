@@ -1,5 +1,7 @@
 "use client";
 
+import { confirmAction } from "@/components/feedback/AppDialogProvider";
+
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { getWorkspaceMembers } from "@/features/members/api/members.api";
@@ -98,7 +100,7 @@ export function MeetingSummaryActionItems({
     const confirmation = hasDuplicates
       ? `Phát hiện ${item.duplicateCandidates!.length} task tương tự. Bạn vẫn muốn tạo task mới?`
       : "Tạo task từ việc cần làm này?";
-    if (!window.confirm(confirmation)) return;
+    if (!await confirmAction({ title: "Tạo công việc từ Action Item", description: confirmation, confirmLabel: "Tạo công việc" })) return;
 
     setBusyIndex(item.index);
     setError("");

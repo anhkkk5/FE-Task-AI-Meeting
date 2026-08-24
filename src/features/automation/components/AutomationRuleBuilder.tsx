@@ -1,5 +1,7 @@
 "use client";
 
+import { confirmAction, showAppNotice } from "@/components/feedback/AppDialogProvider";
+
 import { useCallback, useEffect, useState } from "react";
 import {
   automationRuns,
@@ -71,9 +73,9 @@ export function AutomationRuleBuilder({ workspaceId, projectId }: { workspaceId:
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div><p className="text-sm font-bold">{rule.name}</p><p className="text-xs text-zinc-500">Trước hạn {rule.trigger.daysBefore ?? 0} ngày · {rule.actions.map((item) => item.type).join(", ")}</p></div>
               <div className="flex flex-wrap gap-2">
-                <button className="rounded border px-2 py-1 text-xs" onClick={async () => { const result = await dryRunAutomation(workspaceId, projectId, rule.id); alert(`Dry-run: ${result.data.count} task phù hợp\n${result.data.matchedTasks.map((task) => task.taskCode).join(", ")}`); await load(); }}>Chạy thử</button>
+                <button className="rounded border px-2 py-1 text-xs" onClick={async () => { const result = await dryRunAutomation(workspaceId, projectId, rule.id); showAppNotice({ title: "Kết quả chạy thử", description: `${result.data.count} task phù hợp\n${result.data.matchedTasks.map((task) => task.taskCode).join(", ")}`, tone: "success" }); await load(); }}>Chạy thử</button>
                 <button className={`rounded px-2 py-1 text-xs font-bold ${rule.enabled ? "bg-emerald-100 text-emerald-700" : "bg-zinc-100"}`} onClick={async () => { await updateAutomation(workspaceId, projectId, rule.id, { ...rule, enabled: !rule.enabled }); await load(); }}>{rule.enabled ? "Đang bật" : "Bật rule"}</button>
-                <button className="text-xs text-blue-600" onClick={async () => { const result = await automationRuns(workspaceId, projectId, rule.id); const failed = result.data.items.find((run) => run.status === "FAILED"); if (failed && confirm(`Run lỗi: ${failed.error}. Chạy lại?`)) await retryAutomationRun(workspaceId, projectId, failed.id); else alert(`${result.data.items.length} lần chạy gần nhất`); }}>Lịch sử</button>
+                <button className="text-xs text-blue-600" onClick={async () => { const result = await automationRuns(workspaceId, projectId, rule.id); const failed = result.data.items.find((run) => run.status === "FAILED"); if (failed && await confirmAction({ title: "Chạy lại Automation", description: `Lần chạy trước gặp lỗi: ${failed.error}`, confirmLabel: "Chạy lại", tone: "warning" })) await retryAutomationRun(workspaceId, projectId, failed.id); else showAppNotice({ title: "Lịch sử Automation", description: `${result.data.items.length} lần chạy gần nhất.` }); }}>Lịch sử</button>
                 <button className="text-xs text-red-600" onClick={async () => { await deleteAutomation(workspaceId, projectId, rule.id); await load(); }}>Xóa</button>
               </div>
             </div>

@@ -1,5 +1,7 @@
 "use client";
 
+import { confirmAction } from "@/components/feedback/AppDialogProvider";
+
 import Link from "next/link";
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
@@ -336,11 +338,14 @@ export default function TaskHandoversPage() {
     }
   }
 
-  function handleAccept(handover: ShiftHandover) {
+  async function handleAccept(handover: ShiftHandover) {
     if (
-      !window.confirm(
-        `Tiếp nhận ${handover.task?.taskCode ?? "task"}? Bạn sẽ trở thành người phụ trách công việc này.`,
-      )
+      !await confirmAction({
+        title: "Tiếp nhận bàn giao",
+        description: `Bạn sẽ trở thành người phụ trách ${handover.task?.taskCode ?? "công việc"} và tiếp tục xử lý công việc này.`,
+        confirmLabel: "Tiếp nhận",
+        tone: "success",
+      })
     ) {
       return;
     }
@@ -382,8 +387,8 @@ export default function TaskHandoversPage() {
     );
   }
 
-  function handleDelete(handover: ShiftHandover) {
-    if (!window.confirm(`Xóa bàn giao “${handover.title}”?`)) return;
+  async function handleDelete(handover: ShiftHandover) {
+    if (!await confirmAction({ title: "Xóa bàn giao", description: `Bàn giao “${handover.title}” sẽ bị xóa.`, confirmLabel: "Xóa bàn giao", tone: "danger" })) return;
     void runAction(
       () => deleteHandover(params.workspaceId, params.projectId, handover.id),
       "Đã xóa bàn giao.",

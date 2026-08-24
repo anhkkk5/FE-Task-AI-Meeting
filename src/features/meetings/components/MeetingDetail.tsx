@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { confirmAction, showAppNotice } from "@/components/feedback/AppDialogProvider";
 import { formatDateTime } from "@/lib/utils/relative-time";
 import { Meeting } from "../types/meeting.type";
 import { Bot, CalendarDays, CheckCircle2, Clock3, FileDown, FileText, Sparkles, Users, Video } from "lucide-react";
@@ -62,7 +63,7 @@ function isMeetingExpired(meeting: Meeting) {
 export function exportMeetingMinutesToPDF(meeting: Meeting) {
   const printWindow = window.open("", "_blank");
   if (!printWindow) {
-    alert("Vui lòng cho phép mở popup để in file PDF.");
+    showAppNotice({ title: "Không thể mở bản in", description: "Vui lòng cho phép cửa sổ bật lên để in file PDF.", tone: "warning" });
     return;
   }
 
@@ -128,8 +129,8 @@ export function MeetingDetail({
   const completeWarning = !meeting.mongoTranscriptId
     ? "Cuộc họp chưa có biên bản nên AI sẽ không tạo được tóm tắt. Bạn vẫn muốn kết thúc?"
     : null;
-  const handleComplete = () => {
-    if (completeWarning && !window.confirm(completeWarning)) {
+  const handleComplete = async () => {
+    if (completeWarning && !await confirmAction({ title: "Kết thúc cuộc họp", description: completeWarning, confirmLabel: "Vẫn kết thúc", tone: "warning" })) {
       return;
     }
 

@@ -1,5 +1,7 @@
 "use client";
 
+import { confirmAction } from "@/components/feedback/AppDialogProvider";
+
 import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { AppShell } from "@/components/layout/AppShell";
@@ -86,7 +88,7 @@ export default function ProjectSettingsPage() {
   }
 
   async function handleArchive() {
-    if (!confirm("Bạn có chắc chắn muốn lưu trữ dự án này không?")) {
+    if (!await confirmAction({ title: "Lưu trữ dự án", description: "Dự án sẽ được chuyển sang trạng thái lưu trữ.", confirmLabel: "Lưu trữ", tone: "warning" })) {
       return;
     }
 
@@ -134,7 +136,7 @@ export default function ProjectSettingsPage() {
   }
 
   async function handleComplete() {
-    if (!confirm("Xác nhận đã hoàn thành dự án này?")) {
+    if (!await confirmAction({ title: "Hoàn thành dự án", description: "Xác nhận toàn bộ mục tiêu chính của dự án đã hoàn thành.", confirmLabel: "Hoàn thành", tone: "success" })) {
       return;
     }
 

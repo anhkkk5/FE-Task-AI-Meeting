@@ -1,5 +1,7 @@
 "use client";
 
+import { confirmAction } from "@/components/feedback/AppDialogProvider";
+
 import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { AppShell } from "@/components/layout/AppShell";
@@ -62,7 +64,7 @@ export default function WorkspaceSettingsPage() {
   }
 
   async function handleArchive() {
-    if (!confirm("Bạn có chắc chắn muốn lưu trữ workspace này không?")) {
+    if (!await confirmAction({ title: "Lưu trữ Workspace", description: "Workspace sẽ được chuyển sang trạng thái lưu trữ và tạm ngừng hoạt động.", confirmLabel: "Lưu trữ", tone: "warning" })) {
       return;
     }
 

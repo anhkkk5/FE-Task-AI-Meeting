@@ -1,5 +1,7 @@
 "use client";
 
+import { confirmAction } from "@/components/feedback/AppDialogProvider";
+
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
@@ -129,7 +131,7 @@ export default function MeetingDetailPage() {
 
   async function handleCancel() {
     if (!meeting) return;
-    if (!window.confirm("Bạn muốn hủy cuộc họp này?")) return;
+    if (!await confirmAction({ title: "Hủy cuộc họp", description: "Cuộc họp sẽ được chuyển sang trạng thái đã hủy.", confirmLabel: "Hủy cuộc họp", tone: "warning" })) return;
 
     setIsMutating(true);
     try {
@@ -166,7 +168,7 @@ export default function MeetingDetailPage() {
 
   async function handleDelete() {
     if (!meeting || !canDelete) return;
-    if (!window.confirm("Bạn muốn xóa cuộc họp này khỏi danh sách?")) return;
+    if (!await confirmAction({ title: "Xóa cuộc họp", description: "Cuộc họp sẽ bị xóa khỏi danh sách. Thao tác này không thể hoàn tác.", confirmLabel: "Xóa cuộc họp", tone: "danger" })) return;
 
     setIsMutating(true);
     try {

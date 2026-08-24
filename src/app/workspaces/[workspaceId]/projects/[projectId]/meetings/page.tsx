@@ -1,5 +1,7 @@
 "use client";
 
+import { confirmAction } from "@/components/feedback/AppDialogProvider";
+
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
@@ -156,7 +158,7 @@ export default function MeetingsPage() {
   }
 
   async function handleDeleteMeeting(meeting: Meeting) {
-    if (!window.confirm(`Bạn có chắc muốn xóa cuộc họp "${meeting.title}"?`)) {
+    if (!await confirmAction({ title: "Xóa cuộc họp", description: `Cuộc họp “${meeting.title}” sẽ bị xóa khỏi dự án.`, confirmLabel: "Xóa cuộc họp", tone: "danger" })) {
       return;
     }
 

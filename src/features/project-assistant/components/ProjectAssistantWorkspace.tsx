@@ -1,5 +1,7 @@
 "use client";
 
+import { confirmAction } from "@/components/feedback/AppDialogProvider";
+
 import Link from "next/link";
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { Sprint } from "@/features/sprints/types/sprint.type";
@@ -140,7 +142,7 @@ export function ProjectAssistantWorkspace({
   }, [workspaceId, projectId]);
 
   async function clearConversation() {
-    if (!window.confirm("Xóa toàn bộ lịch sử hội thoại của bạn trong dự án này?")) return;
+    if (!await confirmAction({ title: "Xóa lịch sử hội thoại", description: "Toàn bộ hội thoại của bạn với trợ lý trong dự án này sẽ bị xóa.", confirmLabel: "Xóa lịch sử", tone: "danger" })) return;
     await clearProjectAssistantHistory(workspaceId, projectId);
     setConversation([]);
   }

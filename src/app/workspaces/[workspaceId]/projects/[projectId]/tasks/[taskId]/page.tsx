@@ -1,5 +1,7 @@
 "use client";
 
+import { confirmAction } from "@/components/feedback/AppDialogProvider";
+
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
@@ -197,7 +199,7 @@ export default function TaskDetailPage() {
 
   async function handleCancel() {
     if (!task) return;
-    if (!confirm("Xác nhận hủy task này?")) return;
+    if (!await confirmAction({ title: "Hủy công việc", description: "Công việc sẽ được chuyển sang trạng thái đã hủy.", confirmLabel: "Hủy công việc", tone: "warning" })) return;
     setActionBusy(true);
     setMessage("");
 
@@ -218,7 +220,7 @@ export default function TaskDetailPage() {
 
   async function handleDelete() {
     if (!task || !canDelete) return;
-    if (!confirm("Xóa công việc này? Công việc sẽ biến mất khỏi Backlog và Sprint.")) {
+    if (!await confirmAction({ title: "Xóa công việc", description: "Công việc sẽ biến mất khỏi Backlog và Sprint. Thao tác này không thể hoàn tác.", confirmLabel: "Xóa công việc", tone: "danger" })) {
       return;
     }
 

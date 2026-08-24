@@ -1,5 +1,7 @@
 "use client";
 
+import { confirmAction } from "@/components/feedback/AppDialogProvider";
+
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
@@ -110,9 +112,7 @@ export default function DailyUpdateDetailPage() {
 
   async function handleArchive() {
     if (!dailyUpdate) return;
-    const confirmed = window.confirm(
-      "Bạn muốn archive daily update này? Dữ liệu sẽ được xóa mềm.",
-    );
+    const confirmed = await confirmAction({ title: "Lưu trữ cập nhật hằng ngày", description: "Bản cập nhật sẽ được lưu trữ bằng cơ chế xóa mềm và không còn xuất hiện trong danh sách chính.", confirmLabel: "Lưu trữ", tone: "warning" });
 
     if (!confirmed) return;
 

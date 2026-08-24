@@ -1,5 +1,7 @@
 "use client";
 
+import { confirmAction } from "@/components/feedback/AppDialogProvider";
+
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
@@ -183,9 +185,7 @@ export default function TeamAiReportDetailPage() {
   const handleCancel = async () => {
     if (!report) return;
 
-    const confirmed = window.confirm(
-      "Hủy phiên giao ban này? Phiên đã hủy không mở lại được, bạn sẽ phải tạo phiên mới.",
-    );
+    const confirmed = await confirmAction({ title: "Hủy phiên giao ban", description: "Phiên đã hủy không thể mở lại; bạn sẽ phải tạo một phiên mới.", confirmLabel: "Hủy phiên", tone: "danger" });
     if (!confirmed) return;
 
     setIsCancelling(true);

@@ -10,7 +10,7 @@ export function exportTasksToExcel(
   filename: string = "Danh_sach_cong_viec.csv",
 ) {
   if (tasks.length === 0) {
-    alert("Không có công việc nào để xuất file.");
+    showAppNotice({ title: "Chưa có dữ liệu", description: "Không có công việc nào để xuất file.", tone: "warning" });
     return;
   }
 
@@ -64,7 +64,7 @@ export function exportSprintReportToPDF(
 ) {
   const printWindow = window.open("", "_blank");
   if (!printWindow) {
-    alert("Vui lòng cho phép cửa sổ bật lên (popup) để tải file PDF.");
+    showAppNotice({ title: "Không thể mở báo cáo", description: "Vui lòng cho phép cửa sổ bật lên để tải file PDF.", tone: "warning" });
     return;
   }
 
@@ -257,3 +257,4 @@ export function exportSprintReportToPDF(
   printWindow.document.write(htmlContent);
   printWindow.document.close();
 }
+import { showAppNotice } from "@/components/feedback/AppDialogProvider";

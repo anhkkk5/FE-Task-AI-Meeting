@@ -1,5 +1,7 @@
 "use client";
 
+import { showAppNotice } from "@/components/feedback/AppDialogProvider";
+
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
@@ -110,7 +112,7 @@ export default function KanbanBoardPage() {
       });
     } catch (error) {
       setTasks(previousTasks);
-      alert(error instanceof Error ? error.message : "Không thể thay đổi trạng thái task");
+      showAppNotice({ title: "Không thể cập nhật công việc", description: error instanceof Error ? error.message : "Không thể thay đổi trạng thái công việc.", tone: "danger" });
     } finally {
       setActiveDragTaskId(null);
     }
@@ -125,7 +127,7 @@ export default function KanbanBoardPage() {
         prev.map((task) => (task.id === taskId ? { ...task, status: targetStatus } : task)),
       );
     } catch (error) {
-      alert(error instanceof Error ? error.message : "Không thể thay đổi trạng thái task");
+      showAppNotice({ title: "Không thể cập nhật công việc", description: error instanceof Error ? error.message : "Không thể thay đổi trạng thái công việc.", tone: "danger" });
     }
   };
 

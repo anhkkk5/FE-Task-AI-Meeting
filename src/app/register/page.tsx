@@ -1,5 +1,7 @@
 "use client";
 
+import { showAppNotice } from "@/components/feedback/AppDialogProvider";
+
 import Link from "next/link";
 import { FormEvent, useState } from "react";
 import { User, Mail, Lock, Eye, EyeOff, Loader2, ArrowRight } from "lucide-react";
@@ -292,7 +294,7 @@ export default function RegisterPage() {
           {/* Google */}
           <button
             type="button"
-            onClick={() => alert("Đăng ký với Google sắp ra mắt.")}
+            onClick={() => showAppNotice("Đăng ký với Google sắp ra mắt.")}
             className="flex items-center justify-center h-10 rounded-xl border border-slate-200 bg-white hover:bg-slate-50/80 transition shadow-2xs group"
             title="Đăng ký bằng Google"
           >
@@ -319,7 +321,7 @@ export default function RegisterPage() {
           {/* Microsoft */}
           <button
             type="button"
-            onClick={() => alert("Đăng ký với Microsoft sắp ra mắt.")}
+            onClick={() => showAppNotice("Đăng ký với Microsoft sắp ra mắt.")}
             className="flex items-center justify-center h-10 rounded-xl border border-slate-200 bg-white hover:bg-slate-50/80 transition shadow-2xs group"
             title="Đăng ký bằng Microsoft"
           >
@@ -334,7 +336,7 @@ export default function RegisterPage() {
           {/* GitHub */}
           <button
             type="button"
-            onClick={() => alert("Đăng ký với GitHub sắp ra mắt.")}
+            onClick={() => showAppNotice("Đăng ký với GitHub sắp ra mắt.")}
             className="flex items-center justify-center h-10 rounded-xl border border-slate-200 bg-white hover:bg-slate-50/80 transition shadow-2xs group"
             title="Đăng ký bằng GitHub"
           >

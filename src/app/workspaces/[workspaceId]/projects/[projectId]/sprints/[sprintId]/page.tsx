@@ -1,5 +1,7 @@
 "use client";
 
+import { confirmAction } from "@/components/feedback/AppDialogProvider";
+
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
@@ -118,7 +120,7 @@ export default function SprintDetailPage() {
 
   async function handleComplete() {
     if (!sprint) return;
-    if (!confirm("Xác nhận hoàn thành sprint này?")) return;
+    if (!await confirmAction({ title: "Hoàn thành Sprint", description: "Xác nhận Sprint này đã kết thúc.", confirmLabel: "Hoàn thành", tone: "success" })) return;
     setActionBusy(true);
     setMessage("");
 
@@ -141,7 +143,7 @@ export default function SprintDetailPage() {
 
   async function handleCancel() {
     if (!sprint) return;
-    if (!confirm("Xác nhận hủy sprint này?")) return;
+    if (!await confirmAction({ title: "Hủy Sprint", description: "Sprint sẽ được chuyển sang trạng thái đã hủy.", confirmLabel: "Hủy Sprint", tone: "warning" })) return;
     setActionBusy(true);
     setMessage("");
 
@@ -160,7 +162,7 @@ export default function SprintDetailPage() {
 
   async function handleDelete() {
     if (!sprint) return;
-    if (!confirm(`Xóa sprint "${sprint.name}"? Các task sẽ được đưa về Backlog.`)) {
+    if (!await confirmAction({ title: "Xóa Sprint", description: `Sprint “${sprint.name}” sẽ bị xóa và các công việc sẽ được đưa về Backlog.`, confirmLabel: "Xóa Sprint", tone: "danger" })) {
       return;
     }
     setActionBusy(true);

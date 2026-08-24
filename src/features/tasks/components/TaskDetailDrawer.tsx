@@ -1,5 +1,7 @@
 "use client";
 
+import { confirmAction } from "@/components/feedback/AppDialogProvider";
+
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { WorkspaceMember } from "@/features/members/types/member.type";
@@ -652,8 +654,8 @@ export function TaskDetailDrawer({
           <button
             className="rounded border border-[#ffbdad] bg-[#fff4f2] px-3 py-2 text-sm font-semibold text-[#ae2a19] hover:bg-[#ffebe6] disabled:cursor-not-allowed disabled:border-[#dfe1e6] disabled:bg-[#f1f2f4] disabled:text-[#6b778c]"
             disabled={!canManage || isBusy || task.status === "CANCELLED"}
-            onClick={() => {
-              if (!confirm("Hủy task này?")) return;
+            onClick={async () => {
+              if (!await confirmAction({ title: "Hủy công việc", description: "Công việc sẽ chuyển sang trạng thái đã hủy.", confirmLabel: "Hủy công việc", tone: "warning" })) return;
               void runAction(() => onCancel(task), "Đã hủy task.");
             }}
             type="button"
@@ -664,8 +666,8 @@ export function TaskDetailDrawer({
             <button
               className="rounded bg-[#c9372c] px-3 py-2 text-sm font-semibold text-white hover:bg-[#ae2a19] disabled:cursor-not-allowed disabled:bg-[#b3b9c4]"
               disabled={isBusy}
-              onClick={() => {
-                if (!confirm("Xóa công việc này khỏi Backlog và Sprint?")) return;
+              onClick={async () => {
+                if (!await confirmAction({ title: "Xóa công việc", description: "Công việc sẽ bị xóa khỏi Backlog và Sprint. Thao tác này không thể hoàn tác.", confirmLabel: "Xóa công việc", tone: "danger" })) return;
                 void runAction(() => onDelete(task), "Đã xóa công việc.");
               }}
               type="button"
