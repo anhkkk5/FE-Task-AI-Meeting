@@ -11,6 +11,7 @@ import {
   ListTodo,
   Calendar,
   Clock,
+  Printer,
   Quote,
   FileText,
   Copy,
@@ -226,6 +227,28 @@ export function PersonalizedMeetingSummaryDetail({
   const mentions = output.mentions ?? [];
   const risks = output.risks ?? [];
   const nextSteps = output.nextSteps ?? [];
+  const reportTitle = cleanDisplayTitle(output.title);
+
+  const escapeHtml = (value: string) => value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+
+  const handleExportPdf = () => {
+    const reportWindow = window.open("", "_blank", "width=900,height=1000");
+    if (!reportWindow) return;
+    const list = (items: string[]) => items.length
+      ? `<ul>${items.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`
+      : '<p class="empty">Không có nội dung.</p>';
+    const actions = myActions.length
+      ? `<table><thead><tr><th>#</th><th>Việc cần làm</th><th>Thời hạn</th></tr></thead><tbody>${myActions.map((item, index) => `<tr><td>${index + 1}</td><td>${escapeHtml(item.title)}</td><td>${escapeHtml(item.deadline || "—")}</td></tr>`).join("")}</tbody></table>`
+      : '<p class="empty">Không có việc được giao trực tiếp.</p>';
+    reportWindow.document.write(`<!doctype html><html lang="vi"><head><meta charset="utf-8"><title>${escapeHtml(reportTitle)}</title><style>@page{size:A4;margin:16mm}*{box-sizing:border-box}body{font-family:Arial,sans-serif;color:#20242b;line-height:1.55;font-size:13px}header{border-bottom:2px solid #7654b5;padding-bottom:16px;margin-bottom:26px}.eyebrow{color:#7654b5;text-transform:uppercase;letter-spacing:.12em;font-weight:700;font-size:11px}h1{font-size:25px;margin:6px 0}h2{font-size:19px;margin:26px 0 12px;border-bottom:1px solid #d9d1e7;padding-bottom:7px}ul{margin:0;padding-left:22px}li{margin:9px 0}.summary{border-left:4px solid #7654b5;background:#faf8fd;padding:15px 18px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #ded8e8;padding:10px;text-align:left;vertical-align:top}th{background:#f4f1f8}.meta{color:#69707d}.empty{color:#8a9099;font-style:italic}</style></head><body><header><div class="eyebrow">Báo cáo AI cá nhân sau cuộc họp</div><h1>${escapeHtml(reportTitle)}</h1><div class="meta">Thời điểm tạo: ${escapeHtml(summary.createdAt?.slice(0,16).replace("T"," ") || "—")}</div></header><h2>1. Tóm tắt dành cho tôi</h2><div class="summary">${escapeHtml(cleanLegacySummary(output.personalSummary || summary.personalSummary))}</div><h2>2. Việc cần làm của tôi</h2>${actions}<h2>3. Quyết định liên quan</h2>${list(decisions)}<h2>4. Rủi ro cần theo dõi</h2>${list(risks)}<h2>5. Bước tiếp theo</h2>${list(nextSteps)}</body></html>`);
+    reportWindow.document.close();
+    reportWindow.focus();
+    setTimeout(() => reportWindow.print(), 250);
+  };
 
   const handleCopy = () => {
     const fullText = [
@@ -262,7 +285,7 @@ export function PersonalizedMeetingSummaryDetail({
             </div>
 
             <h1 className="max-w-3xl text-lg font-semibold leading-7 text-slate-900">
-              {cleanDisplayTitle(output.title)}
+              {reportTitle}
             </h1>
 
             <div className="flex items-center gap-2 text-xs text-slate-500">
@@ -272,6 +295,14 @@ export function PersonalizedMeetingSummaryDetail({
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={handleExportPdf}
+              className="inline-flex items-center gap-1.5 rounded-xl bg-slate-900 px-3.5 py-2 text-xs font-semibold text-white hover:bg-slate-800"
+            >
+              <Printer className="h-3.5 w-3.5" />
+              Xuất PDF
+            </button>
             <button
               type="button"
               onClick={handleCopy}
