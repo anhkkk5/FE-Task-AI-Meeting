@@ -301,7 +301,9 @@ export function AppShell({
           {
             href: `/workspaces/${activeWorkspaceId}/projects/${projectId}/shift-handovers`,
             label: "Bàn giao",
-            active: pathname.includes("/shift-handovers"),
+            active:
+              pathname.includes("/shift-handovers") ||
+              pathname.includes("/ai-reports/team"),
             badge: pendingHandovers,
           },
           {

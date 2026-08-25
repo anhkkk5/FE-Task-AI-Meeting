@@ -160,11 +160,29 @@ export default function TeamAiReportsPage() {
       workspaceId={params.workspaceId}
     >
       <div className="mx-auto max-w-6xl space-y-6 pb-12">
+        <nav className="flex flex-wrap gap-2 rounded-2xl border border-slate-200 bg-white p-2 shadow-sm" aria-label="Nghiệp vụ bàn giao và giao ban">
+          <Link
+            className="rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
+            href={`/workspaces/${params.workspaceId}/projects/${params.projectId}/shift-handovers`}
+          >
+            Bàn giao công việc
+          </Link>
+          <Link
+            className="rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
+            href={`/workspaces/${params.workspaceId}/projects/${params.projectId}/daily-updates/me`}
+          >
+            Giao ban của tôi
+          </Link>
+          <span className="rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-bold text-white">
+            Báo cáo giao ban team
+          </span>
+        </nav>
+
         <section className="rounded-2xl border border-zinc-200/80 bg-white p-6 shadow-sm">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
               <p className="text-[10px] font-black uppercase tracking-[0.18em] text-indigo-600">
-                Báo cáo nhóm AI
+                Bàn giao · Báo cáo giao ban
               </p>
               <h1 className="mt-1 text-2xl font-black text-zinc-950">
                 Báo cáo giao ban nhóm bằng AI
@@ -179,7 +197,7 @@ export default function TeamAiReportsPage() {
                 className="flex h-10 items-center rounded-xl border border-zinc-200 bg-white px-4 text-xs font-bold text-zinc-700 transition hover:bg-zinc-50"
                 href={`/workspaces/${params.workspaceId}/projects/${params.projectId}/daily-updates/me`}
               >
-                Cập nhật của tôi
+                Giao ban của tôi
               </Link>
               <button
                 className="h-10 rounded-xl border border-zinc-200 bg-white px-4 text-xs font-bold text-zinc-700 transition hover:bg-zinc-50"
