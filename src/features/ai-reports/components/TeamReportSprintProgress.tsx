@@ -26,7 +26,7 @@ export function TeamReportSprintProgress({
       id="team-report-sprint-progress"
     >
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-sm font-black text-slate-900">Tiến độ sprint</h2>
+        <h2 className="text-sm font-black text-slate-900">Tình trạng tiếp nhận bàn giao</h2>
         <span className="rounded-lg bg-slate-100 px-2.5 py-1 text-[11px] font-bold text-slate-600">
           {sprintLabel}
         </span>
@@ -39,11 +39,11 @@ export function TeamReportSprintProgress({
               {percent}%
             </p>
             <p className="text-xs font-bold text-slate-500">
-              {metrics.doneTasks}/{metrics.totalTasks} công việc hoàn thành
+              {metrics.doneTasks}/{metrics.totalTasks} lượt đã tiếp nhận
             </p>
           </div>
           <div
-            aria-label={`Tiến độ sprint ${percent} phần trăm`}
+            aria-label={`Tỷ lệ tiếp nhận bàn giao ${percent} phần trăm`}
             aria-valuemax={100}
             aria-valuemin={0}
             aria-valuenow={percent}

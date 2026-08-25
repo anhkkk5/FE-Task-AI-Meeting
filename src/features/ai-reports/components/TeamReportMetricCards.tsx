@@ -38,21 +38,21 @@ export function TeamReportMetricCards({ metrics }: TeamReportMetricCardsProps) {
   const cards: MetricCard[] = [
     {
       id: "metric-progress",
-      label: "Tiến độ",
+      label: "Tỷ lệ tiếp nhận",
       value: `${metrics.progressPercent}%`,
-      hint: `${metrics.doneTasks}/${metrics.totalTasks} công việc`,
+      hint: `${metrics.doneTasks}/${metrics.totalTasks} lượt bàn giao`,
       tone: "brand",
     },
     {
       id: "metric-in-progress",
-      label: "Đang làm",
+      label: "Chờ phản hồi",
       value: String(metrics.inProgressTasks),
-      hint: "công việc đang xử lý",
+      hint: "bàn giao cần xử lý",
       tone: "blue",
     },
     {
       id: "metric-blockers",
-      label: "Vướng mắc",
+      label: "Cần làm rõ",
       value: String(metrics.blockerCount),
       hint: "cần tháo gỡ",
       tone: "amber",
@@ -61,7 +61,7 @@ export function TeamReportMetricCards({ metrics }: TeamReportMetricCardsProps) {
       id: "metric-members",
       label: "Thành viên",
       value: String(metrics.memberCount),
-      hint: "tham gia dự án",
+      hint: "tham gia bàn giao",
       tone: "slate",
     },
   ];

@@ -142,23 +142,23 @@ export function TeamReportDetail({
             <ListSection
               id="team-report-completed"
               items={output.completedWork}
-              title="Việc đã hoàn thành"
+              title="Đã được tiếp nhận"
             />
             <ListSection
               id="team-report-today-focus"
               items={output.todayFocus}
-              title="Trọng tâm hôm nay"
+              title="Đang chờ xử lý"
             />
             <ListSection
               id="team-report-blockers"
               items={output.blockers}
-              title="Vướng mắc"
+              title="Vướng mắc bàn giao"
               tone="warning"
             />
             <ListSection
               id="team-report-risks"
               items={output.risks}
-              title="Rủi ro"
+              title="Bàn giao có rủi ro"
               tone="warning"
             />
           </div>
