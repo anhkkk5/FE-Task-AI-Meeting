@@ -31,6 +31,13 @@ type PersonalizedMeetingSummaryDetailProps = {
   projectId?: string;
 };
 
+function cleanDisplayTitle(title?: string) {
+  return (title || "Tóm tắt dành cho tôi")
+    .replace(/^\s*\[[A-Z0-9_-]+\]\s*/i, "")
+    .replace(/^Tóm tắt (cuộc họp )?(cá nhân hóa\s*[-–:]\s*)?/i, "")
+    .trim();
+}
+
 function parseTextToBullets(text: string): string[] {
   if (!text) return [];
   const lines = text
@@ -100,8 +107,10 @@ function InsightCard({
   const displayItems = isExpanded ? parsedItems : parsedItems.slice(0, 5);
   const hasMore = parsedItems.length > 5;
 
+  if (parsedItems.length === 0) return null;
+
   return (
-    <div className="flex flex-col justify-between rounded-2xl border border-slate-200 bg-white p-5 shadow-xs transition hover:border-slate-300">
+    <div className="flex flex-col justify-between rounded-xl border border-slate-200 bg-white p-4 shadow-xs transition hover:border-slate-300">
       <div>
         <div className="flex items-center justify-between mb-3 pb-2.5 border-b border-slate-100">
           <div className="flex items-center gap-2">
@@ -227,9 +236,9 @@ export function PersonalizedMeetingSummaryDetail({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Header Card */}
-      <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div className="space-y-2 min-w-0">
             <div className="flex flex-wrap items-center gap-2">
@@ -243,8 +252,8 @@ export function PersonalizedMeetingSummaryDetail({
               </span>
             </div>
 
-            <h1 className="text-xl sm:text-2xl font-black text-slate-900 leading-snug">
-              {output.title}
+            <h1 className="max-w-3xl text-lg font-bold leading-7 text-slate-900 sm:text-xl">
+              {cleanDisplayTitle(output.title)}
             </h1>
 
             <div className="flex items-center gap-2 text-xs text-slate-500">
@@ -266,7 +275,7 @@ export function PersonalizedMeetingSummaryDetail({
         </div>
 
         {/* Thống kê nhanh */}
-        <div className="mt-5 grid grid-cols-2 gap-2.5 sm:grid-cols-4 border-t border-slate-100 pt-4">
+        <div className="mt-4 grid grid-cols-3 gap-2 border-t border-slate-100 pt-4">
           <div className="rounded-xl bg-violet-50/60 border border-violet-100/80 p-3 text-center">
             <p className="text-[11px] font-bold text-violet-700">Việc của tôi</p>
             <p className="text-lg font-black text-violet-950 mt-0.5">{myActions.length}</p>
@@ -274,10 +283,6 @@ export function PersonalizedMeetingSummaryDetail({
           <div className="rounded-xl bg-blue-50/60 border border-blue-100/80 p-3 text-center">
             <p className="text-[11px] font-bold text-blue-700">Quyết định liên quan</p>
             <p className="text-lg font-black text-blue-950 mt-0.5">{decisions.length}</p>
-          </div>
-          <div className="rounded-xl bg-emerald-50/60 border border-emerald-100/80 p-3 text-center">
-            <p className="text-[11px] font-bold text-emerald-700">Lượt nhắc đến</p>
-            <p className="text-lg font-black text-emerald-950 mt-0.5">{mentions.length}</p>
           </div>
           <div className="rounded-xl bg-rose-50/60 border border-rose-100/80 p-3 text-center">
             <p className="text-[11px] font-bold text-rose-700">Rủi ro liên quan</p>
@@ -287,18 +292,18 @@ export function PersonalizedMeetingSummaryDetail({
       </section>
 
       {/* Tóm tắt góc nhìn cá nhân */}
-      <section className="rounded-2xl border border-violet-100 bg-gradient-to-br from-violet-50/80 via-white to-violet-50/40 p-6 shadow-xs">
+      <section className="rounded-xl border border-violet-100 bg-gradient-to-br from-violet-50/70 via-white to-white p-5 shadow-xs">
         <div className="flex items-center gap-2 text-violet-900 mb-2 font-bold text-sm">
           <Sparkles className="h-4 w-4 text-violet-600" />
           <span>Tóm tắt góc nhìn cá nhân</span>
         </div>
-        <p className="text-sm font-medium leading-relaxed text-slate-800 whitespace-pre-line">
+        <p className="max-w-4xl whitespace-pre-line text-sm font-normal leading-7 text-slate-700">
           {output.personalSummary || summary.personalSummary}
         </p>
       </section>
 
       {/* Việc của tôi */}
-      <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      {myActions.length > 0 ? <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-100">
           <div>
             <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2">
@@ -316,10 +321,10 @@ export function PersonalizedMeetingSummaryDetail({
           </Link>
         </div>
         <ActionItems items={myActions} />
-      </section>
+      </section> : null}
 
       {/* 4 Cards Lưới */}
-      <div className="grid gap-5 lg:grid-cols-2">
+      <div className="grid items-start gap-4 lg:grid-cols-2">
         <InsightCard
           title="Quyết định liên quan đến tôi"
           items={decisions}

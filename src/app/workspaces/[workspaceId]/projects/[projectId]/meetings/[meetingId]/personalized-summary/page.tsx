@@ -13,7 +13,6 @@ import {
 } from "@/features/ai-reports/api/ai-personalized-meeting-summary.api";
 import { PersonalizedMeetingSummaryDetail } from "@/features/ai-reports/components/PersonalizedMeetingSummaryDetail";
 import { PersonalizedMeetingSummaryGenerateButton } from "@/features/ai-reports/components/PersonalizedMeetingSummaryGenerateButton";
-import { PersonalizedSummaryList } from "@/features/ai-reports/components/PersonalizedSummaryList";
 import { AiPersonalizedMeetingSummary } from "@/features/ai-reports/types/personalized-meeting-summary.type";
 import { getMeetingDetail } from "@/features/meetings/api/meetings.api";
 import { Meeting } from "@/features/meetings/types/meeting.type";
@@ -35,6 +34,12 @@ function isNotFound(error: unknown) {
 
 type GenerateMode = "me" | "member" | "all";
 
+function cleanMeetingTitle(title?: string | null) {
+  return (title || "Báo cáo cá nhân sau cuộc họp")
+    .replace(/^\s*\[[A-Z0-9_-]+\]\s*/i, "")
+    .trim();
+}
+
 export default function PersonalizedMeetingSummaryPage() {
   const params = useParams<{
     workspaceId: string;
@@ -47,7 +52,7 @@ export default function PersonalizedMeetingSummaryPage() {
   const [members, setMembers] = useState<WorkspaceMember[]>([]);
   const [summary, setSummary] =
     useState<AiPersonalizedMeetingSummary | null>(null);
-  const [generatedItems, setGeneratedItems] = useState<
+  const [, setGeneratedItems] = useState<
     AiPersonalizedMeetingSummary[]
   >([]);
   const [myRole, setMyRole] = useState("");
@@ -217,18 +222,18 @@ export default function PersonalizedMeetingSummaryPage() {
       title={project?.name}
       workspaceId={params.workspaceId}
     >
-      <div className="mx-auto max-w-6xl space-y-6 pb-12">
-        <section className="rounded-2xl border border-zinc-200/80 bg-white p-6 shadow-sm">
+      <div className="mx-auto max-w-5xl space-y-4 pb-12">
+        <section className="rounded-xl border border-zinc-200/80 bg-white p-5 shadow-sm">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div>
               <p className="text-[10px] font-black uppercase tracking-[0.18em] text-blue-600">
                 Tóm tắt theo thành viên
               </p>
-              <h1 className="mt-1 text-2xl font-black text-zinc-950">
-                {meeting?.title ?? "Tóm tắt theo thành viên"}
+              <h1 className="mt-1 max-w-3xl text-xl font-bold leading-7 text-zinc-950">
+                {cleanMeetingTitle(meeting?.title)}
               </h1>
               <p className="mt-2 max-w-2xl text-sm font-medium leading-relaxed text-zinc-500">
-                Mỗi thành viên có thể xem phần nội dung liên quan đến mình,
+                Báo cáo được AI tự tạo riêng cho bạn sau khi cuộc họp kết thúc,
                 gồm việc cần làm, quyết định liên quan và điểm cần theo dõi.
               </p>
             </div>
@@ -296,7 +301,7 @@ export default function PersonalizedMeetingSummaryPage() {
             <div className="h-6 w-6 animate-spin rounded-full border-2 border-blue-600 border-t-transparent"></div>
           </div>
         ) : (
-          <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
+          <div>
             <div>
               {summary ? (
                 <PersonalizedMeetingSummaryDetail
@@ -315,11 +320,6 @@ export default function PersonalizedMeetingSummaryPage() {
                 </section>
               )}
             </div>
-            <PersonalizedSummaryList
-              items={generatedItems}
-              projectId={params.projectId}
-              workspaceId={params.workspaceId}
-            />
           </div>
         )}
       </div>
