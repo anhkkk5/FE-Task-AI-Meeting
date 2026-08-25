@@ -644,13 +644,7 @@ export function TaskDetailDrawer({
           </section>
         </div>
 
-        <footer className="flex flex-wrap items-center justify-between gap-2 border-t border-[#dfe1e6] px-5 py-4">
-          <Link
-            className="rounded border border-[#dfe1e6] bg-white px-3 py-2 text-sm font-semibold text-[#44546f] hover:bg-[#f1f2f4]"
-            href={`/workspaces/${workspaceId}/projects/${projectId}/tasks/${task.id}`}
-          >
-            Mở trang chi tiết
-          </Link>
+        <footer className="flex flex-wrap items-center justify-end gap-2 border-t border-[#dfe1e6] px-5 py-4">
           <button
             className="rounded border border-[#ffbdad] bg-[#fff4f2] px-3 py-2 text-sm font-semibold text-[#ae2a19] hover:bg-[#ffebe6] disabled:cursor-not-allowed disabled:border-[#dfe1e6] disabled:bg-[#f1f2f4] disabled:text-[#6b778c]"
             disabled={!canManage || isBusy || task.status === "CANCELLED"}

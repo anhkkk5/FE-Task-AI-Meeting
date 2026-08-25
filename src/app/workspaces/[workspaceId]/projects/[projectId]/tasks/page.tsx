@@ -10,8 +10,11 @@ import { getMyWorkspaceRole, getWorkspaceMembers } from "@/features/members/api/
 import { WorkspaceMember } from "@/features/members/types/member.type";
 import { getProjectDetail } from "@/features/projects/api/projects.api";
 import { Project } from "@/features/projects/types/project.type";
-import { getTasks, updateTaskStatus } from "@/features/tasks/api/tasks.api";
-import { Task, TaskStatus } from "@/features/tasks/types/task.type";
+import { getSprints } from "@/features/sprints/api/sprints.api";
+import { Sprint } from "@/features/sprints/types/sprint.type";
+import { assignTask, cancelTask, createTask, deleteTask, getTaskDetail, getTasks, moveTaskToSprint, updateTask, updateTaskStatus } from "@/features/tasks/api/tasks.api";
+import { TaskDetailDrawer } from "@/features/tasks/components/TaskDetailDrawer";
+import { Task, TaskStatus, UpdateTaskPayload } from "@/features/tasks/types/task.type";
 import { useAuth } from "@/hooks/useAuth";
 
 const writeRoles = ["OWNER", "SCRUM_MASTER", "PROJECT_MANAGER"];
@@ -40,6 +43,8 @@ export default function KanbanBoardPage() {
   const [project, setProject] = useState<Project | null>(null);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [members, setMembers] = useState<WorkspaceMember[]>([]);
+  const [sprints, setSprints] = useState<Sprint[]>([]);
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [myRole, setMyRole] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState("");
@@ -56,17 +61,28 @@ export default function KanbanBoardPage() {
     setMessage("");
 
     try {
-      const [projectRes, tasksRes, roleRes, membersRes] = await Promise.all([
+      const [projectRes, tasksRes, roleRes, membersRes, sprintsRes] = await Promise.all([
         getProjectDetail(params.workspaceId, params.projectId),
         getTasks(params.workspaceId, params.projectId, { page: 1, limit: 100 }),
         getMyWorkspaceRole(params.workspaceId),
         getWorkspaceMembers(params.workspaceId),
+        getSprints(params.workspaceId, params.projectId, { page: 1, limit: 100 }),
       ]);
 
       setProject(projectRes.data.project);
       setTasks(tasksRes.data.items);
       setMyRole(roleRes.data.role);
       setMembers(membersRes.data.items);
+      setSprints(sprintsRes.data.items);
+      const directTaskId = new URLSearchParams(window.location.search).get("taskId");
+      if (directTaskId) {
+        const localTask = tasksRes.data.items.find((task) => task.id === directTaskId);
+        if (localTask) setSelectedTask(localTask);
+        else {
+          const detail = await getTaskDetail(params.workspaceId, params.projectId, directTaskId);
+          setSelectedTask(detail.data.task);
+        }
+      }
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Tải danh sách task thất bại.");
     } finally {
@@ -79,6 +95,15 @@ export default function KanbanBoardPage() {
       void loadData();
     }
   }, [user, params.workspaceId, params.projectId, loadData]);
+
+  useEffect(() => {
+    const handleHistoryChange = () => {
+      const taskId = new URLSearchParams(window.location.search).get("taskId");
+      setSelectedTask(taskId ? tasks.find((task) => task.id === taskId) ?? null : null);
+    };
+    window.addEventListener("popstate", handleHistoryChange);
+    return () => window.removeEventListener("popstate", handleHistoryChange);
+  }, [tasks]);
 
   const handleDragStart = (event: React.DragEvent, taskId: string) => {
     event.dataTransfer.setData("text/plain", taskId);
@@ -129,6 +154,21 @@ export default function KanbanBoardPage() {
     } catch (error) {
       showAppNotice({ title: "Không thể cập nhật công việc", description: error instanceof Error ? error.message : "Không thể thay đổi trạng thái công việc.", tone: "danger" });
     }
+  };
+
+  const syncTask = (updated: Task) => {
+    setTasks((current) => current.map((task) => task.id === updated.id ? updated : task));
+    setSelectedTask(updated);
+  };
+
+  const openTask = (task: Task) => {
+    setSelectedTask(task);
+    window.history.pushState({}, "", `${window.location.pathname}?taskId=${task.id}`);
+  };
+
+  const closeTask = () => {
+    setSelectedTask(null);
+    window.history.pushState({}, "", window.location.pathname);
   };
 
   const filteredTasks = tasks.filter((task) => {
@@ -276,12 +316,13 @@ export default function KanbanBoardPage() {
                         onDragEnd={handleDragEnd}
                         onDragStart={(event) => handleDragStart(event, task.id)}
                       >
-                        <Link
+                        <button
                           className="line-clamp-2 text-sm font-medium leading-5 text-[#172b4d] hover:text-[#4F8EB0]"
-                          href={`/workspaces/${params.workspaceId}/projects/${params.projectId}/tasks/${task.id}`}
+                          onClick={() => openTask(task)}
+                          type="button"
                         >
                           {task.title}
-                        </Link>
+                        </button>
 
                         <div className="mt-2 flex flex-wrap gap-1">
                           {task.isBlocked ? <span className="rounded bg-rose-50 px-1.5 py-0.5 text-[10px] font-bold text-rose-700">Bị chặn</span> : null}
@@ -341,6 +382,46 @@ export default function KanbanBoardPage() {
             })}
           </div>
         )}
+        <TaskDetailDrawer
+          task={selectedTask}
+          workspaceId={params.workspaceId}
+          projectId={params.projectId}
+          members={members}
+          sprints={sprints}
+          canManage={canWrite}
+          canChangeStatus={Boolean(canWrite || (myRole === "MEMBER" && selectedTask?.assigneeId === user?.id))}
+          canDelete={Boolean(selectedTask && user && (writeRoles.includes(myRole) || selectedTask.createdBy === user.id))}
+          onClose={closeTask}
+          onStatusChange={async (task, status, override) => {
+            const response = await updateTaskStatus(params.workspaceId, params.projectId, task.id, { status, ...override });
+            syncTask(response.data.task);
+          }}
+          onAssign={async (task, assigneeId) => {
+            const response = await assignTask(params.workspaceId, params.projectId, task.id, { assigneeId });
+            syncTask(response.data.task);
+          }}
+          onMoveSprint={async (task, sprintId) => {
+            const response = await moveTaskToSprint(params.workspaceId, params.projectId, task.id, { sprintId });
+            syncTask(response.data.task);
+          }}
+          onUpdateStructure={async (task, payload: UpdateTaskPayload) => {
+            const response = await updateTask(params.workspaceId, params.projectId, task.id, payload);
+            syncTask(response.data.task);
+          }}
+          onCreateSubtask={async (task, payload) => {
+            await createTask(params.workspaceId, params.projectId, { ...payload, taskType: "SUBTASK", priority: task.priority, parentId: task.id, sprintId: task.sprintId ?? undefined, assigneeId: task.assigneeId ?? undefined });
+            await loadData();
+          }}
+          onCancel={async (task) => {
+            const response = await cancelTask(params.workspaceId, params.projectId, task.id);
+            syncTask(response.data.task);
+          }}
+          onDelete={async (task) => {
+            await deleteTask(params.workspaceId, params.projectId, task.id);
+            setTasks((current) => current.filter((item) => item.id !== task.id));
+            closeTask();
+          }}
+        />
       </div>
     </AppShell>
   );
