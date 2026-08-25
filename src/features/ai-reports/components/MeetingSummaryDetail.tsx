@@ -14,6 +14,7 @@ import {
   ListTodo,
   Quote,
   Clock,
+  Printer,
   Layers,
   ChevronDown,
   ChevronUp,
@@ -184,6 +185,32 @@ export function MeetingSummaryDetail({ summary }: MeetingSummaryDetailProps) {
   const nextSteps = output.nextSteps ?? summary.nextSteps ?? [];
   const claims = summary.claims ?? [];
 
+  const cleanTitle = (title || "Tóm tắt cuộc họp")
+    .replace(/^\s*\[[A-Z0-9_-]+\]\s*/i, "")
+    .replace(/^(Tom tat meeting|Tóm tắt cuộc họp)\s*[-–:]\s*/i, "")
+    .trim();
+
+  const escapeHtml = (value: string) => value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+
+  const handleExportPdf = () => {
+    const reportWindow = window.open("", "_blank", "width=900,height=1000");
+    if (!reportWindow) return;
+    const list = (items: string[]) => items.length
+      ? `<ul>${items.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`
+      : '<p class="empty">Không có nội dung.</p>';
+    const actions = actionItems.length
+      ? `<table><thead><tr><th>#</th><th>Công việc</th><th>Người phụ trách</th><th>Hạn</th></tr></thead><tbody>${actionItems.map((item, index) => `<tr><td>${index + 1}</td><td>${escapeHtml(item.text)}</td><td>${escapeHtml(item.assigneeName || "Chưa xác định")}</td><td>${escapeHtml(item.dueDate || "—")}</td></tr>`).join("")}</tbody></table>`
+      : '<p class="empty">Không có công việc cần làm.</p>';
+    reportWindow.document.write(`<!doctype html><html lang="vi"><head><meta charset="utf-8"><title>${escapeHtml(cleanTitle)}</title><style>@page{size:A4;margin:16mm}*{box-sizing:border-box}body{font-family:Arial,sans-serif;color:#20242b;line-height:1.55;font-size:13px}header{border-bottom:2px solid #b96f3c;padding-bottom:16px;margin-bottom:26px}.eyebrow{color:#b96f3c;text-transform:uppercase;letter-spacing:.12em;font-weight:700;font-size:11px}h1{font-size:25px;margin:6px 0}h2{font-size:19px;margin:26px 0 12px;border-bottom:1px solid #dbc8bb;padding-bottom:7px}ul{margin:0;padding-left:22px}li{margin:9px 0}.summary{border-left:4px solid #c87943;background:#fbf8f5;padding:15px 18px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #dfd5ce;padding:10px;text-align:left;vertical-align:top}th{background:#f4eee9}.meta{color:#69707d}.empty{color:#8a9099;font-style:italic}</style></head><body><header><div class="eyebrow">Báo cáo AI sau cuộc họp</div><h1>${escapeHtml(cleanTitle)}</h1><div class="meta">Thời điểm tạo: ${escapeHtml(summary.createdAt?.slice(0,16).replace("T"," ") || "—")}</div></header><h2>1. Tóm tắt nhanh</h2><div class="summary">${escapeHtml(generalSummary)}</div><h2>2. Nội dung chính theo thành viên</h2>${list(keyPoints)}<h2>3. Quyết định quan trọng</h2>${list(decisions)}<h2>4. Việc cần làm</h2>${actions}<h2>5. Rủi ro và vấn đề cần theo dõi</h2>${list(risks)}</body></html>`);
+    reportWindow.document.close();
+    reportWindow.focus();
+    setTimeout(() => reportWindow.print(), 250);
+  };
+
   const handleCopy = () => {
     const fullText = [
       `# ${title}`,
@@ -225,7 +252,7 @@ export function MeetingSummaryDetail({ summary }: MeetingSummaryDetailProps) {
             </div>
 
             <h1 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 leading-snug">
-              {title}
+              {cleanTitle}
             </h1>
 
             <div className="flex items-center gap-2 text-xs text-slate-500">
@@ -235,6 +262,9 @@ export function MeetingSummaryDetail({ summary }: MeetingSummaryDetailProps) {
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
+            <button type="button" onClick={handleExportPdf} className="inline-flex items-center gap-1.5 rounded-xl bg-slate-900 px-3.5 py-2 text-xs font-semibold text-white hover:bg-slate-800">
+              <Printer className="h-3.5 w-3.5" /> Xuất PDF
+            </button>
             <button
               type="button"
               onClick={handleCopy}
@@ -338,21 +368,10 @@ export function MeetingSummaryDetail({ summary }: MeetingSummaryDetailProps) {
       {/* Nội dung theo Tab */}
       {activeTab === "overview" && (
         <div className="space-y-6">
-          {/* Tóm tắt điều hành (Executive Summary) */}
-          <section className="rounded-2xl border border-blue-100 bg-gradient-to-br from-blue-50/80 via-white to-blue-50/40 p-6 shadow-xs">
-            <div className="flex items-center gap-2 text-blue-900 mb-2 font-bold text-sm">
-              <Sparkles className="h-4 w-4 text-blue-600" />
-              <span>Tóm tắt tổng quan cuộc họp</span>
-            </div>
-            <p className="text-sm font-medium leading-relaxed text-slate-800 whitespace-pre-line">
-              {generalSummary}
-            </p>
-          </section>
-
           {/* 4 Cards Lưới: Ý chính, Quyết định, Rủi ro, Câu hỏi mở */}
           <div className="grid gap-5 lg:grid-cols-2">
             <InsightCard
-              title="Ý chính cuộc họp"
+              title="Nội dung chính theo thành viên"
               items={keyPoints}
               emptyText="Chưa ghi nhận ý chính."
               icon={Sparkles}
