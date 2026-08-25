@@ -51,6 +51,21 @@ function initialItems(items: MeetingSummaryActionItem[]) {
   }));
 }
 
+function cleanActionItemText(item: ReviewedMeetingActionItem) {
+  const text = item.text.trim();
+  const separator = text.indexOf(":");
+  if (separator < 1) return text;
+  const prefix = text.slice(0, separator).trim();
+  const speaker = item.citation?.speakerName?.trim();
+  const looksLikeAccount = /^[\p{L}\p{N}_.-]{1,30}$/u.test(prefix);
+  const isKnownSpeaker = Boolean(
+    speaker && prefix.localeCompare(speaker, undefined, { sensitivity: "accent" }) === 0,
+  );
+  return isKnownSpeaker || looksLikeAccount
+    ? text.slice(separator + 1).trim()
+    : text;
+}
+
 export function MeetingSummaryActionItems({
   workspaceId,
   projectId,
@@ -134,13 +149,13 @@ export function MeetingSummaryActionItems({
   }
 
   function openReview(item: ReviewedMeetingActionItem) {
-    // Tách title ngắn gọn nếu item text quá dài
-    const firstSentence = item.text.split(/[.!?\n]/)[0]?.trim();
-    const defaultTitle = firstSentence && firstSentence.length > 5 ? firstSentence.slice(0, 120) : item.text.slice(0, 120);
+    const cleanText = cleanActionItemText(item);
+    const firstSentence = cleanText.split(/[.!?\n]/)[0]?.trim();
+    const defaultTitle = firstSentence && firstSentence.length > 5 ? firstSentence.slice(0, 120) : cleanText.slice(0, 120);
 
     setDraft({
       title: defaultTitle,
-      description: item.text,
+      description: cleanText,
       assigneeId: item.assigneeUserId ?? "",
       sprintId: "",
       priority: "MEDIUM",
@@ -399,7 +414,7 @@ export function MeetingSummaryActionItems({
 
                     {/* Action Item Text */}
                     <p className="text-sm font-semibold leading-relaxed text-slate-900">
-                      {item.text}
+                      {cleanActionItemText(item)}
                     </p>
 
                     {/* Cảnh báo trùng task nếu có */}
