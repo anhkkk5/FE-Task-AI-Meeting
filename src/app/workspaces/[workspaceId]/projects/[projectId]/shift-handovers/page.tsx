@@ -441,14 +441,12 @@ export default function TaskHandoversPage() {
           >
             Giao ban của tôi
           </Link>
-          {canManage ? (
-            <Link
-              className="rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
-              href={`/workspaces/${params.workspaceId}/projects/${params.projectId}/ai-reports/team`}
-            >
-              Báo cáo giao ban team
-            </Link>
-          ) : null}
+          <Link
+            className="rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
+            href={`/workspaces/${params.workspaceId}/projects/${params.projectId}/ai-reports/team`}
+          >
+            Báo cáo giao ban team
+          </Link>
         </nav>
 
         <header className="rounded-2xl border border-slate-200/80 bg-white px-6 py-5 shadow-sm">

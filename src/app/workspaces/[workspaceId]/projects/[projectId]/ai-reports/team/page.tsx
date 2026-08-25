@@ -77,15 +77,6 @@ export default function TeamAiReportsPage() {
       setSprints(sprintsRes.data.items);
       setMyRole(role);
 
-      if (!managerRoles.includes(role)) {
-        setItems([]);
-        setMeta({ total: 0, page: 1, limit: 20 });
-        setMessage(
-          "Chi OWNER, SCRUM_MASTER hoac PROJECT_MANAGER duoc xem AI team report.",
-        );
-        return;
-      }
-
       const reportsRes = await getTeamDailyReports(
         params.workspaceId,
         params.projectId,
@@ -188,8 +179,9 @@ export default function TeamAiReportsPage() {
                 Báo cáo giao ban nhóm bằng AI
               </h1>
               <p className="mt-2 max-w-2xl text-sm font-medium leading-relaxed text-zinc-500">
-                AI tự tổng hợp daily update, task, blocker, rủi ro và thành viên
-                chưa cập nhật daily update. Bạn không cần tạo thủ công.
+                AI tổng hợp toàn bộ lượt bàn giao trong team: ai giao việc gì
+                cho ai, người nhận đã tiếp nhận, đang chờ, yêu cầu bổ sung hay
+                từ chối. Tất cả thành viên đều xem được báo cáo đã phát hành.
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -288,13 +280,13 @@ export default function TeamAiReportsPage() {
           <div className="flex h-48 items-center justify-center rounded-2xl border border-zinc-200 bg-white">
             <div className="h-6 w-6 animate-spin rounded-full border-2 border-blue-600 border-t-transparent"></div>
           </div>
-        ) : canManage ? (
+        ) : (
           <TeamReportList
             items={items}
             projectId={params.projectId}
             workspaceId={params.workspaceId}
           />
-        ) : null}
+        )}
       </div>
     </AppShell>
   );
