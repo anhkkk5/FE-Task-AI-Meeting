@@ -18,7 +18,7 @@ export function DashboardAiMeetingSummary({
 
   const detailLink =
     workspaceId && projectId
-      ? `/workspaces/${workspaceId}/projects/${projectId}/ai-reports/personal`
+      ? `/workspaces/${workspaceId}/projects/${projectId}/meetings`
       : "/workspaces";
 
   return (

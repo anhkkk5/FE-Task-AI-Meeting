@@ -305,7 +305,7 @@ export function AppShell({
             badge: pendingHandovers,
           },
           {
-            href: `/workspaces/${activeWorkspaceId}/projects/${projectId}/ai-reports/personal`,
+            href: `/workspaces/${activeWorkspaceId}/projects/${projectId}/ai-reports/team`,
             label: "Báo cáo AI",
             active: pathname.includes("/ai-reports"),
           },

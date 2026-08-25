@@ -177,9 +177,9 @@ export default function TeamAiReportsPage() {
             <div className="flex flex-wrap gap-2">
               <Link
                 className="flex h-10 items-center rounded-xl border border-zinc-200 bg-white px-4 text-xs font-bold text-zinc-700 transition hover:bg-zinc-50"
-                href={`/workspaces/${params.workspaceId}/projects/${params.projectId}/ai-reports/personal`}
+                href={`/workspaces/${params.workspaceId}/projects/${params.projectId}/daily-updates/me`}
               >
-                Báo cáo cá nhân
+                Cập nhật của tôi
               </Link>
               <button
                 className="h-10 rounded-xl border border-zinc-200 bg-white px-4 text-xs font-bold text-zinc-700 transition hover:bg-zinc-50"

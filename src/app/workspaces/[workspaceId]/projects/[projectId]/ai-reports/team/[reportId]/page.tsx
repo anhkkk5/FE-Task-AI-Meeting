@@ -253,9 +253,9 @@ export default function TeamAiReportDetailPage() {
               </button>
               <Link
                 className="flex h-10 items-center rounded-xl border border-slate-200 bg-white px-4 text-xs font-bold text-slate-700 transition hover:bg-slate-50"
-                href={`/workspaces/${params.workspaceId}/projects/${params.projectId}/ai-reports/personal`}
+                href={`/workspaces/${params.workspaceId}/projects/${params.projectId}/daily-updates/me`}
               >
-                Báo cáo cá nhân
+                Cập nhật của tôi
               </Link>
               {/*
                 Danh sach bao cao nhom chi danh cho nhom quan ly, hien link nay
