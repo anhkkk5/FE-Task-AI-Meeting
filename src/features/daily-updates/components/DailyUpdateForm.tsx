@@ -63,7 +63,7 @@ export function DailyUpdateForm({
   submitLabel,
   onSubmit,
 }: DailyUpdateFormProps) {
-  const isEditing = Boolean(initialDailyUpdate);
+  const isEditing = initialDailyUpdate?.submissionStatus === "SUBMITTED";
   const [updateDate, setUpdateDate] = useState(
     initialDailyUpdate?.updateDate ?? "",
   );

@@ -62,6 +62,17 @@ export function getMyDailyUpdates(
   );
 }
 
+export function getPendingDailyUpdateDraft(
+  workspaceId: string,
+  projectId: string,
+  updateDate: string,
+) {
+  const query = new URLSearchParams({ date: updateDate });
+  return apiRequest<ApiResponse<{ draft: DailyUpdate | null }>>(
+    `${dailyUpdateBasePath(workspaceId, projectId)}/draft/pending?${query}`,
+  );
+}
+
 export function getTeamDailyUpdates(
   workspaceId: string,
   projectId: string,

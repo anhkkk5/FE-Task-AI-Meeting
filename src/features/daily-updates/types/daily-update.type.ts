@@ -1,4 +1,5 @@
 export type DailyMood = "GOOD" | "NORMAL" | "BLOCKED" | "TIRED";
+export type DailyUpdateSubmissionStatus = "PENDING_REVIEW" | "SUBMITTED" | "MISSED";
 
 export type DailyUpdateUserSummary = {
   id: string;
@@ -27,6 +28,9 @@ export type DailyUpdate = {
   blockers: string | null;
   notes: string | null;
   mood: DailyMood | null;
+  submissionStatus: DailyUpdateSubmissionStatus;
+  generatedByAi: boolean;
+  submittedAt: string | null;
   /** Nguoi duoc nho ho tro trong ngay, null neu khong can ai. */
   needHelpFromId: string | null;
   needHelpFrom: DailyUpdateUserSummary | null;

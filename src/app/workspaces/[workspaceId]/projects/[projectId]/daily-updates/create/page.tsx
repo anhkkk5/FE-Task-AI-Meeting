@@ -1,14 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { AppShell } from "@/components/layout/AppShell";
-import { createDailyUpdate } from "@/features/daily-updates/api/daily-updates.api";
+import {
+  createDailyUpdate,
+  getPendingDailyUpdateDraft,
+} from "@/features/daily-updates/api/daily-updates.api";
 import { DailyUpdateForm } from "@/features/daily-updates/components/DailyUpdateForm";
 import {
   CreateDailyUpdatePayload,
   UpdateDailyUpdatePayload,
+  DailyUpdate,
 } from "@/features/daily-updates/types/daily-update.type";
 import { getMyWorkspaceRole } from "@/features/members/api/members.api";
 import { getProjectDetail } from "@/features/projects/api/projects.api";
@@ -22,12 +26,14 @@ const writeRoles = ["OWNER", "SCRUM_MASTER", "PROJECT_MANAGER", "MEMBER"];
 export default function CreateDailyUpdatePage() {
   const params = useParams<{ workspaceId: string; projectId: string }>();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user, isLoading: authLoading } = useAuth(true);
   const [project, setProject] = useState<Project | null>(null);
   const [sprints, setSprints] = useState<Sprint[]>([]);
   const [myRole, setMyRole] = useState("");
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [pendingDraft, setPendingDraft] = useState<DailyUpdate | null>(null);
 
   const canWrite = writeRoles.includes(myRole) && project?.status === "ACTIVE";
 
@@ -36,18 +42,25 @@ export default function CreateDailyUpdatePage() {
     setMessage("");
 
     try {
-      const [projectRes, sprintsRes, roleRes] = await Promise.all([
+      const requestedDate = searchParams.get("date") || new Date().toLocaleDateString("en-CA");
+      const [projectRes, sprintsRes, roleRes, draftRes] = await Promise.all([
         getProjectDetail(params.workspaceId, params.projectId),
         getSprints(params.workspaceId, params.projectId, {
           page: 1,
           limit: 100,
         }),
         getMyWorkspaceRole(params.workspaceId),
+        getPendingDailyUpdateDraft(
+          params.workspaceId,
+          params.projectId,
+          requestedDate,
+        ),
       ]);
 
       setProject(projectRes.data.project);
       setSprints(sprintsRes.data.items);
       setMyRole(roleRes.data.role);
+      setPendingDraft(draftRes.data.draft);
     } catch (error) {
       setMessage(
         error instanceof Error
@@ -57,7 +70,7 @@ export default function CreateDailyUpdatePage() {
     } finally {
       setIsLoading(false);
     }
-  }, [params.projectId, params.workspaceId]);
+  }, [params.projectId, params.workspaceId, searchParams]);
 
   useEffect(() => {
     if (user && params.workspaceId && params.projectId) {
@@ -139,6 +152,7 @@ export default function CreateDailyUpdatePage() {
         ) : canWrite ? (
           <section className="rounded-2xl border border-zinc-200/80 bg-white p-6 shadow-sm">
             <DailyUpdateForm
+              initialDailyUpdate={pendingDraft}
               projectId={params.projectId}
               sprints={sprints}
               submitLabel="Lưu daily update"

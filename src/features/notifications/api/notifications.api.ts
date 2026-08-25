@@ -14,7 +14,8 @@ export type NotificationItem = {
     | "HANDOVER_CHANGES_REQUESTED"
     | "MEETING_INVITED"
     | "MEETING_UPDATED"
-    | "MEETING_CANCELLED";
+    | "MEETING_CANCELLED"
+    | "DAILY_UPDATE_DRAFT_READY";
   title: string;
   body: string;
   link: string;
