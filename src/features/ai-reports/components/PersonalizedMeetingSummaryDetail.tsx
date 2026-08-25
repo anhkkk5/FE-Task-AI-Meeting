@@ -34,7 +34,16 @@ type PersonalizedMeetingSummaryDetailProps = {
 function cleanDisplayTitle(title?: string) {
   return (title || "Tóm tắt dành cho tôi")
     .replace(/^\s*\[[A-Z0-9_-]+\]\s*/i, "")
-    .replace(/^Tóm tắt (cuộc họp )?(cá nhân hóa\s*[-–:]\s*)?/i, "")
+    .replace(/^(Tóm tắt|Tom tat) (cuộc họp |cuoc hop )?(cá nhân hóa|ca nhan hoa)?\s*[-–:]\s*/i, "")
+    .trim();
+}
+
+function cleanLegacySummary(text?: string | null) {
+  return (text || "Chưa có nội dung tóm tắt.")
+    .replace(/\[AI_SUMMARY_[A-Z0-9_]+\]\s*/gi, "")
+    .replace(/Action items lien quan:/gi, "Việc cần ưu tiên:")
+    .replace(/\s*Transcript co nhac den:[\s\S]*$/i, "")
+    .replace(/Chua co noi dung lien quan truc tiep/gi, "Chưa có nội dung liên quan trực tiếp.")
     .trim();
 }
 
@@ -110,16 +119,16 @@ function InsightCard({
   if (parsedItems.length === 0) return null;
 
   return (
-    <div className="flex flex-col justify-between rounded-xl border border-slate-200 bg-white p-4 shadow-xs transition hover:border-slate-300">
+    <div className="flex flex-col justify-between rounded-xl border border-slate-200/80 bg-white p-4">
       <div>
         <div className="flex items-center justify-between mb-3 pb-2.5 border-b border-slate-100">
           <div className="flex items-center gap-2">
             <div className={`flex h-7 w-7 items-center justify-center rounded-lg ${toneClasses.iconBg}`}>
               <Icon className="h-4 w-4" />
             </div>
-            <h3 className="text-sm font-bold text-slate-900">{title}</h3>
+            <h3 className="text-sm font-semibold text-slate-800">{title}</h3>
           </div>
-          <span className={`rounded-full border px-2 py-0.5 text-[11px] font-bold ${toneClasses.badge}`}>
+          <span className={`rounded-full border px-2 py-0.5 text-[11px] font-medium ${toneClasses.badge}`}>
             {parsedItems.length}
           </span>
         </div>
@@ -133,7 +142,7 @@ function InsightCard({
             {displayItems.map((item, idx) => (
               <li
                 key={`${item}-${idx}`}
-                className={`flex items-start gap-2 rounded-xl border p-3 text-xs font-medium leading-relaxed ${toneClasses.itemBg}`}
+                className={`flex items-start gap-2 rounded-lg border p-3 text-[13px] font-normal leading-6 ${toneClasses.itemBg}`}
               >
                 <span className={`mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full ${toneClasses.bullet}`} />
                 <span>{item}</span>
@@ -171,11 +180,11 @@ function ActionItems({ items }: { items: PersonalizedMeetingActionItem[] }) {
       {items.map((item, index) => (
         <article
           key={`${item.title}-${index}`}
-          className="rounded-xl border border-slate-200 bg-slate-50/40 p-4 transition hover:bg-white hover:border-slate-300 hover:shadow-xs"
+          className="rounded-xl border border-slate-200 bg-white p-4 transition hover:border-slate-300"
         >
           <div className="flex flex-col gap-2.5 sm:flex-row sm:items-start sm:justify-between">
             <div className="space-y-1">
-              <p className="text-sm font-bold text-slate-900">{item.title}</p>
+              <p className="text-sm font-medium leading-6 text-slate-800">{item.title}</p>
               {item.source ? (
                 <p className="text-xs font-medium text-slate-500 flex items-center gap-1">
                   <Quote className="h-3 w-3 text-slate-400" />
@@ -238,13 +247,13 @@ export function PersonalizedMeetingSummaryDetail({
   return (
     <div className="space-y-4">
       {/* Header Card */}
-      <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+      <section className="rounded-xl border border-slate-200 bg-white p-5">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div className="space-y-2 min-w-0">
             <div className="flex flex-wrap items-center gap-2">
               <span className="inline-flex items-center gap-1 rounded-lg bg-violet-50 px-2.5 py-1 text-[11px] font-bold text-violet-700 border border-violet-100">
                 <User className="h-3 w-3" />
-                Tóm tắt Cuộc họp Cá nhân
+                Báo cáo cá nhân
               </span>
               <span className="inline-flex items-center gap-1 rounded-lg bg-emerald-50 px-2.5 py-1 text-[11px] font-bold text-emerald-700 border border-emerald-100">
                 <CheckCircle2 className="h-3 w-3" />
@@ -252,7 +261,7 @@ export function PersonalizedMeetingSummaryDetail({
               </span>
             </div>
 
-            <h1 className="max-w-3xl text-lg font-bold leading-7 text-slate-900 sm:text-xl">
+            <h1 className="max-w-3xl text-lg font-semibold leading-7 text-slate-900">
               {cleanDisplayTitle(output.title)}
             </h1>
 
@@ -275,35 +284,32 @@ export function PersonalizedMeetingSummaryDetail({
         </div>
 
         {/* Thống kê nhanh */}
-        <div className="mt-4 grid grid-cols-3 gap-2 border-t border-slate-100 pt-4">
-          <div className="rounded-xl bg-violet-50/60 border border-violet-100/80 p-3 text-center">
-            <p className="text-[11px] font-bold text-violet-700">Việc của tôi</p>
-            <p className="text-lg font-black text-violet-950 mt-0.5">{myActions.length}</p>
+        <div className="mt-4 flex flex-wrap gap-2 border-t border-slate-100 pt-4">
+          <div className="rounded-lg bg-violet-50 px-3 py-2 text-sm text-violet-800">
+            <span className="font-semibold">{myActions.length}</span> việc cần làm
           </div>
-          <div className="rounded-xl bg-blue-50/60 border border-blue-100/80 p-3 text-center">
-            <p className="text-[11px] font-bold text-blue-700">Quyết định liên quan</p>
-            <p className="text-lg font-black text-blue-950 mt-0.5">{decisions.length}</p>
+          <div className="rounded-lg bg-blue-50 px-3 py-2 text-sm text-blue-800">
+            <span className="font-semibold">{decisions.length}</span> quyết định
           </div>
-          <div className="rounded-xl bg-rose-50/60 border border-rose-100/80 p-3 text-center">
-            <p className="text-[11px] font-bold text-rose-700">Rủi ro liên quan</p>
-            <p className="text-lg font-black text-rose-950 mt-0.5">{risks.length}</p>
+          <div className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-800">
+            <span className="font-semibold">{risks.length}</span> rủi ro
           </div>
         </div>
       </section>
 
       {/* Tóm tắt góc nhìn cá nhân */}
-      <section className="rounded-xl border border-violet-100 bg-gradient-to-br from-violet-50/70 via-white to-white p-5 shadow-xs">
+      <section className="rounded-xl border border-slate-200 bg-white p-5">
         <div className="flex items-center gap-2 text-violet-900 mb-2 font-bold text-sm">
           <Sparkles className="h-4 w-4 text-violet-600" />
           <span>Tóm tắt góc nhìn cá nhân</span>
         </div>
-        <p className="max-w-4xl whitespace-pre-line text-sm font-normal leading-7 text-slate-700">
-          {output.personalSummary || summary.personalSummary}
+        <p className="max-w-3xl whitespace-pre-line text-[15px] font-normal leading-7 text-slate-600">
+          {cleanLegacySummary(output.personalSummary || summary.personalSummary)}
         </p>
       </section>
 
       {/* Việc của tôi */}
-      {myActions.length > 0 ? <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+      {myActions.length > 0 ? <section className="rounded-xl border border-slate-200 bg-white p-5">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-100">
           <div>
             <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2">
@@ -334,14 +340,6 @@ export function PersonalizedMeetingSummaryDetail({
         />
 
         <InsightCard
-          title="Nội dung được nhắc đến"
-          items={mentions}
-          emptyText="Không có đoạn phát biểu nào nhắc trực tiếp tên bạn."
-          icon={Quote}
-          tone="emerald"
-        />
-
-        <InsightCard
           title="Rủi ro / Điểm nghẽn cá nhân"
           items={risks}
           emptyText="Không phát hiện rủi ro ảnh hưởng trực tiếp."
@@ -357,6 +355,29 @@ export function PersonalizedMeetingSummaryDetail({
           tone="purple"
         />
       </div>
+
+      {mentions.length > 0 ? (
+        <details className="group rounded-xl border border-slate-200 bg-white px-5 py-4">
+          <summary className="flex cursor-pointer list-none items-center justify-between text-sm font-medium text-slate-700">
+            <span className="flex items-center gap-2">
+              <Quote className="h-4 w-4 text-slate-400" />
+              Lời thoại dùng để đối chiếu
+            </span>
+            <span className="text-xs font-normal text-slate-400">
+              {mentions.length} đoạn
+            </span>
+          </summary>
+          <div className="mt-4 border-t border-slate-100 pt-4">
+            <InsightCard
+              title="Nội dung liên quan"
+              items={mentions}
+              emptyText=""
+              icon={Quote}
+              tone="emerald"
+            />
+          </div>
+        </details>
+      ) : null}
     </div>
   );
 }
