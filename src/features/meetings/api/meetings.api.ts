@@ -262,3 +262,58 @@ export function uploadMeetingAudioChunk(
     timeoutMs: 60000,
   });
 }
+
+export type MeetingImportJob = {
+  id: string;
+  fileName: string;
+  fileSize: number;
+  kind: "DOCUMENT" | "MEDIA";
+  status: "QUEUED" | "EXTRACTING" | "TRANSCRIBING" | "SUMMARIZING" | "COMPLETED" | "FAILED";
+  progress: number;
+  message?: string | null;
+  error?: string | null;
+  transcriptId?: string | null;
+  summaryId?: string | null;
+  transcript?: string | null;
+  summary?: {
+    title?: string;
+    summary?: string;
+    keyPoints?: string[];
+    decisions?: string[];
+    actionItems?: Array<{ text: string; assigneeName?: string | null; dueDate?: string | null }>;
+    risks?: string[];
+    openQuestions?: string[];
+    nextSteps?: string[];
+  } | null;
+};
+
+export function uploadMeetingSource(
+  workspaceId: string,
+  projectId: string,
+  file: File,
+) {
+  const formData = new FormData();
+  formData.append("file", file, file.name);
+  return apiRequest<ApiResponse<{ job: MeetingImportJob }>>(
+    `/workspaces/${workspaceId}/projects/${projectId}/ai/content-analysis`,
+    { method: "POST", body: formData, timeoutMs: 240000 },
+  );
+}
+
+export function getMeetingImportJob(workspaceId: string, projectId: string, jobId: string) {
+  return apiRequest<ApiResponse<{ job: MeetingImportJob }>>(
+    `/workspaces/${workspaceId}/projects/${projectId}/ai/content-analysis/${jobId}`,
+  );
+}
+
+export function getLatestMeetingImportJob(workspaceId: string, projectId: string) {
+  return apiRequest<ApiResponse<{ job: MeetingImportJob | null }>>(
+    `/workspaces/${workspaceId}/projects/${projectId}/ai/content-analysis/latest`,
+  );
+}
+
+export function getMeetingImportJobs(workspaceId: string, projectId: string) {
+  return apiRequest<ApiResponse<{ items: MeetingImportJob[] }>>(
+    `/workspaces/${workspaceId}/projects/${projectId}/ai/content-analysis`,
+  );
+}

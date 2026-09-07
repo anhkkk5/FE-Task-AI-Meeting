@@ -241,6 +241,7 @@ export default function MeetingDetailPage() {
               onDelete={() => void handleDelete()}
             />
 
+
             {isEditing && canManage ? (
               <section className="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs">
                 <h2 className="mb-5 text-xl font-extrabold text-slate-900">

@@ -229,6 +229,8 @@ export function AppShell({
       breadcrumbs.push({ label: "Thống kê & Biểu đồ", href: "#" });
     } else if (pathname.includes("/meetings")) {
       breadcrumbs.push({ label: "Cuộc họp", href: "#" });
+    } else if (pathname.includes("/content-analysis")) {
+      breadcrumbs.push({ label: "Phân tích file & video", href: "#" });
     } else if (pathname.includes("/settings")) {
       breadcrumbs.push({ label: "Cài đặt", href: "#" });
     }
@@ -297,6 +299,11 @@ export function AppShell({
             href: `/workspaces/${activeWorkspaceId}/projects/${projectId}/meetings`,
             label: "Cuộc họp",
             active: pathname.includes("/meetings"),
+          },
+          {
+            href: `/workspaces/${activeWorkspaceId}/projects/${projectId}/content-analysis`,
+            label: "Phân tích file & video",
+            active: pathname.includes("/content-analysis"),
           },
           {
             href: `/workspaces/${activeWorkspaceId}/projects/${projectId}/shift-handovers`,
