@@ -143,7 +143,7 @@ export function AuthShell({
                     <div className="flex items-center justify-between mb-6">
                       <div className="flex items-center gap-2.5">
                         <div className="w-2 h-6 rounded-full bg-blue-600" />
-                        <h3 className="font-extrabold text-slate-900 text-lg font-serif">
+                        <h3 className="text-lg font-semibold text-slate-900">
                           Dự án Alpha
                         </h3>
                       </div>

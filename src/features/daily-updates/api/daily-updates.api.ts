@@ -18,6 +18,7 @@ function dailyUpdateBasePath(workspaceId: string, projectId: string) {
 
 function buildDailyUpdateSearch(query: DailyUpdateQuery) {
   const params = new URLSearchParams();
+  if (query.archived) params.set("archived", "true");
 
   if (query.date) params.set("date", query.date);
   if (query.fromDate) params.set("fromDate", query.fromDate);
@@ -121,5 +122,16 @@ export function archiveDailyUpdate(
     {
       method: "PATCH",
     },
+  );
+}
+
+export function restoreDailyUpdate(
+  workspaceId: string,
+  projectId: string,
+  dailyUpdateId: string,
+) {
+  return apiRequest<ApiResponse<{ dailyUpdate: DailyUpdate | null }>>(
+    `${dailyUpdateBasePath(workspaceId, projectId)}/${dailyUpdateId}/restore`,
+    { method: "PATCH" },
   );
 }

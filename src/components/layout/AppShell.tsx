@@ -298,12 +298,9 @@ export function AppShell({
           {
             href: `/workspaces/${activeWorkspaceId}/projects/${projectId}/meetings`,
             label: "Cuộc họp",
-            active: pathname.includes("/meetings"),
-          },
-          {
-            href: `/workspaces/${activeWorkspaceId}/projects/${projectId}/content-analysis`,
-            label: "Phân tích file & video",
-            active: pathname.includes("/content-analysis"),
+            active:
+              pathname.includes("/meetings") ||
+              pathname.includes("/content-analysis"),
           },
           {
             href: `/workspaces/${activeWorkspaceId}/projects/${projectId}/shift-handovers`,
@@ -312,11 +309,6 @@ export function AppShell({
               pathname.includes("/shift-handovers") ||
               pathname.includes("/ai-reports/team"),
             badge: pendingHandovers,
-          },
-          {
-            href: `/workspaces/${activeWorkspaceId}/projects/${projectId}/assistant`,
-            label: "Trợ lý dự án",
-            active: pathname.includes("/assistant"),
           },
           {
             href: `/workspaces/${activeWorkspaceId}/projects/${projectId}/settings`,

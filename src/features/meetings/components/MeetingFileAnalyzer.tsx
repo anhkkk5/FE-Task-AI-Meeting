@@ -11,6 +11,26 @@ import {
 
 const ACCEPT = ".pdf,.docx,.txt,.md,.mp3,.wav,.m4a,.ogg,.webm,.mp4,.mov,.mkv";
 
+function readableFileName(value: string) {
+  if (!/(?:Ã|Â|Ä|Æ|á[\u0080-\u2022])/.test(value)) return value;
+
+  try {
+    const cp1252: Record<string, number> = {
+      "€": 0x80, "‚": 0x82, "ƒ": 0x83, "„": 0x84, "…": 0x85,
+      "†": 0x86, "‡": 0x87, "ˆ": 0x88, "‰": 0x89, "Š": 0x8a,
+      "‹": 0x8b, "Œ": 0x8c, "Ž": 0x8e, "‘": 0x91, "’": 0x92,
+      "“": 0x93, "”": 0x94, "•": 0x95, "–": 0x96, "—": 0x97,
+      "˜": 0x98, "™": 0x99, "š": 0x9a, "›": 0x9b, "œ": 0x9c,
+      "ž": 0x9e, "Ÿ": 0x9f,
+    };
+    const bytes = Uint8Array.from(value, (character) => cp1252[character] ?? character.charCodeAt(0));
+    const decoded = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+    return decoded || value;
+  } catch {
+    return value;
+  }
+}
+
 export function MeetingFileAnalyzer({ workspaceId, projectId }: { workspaceId: string; projectId: string }) {
   const [job, setJob] = useState<MeetingImportJob | null>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -86,7 +106,7 @@ export function MeetingFileAnalyzer({ workspaceId, projectId }: { workspaceId: s
                 {job.status === "FAILED" ? <XCircle className="h-5 w-5" /> : job.status === "COMPLETED" ? <CheckCircle2 className="h-5 w-5" /> : job.kind === "MEDIA" ? <Film className="h-5 w-5" /> : <FileText className="h-5 w-5" />}
               </span>
               <div className="min-w-0 flex-1">
-                <div className="flex flex-wrap items-center justify-between gap-2"><p className="truncate font-bold text-slate-800">{job.fileName}</p><span className="text-xs font-semibold text-slate-500">{Math.round(job.fileSize / 1024 / 1024 * 10) / 10} MB</span></div>
+                <div className="flex flex-wrap items-center justify-between gap-2"><p className="truncate font-bold text-slate-800" title={readableFileName(job.fileName)}>{readableFileName(job.fileName)}</p><span className="text-xs font-semibold text-slate-500">{Math.round(job.fileSize / 1024 / 1024 * 10) / 10} MB</span></div>
                 <p className={`mt-1 text-sm ${job.status === "FAILED" ? "text-rose-600" : "text-slate-500"}`}>
                   {job.status === "FAILED"
                     ? `Lần xử lý trước thất bại: ${job.error || job.message}. Hãy chọn lại tệp để thử lại.`
@@ -101,7 +121,7 @@ export function MeetingFileAnalyzer({ workspaceId, projectId }: { workspaceId: s
                 </div>
                 {job.status === "COMPLETED" && job.summary ? (
                   <div className="mt-5 space-y-4 border-t border-slate-100 pt-5">
-                    <div><p className="text-xs font-bold uppercase tracking-wider text-violet-600">Tóm tắt AI</p><h3 className="mt-1 text-lg font-extrabold text-slate-900">{job.summary.title || job.fileName}</h3><p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-slate-600">{job.summary.summary}</p></div>
+                    <div><p className="text-xs font-bold uppercase tracking-wider text-violet-600">Tóm tắt AI</p><h3 className="mt-1 text-lg font-extrabold text-slate-900">{job.summary.title || readableFileName(job.fileName)}</h3><p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-slate-600">{job.summary.summary}</p></div>
                     {job.summary.keyPoints?.length ? <div><p className="text-sm font-bold text-slate-800">Ý chính</p><ul className="mt-2 space-y-1 text-sm text-slate-600">{job.summary.keyPoints.map((item, index) => <li key={index}>• {item}</li>)}</ul></div> : null}
                     {job.summary.nextSteps?.length ? <div><p className="text-sm font-bold text-slate-800">Bước tiếp theo</p><ul className="mt-2 space-y-1 text-sm text-slate-600">{job.summary.nextSteps.map((item, index) => <li key={index}>• {item}</li>)}</ul></div> : null}
                     <details className="rounded-xl bg-slate-50 p-3"><summary className="cursor-pointer text-sm font-bold text-slate-700">Xem văn bản đã trích xuất</summary><p className="mt-3 max-h-72 overflow-y-auto whitespace-pre-wrap text-sm leading-6 text-slate-600">{job.transcript}</p></details>

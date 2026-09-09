@@ -6,7 +6,6 @@ import { Sprint } from "@/features/sprints/types/sprint.type";
 import {
   CreateMeetingPayload,
   Meeting,
-  MeetingType,
   UpdateMeetingPayload,
 } from "../types/meeting.type";
 
@@ -19,14 +18,6 @@ type MeetingFormProps = {
     payload: CreateMeetingPayload | UpdateMeetingPayload,
   ) => Promise<void>;
 };
-
-const meetingTypeOptions: { value: MeetingType; label: string }[] = [
-  { value: "SPRINT_PLANNING", label: "Lập kế hoạch sprint" },
-  { value: "DAILY_SCRUM", label: "Họp daily" },
-  { value: "SPRINT_REVIEW", label: "Tổng kết sprint" },
-  { value: "RETROSPECTIVE", label: "Cải tiến sprint" },
-  { value: "GENERAL", label: "Tổng quan" },
-];
 
 function toDateInputValue(date: Date) {
   const year = date.getFullYear();
@@ -61,7 +52,6 @@ function toIsoString(value: string) {
 }
 
 export function MeetingForm({
-  sprints,
   members,
   initialMeeting,
   submitLabel,
@@ -76,13 +66,9 @@ export function MeetingForm({
   const [description, setDescription] = useState(
     initialMeeting?.description ?? "",
   );
-  const [meetingType, setMeetingType] = useState<MeetingType>(
-    initialMeeting?.meetingType ?? "GENERAL",
-  );
   const [meetingDate, setMeetingDate] = useState(
     initialMeeting?.meetingDate ?? toDateInputValue(now),
   );
-  const [sprintId, setSprintId] = useState(initialMeeting?.sprintId ?? "");
   const [startTime, setStartTime] = useState(
     toDatetimeLocal(initialMeeting?.startTime) || defaultStartTime,
   );
@@ -113,20 +99,17 @@ export function MeetingForm({
     try {
       if (isEditing) {
         await onSubmit({
-          sprintId: sprintId || null,
           title,
           description: description || null,
-          meetingType,
           meetingDate,
           startTime: startTime ? toIsoString(startTime) : null,
           endTime: endTime ? toIsoString(endTime) : null,
         });
       } else {
         await onSubmit({
-          sprintId: sprintId || undefined,
           title,
           description: description || undefined,
-          meetingType,
+          meetingType: "GENERAL",
           meetingDate,
           startTime: startTime ? toIsoString(startTime) : undefined,
           endTime: endTime ? toIsoString(endTime) : undefined,
@@ -142,7 +125,7 @@ export function MeetingForm({
 
   return (
     <form className="grid gap-6" onSubmit={handleSubmit}>
-      <div className="grid gap-4 md:grid-cols-[1.3fr_0.7fr]">
+      <div className="grid gap-4">
         <label className="grid gap-2 text-sm font-semibold text-zinc-700">
           Tiêu đề cuộc họp
           <input
@@ -156,22 +139,6 @@ export function MeetingForm({
           />
         </label>
 
-        <label className="grid gap-2 text-sm font-semibold text-zinc-700">
-          Loại cuộc họp
-          <select
-            className="h-11 rounded-xl border border-slate-200 bg-slate-50/50 px-3 text-sm font-normal outline-none transition hover:bg-white focus:border-blue-400 focus:bg-white focus:ring-4 focus:ring-blue-100"
-            value={meetingType}
-            onChange={(event) =>
-              setMeetingType(event.target.value as MeetingType)
-            }
-          >
-            {meetingTypeOptions.map((item) => (
-              <option key={item.value} value={item.value}>
-                {item.label}
-              </option>
-            ))}
-          </select>
-        </label>
       </div>
 
       <label className="grid gap-2 text-sm font-semibold text-zinc-700">
@@ -185,7 +152,7 @@ export function MeetingForm({
         />
       </label>
 
-      <div className="grid gap-4 md:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-3">
         <label className="grid gap-2 text-sm font-semibold text-zinc-700">
           Ngày họp
           <input
@@ -222,21 +189,6 @@ export function MeetingForm({
           />
         </label>
 
-        <label className="grid gap-2 text-sm font-semibold text-zinc-700">
-          Sprint
-          <select
-            className="h-11 rounded-xl border border-slate-200 bg-slate-50/50 px-3 text-sm font-normal outline-none transition hover:bg-white focus:border-blue-400 focus:bg-white focus:ring-4 focus:ring-blue-100"
-            value={sprintId}
-            onChange={(event) => setSprintId(event.target.value)}
-          >
-            <option value="">Không gắn sprint</option>
-            {sprints.map((sprint) => (
-              <option key={sprint.id} value={sprint.id}>
-                {sprint.name} ({sprint.status})
-              </option>
-            ))}
-          </select>
-        </label>
       </div>
 
       {!isEditing ? (

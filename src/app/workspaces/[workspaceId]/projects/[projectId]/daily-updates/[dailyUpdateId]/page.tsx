@@ -130,7 +130,7 @@ export default function DailyUpdateDetailPage() {
       setMessage(
         error instanceof Error
           ? error.message
-          : "Archive daily update thất bại.",
+          : "Lưu trữ bản cập nhật hằng ngày thất bại.",
       );
     } finally {
       setIsArchiving(false);
@@ -188,7 +188,7 @@ export default function DailyUpdateDetailPage() {
                     type="button"
                     onClick={() => void handleArchive()}
                   >
-                    {isArchiving ? "Đang archive..." : "Archive"}
+                  {isArchiving ? "Đang lưu trữ..." : "Lưu trữ"}
                   </button>
                 </>
               ) : null}

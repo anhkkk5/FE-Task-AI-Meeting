@@ -1,14 +1,13 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
+import { Inter, JetBrains_Mono } from "next/font/google";
 import { AuthProvider } from "@/features/auth/components/AuthProvider";
 import { AppDialogProvider } from "@/components/feedback/AppDialogProvider";
 import "./globals.css";
 
-// Plus Jakarta Sans mang nét chữ tròn trịa, hiện đại, nét sắc và cực kỳ sáng sủa cho dashboard.
-const appSans = Plus_Jakarta_Sans({
+// Inter có tỷ lệ chữ trung tính, dễ đọc và gần trải nghiệm hội thoại của ChatGPT.
+const appSans = Inter({
   variable: "--font-app-sans",
   subsets: ["latin", "vietnamese"],
-  weight: ["400", "500", "600", "700", "800"],
   display: "swap",
 });
 

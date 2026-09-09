@@ -33,7 +33,7 @@ export function DailyUpdateFilter({
   }
 
   return (
-    <div className="rounded-2xl border border-zinc-200/80 bg-white p-4 shadow-sm">
+    <div className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
       <div className="grid gap-3 md:grid-cols-6">
         <label className="grid gap-1.5 text-[11px] font-bold uppercase tracking-wider text-zinc-400">
           Một ngày
@@ -98,14 +98,14 @@ export function DailyUpdateFilter({
         ) : null}
         <div className="flex items-end gap-2">
           <button
-            className="h-10 rounded-xl border border-zinc-200 bg-white px-4 text-xs font-bold text-zinc-700 transition hover:bg-zinc-50"
+            className="h-10 rounded-xl border border-slate-200 bg-white px-4 text-xs font-medium text-slate-700 hover:border-slate-300 hover:bg-slate-50"
             type="button"
             onClick={onRefresh}
           >
             Làm mới
           </button>
           <button
-            className="h-10 rounded-xl bg-zinc-900 px-4 text-xs font-bold text-white transition hover:bg-zinc-800"
+            className="h-10 rounded-xl bg-slate-900 px-4 text-xs font-medium text-white shadow-sm hover:bg-slate-800"
             type="button"
             onClick={() => onChange({ page: 1, limit: query.limit ?? 20 })}
           >

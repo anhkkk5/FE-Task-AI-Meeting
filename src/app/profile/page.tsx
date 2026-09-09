@@ -12,7 +12,6 @@ import {
 } from "@/features/users/api/users.api";
 import type {
   AiFocusArea,
-  AiResponseStyle,
   AiTone,
   AiUserPreferences,
 } from "@/features/users/types/user-profile.type";
@@ -73,12 +72,6 @@ const defaultAiPreferences: AiUserPreferences = {
   tone: "PROFESSIONAL",
   focusAreas: ["PROGRESS", "BLOCKERS", "DECISIONS", "ACTION_ITEMS"],
 };
-
-const responseStyleOptions: Array<{ value: AiResponseStyle; label: string }> = [
-  { value: "CONCISE", label: "Ngắn gọn" },
-  { value: "BALANCED", label: "Cân bằng" },
-  { value: "DETAILED", label: "Chi tiết" },
-];
 
 const toneOptions: Array<{ value: AiTone; label: string }> = [
   { value: "PROFESSIONAL", label: "Chuyên nghiệp" },
@@ -578,31 +571,6 @@ export default function ProfilePage() {
             <NoticeBox notice={aiPreferencesMessage} />
 
             <div className="grid gap-5 md:grid-cols-2">
-              <Field label="Mức độ chi tiết">
-                <div className="grid grid-cols-3 gap-1 rounded bg-[#f1f2f4] p-1">
-                  {responseStyleOptions.map((option) => (
-                    <button
-                      className={`h-9 rounded px-2 text-sm font-medium transition ${
-                        aiPreferences.responseStyle === option.value
-                          ? "bg-white text-[#0c66e4] shadow-sm"
-                          : "text-[#44546f] hover:bg-[#dcdfe4]"
-                      }`}
-                      disabled={isLoadingAiPreferences}
-                      key={option.value}
-                      onClick={() =>
-                        setAiPreferences((current) => ({
-                          ...current,
-                          responseStyle: option.value,
-                        }))
-                      }
-                      type="button"
-                    >
-                      {option.label}
-                    </button>
-                  ))}
-                </div>
-              </Field>
-
               <Field label="Giọng điệu">
                 <select
                   className={inputClass}

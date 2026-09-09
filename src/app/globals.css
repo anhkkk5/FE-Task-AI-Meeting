@@ -45,8 +45,76 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  /* Dung font co subset tieng Viet thay vi Arial de dau khong bi fallback. */
-  font-family: var(--font-app-sans), "Segoe UI", system-ui, sans-serif;
+  font-family: var(--font-app-sans), ui-sans-serif, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.5;
+  letter-spacing: -0.011em;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+  letter-spacing: inherit;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+
+p,
+li {
+  text-wrap: pretty;
+}
+
+/* Nhịp thị giác dùng chung cho mọi route. */
+::selection {
+  background: #dbeafe;
+  color: #172554;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+
+button,
+a,
+input,
+textarea,
+select {
+  transition-duration: 160ms;
+  transition-timing-function: ease-out;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+/* Font 800/900 khiến dashboard dày và chật; 700 vẫn rõ nhưng gần ChatGPT hơn. */
+[class~="font-black"],
+[class~="font-extrabold"] {
+  font-weight: 700;
+}
+
+[class~="font-bold"] {
+  font-weight: 600;
 }
 
 /*

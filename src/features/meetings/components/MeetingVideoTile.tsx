@@ -44,7 +44,7 @@ export function MeetingVideoTile({
   const initial = label.trim().charAt(0).toUpperCase() || "U";
 
   return (
-    <article className="relative min-h-64 overflow-hidden rounded-2xl border border-white/10 bg-zinc-950 shadow-2xl shadow-zinc-950/20">
+    <article className="relative min-h-64 overflow-hidden rounded-2xl bg-[#3c4043] shadow-lg shadow-black/20">
       {stream && !isLocal ? (
         <audio ref={audioRef} autoPlay data-meeting-audio="true" />
       ) : null}
@@ -53,13 +53,13 @@ export function MeetingVideoTile({
         <video
           ref={videoRef}
           autoPlay
-          className="h-full min-h-64 w-full bg-zinc-950 object-cover"
+          className="h-full min-h-64 w-full bg-[#3c4043] object-cover"
           muted
           playsInline
         />
       ) : (
-        <div className="flex h-full min-h-64 w-full items-center justify-center bg-[radial-gradient(circle_at_top_left,#1d4ed8,#18181b_55%)]">
-          <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-white/10 text-3xl font-black text-white ring-1 ring-white/20">
+        <div className="flex h-full min-h-64 w-full items-center justify-center bg-[radial-gradient(circle_at_top,#59636f,#3c4043_62%)]">
+          <div className="flex h-24 w-24 items-center justify-center rounded-full bg-[#8ab4f8] text-3xl font-semibold text-[#202124] shadow-xl">
             {initial}
           </div>
         </div>

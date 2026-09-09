@@ -6,6 +6,8 @@ type DailyUpdateListProps = {
   workspaceId: string;
   projectId: string;
   emptyText: string;
+  onRestore?: (dailyUpdate: DailyUpdate) => void;
+  restoringId?: string | null;
 };
 
 export function DailyUpdateList({
@@ -13,6 +15,8 @@ export function DailyUpdateList({
   workspaceId,
   projectId,
   emptyText,
+  onRestore,
+  restoringId,
 }: DailyUpdateListProps) {
   if (!items.length) {
     return (
@@ -30,6 +34,8 @@ export function DailyUpdateList({
           dailyUpdate={dailyUpdate}
           projectId={projectId}
           workspaceId={workspaceId}
+          onRestore={onRestore}
+          isRestoring={restoringId === dailyUpdate.id}
         />
       ))}
     </div>

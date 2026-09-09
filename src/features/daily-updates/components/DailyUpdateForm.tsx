@@ -1,13 +1,12 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import { draftMyDailyUpdate } from "@/features/ai-reports/api/ai-reports.api";
 import { getWorkspaceMembers } from "@/features/members/api/members.api";
 import { WorkspaceMember } from "@/features/members/types/member.type";
 import { Sprint } from "@/features/sprints/types/sprint.type";
 import {
   CreateDailyUpdatePayload,
-  DailyMood,
   DailyUpdate,
   UpdateDailyUpdatePayload,
 } from "../types/daily-update.type";
@@ -17,34 +16,12 @@ type DailyUpdateFormProps = {
   projectId: string;
   sprints: Sprint[];
   initialDailyUpdate?: DailyUpdate | null;
+  autoDraft?: boolean;
   submitLabel: string;
   onSubmit: (
     payload: CreateDailyUpdatePayload | UpdateDailyUpdatePayload,
   ) => Promise<void>;
 };
-
-const moodOptions: { value: DailyMood; label: string; tone: string }[] = [
-  {
-    value: "GOOD",
-    label: "Tốt",
-    tone: "border-emerald-200 bg-emerald-50 text-emerald-700",
-  },
-  {
-    value: "NORMAL",
-    label: "Bình thường",
-    tone: "border-blue-200 bg-blue-50 text-blue-700",
-  },
-  {
-    value: "BLOCKED",
-    label: "Bị chặn",
-    tone: "border-amber-200 bg-amber-50 text-amber-800",
-  },
-  {
-    value: "TIRED",
-    label: "Mệt",
-    tone: "border-zinc-200 bg-zinc-50 text-zinc-700",
-  },
-];
 
 function getTodayString() {
   const now = new Date();
@@ -60,6 +37,7 @@ export function DailyUpdateForm({
   projectId,
   sprints,
   initialDailyUpdate,
+  autoDraft = false,
   submitLabel,
   onSubmit,
 }: DailyUpdateFormProps) {
@@ -76,9 +54,6 @@ export function DailyUpdateForm({
   );
   const [blockers, setBlockers] = useState(initialDailyUpdate?.blockers ?? "");
   const [notes, setNotes] = useState(initialDailyUpdate?.notes ?? "");
-  const [mood, setMood] = useState<DailyMood | "">(
-    initialDailyUpdate?.mood ?? "NORMAL",
-  );
   const [needHelpFromId, setNeedHelpFromId] = useState(
     initialDailyUpdate?.needHelpFromId ?? "",
   );
@@ -86,6 +61,7 @@ export function DailyUpdateForm({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDrafting, setIsDrafting] = useState(false);
   const [draftError, setDraftError] = useState<string | null>(null);
+  const autoDraftStarted = useRef(false);
 
   useEffect(() => {
     if (!isEditing && !updateDate) {
@@ -151,6 +127,15 @@ export function DailyUpdateForm({
     }
   }
 
+  useEffect(() => {
+    if (!autoDraft || autoDraftStarted.current || initialDailyUpdate) return;
+
+    autoDraftStarted.current = true;
+    void handleDraftWithAi();
+    // Chỉ tự soạn một lần khi người dùng đi từ nút "Tạo bản nháp AI".
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoDraft, initialDailyUpdate]);
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setIsSubmitting(true);
@@ -163,7 +148,6 @@ export function DailyUpdateForm({
           todayPlan,
           blockers: blockers || null,
           notes: notes || null,
-          mood: mood || null,
           needHelpFromId: needHelpFromId || null,
         });
       } else {
@@ -174,7 +158,6 @@ export function DailyUpdateForm({
           todayPlan,
           blockers: blockers || undefined,
           notes: notes || undefined,
-          mood: mood || undefined,
           needHelpFromId: needHelpFromId || undefined,
         });
       }
@@ -311,26 +294,6 @@ export function DailyUpdateForm({
           Người được chọn sẽ thấy đề nghị hỗ trợ trong báo cáo giao ban.
         </span>
       </label>
-
-      <div className="grid gap-2">
-        <span className="text-sm font-semibold text-zinc-700">Tâm trạng</span>
-        <div className="grid gap-2 sm:grid-cols-4">
-          {moodOptions.map((item) => (
-            <button
-              key={item.value}
-              className={`h-10 rounded-xl border px-3 text-xs font-bold transition ${
-                mood === item.value
-                  ? item.tone
-                  : "border-zinc-200 bg-white text-zinc-500 hover:bg-zinc-50"
-              }`}
-              type="button"
-              onClick={() => setMood(item.value)}
-            >
-              {item.label}
-            </button>
-          ))}
-        </div>
-      </div>
 
       <button
         className="h-11 w-fit rounded-xl bg-brand-600 px-5 text-sm font-bold text-white shadow-md shadow-brand-600/20 transition hover:bg-brand-700 disabled:cursor-not-allowed disabled:bg-zinc-400 disabled:shadow-none"

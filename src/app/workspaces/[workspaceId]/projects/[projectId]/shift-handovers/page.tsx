@@ -4,6 +4,7 @@ import { confirmAction } from "@/components/feedback/AppDialogProvider";
 
 import Link from "next/link";
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
+import { Paperclip, Trash2, UploadCloud } from "lucide-react";
 import { useParams, useSearchParams } from "next/navigation";
 import { AppShell } from "@/components/layout/AppShell";
 import { draftHandoverContent } from "@/features/ai-reports/api/ai-reports.api";
@@ -23,6 +24,7 @@ import {
   requestHandoverChanges,
   submitHandover,
   updateHandover,
+  uploadHandoverAttachments,
 } from "@/features/shift-handovers/api/shift-handovers.api";
 import { HandoverReasonModal } from "@/features/shift-handovers/components/HandoverReasonModal";
 import { HandoverStatusBadge } from "@/features/shift-handovers/components/HandoverStatusBadge";
@@ -105,6 +107,8 @@ export default function TaskHandoversPage() {
   const [isError, setIsError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploadingFiles, setIsUploadingFiles] = useState(false);
+  const [attachedFiles, setAttachedFiles] = useState<Array<{ name: string; url: string; size: number }>>([]);
   const [isDrafting, setIsDrafting] = useState(false);
   const [pendingAction, setPendingAction] = useState<PendingAction | null>(null);
 
@@ -199,8 +203,48 @@ export default function TaskHandoversPage() {
 
   function resetForm() {
     setForm(emptyForm());
+    setAttachedFiles([]);
     setEditingId(null);
     setShowForm(false);
+  }
+
+  async function handleAttachmentFiles(files: FileList | null) {
+    const selected = Array.from(files ?? []);
+    if (!selected.length || isUploadingFiles) return;
+    setIsUploadingFiles(true);
+    setMessage("");
+    setIsError(false);
+    try {
+      const response = await uploadHandoverAttachments(
+        params.workspaceId,
+        params.projectId,
+        selected,
+      );
+      const uploaded = response.data.files;
+      setAttachedFiles((current) => [...current, ...uploaded]);
+      setForm((current) => ({
+        ...current,
+        referenceLinks: [
+          current.referenceLinks?.trim(),
+          ...uploaded.map((file) => file.url),
+        ].filter(Boolean).join("\n"),
+      }));
+    } catch (error) {
+      report(error instanceof Error ? error.message : "Không thể tải tệp đính kèm.", true);
+    } finally {
+      setIsUploadingFiles(false);
+    }
+  }
+
+  function removeAttachment(url: string) {
+    setAttachedFiles((current) => current.filter((file) => file.url !== url));
+    setForm((current) => ({
+      ...current,
+      referenceLinks: (current.referenceLinks ?? "")
+        .split("\n")
+        .filter((line) => line.trim() !== url)
+        .join("\n"),
+    }));
   }
 
   /**
@@ -640,6 +684,53 @@ export default function TaskHandoversPage() {
                   placeholder="Mỗi liên kết một dòng"
                   value={form.referenceLinks}
                 />
+                <span className="mt-1 text-xs font-normal text-slate-500">
+                  Có thể dán nhiều liên kết, mỗi liên kết một dòng.
+                </span>
+                <span className="relative mt-1 flex min-h-20 cursor-pointer items-center justify-center gap-3 rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 px-4 text-center transition hover:border-brand-500 hover:bg-brand-50/40">
+                  <input
+                    className="absolute inset-0 cursor-pointer opacity-0"
+                    type="file"
+                    multiple
+                    disabled={isUploadingFiles}
+                    onChange={(event) => {
+                      void handleAttachmentFiles(event.target.files);
+                      event.target.value = "";
+                    }}
+                  />
+                  <UploadCloud className="h-5 w-5 text-brand-600" />
+                  <span className="font-semibold text-slate-700">
+                    {isUploadingFiles
+                      ? "Đang tải các tệp lên..."
+                      : "Chọn hoặc kéo nhiều tệp từ máy"}
+                  </span>
+                </span>
+                {attachedFiles.length ? (
+                  <span className="grid gap-2">
+                    {attachedFiles.map((file) => (
+                      <span
+                        className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2"
+                        key={file.url}
+                      >
+                        <Paperclip className="h-4 w-4 shrink-0 text-brand-600" />
+                        <span className="min-w-0 flex-1 truncate font-medium text-slate-700">
+                          {file.name}
+                        </span>
+                        <span className="text-xs font-normal text-slate-400">
+                          {(file.size / 1024 / 1024).toFixed(1)} MB
+                        </span>
+                        <button
+                          className="rounded-lg p-1.5 text-slate-400 hover:bg-rose-50 hover:text-rose-600"
+                          type="button"
+                          title="Bỏ tệp"
+                          onClick={() => removeAttachment(file.url)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </span>
+                    ))}
+                  </span>
+                ) : null}
               </label>
               <label className="grid gap-2 text-sm font-semibold text-slate-700">
                 Hạn xử lý dự kiến
@@ -671,7 +762,7 @@ export default function TaskHandoversPage() {
               </button>
               <button
                 className="h-10 rounded-xl bg-brand-600 px-5 text-sm font-bold text-white shadow-md shadow-brand-600/20 transition hover:bg-brand-700 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none"
-                disabled={isSaving || (!editingId && eligibleTasks.length === 0)}
+                disabled={isSaving || isUploadingFiles || (!editingId && eligibleTasks.length === 0)}
                 type="submit"
               >
                 {isSaving ? "Đang gửi..." : "Gửi bàn giao"}

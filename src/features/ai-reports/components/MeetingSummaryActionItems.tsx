@@ -602,27 +602,6 @@ export function MeetingSummaryActionItems({
 
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1">
-                    Mức độ ưu tiên
-                  </label>
-                  <select
-                    className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-800 focus:border-blue-500 focus:outline-hidden"
-                    onChange={(event) =>
-                      setDraft({
-                        ...draft,
-                        priority: event.target.value as typeof draft.priority,
-                      })
-                    }
-                    value={draft.priority}
-                  >
-                    <option value="LOW">Thấp (Low)</option>
-                    <option value="MEDIUM">Trung bình (Medium)</option>
-                    <option value="HIGH">Cao (High)</option>
-                    <option value="URGENT">Khẩn cấp (Urgent)</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
                     Hạn hoàn thành (Deadline)
                   </label>
                   <input

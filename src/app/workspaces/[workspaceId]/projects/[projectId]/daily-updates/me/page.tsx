@@ -6,6 +6,8 @@ import { useCallback, useEffect, useState } from "react";
 import { AppShell } from "@/components/layout/AppShell";
 import {
   getMyDailyUpdates,
+  getPendingDailyUpdateDraft,
+  restoreDailyUpdate,
 } from "@/features/daily-updates/api/daily-updates.api";
 import { DailyUpdateFilter } from "@/features/daily-updates/components/DailyUpdateFilter";
 import { DailyUpdateList } from "@/features/daily-updates/components/DailyUpdateList";
@@ -19,6 +21,7 @@ import { Project } from "@/features/projects/types/project.type";
 import { getSprints } from "@/features/sprints/api/sprints.api";
 import { Sprint } from "@/features/sprints/types/sprint.type";
 import { useAuth } from "@/hooks/useAuth";
+import { ArrowRight, Sparkles } from "lucide-react";
 
 const managerRoles = ["OWNER", "SCRUM_MASTER", "PROJECT_MANAGER"];
 
@@ -35,6 +38,8 @@ export default function MyDailyUpdatesPage() {
   });
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [pendingDraft, setPendingDraft] = useState<DailyUpdate | null>(null);
+  const [restoringId, setRestoringId] = useState<string | null>(null);
 
   const canViewTeam = managerRoles.includes(myRole);
 
@@ -43,7 +48,8 @@ export default function MyDailyUpdatesPage() {
     setMessage("");
 
     try {
-      const [projectRes, sprintsRes, roleRes, dailyUpdatesRes] =
+      const today = new Date().toLocaleDateString("en-CA");
+      const [projectRes, sprintsRes, roleRes, dailyUpdatesRes, draftRes] =
         await Promise.all([
           getProjectDetail(params.workspaceId, params.projectId),
           getSprints(params.workspaceId, params.projectId, {
@@ -52,12 +58,14 @@ export default function MyDailyUpdatesPage() {
           }),
           getMyWorkspaceRole(params.workspaceId),
           getMyDailyUpdates(params.workspaceId, params.projectId, query),
+          getPendingDailyUpdateDraft(params.workspaceId, params.projectId, today),
         ]);
 
       setProject(projectRes.data.project);
       setSprints(sprintsRes.data.items);
       setMyRole(roleRes.data.role);
       setItems(dailyUpdatesRes.data.items);
+      setPendingDraft(draftRes.data.draft);
     } catch (error) {
       setMessage(
         error instanceof Error
@@ -74,6 +82,20 @@ export default function MyDailyUpdatesPage() {
       void loadData();
     }
   }, [user, params.workspaceId, params.projectId, loadData]);
+
+  const handleRestore = async (dailyUpdate: DailyUpdate) => {
+    setRestoringId(dailyUpdate.id);
+    setMessage("");
+    try {
+      await restoreDailyUpdate(params.workspaceId, params.projectId, dailyUpdate.id);
+      setItems((current) => current.filter((item) => item.id !== dailyUpdate.id));
+      setMessage("Đã khôi phục Daily Update vào danh sách chính.");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Khôi phục Daily Update thất bại.");
+    } finally {
+      setRestoringId(null);
+    }
+  };
 
   if (authLoading) {
     return (
@@ -105,6 +127,13 @@ export default function MyDailyUpdatesPage() {
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
+              <Link
+                className="flex h-10 items-center gap-2 rounded-xl border border-violet-200 bg-violet-50 px-4 text-xs font-bold text-violet-700 transition hover:border-violet-300 hover:bg-violet-100"
+                href={`/workspaces/${params.workspaceId}/projects/${params.projectId}/daily-updates/create?date=${new Date().toLocaleDateString("en-CA")}${pendingDraft ? "" : "&autoDraft=1"}`}
+              >
+                <Sparkles className="h-4 w-4" />
+                {pendingDraft ? "Xem bản nháp AI" : "Tạo bản nháp AI"}
+              </Link>
               {canViewTeam ? (
                 <Link
                   className="flex h-10 items-center rounded-xl border border-zinc-200 bg-white px-4 text-xs font-bold text-zinc-700 transition hover:bg-zinc-50"
@@ -123,12 +152,51 @@ export default function MyDailyUpdatesPage() {
           </div>
         </section>
 
+        {pendingDraft ? (
+          <section className="flex flex-col gap-4 rounded-2xl border border-violet-200 bg-gradient-to-r from-violet-50 to-blue-50 p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-start gap-3">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-violet-600 text-white">
+                <Sparkles className="h-4 w-4" />
+              </span>
+              <div>
+                <h2 className="text-sm font-semibold text-slate-900">AI đã chuẩn bị bản nháp hôm nay</h2>
+                <p className="mt-1 text-sm leading-6 text-slate-600">
+                  Kiểm tra và chỉnh sửa trước 23:59. Nếu bạn chưa kịp duyệt, hệ thống sẽ tự động gửi bản nháp này.
+                </p>
+              </div>
+            </div>
+            <Link
+              className="inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 text-sm font-medium text-white hover:bg-slate-800"
+              href={`/workspaces/${params.workspaceId}/projects/${params.projectId}/daily-updates/create?date=${pendingDraft.updateDate}`}
+            >
+              Xem và duyệt <ArrowRight className="h-4 w-4" />
+            </Link>
+          </section>
+        ) : null}
+
         <DailyUpdateFilter
           query={query}
           sprints={sprints}
           onChange={setQuery}
           onRefresh={() => void loadData()}
         />
+
+        <div className="flex rounded-xl border border-slate-200 bg-white p-1 shadow-sm">
+          <button
+            className={`flex-1 rounded-lg px-4 py-2.5 text-sm font-semibold transition ${!query.archived ? "bg-slate-900 text-white" : "text-slate-600 hover:bg-slate-50"}`}
+            onClick={() => setQuery((current) => ({ ...current, archived: false, page: 1 }))}
+            type="button"
+          >
+            Đang hiển thị
+          </button>
+          <button
+            className={`flex-1 rounded-lg px-4 py-2.5 text-sm font-semibold transition ${query.archived ? "bg-slate-900 text-white" : "text-slate-600 hover:bg-slate-50"}`}
+            onClick={() => setQuery((current) => ({ ...current, archived: true, page: 1 }))}
+            type="button"
+          >
+            Đã lưu trữ
+          </button>
+        </div>
 
         {message ? (
           <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-900">
@@ -142,7 +210,9 @@ export default function MyDailyUpdatesPage() {
           </div>
         ) : (
           <DailyUpdateList
-            emptyText="Bạn chưa có daily update nào trong bộ lọc hiện tại."
+            onRestore={query.archived ? (item) => void handleRestore(item) : undefined}
+            restoringId={restoringId}
+            emptyText={query.archived ? "Bạn chưa lưu trữ Daily Update nào." : "Bạn chưa có Daily Update nào trong bộ lọc hiện tại."}
             items={items}
             projectId={params.projectId}
             workspaceId={params.workspaceId}

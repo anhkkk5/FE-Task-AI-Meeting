@@ -32,7 +32,6 @@ import { TaskImportPanel } from "@/features/tasks/components/TaskImportPanel";
 import { AssigneeAvatar } from "@/features/tasks/components/AssigneeAvatar";
 import { Task, TaskStatus } from "@/features/tasks/types/task.type";
 import { useAuth } from "@/hooks/useAuth";
-import { SprintBurndownChart } from "@/features/analytics/components/SprintBurndownChart";
 import {
   exportSprintReportToPDF,
   exportTasksToExcel,
@@ -149,6 +148,7 @@ export default function BacklogPage() {
   const [isBulkUpdating, setIsBulkUpdating] = useState(false);
 
   const canWrite = writeRoles.includes(myRole) && project?.status === "ACTIVE";
+  const activeSprint = sprints.find((sprint) => sprint.status === "ACTIVE") ?? null;
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
@@ -213,12 +213,46 @@ export default function BacklogPage() {
   };
 
   const handleMoveTask = async (taskId: string, targetSprintId: string | null) => {
+    const previousTask = tasks.find((item) => item.id === taskId);
+    if (!previousTask) return;
+
+    const targetSprint = targetSprintId
+      ? sprints.find((sprint) => sprint.id === targetSprintId)
+      : null;
+    const optimisticStatus: TaskStatus = targetSprintId
+      ? previousTask.status === "BACKLOG"
+        ? "TODO"
+        : previousTask.status
+      : "BACKLOG";
+
+    // Cập nhật ngay để thao tác kéo-thả phản hồi tức thì; response từ API sẽ
+    // đồng bộ lại dữ liệu chuẩn sau đó.
+    setTasks((current) =>
+      current.map((task) =>
+        task.id === taskId
+          ? {
+              ...task,
+              sprintId: targetSprintId,
+              sprint: targetSprint
+                ? {
+                    id: targetSprint.id,
+                    name: targetSprint.name,
+                    status: targetSprint.status,
+                  }
+                : null,
+              status: optimisticStatus,
+            }
+          : task,
+      ),
+    );
+
     try {
       const response = await moveTaskToSprint(params.workspaceId, params.projectId, taskId, {
         sprintId: targetSprintId,
       });
       syncTask(response.data.task);
     } catch (error) {
+      syncTask(previousTask);
       showAppNotice({ title: "Không thể di chuyển công việc", description: error instanceof Error ? error.message : "Không thể di chuyển công việc.", tone: "danger" });
     }
   };
@@ -350,6 +384,17 @@ export default function BacklogPage() {
   };
 
   const handleStartSprint = async (sprintId: string) => {
+    const sprintToStart = sprints.find((sprint) => sprint.id === sprintId);
+
+    if (activeSprint && activeSprint.id !== sprintId) {
+      showAppNotice({
+        title: "Dự án đang có Sprint hoạt động",
+        description: `Hãy hoàn thành Sprint “${activeSprint.name}” trước khi bắt đầu Sprint “${sprintToStart?.name ?? "đã chọn"}”.`,
+        tone: "warning",
+      });
+      return;
+    }
+
     if (!await confirmAction({ title: "Bắt đầu Sprint", description: "Sprint sẽ chuyển sang trạng thái đang chạy và bắt đầu theo dõi tiến độ.", confirmLabel: "Bắt đầu" })) return;
 
     try {
@@ -495,7 +540,7 @@ export default function BacklogPage() {
 
     return (
     <div
-      className={`grid grid-cols-[28px_minmax(120px,1fr)_128px_110px_90px_150px] items-center gap-3 border-t border-[#dfe1e6] bg-white px-3 py-2 text-sm transition hover:bg-[#f7f8f9] ${
+      className={`grid grid-cols-[28px_minmax(120px,1fr)_128px_90px_150px] items-center gap-3 border-t border-[#dfe1e6] bg-white px-3 py-2 text-sm transition hover:bg-[#f7f8f9] ${
         canWrite ? "cursor-grab active:cursor-grabbing" : ""
       } ${draggedTaskId === task.id ? "opacity-50" : ""}`}
       draggable={canWrite}
@@ -556,23 +601,6 @@ export default function BacklogPage() {
         <span className={`w-fit rounded px-1.5 py-0.5 text-xs font-semibold ${statusClass(task.status)}`}>
           {statusLabel(task.status)}
         </span>
-      )}
-
-      {canWrite ? (
-        <select
-          className="h-7 rounded border border-[#dfe1e6] bg-white px-2 text-xs text-[#44546f]"
-          onChange={(event) => void handleMoveTask(task.id, event.target.value || null)}
-          value={currentSprintId ?? ""}
-        >
-          <option value="">Backlog</option>
-          {sprints.map((sprint) => (
-            <option key={sprint.id} value={sprint.id}>
-              {sprint.name}
-            </option>
-          ))}
-        </select>
-      ) : (
-        <span className="truncate text-xs text-[#6b778c]">{task.sprint?.name ?? "Backlog"}</span>
       )}
 
       <div className="flex items-center gap-2 text-xs text-[#6b778c]">
@@ -674,11 +702,13 @@ export default function BacklogPage() {
 
             {canWrite && sprint.status === "PLANNED" ? (
               <button
-                className="h-8 rounded border border-[#dfe1e6] bg-white px-3 text-sm font-medium text-[#44546f] hover:bg-[#f1f2f4]"
+                className="h-8 rounded border border-[#dfe1e6] bg-white px-3 text-sm font-medium text-[#44546f] hover:bg-[#f1f2f4] disabled:cursor-not-allowed disabled:bg-[#f1f2f4] disabled:text-[#8993a4]"
+                disabled={Boolean(activeSprint && activeSprint.id !== sprint.id)}
                 onClick={() => void handleStartSprint(sprint.id)}
+                title={activeSprint ? `Cần hoàn thành Sprint “${activeSprint.name}” trước` : "Bắt đầu Sprint này"}
                 type="button"
               >
-                Bắt đầu sprint
+                {activeSprint ? "Đang có Sprint chạy" : "Bắt đầu sprint"}
               </button>
             ) : null}
 
@@ -733,10 +763,6 @@ export default function BacklogPage() {
   const isBacklogDragOver = dragOverTarget === backlogDropTarget;
   const activeSprintCount = sprints.filter((sprint) => sprint.status === "ACTIVE").length;
   const plannedSprintCount = sprints.filter((sprint) => sprint.status === "PLANNED").length;
-  const chartSprint = sprints.find((sprint) => sprint.status === "ACTIVE") ?? sprints[0] ?? null;
-  const chartTasks = chartSprint
-    ? tasks.filter((task) => task.sprintId === chartSprint.id)
-    : [];
   const taskSummary = {
     total: tasks.length,
     backlog: tasks.filter((task) => task.sprintId === null).length,
@@ -744,15 +770,6 @@ export default function BacklogPage() {
     inProgress: tasks.filter((task) => task.status === "IN_PROGRESS" || task.status === "REVIEW").length,
     done: tasks.filter((task) => task.status === "DONE").length,
   };
-  const planningSprint = sprints.find((sprint) => sprint.status === "ACTIVE") ?? sprints.find((sprint) => sprint.status === "PLANNED") ?? null;
-  const planningCapacity = (() => {
-    if (!planningSprint) return null;
-    const dates: string[] = [];
-    for (let date = new Date(planningSprint.startDate); date <= new Date(planningSprint.endDate); date.setDate(date.getDate() + 1)) if (date.getDay() !== 0 && date.getDay() !== 6) dates.push(date.toISOString().slice(0, 10));
-    const available = members.reduce((sum, member) => sum + dates.filter((date) => !(member.unavailableDates ?? []).includes(date)).length * (member.dailyCapacityHours ?? 8), 0);
-    const assigned = tasks.filter((task) => task.sprintId === planningSprint.id && task.status !== "DONE").reduce((sum, task) => sum + (task.estimatedHours ?? 0), 0);
-    return { available, assigned, utilization: available ? Math.round(assigned / available * 100) : 0 };
-  })();
   const hasActiveFilters =
     searchKeyword.trim().length > 0 ||
     selectedStatus !== "ALL" ||
@@ -936,6 +953,19 @@ export default function BacklogPage() {
             </div>
           </div>
 
+          {showImportPanel && canWrite ? (
+            <TaskImportPanel
+              onClose={() => setShowImportPanel(false)}
+              onImported={async (createdCount) => {
+                setMessage(`Đã nhập ${createdCount} task từ Excel.`);
+                setShowImportPanel(false);
+                await loadData();
+              }}
+              projectId={params.projectId}
+              workspaceId={params.workspaceId}
+            />
+          ) : null}
+
           {canWrite ? <div className="flex flex-col gap-3 rounded-2xl border border-blue-200 bg-blue-50/70 p-3 sm:flex-row sm:items-center">
             <label className="flex items-center gap-2 text-sm font-bold text-blue-900"><input checked={filteredTasks.length > 0 && filteredTasks.every((task) => selectedTaskIds.has(task.id))} className="h-4 w-4 rounded" onChange={(event) => setSelectedTaskIds(event.target.checked ? new Set(filteredTasks.map((task) => task.id)) : new Set())} type="checkbox" />Chọn tất cả đang hiển thị</label>
             <span className="rounded-full bg-blue-600 px-2.5 py-1 text-xs font-bold text-white">{selectedTaskIds.size} đã chọn</span>
@@ -946,8 +976,6 @@ export default function BacklogPage() {
               <select className="h-9 rounded-lg border border-blue-200 bg-white px-2 text-xs" defaultValue="" disabled={isBulkUpdating} onChange={(event) => { void runBulkAction("priority", event.target.value); event.target.value = ""; }}><option value="" disabled>Đổi ưu tiên...</option><option value="LOW">Thấp</option><option value="MEDIUM">Trung bình</option><option value="HIGH">Cao</option><option value="URGENT">Khẩn cấp</option></select>
             </div> : <span className="text-xs text-blue-700">Chọn Task bằng ô đầu mỗi dòng để thao tác hàng loạt.</span>}
           </div> : null}
-
-          {planningCapacity ? <div className="rounded-2xl border border-indigo-100 bg-indigo-50/60 p-4"><div className="flex items-center justify-between text-xs font-bold text-indigo-900"><span>Capacity · {planningSprint?.name}</span><span>{planningCapacity.assigned}h / {planningCapacity.available}h · {planningCapacity.utilization}%</span></div><div className="mt-2 h-2 overflow-hidden rounded-full bg-indigo-100"><div className={`h-full ${planningCapacity.utilization > 100 ? "bg-rose-500" : "bg-indigo-600"}`} style={{ width: `${Math.min(100, planningCapacity.utilization)}%` }} /></div>{planningCapacity.utilization > 100 ? <p className="mt-2 text-xs font-semibold text-rose-700">Đội đang bị giao vượt quá giờ khả dụng.</p> : null}</div> : null}
 
           {/* Stat KPI Cards Grid */}
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
@@ -996,13 +1024,6 @@ export default function BacklogPage() {
               <p className="mt-2 text-2xl font-extrabold text-emerald-700">{taskSummary.done}</p>
             </div>
           </div>
-
-          {/* Biểu đồ Burndown Chart trực quan */}
-          <SprintBurndownChart
-            sprint={chartSprint}
-            tasks={chartTasks}
-            projectName={project?.name}
-          />
 
           {/* Bottom Info Bar */}
           <div className="flex flex-col gap-2 rounded-2xl border border-slate-100 bg-slate-50/70 px-4 py-3 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between font-medium">
@@ -1119,18 +1140,6 @@ export default function BacklogPage() {
           </div>
         ) : null}
 
-        {showImportPanel && canWrite ? (
-          <TaskImportPanel
-            onClose={() => setShowImportPanel(false)}
-            onImported={async (createdCount) => {
-              setMessage(`Đã nhập ${createdCount} task từ Excel.`);
-              await loadData();
-            }}
-            projectId={params.projectId}
-            workspaceId={params.workspaceId}
-          />
-        ) : null}
-
         {isLoading ? (
           <div className="flex h-72 items-center justify-center rounded border border-[#dfe1e6] bg-white">
             <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#4F8EB0] border-t-transparent" />
@@ -1170,6 +1179,9 @@ export default function BacklogPage() {
                       </h3>
                       <p className="text-xs text-[#6b778c]">Task chưa được gán vào sprint.</p>
                     </div>
+                    <span className="rounded bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-800">
+                      Khu vực task chưa xếp Sprint
+                    </span>
                   </div>
 
                   <div className="flex items-center gap-2">
@@ -1180,14 +1192,6 @@ export default function BacklogPage() {
                       </span>
                       <span className="rounded bg-[#dcfff1] px-1.5 py-0.5 text-[#216e4e]">{backlogCounts.done}</span>
                     </div>
-                    {canWrite ? (
-                      <Link
-                        className="h-8 rounded border border-[#dfe1e6] bg-white px-3 py-1.5 text-sm font-medium text-[#44546f] hover:bg-[#f1f2f4]"
-                        href={`/workspaces/${params.workspaceId}/projects/${params.projectId}/sprints/create`}
-                      >
-                        Tạo sprint
-                      </Link>
-                    ) : null}
                   </div>
                 </div>
 
@@ -1205,6 +1209,53 @@ export default function BacklogPage() {
             </div>
           </div>
         )}
+
+        {canWrite && selectedTaskIds.size > 0 ? (
+          <div className="fixed bottom-5 left-1/2 z-40 flex w-[min(680px,calc(100vw-32px))] -translate-x-1/2 flex-wrap items-center gap-3 rounded-2xl border border-blue-200 bg-white p-3 shadow-[0_16px_48px_rgba(15,23,42,0.22)]">
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-bold text-slate-900">
+                Đã chọn {selectedTaskIds.size} task
+              </p>
+              <p className="text-xs text-slate-500">
+                Chọn nơi muốn chuyển các task này đến.
+              </p>
+            </div>
+            <select
+              aria-label="Chọn Sprint đích"
+              className="h-10 min-w-[230px] rounded-xl border border-blue-200 bg-blue-50 px-3 text-sm font-semibold text-blue-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              defaultValue=""
+              disabled={isBulkUpdating}
+              onChange={(event) => {
+                void runBulkAction("sprint", event.target.value);
+                event.target.value = "";
+              }}
+            >
+              <option value="" disabled>
+                Chuyển đến Sprint...
+              </option>
+              <option value="BACKLOG">Backlog — chưa xếp Sprint</option>
+              {sprints
+                .filter(
+                  (sprint) =>
+                    sprint.status !== "COMPLETED" &&
+                    sprint.status !== "CANCELLED",
+                )
+                .map((sprint) => (
+                  <option key={sprint.id} value={sprint.id}>
+                    {sprint.name} — {sprintStatusLabel(sprint.status)}
+                  </option>
+                ))}
+            </select>
+            <button
+              className="h-10 rounded-xl px-3 text-sm font-semibold text-slate-600 hover:bg-slate-100"
+              disabled={isBulkUpdating}
+              onClick={() => setSelectedTaskIds(new Set())}
+              type="button"
+            >
+              Bỏ chọn
+            </button>
+          </div>
+        ) : null}
 
         <TaskDetailDrawer
           canChangeStatus={

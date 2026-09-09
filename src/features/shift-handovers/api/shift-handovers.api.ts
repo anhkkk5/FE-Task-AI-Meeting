@@ -52,6 +52,26 @@ export function createHandover(
   );
 }
 
+export type HandoverAttachment = {
+  name: string;
+  size: number;
+  mimeType: string;
+  url: string;
+};
+
+export function uploadHandoverAttachments(
+  workspaceId: string,
+  projectId: string,
+  files: File[],
+) {
+  const formData = new FormData();
+  files.forEach((file) => formData.append("files", file, file.name));
+  return apiRequest<ApiResponse<{ files: HandoverAttachment[] }>>(
+    `/workspaces/${workspaceId}/projects/${projectId}/shift-handovers/attachments`,
+    { method: "POST", body: formData, timeoutMs: 120000 },
+  );
+}
+
 export function updateHandover(
   workspaceId: string,
   projectId: string,

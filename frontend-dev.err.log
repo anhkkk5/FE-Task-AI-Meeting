@@ -1,0 +1,2622 @@
+⨯ ./src/components/layout/AppShell.tsx:24:1
+Module not found: Can't resolve '@/features/project-assistant/components/ProjectAssistantChatbot'
+  [90m22 |[0m ...
+  [90m23 |[0m ...[32mcide-react"[0m;
+[31m[1m>[0m [90m24 |[0m ...[33mrojectAssistantChatbot[0m } [36mfrom[0m [32m"@/features/project-assistant/components/ProjectAssistant...[0m
+  [90m   |[0m    [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m25 |[0m ...etHandovers } [36mfrom[0m [32m"@/features/shift-handovers/api/shift-handovers.api"[0m;
+  [90m26 |[0m ...etMyWorkspaces } [36mfrom[0m [32m"@/features/workspaces/api/workspaces.api"[0m;
+  [90m27 |[0m ...[33morkspace[0m } [36mfrom[0m [32m"@/features/workspaces/types/workspace.type"[0m;
+
+Import map: aliased to relative './src/features/project-assistant/components/ProjectAssistantChatbot' inside of [project]/
+
+
+Import traces:
+  Client Component Browser:
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/my-work/page.tsx [Client Component Browser]
+    ./src/app/my-work/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/my-work/page.tsx [Client Component SSR]
+    ./src/app/my-work/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./src/components/layout/AppShell.tsx:24:1
+Module not found: Can't resolve '@/features/project-assistant/components/ProjectAssistantChatbot'
+  [90m22 |[0m ...
+  [90m23 |[0m ...[32mcide-react"[0m;
+[31m[1m>[0m [90m24 |[0m ...[33mrojectAssistantChatbot[0m } [36mfrom[0m [32m"@/features/project-assistant/components/ProjectAssistant...[0m
+  [90m   |[0m    [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m25 |[0m ...etHandovers } [36mfrom[0m [32m"@/features/shift-handovers/api/shift-handovers.api"[0m;
+  [90m26 |[0m ...etMyWorkspaces } [36mfrom[0m [32m"@/features/workspaces/api/workspaces.api"[0m;
+  [90m27 |[0m ...[33morkspace[0m } [36mfrom[0m [32m"@/features/workspaces/types/workspace.type"[0m;
+
+Import map: aliased to relative './src/features/project-assistant/components/ProjectAssistantChatbot' inside of [project]/
+
+
+Import traces:
+  Client Component Browser:
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/my-work/page.tsx [Client Component Browser]
+    ./src/app/my-work/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/my-work/page.tsx [Client Component SSR]
+    ./src/app/my-work/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./src/components/layout/AppShell.tsx:24:1
+Module not found: Can't resolve '@/features/project-assistant/components/ProjectAssistantChatbot'
+  [90m22 |[0m ...
+  [90m23 |[0m ...[32mcide-react"[0m;
+[31m[1m>[0m [90m24 |[0m ...[33mrojectAssistantChatbot[0m } [36mfrom[0m [32m"@/features/project-assistant/components/ProjectAssistant...[0m
+  [90m   |[0m    [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m25 |[0m ...etHandovers } [36mfrom[0m [32m"@/features/shift-handovers/api/shift-handovers.api"[0m;
+  [90m26 |[0m ...etMyWorkspaces } [36mfrom[0m [32m"@/features/workspaces/api/workspaces.api"[0m;
+  [90m27 |[0m ...[33morkspace[0m } [36mfrom[0m [32m"@/features/workspaces/types/workspace.type"[0m;
+
+Import map: aliased to relative './src/features/project-assistant/components/ProjectAssistantChatbot' inside of [project]/
+
+
+Import traces:
+  Client Component Browser:
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/my-work/page.tsx [Client Component Browser]
+    ./src/app/my-work/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/my-work/page.tsx [Client Component SSR]
+    ./src/app/my-work/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./src/components/layout/AppShell.tsx:24:1
+Module not found: Can't resolve '@/features/project-assistant/components/ProjectAssistantChatbot'
+  [90m22 |[0m ...
+  [90m23 |[0m ...[32mcide-react"[0m;
+[31m[1m>[0m [90m24 |[0m ...[33mrojectAssistantChatbot[0m } [36mfrom[0m [32m"@/features/project-assistant/components/ProjectAssistant...[0m
+  [90m   |[0m    [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m25 |[0m ...etHandovers } [36mfrom[0m [32m"@/features/shift-handovers/api/shift-handovers.api"[0m;
+  [90m26 |[0m ...etMyWorkspaces } [36mfrom[0m [32m"@/features/workspaces/api/workspaces.api"[0m;
+  [90m27 |[0m ...[33morkspace[0m } [36mfrom[0m [32m"@/features/workspaces/types/workspace.type"[0m;
+
+Import map: aliased to relative './src/features/project-assistant/components/ProjectAssistantChatbot' inside of [project]/
+
+
+Import traces:
+  Client Component Browser:
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/my-work/page.tsx [Client Component Browser]
+    ./src/app/my-work/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/my-work/page.tsx [Client Component SSR]
+    ./src/app/my-work/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./src/components/layout/AppShell.tsx:24:1
+Module not found: Can't resolve '@/features/project-assistant/components/ProjectAssistantChatbot'
+  [90m22 |[0m ...
+  [90m23 |[0m ...[32mcide-react"[0m;
+[31m[1m>[0m [90m24 |[0m ...[33mrojectAssistantChatbot[0m } [36mfrom[0m [32m"@/features/project-assistant/components/ProjectAssistant...[0m
+  [90m   |[0m    [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m25 |[0m ...etHandovers } [36mfrom[0m [32m"@/features/shift-handovers/api/shift-handovers.api"[0m;
+  [90m26 |[0m ...etMyWorkspaces } [36mfrom[0m [32m"@/features/workspaces/api/workspaces.api"[0m;
+  [90m27 |[0m ...[33morkspace[0m } [36mfrom[0m [32m"@/features/workspaces/types/workspace.type"[0m;
+
+Import map: aliased to relative './src/features/project-assistant/components/ProjectAssistantChatbot' inside of [project]/
+
+
+Import traces:
+  Client Component Browser:
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/dashboard/page.tsx [Client Component Browser]
+    ./src/app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/dashboard/page.tsx [Client Component SSR]
+    ./src/app/dashboard/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./src/components/layout/AppShell.tsx:24:1
+Module not found: Can't resolve '@/features/project-assistant/components/ProjectAssistantChatbot'
+  [90m22 |[0m ...
+  [90m23 |[0m ...[32mcide-react"[0m;
+[31m[1m>[0m [90m24 |[0m ...[33mrojectAssistantChatbot[0m } [36mfrom[0m [32m"@/features/project-assistant/components/ProjectAssistant...[0m
+  [90m   |[0m    [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m25 |[0m ...etHandovers } [36mfrom[0m [32m"@/features/shift-handovers/api/shift-handovers.api"[0m;
+  [90m26 |[0m ...etMyWorkspaces } [36mfrom[0m [32m"@/features/workspaces/api/workspaces.api"[0m;
+  [90m27 |[0m ...[33morkspace[0m } [36mfrom[0m [32m"@/features/workspaces/types/workspace.type"[0m;
+
+Import map: aliased to relative './src/features/project-assistant/components/ProjectAssistantChatbot' inside of [project]/
+
+
+Import traces:
+  Client Component Browser:
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/dashboard/page.tsx [Client Component Browser]
+    ./src/app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/dashboard/page.tsx [Client Component SSR]
+    ./src/app/dashboard/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./src/components/layout/AppShell.tsx:24:1
+Module not found: Can't resolve '@/features/project-assistant/components/ProjectAssistantChatbot'
+  [90m22 |[0m ...
+  [90m23 |[0m ...[32mcide-react"[0m;
+[31m[1m>[0m [90m24 |[0m ...[33mrojectAssistantChatbot[0m } [36mfrom[0m [32m"@/features/project-assistant/components/ProjectAssistant...[0m
+  [90m   |[0m    [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m25 |[0m ...etHandovers } [36mfrom[0m [32m"@/features/shift-handovers/api/shift-handovers.api"[0m;
+  [90m26 |[0m ...etMyWorkspaces } [36mfrom[0m [32m"@/features/workspaces/api/workspaces.api"[0m;
+  [90m27 |[0m ...[33morkspace[0m } [36mfrom[0m [32m"@/features/workspaces/types/workspace.type"[0m;
+
+Import map: aliased to relative './src/features/project-assistant/components/ProjectAssistantChatbot' inside of [project]/
+
+
+Import traces:
+  Client Component Browser:
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/dashboard/page.tsx [Client Component Browser]
+    ./src/app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/dashboard/page.tsx [Client Component SSR]
+    ./src/app/dashboard/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./src/components/layout/AppShell.tsx:24:1
+Module not found: Can't resolve '@/features/project-assistant/components/ProjectAssistantChatbot'
+  [90m22 |[0m ...
+  [90m23 |[0m ...[32mcide-react"[0m;
+[31m[1m>[0m [90m24 |[0m ...[33mrojectAssistantChatbot[0m } [36mfrom[0m [32m"@/features/project-assistant/components/ProjectAssistant...[0m
+  [90m   |[0m    [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m25 |[0m ...etHandovers } [36mfrom[0m [32m"@/features/shift-handovers/api/shift-handovers.api"[0m;
+  [90m26 |[0m ...etMyWorkspaces } [36mfrom[0m [32m"@/features/workspaces/api/workspaces.api"[0m;
+  [90m27 |[0m ...[33morkspace[0m } [36mfrom[0m [32m"@/features/workspaces/types/workspace.type"[0m;
+
+Import map: aliased to relative './src/features/project-assistant/components/ProjectAssistantChatbot' inside of [project]/
+
+
+Import traces:
+  Client Component Browser:
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/dashboard/page.tsx [Client Component Browser]
+    ./src/app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/dashboard/page.tsx [Client Component SSR]
+    ./src/app/dashboard/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./src/components/layout/AppShell.tsx:24:1
+Module not found: Can't resolve '@/features/project-assistant/components/ProjectAssistantChatbot'
+  [90m22 |[0m ...
+  [90m23 |[0m ...[32mcide-react"[0m;
+[31m[1m>[0m [90m24 |[0m ...[33mrojectAssistantChatbot[0m } [36mfrom[0m [32m"@/features/project-assistant/components/ProjectAssistant...[0m
+  [90m   |[0m    [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m25 |[0m ...etHandovers } [36mfrom[0m [32m"@/features/shift-handovers/api/shift-handovers.api"[0m;
+  [90m26 |[0m ...etMyWorkspaces } [36mfrom[0m [32m"@/features/workspaces/api/workspaces.api"[0m;
+  [90m27 |[0m ...[33morkspace[0m } [36mfrom[0m [32m"@/features/workspaces/types/workspace.type"[0m;
+
+Import map: aliased to relative './src/features/project-assistant/components/ProjectAssistantChatbot' inside of [project]/
+
+
+Import traces:
+  Client Component Browser:
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./src/components/layout/AppShell.tsx:24:1
+Module not found: Can't resolve '@/features/project-assistant/components/ProjectAssistantChatbot'
+  [90m22 |[0m ...
+  [90m23 |[0m ...[32mcide-react"[0m;
+[31m[1m>[0m [90m24 |[0m ...[33mrojectAssistantChatbot[0m } [36mfrom[0m [32m"@/features/project-assistant/components/ProjectAssistant...[0m
+  [90m   |[0m    [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m25 |[0m ...etHandovers } [36mfrom[0m [32m"@/features/shift-handovers/api/shift-handovers.api"[0m;
+  [90m26 |[0m ...etMyWorkspaces } [36mfrom[0m [32m"@/features/workspaces/api/workspaces.api"[0m;
+  [90m27 |[0m ...[33morkspace[0m } [36mfrom[0m [32m"@/features/workspaces/types/workspace.type"[0m;
+
+Import map: aliased to relative './src/features/project-assistant/components/ProjectAssistantChatbot' inside of [project]/
+
+
+Import traces:
+  Client Component Browser:
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./src/components/layout/AppShell.tsx:24:1
+Module not found: Can't resolve '@/features/project-assistant/components/ProjectAssistantChatbot'
+  [90m22 |[0m ...
+  [90m23 |[0m ...[32mcide-react"[0m;
+[31m[1m>[0m [90m24 |[0m ...[33mrojectAssistantChatbot[0m } [36mfrom[0m [32m"@/features/project-assistant/components/ProjectAssistant...[0m
+  [90m   |[0m    [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m25 |[0m ...etHandovers } [36mfrom[0m [32m"@/features/shift-handovers/api/shift-handovers.api"[0m;
+  [90m26 |[0m ...etMyWorkspaces } [36mfrom[0m [32m"@/features/workspaces/api/workspaces.api"[0m;
+  [90m27 |[0m ...[33morkspace[0m } [36mfrom[0m [32m"@/features/workspaces/types/workspace.type"[0m;
+
+Import map: aliased to relative './src/features/project-assistant/components/ProjectAssistantChatbot' inside of [project]/
+
+
+Import traces:
+  Client Component Browser:
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./src/components/layout/AppShell.tsx:24:1
+Module not found: Can't resolve '@/features/project-assistant/components/ProjectAssistantChatbot'
+  [90m22 |[0m ...
+  [90m23 |[0m ...[32mcide-react"[0m;
+[31m[1m>[0m [90m24 |[0m ...[33mrojectAssistantChatbot[0m } [36mfrom[0m [32m"@/features/project-assistant/components/ProjectAssistant...[0m
+  [90m   |[0m    [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m25 |[0m ...etHandovers } [36mfrom[0m [32m"@/features/shift-handovers/api/shift-handovers.api"[0m;
+  [90m26 |[0m ...etMyWorkspaces } [36mfrom[0m [32m"@/features/workspaces/api/workspaces.api"[0m;
+  [90m27 |[0m ...[33morkspace[0m } [36mfrom[0m [32m"@/features/workspaces/types/workspace.type"[0m;
+
+Import map: aliased to relative './src/features/project-assistant/components/ProjectAssistantChatbot' inside of [project]/
+
+
+Import traces:
+  Client Component Browser:
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./src/components/layout/AppShell.tsx:24:1
+Module not found: Can't resolve '@/features/project-assistant/components/ProjectAssistantChatbot'
+  [90m22 |[0m ...
+  [90m23 |[0m ...[32mcide-react"[0m;
+[31m[1m>[0m [90m24 |[0m ...[33mrojectAssistantChatbot[0m } [36mfrom[0m [32m"@/features/project-assistant/components/ProjectAssistant...[0m
+  [90m   |[0m    [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m25 |[0m ...etHandovers } [36mfrom[0m [32m"@/features/shift-handovers/api/shift-handovers.api"[0m;
+  [90m26 |[0m ...etMyWorkspaces } [36mfrom[0m [32m"@/features/workspaces/api/workspaces.api"[0m;
+  [90m27 |[0m ...[33morkspace[0m } [36mfrom[0m [32m"@/features/workspaces/types/workspace.type"[0m;
+
+Import map: aliased to relative './src/features/project-assistant/components/ProjectAssistantChatbot' inside of [project]/
+
+
+Import traces:
+  Client Component Browser:
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/dashboard/page.tsx [Client Component Browser]
+    ./src/app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/dashboard/page.tsx [Client Component SSR]
+    ./src/app/dashboard/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./src/components/layout/AppShell.tsx:24:1
+Module not found: Can't resolve '@/features/project-assistant/components/ProjectAssistantChatbot'
+  [90m22 |[0m ...
+  [90m23 |[0m ...[32mcide-react"[0m;
+[31m[1m>[0m [90m24 |[0m ...[33mrojectAssistantChatbot[0m } [36mfrom[0m [32m"@/features/project-assistant/components/ProjectAssistant...[0m
+  [90m   |[0m    [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m25 |[0m ...etHandovers } [36mfrom[0m [32m"@/features/shift-handovers/api/shift-handovers.api"[0m;
+  [90m26 |[0m ...etMyWorkspaces } [36mfrom[0m [32m"@/features/workspaces/api/workspaces.api"[0m;
+  [90m27 |[0m ...[33morkspace[0m } [36mfrom[0m [32m"@/features/workspaces/types/workspace.type"[0m;
+
+Import map: aliased to relative './src/features/project-assistant/components/ProjectAssistantChatbot' inside of [project]/
+
+
+Import traces:
+  Client Component Browser:
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/dashboard/page.tsx [Client Component Browser]
+    ./src/app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/dashboard/page.tsx [Client Component SSR]
+    ./src/app/dashboard/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./src/components/layout/AppShell.tsx:24:1
+Module not found: Can't resolve '@/features/project-assistant/components/ProjectAssistantChatbot'
+  [90m22 |[0m ...
+  [90m23 |[0m ...[32mcide-react"[0m;
+[31m[1m>[0m [90m24 |[0m ...[33mrojectAssistantChatbot[0m } [36mfrom[0m [32m"@/features/project-assistant/components/ProjectAssistant...[0m
+  [90m   |[0m    [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m25 |[0m ...etHandovers } [36mfrom[0m [32m"@/features/shift-handovers/api/shift-handovers.api"[0m;
+  [90m26 |[0m ...etMyWorkspaces } [36mfrom[0m [32m"@/features/workspaces/api/workspaces.api"[0m;
+  [90m27 |[0m ...[33morkspace[0m } [36mfrom[0m [32m"@/features/workspaces/types/workspace.type"[0m;
+
+Import map: aliased to relative './src/features/project-assistant/components/ProjectAssistantChatbot' inside of [project]/
+
+
+Import traces:
+  Client Component Browser:
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/dashboard/page.tsx [Client Component Browser]
+    ./src/app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/dashboard/page.tsx [Client Component SSR]
+    ./src/app/dashboard/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./src/components/layout/AppShell.tsx:24:1
+Module not found: Can't resolve '@/features/project-assistant/components/ProjectAssistantChatbot'
+  [90m22 |[0m ...
+  [90m23 |[0m ...[32mcide-react"[0m;
+[31m[1m>[0m [90m24 |[0m ...[33mrojectAssistantChatbot[0m } [36mfrom[0m [32m"@/features/project-assistant/components/ProjectAssistant...[0m
+  [90m   |[0m    [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m25 |[0m ...etHandovers } [36mfrom[0m [32m"@/features/shift-handovers/api/shift-handovers.api"[0m;
+  [90m26 |[0m ...etMyWorkspaces } [36mfrom[0m [32m"@/features/workspaces/api/workspaces.api"[0m;
+  [90m27 |[0m ...[33morkspace[0m } [36mfrom[0m [32m"@/features/workspaces/types/workspace.type"[0m;
+
+Import map: aliased to relative './src/features/project-assistant/components/ProjectAssistantChatbot' inside of [project]/
+
+
+Import traces:
+  Client Component Browser:
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/dashboard/page.tsx [Client Component Browser]
+    ./src/app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/dashboard/page.tsx [Client Component SSR]
+    ./src/app/dashboard/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./src/components/layout/AppShell.tsx:24:1
+Module not found: Can't resolve '@/features/project-assistant/components/ProjectAssistantChatbot'
+  [90m22 |[0m ...
+  [90m23 |[0m ...[32mcide-react"[0m;
+[31m[1m>[0m [90m24 |[0m ...[33mrojectAssistantChatbot[0m } [36mfrom[0m [32m"@/features/project-assistant/components/ProjectAssistant...[0m
+  [90m   |[0m    [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m25 |[0m ...etHandovers } [36mfrom[0m [32m"@/features/shift-handovers/api/shift-handovers.api"[0m;
+  [90m26 |[0m ...etMyWorkspaces } [36mfrom[0m [32m"@/features/workspaces/api/workspaces.api"[0m;
+  [90m27 |[0m ...[33morkspace[0m } [36mfrom[0m [32m"@/features/workspaces/types/workspace.type"[0m;
+
+Import map: aliased to relative './src/features/project-assistant/components/ProjectAssistantChatbot' inside of [project]/
+
+
+Import traces:
+  Client Component Browser:
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/dashboard/page.tsx [Client Component Browser]
+    ./src/app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/dashboard/page.tsx [Client Component SSR]
+    ./src/app/dashboard/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./src/components/layout/AppShell.tsx:24:1
+Module not found: Can't resolve '@/features/project-assistant/components/ProjectAssistantChatbot'
+  [90m22 |[0m ...
+  [90m23 |[0m ...[32mcide-react"[0m;
+[31m[1m>[0m [90m24 |[0m ...[33mrojectAssistantChatbot[0m } [36mfrom[0m [32m"@/features/project-assistant/components/ProjectAssistant...[0m
+  [90m   |[0m    [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m25 |[0m ...etHandovers } [36mfrom[0m [32m"@/features/shift-handovers/api/shift-handovers.api"[0m;
+  [90m26 |[0m ...etMyWorkspaces } [36mfrom[0m [32m"@/features/workspaces/api/workspaces.api"[0m;
+  [90m27 |[0m ...[33morkspace[0m } [36mfrom[0m [32m"@/features/workspaces/types/workspace.type"[0m;
+
+Import map: aliased to relative './src/features/project-assistant/components/ProjectAssistantChatbot' inside of [project]/
+
+
+Import traces:
+  Client Component Browser:
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/dashboard/page.tsx [Client Component Browser]
+    ./src/app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/dashboard/page.tsx [Client Component SSR]
+    ./src/app/dashboard/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./src/components/layout/AppShell.tsx:24:1
+Module not found: Can't resolve '@/features/project-assistant/components/ProjectAssistantChatbot'
+  [90m22 |[0m ...
+  [90m23 |[0m ...[32mcide-react"[0m;
+[31m[1m>[0m [90m24 |[0m ...[33mrojectAssistantChatbot[0m } [36mfrom[0m [32m"@/features/project-assistant/components/ProjectAssistant...[0m
+  [90m   |[0m    [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m25 |[0m ...etHandovers } [36mfrom[0m [32m"@/features/shift-handovers/api/shift-handovers.api"[0m;
+  [90m26 |[0m ...etMyWorkspaces } [36mfrom[0m [32m"@/features/workspaces/api/workspaces.api"[0m;
+  [90m27 |[0m ...[33morkspace[0m } [36mfrom[0m [32m"@/features/workspaces/types/workspace.type"[0m;
+
+Import map: aliased to relative './src/features/project-assistant/components/ProjectAssistantChatbot' inside of [project]/
+
+
+Import traces:
+  Client Component Browser:
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/dashboard/page.tsx [Client Component Browser]
+    ./src/app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/dashboard/page.tsx [Client Component SSR]
+    ./src/app/dashboard/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./src/components/layout/AppShell.tsx:24:1
+Module not found: Can't resolve '@/features/project-assistant/components/ProjectAssistantChatbot'
+  [90m22 |[0m ...
+  [90m23 |[0m ...[32mcide-react"[0m;
+[31m[1m>[0m [90m24 |[0m ...[33mrojectAssistantChatbot[0m } [36mfrom[0m [32m"@/features/project-assistant/components/ProjectAssistant...[0m
+  [90m   |[0m    [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m25 |[0m ...etHandovers } [36mfrom[0m [32m"@/features/shift-handovers/api/shift-handovers.api"[0m;
+  [90m26 |[0m ...etMyWorkspaces } [36mfrom[0m [32m"@/features/workspaces/api/workspaces.api"[0m;
+  [90m27 |[0m ...[33morkspace[0m } [36mfrom[0m [32m"@/features/workspaces/types/workspace.type"[0m;
+
+Import map: aliased to relative './src/features/project-assistant/components/ProjectAssistantChatbot' inside of [project]/
+
+
+Import traces:
+  Client Component Browser:
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/dashboard/page.tsx [Client Component Browser]
+    ./src/app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/dashboard/page.tsx [Client Component SSR]
+    ./src/app/dashboard/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./src/components/layout/AppShell.tsx:24:1
+Module not found: Can't resolve '@/features/project-assistant/components/ProjectAssistantChatbot'
+  [90m22 |[0m ...
+  [90m23 |[0m ...[32mcide-react"[0m;
+[31m[1m>[0m [90m24 |[0m ...[33mrojectAssistantChatbot[0m } [36mfrom[0m [32m"@/features/project-assistant/components/ProjectAssistant...[0m
+  [90m   |[0m    [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m25 |[0m ...etHandovers } [36mfrom[0m [32m"@/features/shift-handovers/api/shift-handovers.api"[0m;
+  [90m26 |[0m ...etMyWorkspaces } [36mfrom[0m [32m"@/features/workspaces/api/workspaces.api"[0m;
+  [90m27 |[0m ...[33morkspace[0m } [36mfrom[0m [32m"@/features/workspaces/types/workspace.type"[0m;
+
+Import map: aliased to relative './src/features/project-assistant/components/ProjectAssistantChatbot' inside of [project]/
+
+
+Import traces:
+  Client Component Browser:
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/my-work/page.tsx [Client Component Browser]
+    ./src/app/my-work/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/my-work/page.tsx [Client Component SSR]
+    ./src/app/my-work/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./src/components/layout/AppShell.tsx:24:1
+Module not found: Can't resolve '@/features/project-assistant/components/ProjectAssistantChatbot'
+  [90m22 |[0m ...
+  [90m23 |[0m ...[32mcide-react"[0m;
+[31m[1m>[0m [90m24 |[0m ...[33mrojectAssistantChatbot[0m } [36mfrom[0m [32m"@/features/project-assistant/components/ProjectAssistant...[0m
+  [90m   |[0m    [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m25 |[0m ...etHandovers } [36mfrom[0m [32m"@/features/shift-handovers/api/shift-handovers.api"[0m;
+  [90m26 |[0m ...etMyWorkspaces } [36mfrom[0m [32m"@/features/workspaces/api/workspaces.api"[0m;
+  [90m27 |[0m ...[33morkspace[0m } [36mfrom[0m [32m"@/features/workspaces/types/workspace.type"[0m;
+
+Import map: aliased to relative './src/features/project-assistant/components/ProjectAssistantChatbot' inside of [project]/
+
+
+Import traces:
+  Client Component Browser:
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/my-work/page.tsx [Client Component Browser]
+    ./src/app/my-work/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/my-work/page.tsx [Client Component SSR]
+    ./src/app/my-work/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./src/components/layout/AppShell.tsx:24:1
+Module not found: Can't resolve '@/features/project-assistant/components/ProjectAssistantChatbot'
+  [90m22 |[0m ...
+  [90m23 |[0m ...[32mcide-react"[0m;
+[31m[1m>[0m [90m24 |[0m ...[33mrojectAssistantChatbot[0m } [36mfrom[0m [32m"@/features/project-assistant/components/ProjectAssistant...[0m
+  [90m   |[0m    [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m25 |[0m ...etHandovers } [36mfrom[0m [32m"@/features/shift-handovers/api/shift-handovers.api"[0m;
+  [90m26 |[0m ...etMyWorkspaces } [36mfrom[0m [32m"@/features/workspaces/api/workspaces.api"[0m;
+  [90m27 |[0m ...[33morkspace[0m } [36mfrom[0m [32m"@/features/workspaces/types/workspace.type"[0m;
+
+Import map: aliased to relative './src/features/project-assistant/components/ProjectAssistantChatbot' inside of [project]/
+
+
+Import traces:
+  Client Component Browser:
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/my-work/page.tsx [Client Component Browser]
+    ./src/app/my-work/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/my-work/page.tsx [Client Component SSR]
+    ./src/app/my-work/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./src/components/layout/AppShell.tsx:24:1
+Module not found: Can't resolve '@/features/project-assistant/components/ProjectAssistantChatbot'
+  [90m22 |[0m ...
+  [90m23 |[0m ...[32mcide-react"[0m;
+[31m[1m>[0m [90m24 |[0m ...[33mrojectAssistantChatbot[0m } [36mfrom[0m [32m"@/features/project-assistant/components/ProjectAssistant...[0m
+  [90m   |[0m    [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m25 |[0m ...etHandovers } [36mfrom[0m [32m"@/features/shift-handovers/api/shift-handovers.api"[0m;
+  [90m26 |[0m ...etMyWorkspaces } [36mfrom[0m [32m"@/features/workspaces/api/workspaces.api"[0m;
+  [90m27 |[0m ...[33morkspace[0m } [36mfrom[0m [32m"@/features/workspaces/types/workspace.type"[0m;
+
+Import map: aliased to relative './src/features/project-assistant/components/ProjectAssistantChatbot' inside of [project]/
+
+
+Import traces:
+  Client Component Browser:
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/my-work/page.tsx [Client Component Browser]
+    ./src/app/my-work/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/my-work/page.tsx [Client Component SSR]
+    ./src/app/my-work/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./src/components/layout/AppShell.tsx:24:1
+Module not found: Can't resolve '@/features/project-assistant/components/ProjectAssistantChatbot'
+  [90m22 |[0m ...
+  [90m23 |[0m ...[32mcide-react"[0m;
+[31m[1m>[0m [90m24 |[0m ...[33mrojectAssistantChatbot[0m } [36mfrom[0m [32m"@/features/project-assistant/components/ProjectAssistant...[0m
+  [90m   |[0m    [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m25 |[0m ...etHandovers } [36mfrom[0m [32m"@/features/shift-handovers/api/shift-handovers.api"[0m;
+  [90m26 |[0m ...etMyWorkspaces } [36mfrom[0m [32m"@/features/workspaces/api/workspaces.api"[0m;
+  [90m27 |[0m ...[33morkspace[0m } [36mfrom[0m [32m"@/features/workspaces/types/workspace.type"[0m;
+
+Import map: aliased to relative './src/features/project-assistant/components/ProjectAssistantChatbot' inside of [project]/
+
+
+Import traces:
+  Client Component Browser:
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/my-work/page.tsx [Client Component Browser]
+    ./src/app/my-work/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/my-work/page.tsx [Client Component SSR]
+    ./src/app/my-work/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./src/components/layout/AppShell.tsx:24:1
+Module not found: Can't resolve '@/features/project-assistant/components/ProjectAssistantChatbot'
+  [90m22 |[0m ...
+  [90m23 |[0m ...[32mcide-react"[0m;
+[31m[1m>[0m [90m24 |[0m ...[33mrojectAssistantChatbot[0m } [36mfrom[0m [32m"@/features/project-assistant/components/ProjectAssistant...[0m
+  [90m   |[0m    [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m25 |[0m ...etHandovers } [36mfrom[0m [32m"@/features/shift-handovers/api/shift-handovers.api"[0m;
+  [90m26 |[0m ...etMyWorkspaces } [36mfrom[0m [32m"@/features/workspaces/api/workspaces.api"[0m;
+  [90m27 |[0m ...[33morkspace[0m } [36mfrom[0m [32m"@/features/workspaces/types/workspace.type"[0m;
+
+Import map: aliased to relative './src/features/project-assistant/components/ProjectAssistantChatbot' inside of [project]/
+
+
+Import traces:
+  Client Component Browser:
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/my-work/page.tsx [Client Component Browser]
+    ./src/app/my-work/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/my-work/page.tsx [Client Component SSR]
+    ./src/app/my-work/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./src/components/layout/AppShell.tsx:24:1
+Module not found: Can't resolve '@/features/project-assistant/components/ProjectAssistantChatbot'
+  [90m22 |[0m ...
+  [90m23 |[0m ...[32mcide-react"[0m;
+[31m[1m>[0m [90m24 |[0m ...[33mrojectAssistantChatbot[0m } [36mfrom[0m [32m"@/features/project-assistant/components/ProjectAssistant...[0m
+  [90m   |[0m    [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m25 |[0m ...etHandovers } [36mfrom[0m [32m"@/features/shift-handovers/api/shift-handovers.api"[0m;
+  [90m26 |[0m ...etMyWorkspaces } [36mfrom[0m [32m"@/features/workspaces/api/workspaces.api"[0m;
+  [90m27 |[0m ...[33morkspace[0m } [36mfrom[0m [32m"@/features/workspaces/types/workspace.type"[0m;
+
+Import map: aliased to relative './src/features/project-assistant/components/ProjectAssistantChatbot' inside of [project]/
+
+
+Import traces:
+  Client Component Browser:
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/my-work/page.tsx [Client Component Browser]
+    ./src/app/my-work/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/my-work/page.tsx [Client Component SSR]
+    ./src/app/my-work/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./src/components/layout/AppShell.tsx:24:1
+Module not found: Can't resolve '@/features/project-assistant/components/ProjectAssistantChatbot'
+  [90m22 |[0m ...
+  [90m23 |[0m ...[32mcide-react"[0m;
+[31m[1m>[0m [90m24 |[0m ...[33mrojectAssistantChatbot[0m } [36mfrom[0m [32m"@/features/project-assistant/components/ProjectAssistant...[0m
+  [90m   |[0m    [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m25 |[0m ...etHandovers } [36mfrom[0m [32m"@/features/shift-handovers/api/shift-handovers.api"[0m;
+  [90m26 |[0m ...etMyWorkspaces } [36mfrom[0m [32m"@/features/workspaces/api/workspaces.api"[0m;
+  [90m27 |[0m ...[33morkspace[0m } [36mfrom[0m [32m"@/features/workspaces/types/workspace.type"[0m;
+
+Import map: aliased to relative './src/features/project-assistant/components/ProjectAssistantChatbot' inside of [project]/
+
+
+Import traces:
+  Client Component Browser:
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/my-work/page.tsx [Client Component Browser]
+    ./src/app/my-work/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/my-work/page.tsx [Client Component SSR]
+    ./src/app/my-work/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./src/components/layout/AppShell.tsx:24:1
+Module not found: Can't resolve '@/features/project-assistant/components/ProjectAssistantChatbot'
+  [90m22 |[0m ...
+  [90m23 |[0m ...[32mcide-react"[0m;
+[31m[1m>[0m [90m24 |[0m ...[33mrojectAssistantChatbot[0m } [36mfrom[0m [32m"@/features/project-assistant/components/ProjectAssistant...[0m
+  [90m   |[0m    [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m25 |[0m ...etHandovers } [36mfrom[0m [32m"@/features/shift-handovers/api/shift-handovers.api"[0m;
+  [90m26 |[0m ...etMyWorkspaces } [36mfrom[0m [32m"@/features/workspaces/api/workspaces.api"[0m;
+  [90m27 |[0m ...[33morkspace[0m } [36mfrom[0m [32m"@/features/workspaces/types/workspace.type"[0m;
+
+Import map: aliased to relative './src/features/project-assistant/components/ProjectAssistantChatbot' inside of [project]/
+
+
+Import traces:
+  Client Component Browser:
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./src/components/layout/AppShell.tsx:24:1
+Module not found: Can't resolve '@/features/project-assistant/components/ProjectAssistantChatbot'
+  [90m22 |[0m ...
+  [90m23 |[0m ...[32mcide-react"[0m;
+[31m[1m>[0m [90m24 |[0m ...[33mrojectAssistantChatbot[0m } [36mfrom[0m [32m"@/features/project-assistant/components/ProjectAssistant...[0m
+  [90m   |[0m    [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m25 |[0m ...etHandovers } [36mfrom[0m [32m"@/features/shift-handovers/api/shift-handovers.api"[0m;
+  [90m26 |[0m ...etMyWorkspaces } [36mfrom[0m [32m"@/features/workspaces/api/workspaces.api"[0m;
+  [90m27 |[0m ...[33morkspace[0m } [36mfrom[0m [32m"@/features/workspaces/types/workspace.type"[0m;
+
+Import map: aliased to relative './src/features/project-assistant/components/ProjectAssistantChatbot' inside of [project]/
+
+
+Import traces:
+  Client Component Browser:
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./src/components/layout/AppShell.tsx:24:1
+Module not found: Can't resolve '@/features/project-assistant/components/ProjectAssistantChatbot'
+  [90m22 |[0m ...
+  [90m23 |[0m ...[32mcide-react"[0m;
+[31m[1m>[0m [90m24 |[0m ...[33mrojectAssistantChatbot[0m } [36mfrom[0m [32m"@/features/project-assistant/components/ProjectAssistant...[0m
+  [90m   |[0m    [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m25 |[0m ...etHandovers } [36mfrom[0m [32m"@/features/shift-handovers/api/shift-handovers.api"[0m;
+  [90m26 |[0m ...etMyWorkspaces } [36mfrom[0m [32m"@/features/workspaces/api/workspaces.api"[0m;
+  [90m27 |[0m ...[33morkspace[0m } [36mfrom[0m [32m"@/features/workspaces/types/workspace.type"[0m;
+
+Import map: aliased to relative './src/features/project-assistant/components/ProjectAssistantChatbot' inside of [project]/
+
+
+Import traces:
+  Client Component Browser:
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./src/components/layout/AppShell.tsx:24:1
+Module not found: Can't resolve '@/features/project-assistant/components/ProjectAssistantChatbot'
+  [90m22 |[0m ...
+  [90m23 |[0m ...[32mcide-react"[0m;
+[31m[1m>[0m [90m24 |[0m ...[33mrojectAssistantChatbot[0m } [36mfrom[0m [32m"@/features/project-assistant/components/ProjectAssistant...[0m
+  [90m   |[0m    [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m25 |[0m ...etHandovers } [36mfrom[0m [32m"@/features/shift-handovers/api/shift-handovers.api"[0m;
+  [90m26 |[0m ...etMyWorkspaces } [36mfrom[0m [32m"@/features/workspaces/api/workspaces.api"[0m;
+  [90m27 |[0m ...[33morkspace[0m } [36mfrom[0m [32m"@/features/workspaces/types/workspace.type"[0m;
+
+Import map: aliased to relative './src/features/project-assistant/components/ProjectAssistantChatbot' inside of [project]/
+
+
+Import traces:
+  Client Component Browser:
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./src/components/layout/AppShell.tsx:24:1
+Module not found: Can't resolve '@/features/project-assistant/components/ProjectAssistantChatbot'
+  [90m22 |[0m ...
+  [90m23 |[0m ...[32mcide-react"[0m;
+[31m[1m>[0m [90m24 |[0m ...[33mrojectAssistantChatbot[0m } [36mfrom[0m [32m"@/features/project-assistant/components/ProjectAssistant...[0m
+  [90m   |[0m    [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m25 |[0m ...etHandovers } [36mfrom[0m [32m"@/features/shift-handovers/api/shift-handovers.api"[0m;
+  [90m26 |[0m ...etMyWorkspaces } [36mfrom[0m [32m"@/features/workspaces/api/workspaces.api"[0m;
+  [90m27 |[0m ...[33morkspace[0m } [36mfrom[0m [32m"@/features/workspaces/types/workspace.type"[0m;
+
+Import map: aliased to relative './src/features/project-assistant/components/ProjectAssistantChatbot' inside of [project]/
+
+
+Import traces:
+  Client Component Browser:
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./src/components/layout/AppShell.tsx:24:1
+Module not found: Can't resolve '@/features/project-assistant/components/ProjectAssistantChatbot'
+  [90m22 |[0m ...
+  [90m23 |[0m ...[32mcide-react"[0m;
+[31m[1m>[0m [90m24 |[0m ...[33mrojectAssistantChatbot[0m } [36mfrom[0m [32m"@/features/project-assistant/components/ProjectAssistant...[0m
+  [90m   |[0m    [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m25 |[0m ...etHandovers } [36mfrom[0m [32m"@/features/shift-handovers/api/shift-handovers.api"[0m;
+  [90m26 |[0m ...etMyWorkspaces } [36mfrom[0m [32m"@/features/workspaces/api/workspaces.api"[0m;
+  [90m27 |[0m ...[33morkspace[0m } [36mfrom[0m [32m"@/features/workspaces/types/workspace.type"[0m;
+
+Import map: aliased to relative './src/features/project-assistant/components/ProjectAssistantChatbot' inside of [project]/
+
+
+Import traces:
+  Client Component Browser:
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./src/components/layout/AppShell.tsx:24:1
+Module not found: Can't resolve '@/features/project-assistant/components/ProjectAssistantChatbot'
+  [90m22 |[0m ...
+  [90m23 |[0m ...[32mcide-react"[0m;
+[31m[1m>[0m [90m24 |[0m ...[33mrojectAssistantChatbot[0m } [36mfrom[0m [32m"@/features/project-assistant/components/ProjectAssistant...[0m
+  [90m   |[0m    [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m25 |[0m ...etHandovers } [36mfrom[0m [32m"@/features/shift-handovers/api/shift-handovers.api"[0m;
+  [90m26 |[0m ...etMyWorkspaces } [36mfrom[0m [32m"@/features/workspaces/api/workspaces.api"[0m;
+  [90m27 |[0m ...[33morkspace[0m } [36mfrom[0m [32m"@/features/workspaces/types/workspace.type"[0m;
+
+Import map: aliased to relative './src/features/project-assistant/components/ProjectAssistantChatbot' inside of [project]/
+
+
+Import traces:
+  Client Component Browser:
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./src/components/layout/AppShell.tsx:24:1
+Module not found: Can't resolve '@/features/project-assistant/components/ProjectAssistantChatbot'
+  [90m22 |[0m ...
+  [90m23 |[0m ...[32mcide-react"[0m;
+[31m[1m>[0m [90m24 |[0m ...[33mrojectAssistantChatbot[0m } [36mfrom[0m [32m"@/features/project-assistant/components/ProjectAssistant...[0m
+  [90m   |[0m    [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m25 |[0m ...etHandovers } [36mfrom[0m [32m"@/features/shift-handovers/api/shift-handovers.api"[0m;
+  [90m26 |[0m ...etMyWorkspaces } [36mfrom[0m [32m"@/features/workspaces/api/workspaces.api"[0m;
+  [90m27 |[0m ...[33morkspace[0m } [36mfrom[0m [32m"@/features/workspaces/types/workspace.type"[0m;
+
+Import map: aliased to relative './src/features/project-assistant/components/ProjectAssistantChatbot' inside of [project]/
+
+
+Import traces:
+  Client Component Browser:
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx:179:20
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+  [90m177 |[0m     [36mreturn[0m askAgileFlowAssistant({
+  [90m178 |[0m       question: content,
+[31m[1m>[0m [90m179 |[0m       workspaceId: context?.workspaceId ?? selectedWorkspaceId || [36mundefined[0m,
+  [90m    |[0m                    [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m180 |[0m       projectId: context?.projectId ?? selectedProjectId || [36mundefined[0m,
+  [90m181 |[0m       sprintId: context?.sprintId ?? selectedSprintId || [36mundefined[0m,
+  [90m182 |[0m     });
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component Browser]
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component SSR]
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+
+
+./src/features/project-assistant/components/ProjectAssistantChatbot.tsx:180:18
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+  [90m178 |[0m       question: content,
+  [90m179 |[0m       workspaceId: context?.workspaceId ?? selectedWorkspaceId || [36mundefined[0m,
+[31m[1m>[0m [90m180 |[0m       projectId: context?.projectId ?? selectedProjectId || [36mundefined[0m,
+  [90m    |[0m                  [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m181 |[0m       sprintId: context?.sprintId ?? selectedSprintId || [36mundefined[0m,
+  [90m182 |[0m     });
+  [90m183 |[0m   }
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component Browser]
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component SSR]
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+
+
+./src/features/project-assistant/components/ProjectAssistantChatbot.tsx:181:17
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+  [90m179 |[0m       workspaceId: context?.workspaceId ?? selectedWorkspaceId || [36mundefined[0m,
+  [90m180 |[0m       projectId: context?.projectId ?? selectedProjectId || [36mundefined[0m,
+[31m[1m>[0m [90m181 |[0m       sprintId: context?.sprintId ?? selectedSprintId || [36mundefined[0m,
+  [90m    |[0m                 [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m182 |[0m     });
+  [90m183 |[0m   }
+  [90m184 |[0m
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component Browser]
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component SSR]
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+
+⨯ ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx:179:20
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+  [90m177 |[0m     [36mreturn[0m askAgileFlowAssistant({
+  [90m178 |[0m       question: content,
+[31m[1m>[0m [90m179 |[0m       workspaceId: context?.workspaceId ?? selectedWorkspaceId || [36mundefined[0m,
+  [90m    |[0m                    [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m180 |[0m       projectId: context?.projectId ?? selectedProjectId || [36mundefined[0m,
+  [90m181 |[0m       sprintId: context?.sprintId ?? selectedSprintId || [36mundefined[0m,
+  [90m182 |[0m     });
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component Browser]
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component SSR]
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+
+
+./src/features/project-assistant/components/ProjectAssistantChatbot.tsx:180:18
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+  [90m178 |[0m       question: content,
+  [90m179 |[0m       workspaceId: context?.workspaceId ?? selectedWorkspaceId || [36mundefined[0m,
+[31m[1m>[0m [90m180 |[0m       projectId: context?.projectId ?? selectedProjectId || [36mundefined[0m,
+  [90m    |[0m                  [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m181 |[0m       sprintId: context?.sprintId ?? selectedSprintId || [36mundefined[0m,
+  [90m182 |[0m     });
+  [90m183 |[0m   }
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component Browser]
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component SSR]
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+
+
+./src/features/project-assistant/components/ProjectAssistantChatbot.tsx:181:17
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+  [90m179 |[0m       workspaceId: context?.workspaceId ?? selectedWorkspaceId || [36mundefined[0m,
+  [90m180 |[0m       projectId: context?.projectId ?? selectedProjectId || [36mundefined[0m,
+[31m[1m>[0m [90m181 |[0m       sprintId: context?.sprintId ?? selectedSprintId || [36mundefined[0m,
+  [90m    |[0m                 [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m182 |[0m     });
+  [90m183 |[0m   }
+  [90m184 |[0m
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component Browser]
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component SSR]
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+
+⨯ ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx:179:20
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+  [90m177 |[0m     [36mreturn[0m askAgileFlowAssistant({
+  [90m178 |[0m       question: content,
+[31m[1m>[0m [90m179 |[0m       workspaceId: context?.workspaceId ?? selectedWorkspaceId || [36mundefined[0m,
+  [90m    |[0m                    [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m180 |[0m       projectId: context?.projectId ?? selectedProjectId || [36mundefined[0m,
+  [90m181 |[0m       sprintId: context?.sprintId ?? selectedSprintId || [36mundefined[0m,
+  [90m182 |[0m     });
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component Browser]
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component SSR]
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+
+
+./src/features/project-assistant/components/ProjectAssistantChatbot.tsx:180:18
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+  [90m178 |[0m       question: content,
+  [90m179 |[0m       workspaceId: context?.workspaceId ?? selectedWorkspaceId || [36mundefined[0m,
+[31m[1m>[0m [90m180 |[0m       projectId: context?.projectId ?? selectedProjectId || [36mundefined[0m,
+  [90m    |[0m                  [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m181 |[0m       sprintId: context?.sprintId ?? selectedSprintId || [36mundefined[0m,
+  [90m182 |[0m     });
+  [90m183 |[0m   }
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component Browser]
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component SSR]
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+
+
+./src/features/project-assistant/components/ProjectAssistantChatbot.tsx:181:17
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+  [90m179 |[0m       workspaceId: context?.workspaceId ?? selectedWorkspaceId || [36mundefined[0m,
+  [90m180 |[0m       projectId: context?.projectId ?? selectedProjectId || [36mundefined[0m,
+[31m[1m>[0m [90m181 |[0m       sprintId: context?.sprintId ?? selectedSprintId || [36mundefined[0m,
+  [90m    |[0m                 [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m182 |[0m     });
+  [90m183 |[0m   }
+  [90m184 |[0m
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component Browser]
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component SSR]
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+
+⨯ ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx:179:20
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+  [90m177 |[0m     [36mreturn[0m askAgileFlowAssistant({
+  [90m178 |[0m       question: content,
+[31m[1m>[0m [90m179 |[0m       workspaceId: context?.workspaceId ?? selectedWorkspaceId || [36mundefined[0m,
+  [90m    |[0m                    [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m180 |[0m       projectId: context?.projectId ?? selectedProjectId || [36mundefined[0m,
+  [90m181 |[0m       sprintId: context?.sprintId ?? selectedSprintId || [36mundefined[0m,
+  [90m182 |[0m     });
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component Browser]
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component SSR]
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+
+
+./src/features/project-assistant/components/ProjectAssistantChatbot.tsx:180:18
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+  [90m178 |[0m       question: content,
+  [90m179 |[0m       workspaceId: context?.workspaceId ?? selectedWorkspaceId || [36mundefined[0m,
+[31m[1m>[0m [90m180 |[0m       projectId: context?.projectId ?? selectedProjectId || [36mundefined[0m,
+  [90m    |[0m                  [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m181 |[0m       sprintId: context?.sprintId ?? selectedSprintId || [36mundefined[0m,
+  [90m182 |[0m     });
+  [90m183 |[0m   }
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component Browser]
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component SSR]
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+
+
+./src/features/project-assistant/components/ProjectAssistantChatbot.tsx:181:17
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+  [90m179 |[0m       workspaceId: context?.workspaceId ?? selectedWorkspaceId || [36mundefined[0m,
+  [90m180 |[0m       projectId: context?.projectId ?? selectedProjectId || [36mundefined[0m,
+[31m[1m>[0m [90m181 |[0m       sprintId: context?.sprintId ?? selectedSprintId || [36mundefined[0m,
+  [90m    |[0m                 [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m182 |[0m     });
+  [90m183 |[0m   }
+  [90m184 |[0m
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component Browser]
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component SSR]
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+
+⨯ ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx:179:20
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+  [90m177 |[0m     [36mreturn[0m askAgileFlowAssistant({
+  [90m178 |[0m       question: content,
+[31m[1m>[0m [90m179 |[0m       workspaceId: context?.workspaceId ?? selectedWorkspaceId || [36mundefined[0m,
+  [90m    |[0m                    [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m180 |[0m       projectId: context?.projectId ?? selectedProjectId || [36mundefined[0m,
+  [90m181 |[0m       sprintId: context?.sprintId ?? selectedSprintId || [36mundefined[0m,
+  [90m182 |[0m     });
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component Browser]
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component SSR]
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+
+
+./src/features/project-assistant/components/ProjectAssistantChatbot.tsx:180:18
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+  [90m178 |[0m       question: content,
+  [90m179 |[0m       workspaceId: context?.workspaceId ?? selectedWorkspaceId || [36mundefined[0m,
+[31m[1m>[0m [90m180 |[0m       projectId: context?.projectId ?? selectedProjectId || [36mundefined[0m,
+  [90m    |[0m                  [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m181 |[0m       sprintId: context?.sprintId ?? selectedSprintId || [36mundefined[0m,
+  [90m182 |[0m     });
+  [90m183 |[0m   }
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component Browser]
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component SSR]
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+
+
+./src/features/project-assistant/components/ProjectAssistantChatbot.tsx:181:17
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+  [90m179 |[0m       workspaceId: context?.workspaceId ?? selectedWorkspaceId || [36mundefined[0m,
+  [90m180 |[0m       projectId: context?.projectId ?? selectedProjectId || [36mundefined[0m,
+[31m[1m>[0m [90m181 |[0m       sprintId: context?.sprintId ?? selectedSprintId || [36mundefined[0m,
+  [90m    |[0m                 [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m182 |[0m     });
+  [90m183 |[0m   }
+  [90m184 |[0m
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component Browser]
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component SSR]
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+
+⨯ ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx:179:20
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+  [90m177 |[0m     [36mreturn[0m askAgileFlowAssistant({
+  [90m178 |[0m       question: content,
+[31m[1m>[0m [90m179 |[0m       workspaceId: context?.workspaceId ?? selectedWorkspaceId || [36mundefined[0m,
+  [90m    |[0m                    [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m180 |[0m       projectId: context?.projectId ?? selectedProjectId || [36mundefined[0m,
+  [90m181 |[0m       sprintId: context?.sprintId ?? selectedSprintId || [36mundefined[0m,
+  [90m182 |[0m     });
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component Browser]
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component SSR]
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+
+
+./src/features/project-assistant/components/ProjectAssistantChatbot.tsx:180:18
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+  [90m178 |[0m       question: content,
+  [90m179 |[0m       workspaceId: context?.workspaceId ?? selectedWorkspaceId || [36mundefined[0m,
+[31m[1m>[0m [90m180 |[0m       projectId: context?.projectId ?? selectedProjectId || [36mundefined[0m,
+  [90m    |[0m                  [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m181 |[0m       sprintId: context?.sprintId ?? selectedSprintId || [36mundefined[0m,
+  [90m182 |[0m     });
+  [90m183 |[0m   }
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component Browser]
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component SSR]
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+
+
+./src/features/project-assistant/components/ProjectAssistantChatbot.tsx:181:17
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+  [90m179 |[0m       workspaceId: context?.workspaceId ?? selectedWorkspaceId || [36mundefined[0m,
+  [90m180 |[0m       projectId: context?.projectId ?? selectedProjectId || [36mundefined[0m,
+[31m[1m>[0m [90m181 |[0m       sprintId: context?.sprintId ?? selectedSprintId || [36mundefined[0m,
+  [90m    |[0m                 [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m182 |[0m     });
+  [90m183 |[0m   }
+  [90m184 |[0m
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component Browser]
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component SSR]
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+
+⨯ ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx:179:20
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+  [90m177 |[0m     [36mreturn[0m askAgileFlowAssistant({
+  [90m178 |[0m       question: content,
+[31m[1m>[0m [90m179 |[0m       workspaceId: context?.workspaceId ?? selectedWorkspaceId || [36mundefined[0m,
+  [90m    |[0m                    [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m180 |[0m       projectId: context?.projectId ?? selectedProjectId || [36mundefined[0m,
+  [90m181 |[0m       sprintId: context?.sprintId ?? selectedSprintId || [36mundefined[0m,
+  [90m182 |[0m     });
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component Browser]
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component SSR]
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+
+
+./src/features/project-assistant/components/ProjectAssistantChatbot.tsx:180:18
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+  [90m178 |[0m       question: content,
+  [90m179 |[0m       workspaceId: context?.workspaceId ?? selectedWorkspaceId || [36mundefined[0m,
+[31m[1m>[0m [90m180 |[0m       projectId: context?.projectId ?? selectedProjectId || [36mundefined[0m,
+  [90m    |[0m                  [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m181 |[0m       sprintId: context?.sprintId ?? selectedSprintId || [36mundefined[0m,
+  [90m182 |[0m     });
+  [90m183 |[0m   }
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component Browser]
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component SSR]
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+
+
+./src/features/project-assistant/components/ProjectAssistantChatbot.tsx:181:17
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+  [90m179 |[0m       workspaceId: context?.workspaceId ?? selectedWorkspaceId || [36mundefined[0m,
+  [90m180 |[0m       projectId: context?.projectId ?? selectedProjectId || [36mundefined[0m,
+[31m[1m>[0m [90m181 |[0m       sprintId: context?.sprintId ?? selectedSprintId || [36mundefined[0m,
+  [90m    |[0m                 [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m182 |[0m     });
+  [90m183 |[0m   }
+  [90m184 |[0m
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component Browser]
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component SSR]
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+
+⨯ ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx:179:20
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+  [90m177 |[0m     [36mreturn[0m askAgileFlowAssistant({
+  [90m178 |[0m       question: content,
+[31m[1m>[0m [90m179 |[0m       workspaceId: context?.workspaceId ?? selectedWorkspaceId || [36mundefined[0m,
+  [90m    |[0m                    [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m180 |[0m       projectId: context?.projectId ?? selectedProjectId || [36mundefined[0m,
+  [90m181 |[0m       sprintId: context?.sprintId ?? selectedSprintId || [36mundefined[0m,
+  [90m182 |[0m     });
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component Browser]
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component SSR]
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+
+
+./src/features/project-assistant/components/ProjectAssistantChatbot.tsx:180:18
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+  [90m178 |[0m       question: content,
+  [90m179 |[0m       workspaceId: context?.workspaceId ?? selectedWorkspaceId || [36mundefined[0m,
+[31m[1m>[0m [90m180 |[0m       projectId: context?.projectId ?? selectedProjectId || [36mundefined[0m,
+  [90m    |[0m                  [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m181 |[0m       sprintId: context?.sprintId ?? selectedSprintId || [36mundefined[0m,
+  [90m182 |[0m     });
+  [90m183 |[0m   }
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component Browser]
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component SSR]
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+
+
+./src/features/project-assistant/components/ProjectAssistantChatbot.tsx:181:17
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+  [90m179 |[0m       workspaceId: context?.workspaceId ?? selectedWorkspaceId || [36mundefined[0m,
+  [90m180 |[0m       projectId: context?.projectId ?? selectedProjectId || [36mundefined[0m,
+[31m[1m>[0m [90m181 |[0m       sprintId: context?.sprintId ?? selectedSprintId || [36mundefined[0m,
+  [90m    |[0m                 [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m182 |[0m     });
+  [90m183 |[0m   }
+  [90m184 |[0m
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component Browser]
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component SSR]
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+
+⨯ ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx:179:20
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+  [90m177 |[0m     [36mreturn[0m askAgileFlowAssistant({
+  [90m178 |[0m       question: content,
+[31m[1m>[0m [90m179 |[0m       workspaceId: context?.workspaceId ?? selectedWorkspaceId || [36mundefined[0m,
+  [90m    |[0m                    [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m180 |[0m       projectId: context?.projectId ?? selectedProjectId || [36mundefined[0m,
+  [90m181 |[0m       sprintId: context?.sprintId ?? selectedSprintId || [36mundefined[0m,
+  [90m182 |[0m     });
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component Browser]
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component SSR]
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+
+
+./src/features/project-assistant/components/ProjectAssistantChatbot.tsx:180:18
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+  [90m178 |[0m       question: content,
+  [90m179 |[0m       workspaceId: context?.workspaceId ?? selectedWorkspaceId || [36mundefined[0m,
+[31m[1m>[0m [90m180 |[0m       projectId: context?.projectId ?? selectedProjectId || [36mundefined[0m,
+  [90m    |[0m                  [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m181 |[0m       sprintId: context?.sprintId ?? selectedSprintId || [36mundefined[0m,
+  [90m182 |[0m     });
+  [90m183 |[0m   }
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component Browser]
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component SSR]
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+
+
+./src/features/project-assistant/components/ProjectAssistantChatbot.tsx:181:17
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+  [90m179 |[0m       workspaceId: context?.workspaceId ?? selectedWorkspaceId || [36mundefined[0m,
+  [90m180 |[0m       projectId: context?.projectId ?? selectedProjectId || [36mundefined[0m,
+[31m[1m>[0m [90m181 |[0m       sprintId: context?.sprintId ?? selectedSprintId || [36mundefined[0m,
+  [90m    |[0m                 [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m182 |[0m     });
+  [90m183 |[0m   }
+  [90m184 |[0m
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component Browser]
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component SSR]
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+
+⨯ ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx:179:20
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+  [90m177 |[0m     [36mreturn[0m askAgileFlowAssistant({
+  [90m178 |[0m       question: content,
+[31m[1m>[0m [90m179 |[0m       workspaceId: context?.workspaceId ?? selectedWorkspaceId || [36mundefined[0m,
+  [90m    |[0m                    [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m180 |[0m       projectId: context?.projectId ?? selectedProjectId || [36mundefined[0m,
+  [90m181 |[0m       sprintId: context?.sprintId ?? selectedSprintId || [36mundefined[0m,
+  [90m182 |[0m     });
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component Browser]
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component SSR]
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+
+
+./src/features/project-assistant/components/ProjectAssistantChatbot.tsx:180:18
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+  [90m178 |[0m       question: content,
+  [90m179 |[0m       workspaceId: context?.workspaceId ?? selectedWorkspaceId || [36mundefined[0m,
+[31m[1m>[0m [90m180 |[0m       projectId: context?.projectId ?? selectedProjectId || [36mundefined[0m,
+  [90m    |[0m                  [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m181 |[0m       sprintId: context?.sprintId ?? selectedSprintId || [36mundefined[0m,
+  [90m182 |[0m     });
+  [90m183 |[0m   }
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component Browser]
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component SSR]
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+
+
+./src/features/project-assistant/components/ProjectAssistantChatbot.tsx:181:17
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+  [90m179 |[0m       workspaceId: context?.workspaceId ?? selectedWorkspaceId || [36mundefined[0m,
+  [90m180 |[0m       projectId: context?.projectId ?? selectedProjectId || [36mundefined[0m,
+[31m[1m>[0m [90m181 |[0m       sprintId: context?.sprintId ?? selectedSprintId || [36mundefined[0m,
+  [90m    |[0m                 [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m182 |[0m     });
+  [90m183 |[0m   }
+  [90m184 |[0m
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component Browser]
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component SSR]
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+
+⨯ ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx:179:20
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+  [90m177 |[0m     [36mreturn[0m askAgileFlowAssistant({
+  [90m178 |[0m       question: content,
+[31m[1m>[0m [90m179 |[0m       workspaceId: context?.workspaceId ?? selectedWorkspaceId || [36mundefined[0m,
+  [90m    |[0m                    [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m180 |[0m       projectId: context?.projectId ?? selectedProjectId || [36mundefined[0m,
+  [90m181 |[0m       sprintId: context?.sprintId ?? selectedSprintId || [36mundefined[0m,
+  [90m182 |[0m     });
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component Browser]
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component SSR]
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+
+
+./src/features/project-assistant/components/ProjectAssistantChatbot.tsx:180:18
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+  [90m178 |[0m       question: content,
+  [90m179 |[0m       workspaceId: context?.workspaceId ?? selectedWorkspaceId || [36mundefined[0m,
+[31m[1m>[0m [90m180 |[0m       projectId: context?.projectId ?? selectedProjectId || [36mundefined[0m,
+  [90m    |[0m                  [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m181 |[0m       sprintId: context?.sprintId ?? selectedSprintId || [36mundefined[0m,
+  [90m182 |[0m     });
+  [90m183 |[0m   }
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component Browser]
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component SSR]
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+
+
+./src/features/project-assistant/components/ProjectAssistantChatbot.tsx:181:17
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+  [90m179 |[0m       workspaceId: context?.workspaceId ?? selectedWorkspaceId || [36mundefined[0m,
+  [90m180 |[0m       projectId: context?.projectId ?? selectedProjectId || [36mundefined[0m,
+[31m[1m>[0m [90m181 |[0m       sprintId: context?.sprintId ?? selectedSprintId || [36mundefined[0m,
+  [90m    |[0m                 [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m182 |[0m     });
+  [90m183 |[0m   }
+  [90m184 |[0m
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component Browser]
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component SSR]
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+
+⨯ ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx:179:20
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+  [90m177 |[0m     [36mreturn[0m askAgileFlowAssistant({
+  [90m178 |[0m       question: content,
+[31m[1m>[0m [90m179 |[0m       workspaceId: context?.workspaceId ?? selectedWorkspaceId || [36mundefined[0m,
+  [90m    |[0m                    [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m180 |[0m       projectId: context?.projectId ?? selectedProjectId || [36mundefined[0m,
+  [90m181 |[0m       sprintId: context?.sprintId ?? selectedSprintId || [36mundefined[0m,
+  [90m182 |[0m     });
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component Browser]
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component SSR]
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+
+
+./src/features/project-assistant/components/ProjectAssistantChatbot.tsx:180:18
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+  [90m178 |[0m       question: content,
+  [90m179 |[0m       workspaceId: context?.workspaceId ?? selectedWorkspaceId || [36mundefined[0m,
+[31m[1m>[0m [90m180 |[0m       projectId: context?.projectId ?? selectedProjectId || [36mundefined[0m,
+  [90m    |[0m                  [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m181 |[0m       sprintId: context?.sprintId ?? selectedSprintId || [36mundefined[0m,
+  [90m182 |[0m     });
+  [90m183 |[0m   }
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component Browser]
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component SSR]
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+
+
+./src/features/project-assistant/components/ProjectAssistantChatbot.tsx:181:17
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+  [90m179 |[0m       workspaceId: context?.workspaceId ?? selectedWorkspaceId || [36mundefined[0m,
+  [90m180 |[0m       projectId: context?.projectId ?? selectedProjectId || [36mundefined[0m,
+[31m[1m>[0m [90m181 |[0m       sprintId: context?.sprintId ?? selectedSprintId || [36mundefined[0m,
+  [90m    |[0m                 [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m182 |[0m     });
+  [90m183 |[0m   }
+  [90m184 |[0m
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component Browser]
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component SSR]
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+
+⨯ ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx:179:20
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+  [90m177 |[0m     [36mreturn[0m askAgileFlowAssistant({
+  [90m178 |[0m       question: content,
+[31m[1m>[0m [90m179 |[0m       workspaceId: context?.workspaceId ?? selectedWorkspaceId || [36mundefined[0m,
+  [90m    |[0m                    [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m180 |[0m       projectId: context?.projectId ?? selectedProjectId || [36mundefined[0m,
+  [90m181 |[0m       sprintId: context?.sprintId ?? selectedSprintId || [36mundefined[0m,
+  [90m182 |[0m     });
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component Browser]
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component SSR]
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+
+
+./src/features/project-assistant/components/ProjectAssistantChatbot.tsx:180:18
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+  [90m178 |[0m       question: content,
+  [90m179 |[0m       workspaceId: context?.workspaceId ?? selectedWorkspaceId || [36mundefined[0m,
+[31m[1m>[0m [90m180 |[0m       projectId: context?.projectId ?? selectedProjectId || [36mundefined[0m,
+  [90m    |[0m                  [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m181 |[0m       sprintId: context?.sprintId ?? selectedSprintId || [36mundefined[0m,
+  [90m182 |[0m     });
+  [90m183 |[0m   }
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component Browser]
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component SSR]
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+
+
+./src/features/project-assistant/components/ProjectAssistantChatbot.tsx:181:17
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+  [90m179 |[0m       workspaceId: context?.workspaceId ?? selectedWorkspaceId || [36mundefined[0m,
+  [90m180 |[0m       projectId: context?.projectId ?? selectedProjectId || [36mundefined[0m,
+[31m[1m>[0m [90m181 |[0m       sprintId: context?.sprintId ?? selectedSprintId || [36mundefined[0m,
+  [90m    |[0m                 [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m182 |[0m     });
+  [90m183 |[0m   }
+  [90m184 |[0m
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component Browser]
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component SSR]
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+
+⨯ ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx:179:20
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+  [90m177 |[0m     [36mreturn[0m askAgileFlowAssistant({
+  [90m178 |[0m       question: content,
+[31m[1m>[0m [90m179 |[0m       workspaceId: context?.workspaceId ?? selectedWorkspaceId || [36mundefined[0m,
+  [90m    |[0m                    [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m180 |[0m       projectId: context?.projectId ?? selectedProjectId || [36mundefined[0m,
+  [90m181 |[0m       sprintId: context?.sprintId ?? selectedSprintId || [36mundefined[0m,
+  [90m182 |[0m     });
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component Browser]
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component SSR]
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+
+
+./src/features/project-assistant/components/ProjectAssistantChatbot.tsx:180:18
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+  [90m178 |[0m       question: content,
+  [90m179 |[0m       workspaceId: context?.workspaceId ?? selectedWorkspaceId || [36mundefined[0m,
+[31m[1m>[0m [90m180 |[0m       projectId: context?.projectId ?? selectedProjectId || [36mundefined[0m,
+  [90m    |[0m                  [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m181 |[0m       sprintId: context?.sprintId ?? selectedSprintId || [36mundefined[0m,
+  [90m182 |[0m     });
+  [90m183 |[0m   }
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component Browser]
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component SSR]
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+
+
+./src/features/project-assistant/components/ProjectAssistantChatbot.tsx:181:17
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+  [90m179 |[0m       workspaceId: context?.workspaceId ?? selectedWorkspaceId || [36mundefined[0m,
+  [90m180 |[0m       projectId: context?.projectId ?? selectedProjectId || [36mundefined[0m,
+[31m[1m>[0m [90m181 |[0m       sprintId: context?.sprintId ?? selectedSprintId || [36mundefined[0m,
+  [90m    |[0m                 [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m182 |[0m     });
+  [90m183 |[0m   }
+  [90m184 |[0m
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component Browser]
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component SSR]
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+
+⨯ ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx:179:20
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+  [90m177 |[0m     [36mreturn[0m askAgileFlowAssistant({
+  [90m178 |[0m       question: content,
+[31m[1m>[0m [90m179 |[0m       workspaceId: context?.workspaceId ?? selectedWorkspaceId || [36mundefined[0m,
+  [90m    |[0m                    [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m180 |[0m       projectId: context?.projectId ?? selectedProjectId || [36mundefined[0m,
+  [90m181 |[0m       sprintId: context?.sprintId ?? selectedSprintId || [36mundefined[0m,
+  [90m182 |[0m     });
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component Browser]
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component SSR]
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+
+
+./src/features/project-assistant/components/ProjectAssistantChatbot.tsx:180:18
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+  [90m178 |[0m       question: content,
+  [90m179 |[0m       workspaceId: context?.workspaceId ?? selectedWorkspaceId || [36mundefined[0m,
+[31m[1m>[0m [90m180 |[0m       projectId: context?.projectId ?? selectedProjectId || [36mundefined[0m,
+  [90m    |[0m                  [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m181 |[0m       sprintId: context?.sprintId ?? selectedSprintId || [36mundefined[0m,
+  [90m182 |[0m     });
+  [90m183 |[0m   }
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component Browser]
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component SSR]
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+
+
+./src/features/project-assistant/components/ProjectAssistantChatbot.tsx:181:17
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+  [90m179 |[0m       workspaceId: context?.workspaceId ?? selectedWorkspaceId || [36mundefined[0m,
+  [90m180 |[0m       projectId: context?.projectId ?? selectedProjectId || [36mundefined[0m,
+[31m[1m>[0m [90m181 |[0m       sprintId: context?.sprintId ?? selectedSprintId || [36mundefined[0m,
+  [90m    |[0m                 [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m182 |[0m     });
+  [90m183 |[0m   }
+  [90m184 |[0m
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component Browser]
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component SSR]
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+
+⨯ ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx:179:20
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+  [90m177 |[0m     [36mreturn[0m askAgileFlowAssistant({
+  [90m178 |[0m       question: content,
+[31m[1m>[0m [90m179 |[0m       workspaceId: context?.workspaceId ?? selectedWorkspaceId || [36mundefined[0m,
+  [90m    |[0m                    [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m180 |[0m       projectId: context?.projectId ?? selectedProjectId || [36mundefined[0m,
+  [90m181 |[0m       sprintId: context?.sprintId ?? selectedSprintId || [36mundefined[0m,
+  [90m182 |[0m     });
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component Browser]
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component SSR]
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+
+
+./src/features/project-assistant/components/ProjectAssistantChatbot.tsx:180:18
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+  [90m178 |[0m       question: content,
+  [90m179 |[0m       workspaceId: context?.workspaceId ?? selectedWorkspaceId || [36mundefined[0m,
+[31m[1m>[0m [90m180 |[0m       projectId: context?.projectId ?? selectedProjectId || [36mundefined[0m,
+  [90m    |[0m                  [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m181 |[0m       sprintId: context?.sprintId ?? selectedSprintId || [36mundefined[0m,
+  [90m182 |[0m     });
+  [90m183 |[0m   }
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component Browser]
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component SSR]
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+
+
+./src/features/project-assistant/components/ProjectAssistantChatbot.tsx:181:17
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+  [90m179 |[0m       workspaceId: context?.workspaceId ?? selectedWorkspaceId || [36mundefined[0m,
+  [90m180 |[0m       projectId: context?.projectId ?? selectedProjectId || [36mundefined[0m,
+[31m[1m>[0m [90m181 |[0m       sprintId: context?.sprintId ?? selectedSprintId || [36mundefined[0m,
+  [90m    |[0m                 [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m182 |[0m     });
+  [90m183 |[0m   }
+  [90m184 |[0m
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component Browser]
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component SSR]
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+
+⨯ ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx:179:20
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+  [90m177 |[0m     [36mreturn[0m askAgileFlowAssistant({
+  [90m178 |[0m       question: content,
+[31m[1m>[0m [90m179 |[0m       workspaceId: context?.workspaceId ?? selectedWorkspaceId || [36mundefined[0m,
+  [90m    |[0m                    [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m180 |[0m       projectId: context?.projectId ?? selectedProjectId || [36mundefined[0m,
+  [90m181 |[0m       sprintId: context?.sprintId ?? selectedSprintId || [36mundefined[0m,
+  [90m182 |[0m     });
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component Browser]
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component SSR]
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+
+
+./src/features/project-assistant/components/ProjectAssistantChatbot.tsx:180:18
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+  [90m178 |[0m       question: content,
+  [90m179 |[0m       workspaceId: context?.workspaceId ?? selectedWorkspaceId || [36mundefined[0m,
+[31m[1m>[0m [90m180 |[0m       projectId: context?.projectId ?? selectedProjectId || [36mundefined[0m,
+  [90m    |[0m                  [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m181 |[0m       sprintId: context?.sprintId ?? selectedSprintId || [36mundefined[0m,
+  [90m182 |[0m     });
+  [90m183 |[0m   }
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component Browser]
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component SSR]
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+
+
+./src/features/project-assistant/components/ProjectAssistantChatbot.tsx:181:17
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+  [90m179 |[0m       workspaceId: context?.workspaceId ?? selectedWorkspaceId || [36mundefined[0m,
+  [90m180 |[0m       projectId: context?.projectId ?? selectedProjectId || [36mundefined[0m,
+[31m[1m>[0m [90m181 |[0m       sprintId: context?.sprintId ?? selectedSprintId || [36mundefined[0m,
+  [90m    |[0m                 [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m182 |[0m     });
+  [90m183 |[0m   }
+  [90m184 |[0m
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component Browser]
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component SSR]
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+
+⨯ ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx:179:20
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+  [90m177 |[0m     [36mreturn[0m askAgileFlowAssistant({
+  [90m178 |[0m       question: content,
+[31m[1m>[0m [90m179 |[0m       workspaceId: context?.workspaceId ?? selectedWorkspaceId || [36mundefined[0m,
+  [90m    |[0m                    [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m180 |[0m       projectId: context?.projectId ?? selectedProjectId || [36mundefined[0m,
+  [90m181 |[0m       sprintId: context?.sprintId ?? selectedSprintId || [36mundefined[0m,
+  [90m182 |[0m     });
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component Browser]
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component SSR]
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+
+
+./src/features/project-assistant/components/ProjectAssistantChatbot.tsx:180:18
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+  [90m178 |[0m       question: content,
+  [90m179 |[0m       workspaceId: context?.workspaceId ?? selectedWorkspaceId || [36mundefined[0m,
+[31m[1m>[0m [90m180 |[0m       projectId: context?.projectId ?? selectedProjectId || [36mundefined[0m,
+  [90m    |[0m                  [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m181 |[0m       sprintId: context?.sprintId ?? selectedSprintId || [36mundefined[0m,
+  [90m182 |[0m     });
+  [90m183 |[0m   }
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component Browser]
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component SSR]
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+
+
+./src/features/project-assistant/components/ProjectAssistantChatbot.tsx:181:17
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+  [90m179 |[0m       workspaceId: context?.workspaceId ?? selectedWorkspaceId || [36mundefined[0m,
+  [90m180 |[0m       projectId: context?.projectId ?? selectedProjectId || [36mundefined[0m,
+[31m[1m>[0m [90m181 |[0m       sprintId: context?.sprintId ?? selectedSprintId || [36mundefined[0m,
+  [90m    |[0m                 [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m182 |[0m     });
+  [90m183 |[0m   }
+  [90m184 |[0m
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component Browser]
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component SSR]
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+
+⨯ ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx:179:20
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+  [90m177 |[0m     [36mreturn[0m askAgileFlowAssistant({
+  [90m178 |[0m       question: content,
+[31m[1m>[0m [90m179 |[0m       workspaceId: context?.workspaceId ?? selectedWorkspaceId || [36mundefined[0m,
+  [90m    |[0m                    [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m180 |[0m       projectId: context?.projectId ?? selectedProjectId || [36mundefined[0m,
+  [90m181 |[0m       sprintId: context?.sprintId ?? selectedSprintId || [36mundefined[0m,
+  [90m182 |[0m     });
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component Browser]
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component SSR]
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+
+
+./src/features/project-assistant/components/ProjectAssistantChatbot.tsx:180:18
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+  [90m178 |[0m       question: content,
+  [90m179 |[0m       workspaceId: context?.workspaceId ?? selectedWorkspaceId || [36mundefined[0m,
+[31m[1m>[0m [90m180 |[0m       projectId: context?.projectId ?? selectedProjectId || [36mundefined[0m,
+  [90m    |[0m                  [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m181 |[0m       sprintId: context?.sprintId ?? selectedSprintId || [36mundefined[0m,
+  [90m182 |[0m     });
+  [90m183 |[0m   }
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component Browser]
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component SSR]
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+
+
+./src/features/project-assistant/components/ProjectAssistantChatbot.tsx:181:17
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+  [90m179 |[0m       workspaceId: context?.workspaceId ?? selectedWorkspaceId || [36mundefined[0m,
+  [90m180 |[0m       projectId: context?.projectId ?? selectedProjectId || [36mundefined[0m,
+[31m[1m>[0m [90m181 |[0m       sprintId: context?.sprintId ?? selectedSprintId || [36mundefined[0m,
+  [90m    |[0m                 [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m182 |[0m     });
+  [90m183 |[0m   }
+  [90m184 |[0m
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component Browser]
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component SSR]
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+
+⨯ ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx:179:20
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+  [90m177 |[0m     [36mreturn[0m askAgileFlowAssistant({
+  [90m178 |[0m       question: content,
+[31m[1m>[0m [90m179 |[0m       workspaceId: context?.workspaceId ?? selectedWorkspaceId || [36mundefined[0m,
+  [90m    |[0m                    [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m180 |[0m       projectId: context?.projectId ?? selectedProjectId || [36mundefined[0m,
+  [90m181 |[0m       sprintId: context?.sprintId ?? selectedSprintId || [36mundefined[0m,
+  [90m182 |[0m     });
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component Browser]
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component SSR]
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+
+
+./src/features/project-assistant/components/ProjectAssistantChatbot.tsx:180:18
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+  [90m178 |[0m       question: content,
+  [90m179 |[0m       workspaceId: context?.workspaceId ?? selectedWorkspaceId || [36mundefined[0m,
+[31m[1m>[0m [90m180 |[0m       projectId: context?.projectId ?? selectedProjectId || [36mundefined[0m,
+  [90m    |[0m                  [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m181 |[0m       sprintId: context?.sprintId ?? selectedSprintId || [36mundefined[0m,
+  [90m182 |[0m     });
+  [90m183 |[0m   }
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component Browser]
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component SSR]
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+
+
+./src/features/project-assistant/components/ProjectAssistantChatbot.tsx:181:17
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+  [90m179 |[0m       workspaceId: context?.workspaceId ?? selectedWorkspaceId || [36mundefined[0m,
+  [90m180 |[0m       projectId: context?.projectId ?? selectedProjectId || [36mundefined[0m,
+[31m[1m>[0m [90m181 |[0m       sprintId: context?.sprintId ?? selectedSprintId || [36mundefined[0m,
+  [90m    |[0m                 [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m182 |[0m     });
+  [90m183 |[0m   }
+  [90m184 |[0m
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component Browser]
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Client Component Browser]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component SSR]
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Client Component SSR]
+    ./src/app/workspaces/page.tsx [Server Component]
+
+
+[browser] Uncaught Error: ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx:181:17
+Nullish coalescing operator(??) requires parens when mixing with logical operators
+  179 |       workspaceId: context?.workspaceId ?? selectedWorkspaceId || undefined,
+  180 |       projectId: context?.projectId ?? selectedProjectId || undefined,
+> 181 |       sprintId: context?.sprintId ?? selectedSprintId || undefined,
+      |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  182 |     });
+  183 |   }
+  184 |
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component Browser]
+    ./src/components/layout/AppShell.tsx [Client Component Browser]
+    ./src/app/dashboard/page.tsx [Client Component Browser]
+    ./src/app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx [Client Component SSR]
+    ./src/components/layout/AppShell.tsx [Client Component SSR]
+    ./src/app/dashboard/page.tsx [Client Component SSR]
+    ./src/app/dashboard/page.tsx [Server Component]
+
+
+    at <unknown> (Error: ./src/features/project-assistant/components/ProjectAssistantChatbot.tsx:181:17)
+    at <unknown> (Error: (./src/features/project-assistant/components/ProjectAssistantChatbot.tsx:181:17)
+[browser] Không thể khôi phục phiên đăng nhập: Error: Không kết nối được backend. Hãy kiểm tra URL API hoặc trạng thái backend.
+    at fetchApi (src/lib/api/client.ts:160:11)
+    at async apiRequest (src/lib/api/client.ts:36:18)
+    at async AuthProvider.useCallback[fetchUser].request (src/features/auth/components/AuthProvider.tsx:87:26)
+  158 |     }
+  159 |
+> 160 |     throw new Error(
+      |           ^
+  161 |       "Không kết nối được backend. Hãy kiểm tra URL API hoặc trạng thái backend.",
+  162 |     );
+  163 |   } finally { (src/features/auth/components/AuthProvider.tsx:108:19)
+[browser] Không thể khôi phục phiên đăng nhập: Error: Không kết nối được backend. Hãy kiểm tra URL API hoặc trạng thái backend.
+    at fetchApi (src/lib/api/client.ts:160:11)
+    at async apiRequest (src/lib/api/client.ts:36:18)
+    at async AuthProvider.useCallback[fetchUser].request (src/features/auth/components/AuthProvider.tsx:87:26)
+  158 |     }
+  159 |
+> 160 |     throw new Error(
+      |           ^
+  161 |       "Không kết nối được backend. Hãy kiểm tra URL API hoặc trạng thái backend.",
+  162 |     );
+  163 |   } finally { (src/features/auth/components/AuthProvider.tsx:108:19)

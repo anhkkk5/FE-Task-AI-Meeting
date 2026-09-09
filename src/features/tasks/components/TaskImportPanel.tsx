@@ -168,6 +168,34 @@ export function TaskImportPanel({
       </div>
 
       <div className="space-y-4 px-4 py-4">
+        <div className="rounded-xl border border-blue-100 bg-blue-50/60 p-4">
+          <h3 className="text-sm font-bold text-slate-900">Định dạng file Excel</h3>
+          <p className="mt-1 text-xs leading-5 text-slate-600">
+            Dòng đầu tiên là tên cột. Chỉ <strong>title</strong> là bắt buộc; các cột còn lại có thể để trống.
+          </p>
+          <div className="mt-3 overflow-x-auto">
+            <table className="min-w-[760px] w-full text-left text-xs">
+              <thead className="text-slate-500">
+                <tr>
+                  <th className="pb-2 pr-4">Cột</th>
+                  <th className="pb-2 pr-4">Nội dung</th>
+                  <th className="pb-2">Ví dụ</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-blue-100 text-slate-700">
+                <tr><td className="py-2 pr-4 font-semibold">title *</td><td className="py-2 pr-4">Tên công việc, từ 2–200 ký tự</td><td className="py-2">Hoàn thiện API đăng nhập</td></tr>
+                <tr><td className="py-2 pr-4 font-semibold">description</td><td className="py-2 pr-4">Mô tả công việc</td><td className="py-2">Xử lý đăng nhập và refresh token</td></tr>
+                <tr><td className="py-2 pr-4 font-semibold">sprintName</td><td className="py-2 pr-4">Tên Sprint có sẵn; để trống sẽ vào Backlog</td><td className="py-2">Sprint 1</td></tr>
+                <tr><td className="py-2 pr-4 font-semibold">status</td><td className="py-2 pr-4">BACKLOG, TODO, IN_PROGRESS, REVIEW hoặc DONE</td><td className="py-2">TODO</td></tr>
+                <tr><td className="py-2 pr-4 font-semibold">assigneeEmail</td><td className="py-2 pr-4">Email thành viên trong Workspace</td><td className="py-2">member@example.com</td></tr>
+                <tr><td className="py-2 pr-4 font-semibold">dueDate</td><td className="py-2 pr-4">Hạn hoàn thành theo YYYY-MM-DD</td><td className="py-2">2026-09-15</td></tr>
+                <tr><td className="py-2 pr-4 font-semibold">estimatedHours</td><td className="py-2 pr-4">Số giờ dự kiến</td><td className="py-2">8</td></tr>
+                <tr><td className="py-2 pr-4 font-semibold">storyPoints</td><td className="py-2 pr-4">Điểm công việc, số nguyên</td><td className="py-2">3</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
         <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto_auto] lg:items-center">
           <label className="flex min-h-11 cursor-pointer items-center justify-between gap-3 rounded border border-dashed border-[#b3b9c4] bg-[#f7f8f9] px-3 text-sm text-[#44546f] hover:bg-[#f1f2f4]">
             <span className="truncate">{getFileLabel(file)}</span>

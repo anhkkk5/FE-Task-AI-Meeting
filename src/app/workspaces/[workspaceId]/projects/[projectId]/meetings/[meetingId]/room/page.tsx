@@ -3,6 +3,18 @@
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  Captions,
+  Mic,
+  MicOff,
+  MonitorUp,
+  PhoneOff,
+  Users,
+  Video,
+  VideoOff,
+  Volume2,
+  X,
+} from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
 import { getMeetingDetail } from "@/features/meetings/api/meetings.api";
 import { MeetingLiveTranscriptPanel } from "@/features/meetings/components/MeetingLiveTranscriptPanel";
@@ -45,6 +57,7 @@ export default function MeetingRoomPage() {
   const [meeting, setMeeting] = useState<Meeting | null>(null);
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [sidePanel, setSidePanel] = useState<"participants" | "transcript" | null>(null);
   const roomClosed = meeting ? isMeetingClosed(meeting) : false;
 
   const {
@@ -164,7 +177,7 @@ export default function MeetingRoomPage() {
       title={project?.name}
       workspaceId={params.workspaceId}
     >
-      <div className="mx-auto max-w-7xl space-y-5 pb-10">
+      <div className="mx-auto max-w-[1600px] space-y-5 pb-4">
         {roomClosed ? (
           <section className="rounded border border-[#f5cd47] bg-[#fff7d6] p-5">
             <h1 className="text-xl font-semibold text-[#172b4d]">
@@ -183,8 +196,8 @@ export default function MeetingRoomPage() {
           </section>
         ) : null}
         {!roomClosed ? (
-        <section className="overflow-hidden rounded-3xl border border-zinc-800 bg-zinc-950 text-white shadow-2xl shadow-zinc-950/20">
-          <div className="flex flex-col gap-4 border-b border-white/10 bg-white/[0.03] px-5 py-4 lg:flex-row lg:items-center lg:justify-between">
+        <section className="relative flex min-h-[calc(100vh-190px)] flex-col overflow-hidden rounded-[28px] bg-[#202124] text-white shadow-2xl shadow-zinc-950/20">
+          <div className="flex flex-col gap-4 px-6 py-4 lg:flex-row lg:items-center lg:justify-between">
             <div className="min-w-0">
               <div className="mb-2 flex flex-wrap items-center gap-2">
                 <span className="rounded-full bg-blue-500 px-3 py-1 text-[10px] font-black uppercase tracking-wider text-white">
@@ -203,7 +216,7 @@ export default function MeetingRoomPage() {
                   {participantCount} đang online
                 </span>
               </div>
-              <h1 className="truncate text-2xl font-black">
+              <h1 className="truncate text-xl font-semibold">
                 {meeting?.title ?? "Phòng họp"}
               </h1>
               <p className="mt-1 truncate text-sm font-medium text-zinc-400">
@@ -211,15 +224,30 @@ export default function MeetingRoomPage() {
               </p>
             </div>
 
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                className={`flex h-11 items-center gap-2 rounded-full px-4 text-sm font-semibold transition ${sidePanel === "participants" ? "bg-[#8ab4f8] text-[#202124]" : "bg-[#3c4043] hover:bg-[#4a4d51]"}`}
+                type="button"
+                onClick={() => setSidePanel((value) => value === "participants" ? null : "participants")}
+              >
+                <Users size={19} /> {participantCount}
+              </button>
+              <button
+                className={`flex h-11 w-11 items-center justify-center rounded-full transition ${sidePanel === "transcript" ? "bg-[#8ab4f8] text-[#202124]" : "bg-[#3c4043] hover:bg-[#4a4d51]"}`}
+                type="button"
+                title="Ghi nội dung cuộc họp"
+                onClick={() => setSidePanel((value) => value === "transcript" ? null : "transcript")}
+              >
+                <Captions size={20} />
+              </button>
               <Link
-                className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-xs font-bold text-zinc-100 transition hover:bg-white/10"
+                className="rounded-full bg-[#3c4043] px-4 py-3 text-xs font-bold text-zinc-100 transition hover:bg-[#4a4d51]"
                 href={`/workspaces/${params.workspaceId}/projects/${params.projectId}/meetings/${params.meetingId}`}
               >
                 Chi tiết
               </Link>
               <button
-                className="rounded-xl bg-red-600 px-4 py-2 text-xs font-black text-white transition hover:bg-red-700"
+                className="hidden"
                 type="button"
                 onClick={handleLeave}
               >
@@ -228,8 +256,8 @@ export default function MeetingRoomPage() {
             </div>
           </div>
 
-          <div className="grid gap-5 p-5 xl:grid-cols-[1fr_320px]">
-            <div className="space-y-4">
+          <div className="relative flex flex-1 gap-4 px-5 pb-24">
+            <div className="min-w-0 flex-1 space-y-4">
               {message || error ? (
                 <div className="rounded-2xl border border-amber-300/30 bg-amber-400/10 px-4 py-3 text-sm font-semibold text-amber-100">
                   {message || error}
@@ -249,10 +277,10 @@ export default function MeetingRoomPage() {
                 </div>
               ) : (
                 <div
-                  className={`grid gap-4 ${
+                  className={`grid min-h-[520px] gap-3 ${
                     remotePeers.length > 1
                       ? "lg:grid-cols-2"
-                      : "lg:grid-cols-[1.25fr_0.75fr]"
+                      : remotePeers.length === 1 ? "lg:grid-cols-2" : "grid-cols-1"
                   }`}
                 >
                   <MeetingVideoTile
@@ -293,17 +321,15 @@ export default function MeetingRoomPage() {
               )}
             </div>
 
-            <aside className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+            <aside className={`${sidePanel ? "block" : "hidden"} w-[360px] shrink-0 overflow-y-auto rounded-3xl border border-white/10 bg-[#292a2d] p-4 shadow-xl`}>
               <div className="flex items-center justify-between">
                 <h2 className="text-sm font-black text-white">
                   Người tham gia
                 </h2>
-                <span className="rounded-lg bg-white/10 px-2 py-1 text-[10px] font-black text-zinc-200">
-                  {participantCount}
-                </span>
+                <button className="flex h-9 w-9 items-center justify-center rounded-full text-zinc-300 transition hover:bg-white/10 hover:text-white" type="button" title="Đóng bảng" onClick={() => setSidePanel(null)}><X size={20} /></button>
               </div>
 
-              <div className="mt-4 space-y-2">
+              <div className={`${sidePanel === "participants" ? "mt-4 space-y-2" : "hidden"}`}>
                 <ParticipantRow
                   audioEnabled={audioEnabled}
                   fullName={user?.fullName ?? "Bạn"}
@@ -321,7 +347,7 @@ export default function MeetingRoomPage() {
                 ))}
               </div>
 
-              {joinRequests.length ? (
+              {sidePanel === "participants" && joinRequests.length ? (
                 <div className="mt-5 border-t border-white/10 pt-4">
                   <div className="flex items-center justify-between">
                     <h3 className="text-xs font-black text-white">
@@ -379,7 +405,7 @@ export default function MeetingRoomPage() {
                 </div>
               ) : null}
 
-              <div className="mt-5 grid grid-cols-2 gap-2">
+              <div className="hidden">
                 <button
                   className={`rounded-xl px-3 py-3 text-xs font-black transition ${
                     audioEnabled
@@ -433,7 +459,7 @@ export default function MeetingRoomPage() {
                 </button>
               </div>
 
-              <div className="mt-5">
+              <div className={sidePanel === "transcript" ? "mt-5" : "hidden"}>
                 <MeetingLiveTranscriptPanel
                   disabled={!isConnected || isWaitingApproval}
                   meetingId={params.meetingId}
@@ -442,6 +468,14 @@ export default function MeetingRoomPage() {
                 />
               </div>
             </aside>
+
+            <div className="absolute inset-x-0 bottom-4 z-20 flex items-center justify-center gap-3">
+              <button className={`flex h-12 w-12 items-center justify-center rounded-full transition ${audioEnabled ? "bg-[#3c4043] hover:bg-[#4a4d51]" : "bg-[#ea4335] hover:bg-[#d93025]"}`} type="button" title={audioEnabled ? "Tắt mic" : "Bật mic"} onClick={() => void toggleAudio()}>{audioEnabled ? <Mic size={21} /> : <MicOff size={21} />}</button>
+              <button className={`flex h-12 w-12 items-center justify-center rounded-full transition ${videoEnabled ? "bg-[#3c4043] hover:bg-[#4a4d51]" : "bg-[#ea4335] hover:bg-[#d93025]"}`} type="button" title={videoEnabled ? "Tắt camera" : "Bật camera"} onClick={() => void toggleVideo()}>{videoEnabled ? <Video size={21} /> : <VideoOff size={21} />}</button>
+              <button className={`flex h-12 w-12 items-center justify-center rounded-full transition ${screenSharing ? "bg-[#8ab4f8] text-[#202124]" : "bg-[#3c4043] hover:bg-[#4a4d51]"}`} type="button" title={screenSharing ? "Dừng chia sẻ" : "Chia sẻ màn hình"} onClick={() => screenSharing ? void stopScreenShare() : void startScreenShare()}><MonitorUp size={21} /></button>
+              <button className="flex h-12 w-12 items-center justify-center rounded-full bg-[#3c4043] transition hover:bg-[#4a4d51]" type="button" title="Bật âm thanh cuộc họp" onClick={() => void handleEnableRemoteAudio()}><Volume2 size={21} /></button>
+              <button className="flex h-12 w-[72px] items-center justify-center rounded-full bg-[#ea4335] transition hover:bg-[#d93025]" type="button" title="Rời phòng họp" onClick={handleLeave}><PhoneOff size={23} /></button>
+            </div>
           </div>
         </section>
         ) : null}

@@ -244,7 +244,7 @@ export default function ProjectSettingsPage() {
                   type="button"
                   onClick={() => void handleArchive()}
                 >
-                  Lưu trữ dự án (Archive)
+                  Lưu trữ dự án
                 </button>
               </div>
             </div>

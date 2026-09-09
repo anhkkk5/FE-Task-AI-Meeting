@@ -39,6 +39,7 @@ export type DailyUpdate = {
 };
 
 export type DailyUpdateQuery = {
+  archived?: boolean;
   date?: string;
   fromDate?: string;
   toDate?: string;

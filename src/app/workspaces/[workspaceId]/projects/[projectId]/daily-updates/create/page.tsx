@@ -152,6 +152,7 @@ export default function CreateDailyUpdatePage() {
         ) : canWrite ? (
           <section className="rounded-2xl border border-zinc-200/80 bg-white p-6 shadow-sm">
             <DailyUpdateForm
+              autoDraft={searchParams.get("autoDraft") === "1" && !pendingDraft}
               initialDailyUpdate={pendingDraft}
               projectId={params.projectId}
               sprints={sprints}
