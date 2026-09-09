@@ -14,12 +14,14 @@ import {
   LayoutDashboard,
   ListChecks,
   LogOut,
+  Menu,
   Radio,
   Search,
   Settings,
   Sparkles,
   User as UserIcon,
   Users,
+  X,
 } from "lucide-react";
 import { ProjectAssistantChatbot } from "@/features/project-assistant/components/ProjectAssistantChatbot";
 import { getHandovers } from "@/features/shift-handovers/api/shift-handovers.api";
@@ -66,6 +68,12 @@ export function AppShell({
   const [readIds, setReadIds] = useState<Set<string>>(new Set());
   const [pendingHandovers, setPendingHandovers] = useState(0);
   const [backendUnreadCount, setBackendUnreadCount] = useState(0);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [isDesktopCollapsed, setIsDesktopCollapsed] = useState(false);
+
+  useEffect(() => {
+    setIsMobileOpen(false);
+  }, [pathname]);
 
   useEffect(() => {
     if (!isLoading && user?.isSystemAdmin) {
@@ -321,19 +329,55 @@ export function AppShell({
 
   return (
     <div className="flex h-screen overflow-hidden bg-[#f8fafc]">
+      {/* Mobile Backdrop */}
+      {isMobileOpen ? (
+        <div
+          className="fixed inset-0 z-40 bg-slate-900/40 backdrop-blur-xs md:hidden transition-opacity"
+          onClick={() => setIsMobileOpen(false)}
+          aria-hidden="true"
+        />
+      ) : null}
+
       {/* Left Sidebar */}
-      <aside className="w-64 bg-white border-r border-slate-200/80 flex flex-col justify-between shrink-0 z-20">
+      <aside
+        className={`fixed inset-y-0 left-0 z-50 flex flex-col justify-between bg-white border-r border-slate-200/80 transition-all duration-300 ease-in-out md:static
+          ${isMobileOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full md:translate-x-0"}
+          ${isDesktopCollapsed ? "md:hidden" : "md:flex md:w-64"}
+          w-72 max-w-[85vw] shrink-0
+        `}
+      >
         <div>
           {/* Top Logo */}
-          <div className="h-16 px-6 flex items-center justify-between border-b border-slate-100">
-            <Link href="/dashboard" className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-md shadow-blue-600/20 font-black text-base">
+          <div className="h-16 px-5 sm:px-6 flex items-center justify-between border-b border-slate-100">
+            <Link
+              href="/dashboard"
+              onClick={() => setIsMobileOpen(false)}
+              className="flex items-center gap-2.5 min-w-0"
+            >
+              <div className="w-8 h-8 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-md shadow-blue-600/20 font-black text-base shrink-0">
                 ✨
               </div>
-              <span className="font-black text-slate-900 text-lg tracking-tight">
+              <span className="font-black text-slate-900 text-lg tracking-tight truncate">
                 AgileFlow AI
               </span>
             </Link>
+
+            {/* Close / Collapse Button */}
+            <button
+              type="button"
+              onClick={() => {
+                if (typeof window !== "undefined" && window.innerWidth < 768) {
+                  setIsMobileOpen(false);
+                } else {
+                  setIsDesktopCollapsed(true);
+                }
+              }}
+              className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition"
+              title="Đóng menu"
+              aria-label="Đóng menu"
+            >
+              <X className="w-5 h-5" />
+            </button>
           </div>
 
           {/* Workspace Selector Dropdown */}
@@ -493,8 +537,25 @@ export function AppShell({
       {/* Main Right Area */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Top Header */}
-        <header className="relative isolate h-16 bg-white border-b border-slate-200/80 px-6 flex items-center justify-between shrink-0 z-[100]">
-          <div className="flex items-center gap-4 min-w-0">
+        <header className="relative isolate h-16 bg-white border-b border-slate-200/80 px-4 sm:px-6 flex items-center justify-between shrink-0 z-30">
+          <div className="flex items-center gap-2.5 sm:gap-4 min-w-0">
+            {/* Sidebar Toggle Button */}
+            <button
+              type="button"
+              onClick={() => {
+                if (typeof window !== "undefined" && window.innerWidth < 768) {
+                  setIsMobileOpen((prev) => !prev);
+                } else {
+                  setIsDesktopCollapsed((prev) => !prev);
+                }
+              }}
+              className="p-2 -ml-1.5 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition active:scale-95 shrink-0"
+              title={isDesktopCollapsed ? "Mở menu" : "Đóng / mở menu"}
+              aria-label="Đóng / mở menu"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+
             {/* Search Input */}
             <div className="relative hidden md:flex items-center">
               <Search className="absolute left-3.5 w-4 h-4 text-slate-400 pointer-events-none" />
